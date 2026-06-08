@@ -6,7 +6,7 @@
         NEXT-GEN INTELLIGENCE
       </span>
       <h1 class="text-4xl sm:text-5xl lg:text-7xl font-bold tracking-tight leading-[1.05] mb-7 font-header">
-        Meetings that <span class="bg-grad-text bg-clip-text text-transparent animate-text-shine inline-block font-extrabold">work for you.</span>
+        Meetings that <span class="bg-grad-text bg-clip-text text-transparent animate-text-shine inline font-extrabold">work for you.</span>
       </h1>
       <p class="text-base sm:text-lg leading-relaxed text-brand-slate max-w-[550px] mb-10">
         Transform every conversation into actionable knowledge. Automate

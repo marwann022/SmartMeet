@@ -56,7 +56,7 @@
           <nav class="flex items-center gap-6">
             <a href="#" class="text-xs font-semibold text-brand-slate hover:text-primary transition-colors py-1.5 px-3.5 rounded-full hover:bg-primary/5" @click.prevent="$emit('navigate', 'home')">Home</a>
             <a href="#" class="text-xs font-semibold text-brand-slate hover:text-primary transition-colors py-1.5 px-3.5 rounded-full hover:bg-primary/5" @click.prevent="$emit('navigate', 'home#product')">Features</a>
-            <a href="#" class="text-xs font-semibold text-brand-slate hover:text-primary transition-colors py-1.5 px-3.5 rounded-full hover:bg-primary/5" @click.prevent="$emit('navigate', 'home#testimonials')">Pricing</a>
+            <a href="#" class="text-xs font-semibold text-brand-slate hover:text-primary transition-colors py-1.5 px-3.5 rounded-full hover:bg-primary/5" @click.prevent="$emit('navigate', 'pricing')">Pricing</a>
             <a href="#" class="text-xs font-semibold py-1.5 px-3.5 rounded-full text-primary bg-primary/5 border border-primary/10" @click.prevent>Dashboard</a>
           </nav>
           <div class="flex items-center gap-4">
@@ -67,7 +67,7 @@
           </div>
         </header>
 
-        <!-- SUB VIEW: Simulated tab switching (we only render dashboard tab for Figma spec) -->
+        <!-- SUB VIEW: Tab switching -->
         <div v-if="currentTab === 'dashboard'">
           <!-- Welcome header row -->
           <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
@@ -312,13 +312,16 @@
           </footer>
         </div>
 
-        <!-- Tab placeholders -->
+        <!-- Tasks Tab -->
+        <div v-else-if="currentTab === 'tasks'">
+          <DashboardTasks @navigate="$emit('navigate', $event)" />
+        </div>
+
+        <!-- Other tab placeholders -->
         <div v-else class="card-glass rounded-[28px] p-16 text-center mt-10">
-          <h3 class="text-2xl font-bold font-header text-brand-dark mb-3 text-transform: capitalize">{{ currentTab }} View</h3>
-          <p class="text-sm text-brand-slate max-w-[440px] mx-auto mb-6">
-            This section represents a visual placeholder for the simulated SmartMeet workspace tab layout.
-          </p>
-          <Button variant="primary" @click="currentTab = 'dashboard'">Back to Dashboard</Button>
+          <h3 class="text-2xl font-bold font-header text-brand-dark mb-3 capitalize">{{ currentTab }} View</h3>
+          <p class="text-sm text-brand-slate max-w-[440px] mx-auto mb-6">This section is coming soon.</p>
+          <button class="px-5 py-2.5 rounded-xl bg-grad-primary text-white font-header font-bold text-xs tracking-wider uppercase cursor-pointer" @click="currentTab = 'dashboard'">Back to Dashboard</button>
         </div>
       </main>
     </div>
@@ -341,6 +344,7 @@ import {
   PhSparkle, 
   PhCheck 
 } from '@phosphor-icons/vue'
+import DashboardTasks from '../components/DashboardTasks.vue'
 
 // Import assets
 import logoWordmark from '../assets/Black logo.svg'

@@ -23,9 +23,10 @@
         Features
       </a>
       <a 
-        href="#testimonials" 
+        href="#pricing" 
         class="text-xs font-semibold text-brand-slate relative py-1.5 px-3.5 rounded-full transition-all duration-300 hover:text-primary hover:bg-primary/5" 
-        @click.prevent="$emit('navigate', 'home#testimonials')"
+        :class="{ 'text-primary bg-primary/5 border border-primary/10 shadow-[inset_0_1px_3px_rgba(75,104,255,0.05)]': activePage === 'pricing' }" 
+        @click.prevent="$emit('navigate', 'pricing')"
       >
         Pricing
       </a>
