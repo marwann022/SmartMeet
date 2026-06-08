@@ -3,7 +3,7 @@
     <div class="flex flex-col md:flex-row justify-between gap-12 mb-12">
       <!-- Brand Column -->
       <div class="flex flex-col gap-4 max-w-sm">
-        <img src="../assets/Black logo.svg" alt="SmartMeet" class="h-10 block self-start" />
+        <img src="../assets/new logo.png" alt="SmartMeet" class="h-10 block self-start" />
         <p class="text-xs text-brand-slate leading-relaxed">
           Pioneering the future of organizational intelligence through advanced voice AI and semantic analysis.
         </p>

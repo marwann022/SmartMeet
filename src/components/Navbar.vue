@@ -2,7 +2,7 @@
   <header class="sticky top-5 z-[100] flex items-center justify-between px-7 py-2.5 rounded-full bg-white/65 border border-white/70 shadow-glass backdrop-blur-[20px] mt-5 mb-8 transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] hover:border-white/85 hover:bg-white/75 hover:shadow-[0_12px_40px_0_rgba(31,38,135,0.08),0_0_20px_rgba(75,104,255,0.05)]">
     <!-- Logo -->
     <div class="flex items-center transition-all duration-300 hover:scale-[1.02] cursor-pointer" @click="$emit('navigate', 'home')">
-      <img src="../assets/Black logo.svg" alt="SmartMeet" class="h-10 block" />
+      <img src="../assets/new logo.png" alt="SmartMeet" class="h-10 block" />
     </div>
 
     <!-- Navigation Links -->

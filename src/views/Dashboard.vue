@@ -52,7 +52,7 @@
       <!-- MAIN SCROLLABLE CONTENT AREA -->
       <main class="flex-1 ml-[260px] min-h-screen px-8 sm:px-12 py-8 bg-brand-bg relative overflow-y-auto w-[calc(100vw-260px)]">
         <!-- TOP INNER HEADER NAVIGATION -->
-        <header class="flex items-center justify-between py-4 border-b border-black/5 mb-8">
+        <header class="sticky top-5 z-[40] flex items-center justify-between px-7 py-2.5 rounded-full bg-white/65 border border-white/70 shadow-glass backdrop-blur-[20px] mb-8 transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] hover:border-white/85 hover:bg-white/75 hover:shadow-[0_12px_40px_0_rgba(31,38,135,0.08),0_0_20px_rgba(75,104,255,0.05)]">
           <nav class="flex items-center gap-6">
             <a href="#" class="text-xs font-semibold text-brand-slate hover:text-primary transition-colors py-1.5 px-3.5 rounded-full hover:bg-primary/5" @click.prevent="$emit('navigate', 'home')">Home</a>
             <a href="#" class="text-xs font-semibold text-brand-slate hover:text-primary transition-colors py-1.5 px-3.5 rounded-full hover:bg-primary/5" @click.prevent="$emit('navigate', 'home#product')">Features</a>
@@ -60,7 +60,7 @@
             <a href="#" class="text-xs font-semibold py-1.5 px-3.5 rounded-full text-primary bg-primary/5 border border-primary/10" @click.prevent>Dashboard</a>
           </nav>
           <div class="flex items-center gap-4">
-            <a href="#" class="text-sm font-semibold text-brand-slate hover:text-primary transition-colors mr-2" @click.prevent="$emit('navigate', 'signin')">Login</a>
+            <a href="#" class="text-xs font-semibold text-brand-slate hover:text-primary transition-colors mr-2" @click.prevent="$emit('navigate', 'signin')">Login</a>
             <button class="px-5 py-2.5 rounded-full bg-grad-primary text-white font-header font-bold text-xs tracking-wider uppercase shadow-[0_4px_15px_rgba(75,104,255,0.25)] hover:shadow-[0_6px_20px_rgba(75,104,255,0.35)] active:scale-[0.98] transition-all duration-300 cursor-pointer" @click="$emit('navigate', 'signup')">
               Get Started
             </button>
@@ -347,7 +347,7 @@ import {
 import DashboardTasks from '../components/DashboardTasks.vue'
 
 // Import assets
-import logoWordmark from '../assets/Black logo.svg'
+import logoWordmark from '../assets/new logo.png'
 import userProfileImg from '../assets/User Profile.png'
 import activityTrendImg from '../assets/Activity Trend.png'
 import avatar1 from '../assets/Background+Border.png'
