@@ -171,5 +171,6 @@ const handleSignUp = () => {
 
 const handleSSO = (provider) => {
   alert(`Simulating SSO Login with ${provider}...`)
+  emit('navigate', 'dashboard')
 }
 </script>

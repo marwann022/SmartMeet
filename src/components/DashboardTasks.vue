@@ -30,7 +30,7 @@
               <span class="font-header font-bold text-2xl text-brand-dark leading-8">To Do</span>
               <span class="bg-[#181b25] text-[#b5b5b5] font-header font-bold text-[10px] uppercase px-2 py-0.5 rounded-full">{{ tasksByStatus('todo').length }}</span>
             </div>
-            <button @click="openAddModal('todo')" class="w-6 h-6 flex items-center justify-center rounded-lg hover:bg-primary/10 hover:text-primary text-brand-slate transition-all duration-200 cursor-pointer">
+            <button @click="openAddModal('todo')" class="w-[24px] h-[24px] flex items-center justify-center rounded-lg hover:bg-primary/10 hover:text-primary text-brand-slate transition-all duration-200 cursor-pointer">
               <PhPlus :size="18" weight="bold" />
             </button>
           </div>
@@ -52,7 +52,7 @@
               <span class="font-header font-bold text-2xl text-brand-dark leading-8">In Progress</span>
               <span class="bg-[#181b25] text-[#b5b5b5] font-header font-bold text-[10px] uppercase px-2 py-0.5 rounded-full">{{ tasksByStatus('inprogress').length }}</span>
             </div>
-            <button @click="openAddModal('inprogress')" class="w-6 h-6 flex items-center justify-center rounded-lg hover:bg-primary/10 hover:text-primary text-brand-slate transition-all duration-200 cursor-pointer">
+            <button @click="openAddModal('inprogress')" class="w-[24px] h-[24px] flex items-center justify-center rounded-lg hover:bg-primary/10 hover:text-primary text-brand-slate transition-all duration-200 cursor-pointer">
               <PhPlus :size="18" weight="bold" />
             </button>
           </div>
@@ -78,7 +78,7 @@
               <span class="font-header font-bold text-2xl text-brand-dark leading-8">Review</span>
               <span class="bg-[#181b25] text-[#b5b5b5] font-header font-bold text-[10px] uppercase px-2 py-0.5 rounded-full">{{ tasksByStatus('review').length }}</span>
             </div>
-            <button @click="openAddModal('review')" class="w-6 h-6 flex items-center justify-center rounded-lg hover:bg-primary/10 hover:text-primary text-brand-slate transition-all duration-200 cursor-pointer">
+            <button @click="openAddModal('review')" class="w-[24px] h-[24px] flex items-center justify-center rounded-lg hover:bg-primary/10 hover:text-primary text-brand-slate transition-all duration-200 cursor-pointer">
               <PhPlus :size="18" weight="bold" />
             </button>
           </div>
@@ -120,7 +120,7 @@
         <div v-if="selectedTask" class="fixed inset-0 z-[300] flex items-center justify-center p-4" @click.self="selectedTask = null">
           <div class="absolute inset-0 bg-black/20 backdrop-blur-sm"></div>
           <div class="relative w-full max-w-lg bg-white/95 border border-white/80 backdrop-blur-[24px] rounded-[24px] shadow-[0_32px_80px_rgba(31,38,135,0.12)] p-8 flex flex-col gap-5">
-            <button @click="selectedTask = null" class="absolute top-5 right-5 w-8 h-8 rounded-full bg-black/5 hover:bg-black/10 flex items-center justify-center transition-colors cursor-pointer">
+            <button @click="selectedTask = null" class="absolute top-5 right-5 w-[32px] h-[32px] rounded-full bg-black/5 hover:bg-black/10 flex items-center justify-center transition-colors cursor-pointer">
               <PhX :size="14" weight="bold" class="text-brand-slate" />
             </button>
             <div class="flex items-center gap-2.5">
@@ -131,7 +131,7 @@
             <p class="text-brand-slate text-sm leading-relaxed font-body">{{ selectedTask.description }}</p>
             <div class="flex items-center gap-4 text-sm">
               <div class="flex items-center gap-2">
-                <img :src="userProfileImg" class="w-7 h-7 rounded-full object-cover border-2 border-[#0b0f19]" alt="assignee" />
+                <img :src="userProfileImg" class="w-7 h-7 rounded-full object-cover border-2 border-white/85 shadow-sm" alt="assignee" />
                 <span class="font-header font-bold text-xs text-brand-dark">{{ selectedTask.assignee }}</span>
               </div>
               <div class="flex items-center gap-1.5 text-[#5c5e65] font-header font-bold text-xs">
@@ -163,7 +163,7 @@
         <div v-if="showAddModal" class="fixed inset-0 z-[300] flex items-center justify-center p-4" @click.self="showAddModal = false">
           <div class="absolute inset-0 bg-black/20 backdrop-blur-sm"></div>
           <div class="relative w-full max-w-md bg-white/95 border border-white/80 backdrop-blur-[24px] rounded-[24px] shadow-[0_32px_80px_rgba(31,38,135,0.12)] p-8 flex flex-col gap-5">
-            <button @click="showAddModal = false" class="absolute top-5 right-5 w-8 h-8 rounded-full bg-black/5 hover:bg-black/10 flex items-center justify-center transition-colors cursor-pointer">
+            <button @click="showAddModal = false" class="absolute top-5 right-5 w-[32px] h-[32px] rounded-full bg-black/5 hover:bg-black/10 flex items-center justify-center transition-colors cursor-pointer">
               <PhX :size="14" weight="bold" class="text-brand-slate" />
             </button>
             <h3 class="font-header font-bold text-xl text-brand-dark">New Task</h3>
@@ -196,12 +196,27 @@
 </template>
 
 <script setup>
-import { ref, defineComponent, h } from 'vue'
+import { ref, defineComponent, h, computed } from 'vue'
 import {
   PhPlus, PhClock, PhArrowsClockwise, PhEye, PhCheckCircle,
   PhX, PhCalendarBlank, PhCheck, PhTrash, PhArrowLeft, PhArrowRight
 } from '@phosphor-icons/vue'
 import userProfileImg from '../assets/User Profile.png'
+
+const props = defineProps({
+  tasks: {
+    type: Array,
+    required: true
+  }
+})
+
+const emit = defineEmits(['update:tasks'])
+
+// Use computed getter/setter to mirror parent elevated tasks state list
+const tasks = computed({
+  get: () => props.tasks,
+  set: (val) => emit('update:tasks', val)
+})
 
 // ─── Priority badge sub-component (matches Figma exactly) ─────────────────
 const PriorityBadge = defineComponent({
@@ -212,6 +227,7 @@ const PriorityBadge = defineComponent({
       'HIGH PRIORITY':   { wrap: 'bg-[rgba(147,0,10,0.2)] border border-[rgba(202,202,202,0.05)]', text: 'text-[#93000a]' },
       'MEDIUM PRIORITY': { wrap: 'bg-[rgba(77,142,255,0.3)] border border-[rgba(173,198,255,0.2)]', text: 'text-[#4d8eff]' },
       'LOW PRIORITY':    { wrap: 'bg-[rgba(87,27,193,0.3)] border border-[rgba(87,27,193,0.2)]',    text: 'text-[#494259]' },
+      'COMPLETED':       { wrap: 'bg-green-500/10 border border-green-500/15', text: 'text-green-600' }
     }
     return () => {
       const s = styles[props.priority] || styles['MEDIUM PRIORITY']
@@ -253,15 +269,15 @@ const TaskCard = defineComponent({
       h('div', { class: 'flex items-start justify-between' }, [
         h(PriorityBadge, { priority: props.task.priority }),
         props.task.status === 'done'
-          ? h('div', { class: 'overflow-clip relative shrink-0 w-6 h-6 flex items-center justify-center' },
+          ? h('div', { class: 'overflow-clip relative shrink-0 w-[24px] h-[24px] flex items-center justify-center' },
               [h(PhCheckCircle, { size: 22, weight: 'regular', class: 'text-[#39a1b9]' })]
             )
           : h('div', {
               class: 'opacity-0 group-hover:opacity-100 flex items-center gap-1 transition-opacity duration-200'
             }, [
-              h('button', { class: 'w-5 h-5 rounded flex items-center justify-center hover:bg-primary/10 hover:text-primary text-brand-slate/50 transition-colors cursor-pointer', onClick: (e) => { e.stopPropagation(); emit('move', -1) } }, [h(PhArrowLeft, { size: 10, weight: 'bold' })]),
-              h('button', { class: 'w-5 h-5 rounded flex items-center justify-center hover:bg-primary/10 hover:text-primary text-brand-slate/50 transition-colors cursor-pointer', onClick: (e) => { e.stopPropagation(); emit('move', 1) } }, [h(PhArrowRight, { size: 10, weight: 'bold' })]),
-              h('button', { class: 'w-5 h-5 rounded flex items-center justify-center hover:bg-red-50 hover:text-red-400 text-brand-slate/50 transition-colors cursor-pointer', onClick: (e) => { e.stopPropagation(); emit('delete') } }, [h(PhTrash, { size: 10, weight: 'bold' })]),
+              h('button', { class: 'w-[20px] h-[20px] rounded flex items-center justify-center hover:bg-primary/10 hover:text-primary text-brand-slate/50 transition-colors cursor-pointer', onClick: (e) => { e.stopPropagation(); emit('move', -1) } }, [h(PhArrowLeft, { size: 10, weight: 'bold' })]),
+              h('button', { class: 'w-[20px] h-[20px] rounded flex items-center justify-center hover:bg-primary/10 hover:text-primary text-brand-slate/50 transition-colors cursor-pointer', onClick: (e) => { e.stopPropagation(); emit('move', 1) } }, [h(PhArrowRight, { size: 10, weight: 'bold' })]),
+              h('button', { class: 'w-[20px] h-[20px] rounded flex items-center justify-center hover:bg-red-50 hover:text-red-400 text-brand-slate/50 transition-colors cursor-pointer', onClick: (e) => { e.stopPropagation(); emit('delete') } }, [h(PhTrash, { size: 10, weight: 'bold' })]),
             ])
       ]),
 
@@ -274,7 +290,7 @@ const TaskCard = defineComponent({
       h('div', { class: 'flex items-center justify-between pt-1' }, [
         // Avatar
         h('div', { class: 'flex items-start' }, [
-          h('div', { class: 'border-2 border-[#0b0f19] rounded-full w-6 h-6 overflow-hidden flex-shrink-0' }, [
+          h('div', { class: 'border-[2px] border-white/85 shadow-sm rounded-full w-[24px] h-[24px] overflow-hidden flex-shrink-0' }, [
             h('img', { src: userProfileImg, alt: '', class: 'w-full h-full object-cover' })
           ])
         ]),
@@ -291,17 +307,6 @@ const TaskCard = defineComponent({
   }
 })
 
-// ─── Tasks state ──────────────────────────────────────
-const tasks = ref([
-  { id: 1, title: 'Generate summary for Q3 Engineering Sync', priority: 'HIGH PRIORITY', status: 'todo', assignee: 'Alex Chen', due: 'Oct 12', description: 'Create a concise AI summary of the Q3 Engineering Sync meeting covering all action items and decisions.', source: 'Daily Standup: Engineering' },
-  { id: 2, title: 'Review API documentation for new auth flow', priority: 'MEDIUM PRIORITY', status: 'todo', assignee: 'Alex Chen', due: 'Oct 12', description: 'Review and validate the updated API documentation for the new authentication flow before the team review.', source: 'Daily Standup: Engineering' },
-  { id: 3, title: 'Update workspace brand assets', priority: 'LOW PRIORITY', status: 'todo', assignee: 'Alex Chen', due: 'Oct 12', description: 'Refresh all workspace branding assets to align with the new identity guidelines discussed in the Design Review.', source: 'Design Review: Nexus Pro' },
-  { id: 4, title: 'Analyze competitor pricing models from transcript data', priority: 'HIGH PRIORITY', status: 'inprogress', assignee: 'Alex Chen', due: 'Oct 12', description: 'Use the SmartMeet AI transcript data from recent Q4 Strategy meetings to extract competitor pricing intelligence.', source: 'Q4 Strategy Sync' },
-  { id: 5, title: 'Design system component audit', priority: 'MEDIUM PRIORITY', status: 'inprogress', assignee: 'Alex Chen', due: 'Oct 12', description: 'Audit all existing UI components against the updated design system and flag inconsistencies for the next sprint.', source: 'Design Review: Nexus Pro' },
-  { id: 6, title: 'Onboarding flow wireframes', priority: 'MEDIUM PRIORITY', status: 'review', assignee: 'Alex Chen', due: 'Oct 12', description: 'Present wireframes for the new user onboarding flow to the product team for feedback and sign-off.', source: 'Q4 Strategy Sync' },
-  { id: 7, title: 'Generate summary for Q3 Engineering Sync', priority: 'COMPLETED', status: 'done', assignee: 'Alex Chen', due: 'Oct 12', description: 'Completed: AI summary generated and distributed to all meeting participants.', source: 'Daily Standup: Engineering' },
-])
-
 const tasksByStatus = (status) => tasks.value.filter(t => t.status === status)
 
 const statusOrder = ['todo', 'inprogress', 'review', 'done']
@@ -309,13 +314,25 @@ const moveTask = (task, dir) => {
   const cur = statusOrder.indexOf(task.status)
   const next = cur + dir
   if (next >= 0 && next < statusOrder.length) {
+    const oldStatus = task.status
     task.status = statusOrder[next]
-    if (task.status === 'done') task.priority = 'COMPLETED'
+    if (task.status === 'done') {
+      task.oldPriority = task.priority
+      task.priority = 'COMPLETED'
+    } else if (oldStatus === 'done') {
+      task.priority = task.oldPriority || 'MEDIUM PRIORITY'
+    }
   }
 }
 const toggleDone = (task) => {
+  const oldStatus = task.status
   task.status = task.status === 'done' ? 'todo' : 'done'
-  if (task.status === 'done') task.priority = 'COMPLETED'
+  if (task.status === 'done') {
+    task.oldPriority = task.priority
+    task.priority = 'COMPLETED'
+  } else {
+    task.priority = task.oldPriority || 'MEDIUM PRIORITY'
+  }
 }
 const deleteTask = (id) => {
   const idx = tasks.value.findIndex(t => t.id === id)

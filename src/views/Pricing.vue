@@ -28,11 +28,11 @@
           <button
             id="billing-toggle"
             @click="toggleBilling"
-            :class="['relative w-11 h-6 rounded-full transition-all duration-400 focus:outline-none shadow-inner', isAnnual ? 'bg-primary shadow-[0_0_12px_rgba(75,104,255,0.4)]' : 'bg-black/15']"
+            :class="['relative w-[44px] h-[24px] rounded-full transition-all duration-400 focus:outline-none shadow-inner', isAnnual ? 'bg-primary shadow-[0_0_12px_rgba(75,104,255,0.4)]' : 'bg-black/15']"
             :aria-pressed="isAnnual"
             aria-label="Toggle annual billing"
           >
-            <span :class="['absolute top-0.5 w-5 h-5 bg-white rounded-full shadow-md transition-all duration-300', isAnnual ? 'left-[22px]' : 'left-0.5']"></span>
+            <span :class="['absolute top-[2px] w-[20px] h-[20px] bg-white rounded-full shadow-md transition-all duration-300', isAnnual ? 'left-[22px]' : 'left-[2px]']"></span>
           </button>
 
           <span :class="['text-sm font-semibold font-body transition-all duration-300', isAnnual ? 'text-brand-dark scale-105' : 'text-brand-slate']">Annually</span>

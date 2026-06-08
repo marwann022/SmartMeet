@@ -79,13 +79,13 @@
             <!-- Search input wrapper -->
             <div class="relative w-full">
               <div 
-                class="w-full h-12 bg-white border border-black/8 rounded-xl px-11 flex items-center text-sm text-brand-dark relative transition-all duration-300 shadow-[inset_0_1px_3px_rgba(0,0,0,0.03)]"
+                class="w-full h-[48px] bg-white border border-black/8 rounded-[12px] px-[44px] flex items-center text-[14px] text-brand-dark relative transition-all duration-300 shadow-[inset_0_1px_3px_rgba(0,0,0,0.03)]"
                 :class="{ 'border-primary shadow-[inset_0_1px_3px_rgba(0,0,0,0.03),0_0_12px_rgba(75,104,255,0.15)]': searchQuery.length > 0 || searching }"
               >
                 <PhMagnifyingGlass 
                   :size="18" 
                   weight="bold" 
-                  class="absolute left-3.5 top-[15px] transition-colors duration-300"
+                  class="absolute left-[14px] top-[15px] transition-colors duration-300"
                   :class="searching || searchQuery.length > 0 ? 'text-primary' : 'text-brand-slate'"
                 />
 
@@ -94,11 +94,11 @@
                 </div>
                 <div v-else class="font-semibold flex items-center">
                   {{ searchQuery }}
-                  <span class="w-[2px] h-4 bg-primary ml-1 animate-cursor-blink" v-if="searching"></span>
+                  <span class="w-[2px] h-[16px] bg-primary ml-[4px] animate-cursor-blink" v-if="searching"></span>
                 </div>
 
-                <div v-if="searching" class="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spinner ml-auto"></div>
-                <button v-if="searchQuery.length > 0 && !searching" class="ml-auto text-brand-slate hover:text-brand-dark cursor-pointer text-xs font-bold" @click="clearSearch">✕</button>
+                <div v-if="searching" class="w-[16px] h-[16px] border-[2px] border-primary border-t-transparent rounded-full animate-spinner ml-auto"></div>
+                <button v-if="searchQuery.length > 0 && !searching" class="ml-auto text-brand-slate hover:text-brand-dark cursor-pointer text-[12px] font-bold" @click="clearSearch">✕</button>
               </div>
             </div>
 

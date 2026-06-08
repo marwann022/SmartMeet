@@ -15,6 +15,7 @@ import SignIn from './views/SignIn.vue'
 import SignUp from './views/SignUp.vue'
 import Dashboard from './views/Dashboard.vue'
 import Pricing from './views/Pricing.vue'
+import Features from './views/Features.vue'
 
 const currentPage = ref('home')
 
@@ -28,6 +29,8 @@ const activeComponent = computed(() => {
       return Dashboard
     case 'pricing':
       return Pricing
+    case 'features':
+      return Features
     case 'home':
     default:
       return Home

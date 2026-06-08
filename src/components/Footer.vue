@@ -13,7 +13,7 @@
       <div class="grid grid-cols-2 sm:grid-cols-4 gap-8 md:gap-12">
         <div class="flex flex-col gap-3">
           <h4 class="text-[11px] font-bold text-brand-dark tracking-wider uppercase mb-1.5">Product</h4>
-          <a href="#product" class="text-xs text-brand-slate transition-all duration-300 hover:text-primary" @click.prevent="$emit('navigate', 'home#product')">Features</a>
+          <a href="#" class="text-xs text-brand-slate transition-all duration-300 hover:text-primary" @click.prevent="$emit('navigate', 'features')">Features</a>
           <a href="#integrations" class="text-xs text-brand-slate transition-all duration-300 hover:text-primary" @click.prevent="$emit('navigate', 'home#integrations')">Integrations</a>
           <a href="#testimonials" class="text-xs text-brand-slate transition-all duration-300 hover:text-primary" @click.prevent="$emit('navigate', 'home#testimonials')">Pricing</a>
         </div>

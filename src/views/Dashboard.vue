@@ -13,7 +13,7 @@
           <div class="flex flex-col gap-1">
             <!-- New meeting button wrapper -->
             <div class="mb-4">
-              <button class="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-header font-bold text-[11px] tracking-wider uppercase bg-white/80 text-brand-dark border border-black/8 hover:bg-white hover:border-primary/20 hover:shadow-[0_4px_15px_rgba(31,38,135,0.04)] hover:text-primary hover:-translate-y-[2px] transition-all duration-300 w-full cursor-pointer" @click="createNewMeeting">
+              <button class="inline-flex items-center justify-center gap-2 px-[24px] py-[12px] rounded-[12px] font-header font-bold text-[11px] tracking-wider uppercase bg-white/80 text-brand-dark border border-black/8 hover:bg-white hover:border-primary/20 hover:shadow-[0_4px_15px_rgba(31,38,135,0.04)] hover:text-primary hover:-translate-y-[2px] transition-all duration-300 w-full cursor-pointer focus:outline-none" @click="createNewMeeting">
                 <span>New Meeting</span>
                 <PhPlus :size="14" weight="bold" />
               </button>
@@ -23,7 +23,7 @@
             <button 
               v-for="tab in menuTabs" 
               :key="tab.id"
-              class="w-full py-3.5 px-4 rounded-xl flex items-center gap-3.5 font-header font-bold text-xs tracking-wide transition-all duration-300 border border-transparent cursor-pointer group text-left"
+              class="w-full py-[14px] px-[16px] rounded-[12px] flex items-center gap-[14px] font-header font-bold text-xs tracking-wide transition-all duration-300 border border-transparent cursor-pointer group text-left focus:outline-none"
               :class="currentTab === tab.id ? 'bg-primary/8 text-primary border-primary/8 shadow-[inset_0_1px_3px_rgba(75,104,255,0.05)]' : 'text-brand-slate hover:bg-primary/4 hover:text-brand-dark hover:translate-x-1'"
               @click="currentTab = tab.id"
             >
@@ -55,14 +55,13 @@
         <header class="sticky top-5 z-[40] flex items-center justify-between px-7 py-2.5 rounded-full bg-white/65 border border-white/70 shadow-glass backdrop-blur-[20px] mb-8 transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] hover:border-white/85 hover:bg-white/75 hover:shadow-[0_12px_40px_0_rgba(31,38,135,0.08),0_0_20px_rgba(75,104,255,0.05)]">
           <nav class="flex items-center gap-6">
             <a href="#" class="text-xs font-semibold text-brand-slate hover:text-primary transition-colors py-1.5 px-3.5 rounded-full hover:bg-primary/5" @click.prevent="$emit('navigate', 'home')">Home</a>
-            <a href="#" class="text-xs font-semibold text-brand-slate hover:text-primary transition-colors py-1.5 px-3.5 rounded-full hover:bg-primary/5" @click.prevent="$emit('navigate', 'home#product')">Features</a>
+            <a href="#" class="text-xs font-semibold text-brand-slate hover:text-primary transition-colors py-1.5 px-3.5 rounded-full hover:bg-primary/5" @click.prevent="$emit('navigate', 'features')">Features</a>
             <a href="#" class="text-xs font-semibold text-brand-slate hover:text-primary transition-colors py-1.5 px-3.5 rounded-full hover:bg-primary/5" @click.prevent="$emit('navigate', 'pricing')">Pricing</a>
             <a href="#" class="text-xs font-semibold py-1.5 px-3.5 rounded-full text-primary bg-primary/5 border border-primary/10" @click.prevent>Dashboard</a>
           </nav>
           <div class="flex items-center gap-4">
-            <a href="#" class="text-xs font-semibold text-brand-slate hover:text-primary transition-colors mr-2" @click.prevent="$emit('navigate', 'signin')">Login</a>
-            <button class="px-5 py-2.5 rounded-full bg-grad-primary text-white font-header font-bold text-xs tracking-wider uppercase shadow-[0_4px_15px_rgba(75,104,255,0.25)] hover:shadow-[0_6px_20px_rgba(75,104,255,0.35)] active:scale-[0.98] transition-all duration-300 cursor-pointer" @click="$emit('navigate', 'signup')">
-              Get Started
+            <button class="px-[20px] py-[10px] rounded-full bg-white border border-black/8 text-brand-dark font-header font-bold text-xs tracking-wider uppercase hover:bg-black/5 hover:border-black/15 active:scale-[0.98] transition-all duration-300 cursor-pointer focus:outline-none" @click="$emit('navigate', 'home')">
+              Log Out
             </button>
           </div>
         </header>
@@ -98,58 +97,53 @@
 
             <!-- Bento Meetings Grid -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-              <!-- Card 1: Q4 Strategy Sync -->
-              <div class="card-glass rounded-[28px] p-6 flex flex-col justify-between min-h-[200px]">
+              <!-- Render first 2 meetings from reactive data (excluding Standup) -->
+              <div 
+                v-for="meeting in meetings.filter(m => m.title !== 'Daily Standup: Engineering').slice(0, 2)" 
+                :key="meeting.id" 
+                @click="openMeetingDetails(meeting)"
+                class="card-glass rounded-[28px] p-6 flex flex-col justify-between min-h-[200px] hover:translate-y-[-2px] transition-all cursor-pointer text-left"
+              >
                 <div class="flex justify-between items-start">
                   <div class="w-10 h-10 rounded-xl bg-primary/6 border border-primary/15 flex items-center justify-center text-primary shadow-sm flex-shrink-0 transition-transform duration-300 hover:scale-105">
-                    <PhVideoCamera :size="20" weight="bold" />
+                    <PhVideoCamera v-if="meeting.type === 'Zoom' || meeting.type === 'Google Meet'" :size="20" weight="bold" />
+                    <PhUser v-else :size="20" weight="bold" />
                   </div>
-                  <span class="inline-block text-[9px] font-extrabold px-2 py-0.5 rounded-md self-start tracking-wider uppercase border bg-secondary/8 border-secondary/15 text-secondary">Client</span>
+                  <span class="inline-block text-[9px] font-extrabold px-2 py-0.5 rounded-md self-start tracking-wider uppercase border bg-secondary/8 border-secondary/15 text-secondary">
+                    {{ meeting.type }}
+                  </span>
                 </div>
                 <div class="my-4">
-                  <h4 class="text-lg font-bold font-header text-brand-dark mb-1.5">Q4 Strategy Sync</h4>
-                  <p class="text-xs sm:text-sm leading-relaxed text-brand-slate">
-                    AI Summary: Discussion focused on scaling GPU clusters and refining the model training pipeline.
+                  <h4 class="text-lg font-bold font-header text-brand-dark mb-1.5">{{ meeting.title }}</h4>
+                  <p class="text-xs sm:text-sm leading-relaxed text-brand-slate line-clamp-3">
+                    AI Summary: {{ meeting.bullets ? meeting.bullets[0] : meeting.description }}
                   </p>
                 </div>
                 <div class="flex justify-between items-center border-t border-black/5 pt-3.5 text-xs text-brand-slate font-semibold">
-                  <span>45m</span>
-                  <span>6 participants</span>
+                  <span>{{ meeting.duration }}</span>
+                  <span>{{ meeting.participantsCount || meeting.participants?.length || 0 }} participants</span>
                 </div>
               </div>
 
-              <!-- Card 2: Design Review: Nexus Pro -->
-              <div class="card-glass rounded-[28px] p-6 flex flex-col justify-between min-h-[200px]">
-                <div class="flex justify-between items-start">
-                  <div class="w-10 h-10 rounded-xl bg-secondary/6 border border-secondary/15 flex items-center justify-center text-secondary shadow-sm flex-shrink-0 transition-transform duration-300 hover:scale-105">
-                    <PhUser :size="20" weight="bold" />
-                  </div>
-                  <span class="inline-block text-[9px] font-extrabold px-2 py-0.5 rounded-md self-start tracking-wider uppercase border bg-secondary/8 border-secondary/15 text-secondary">Client</span>
-                </div>
-                <div class="my-4">
-                  <h4 class="text-lg font-bold font-header text-brand-dark mb-1.5">Design Review: Nexus Pro</h4>
-                  <p class="text-xs sm:text-sm leading-relaxed text-brand-slate">
-                    AI Summary: Client loved the glassmorphism approach but requested higher contrast on text variables.
-                  </p>
-                </div>
-                <div class="flex justify-between items-center border-t border-black/5 pt-3.5 text-xs text-brand-slate font-semibold">
-                  <span>22m</span>
-                  <span>3 participants</span>
-                </div>
-              </div>
-
-              <!-- Featured Large Card: Daily Standup: Engineering -->
-              <div class="col-span-1 md:col-span-2 p-6 rounded-[28px] flex flex-col md:flex-row gap-6 items-center bg-gradient-to-br from-primary/5 via-white/40 to-white/70 border border-white/80 shadow-glass backdrop-blur-md transition-all duration-300 hover:shadow-card-hover hover:border-white/95">
+              <!-- Render Daily Standup: Engineering Featured Card -->
+              <div 
+                v-if="engineeringStandup"
+                @click="openMeetingDetails(engineeringStandup)"
+                class="col-span-1 md:col-span-2 p-6 rounded-[28px] flex flex-col md:flex-row gap-6 items-center bg-gradient-to-br from-primary/5 via-white/40 to-white/70 border border-white/80 shadow-glass backdrop-blur-md transition-all duration-300 hover:shadow-card-hover hover:border-white/95 cursor-pointer text-left"
+              >
                 <div class="w-full md:w-[220px] h-[140px] rounded-2xl bg-white/50 border border-black/5 flex items-center justify-center p-3 relative overflow-hidden flex-shrink-0">
                   <img :src="activityTrendImg" alt="Activity Trend" class="w-full h-full object-contain filter drop-shadow-[0_2px_10px_rgba(75,104,255,0.08)]" />
                 </div>
                 <div class="flex-1 flex flex-col justify-between items-start gap-4 text-left w-full">
                   <div class="flex justify-between items-start w-full">
-                    <h4 class="text-lg font-bold font-header text-brand-dark">Daily Standup: Engineering</h4>
+                    <h4 class="text-lg font-bold font-header text-brand-dark">{{ engineeringStandup.title }}</h4>
                     <span class="inline-block text-[9px] font-extrabold px-2 py-0.5 rounded-md self-start tracking-wider uppercase border bg-red-500/8 border-red-500/15 text-red-500">Critical</span>
                   </div>
                   <p class="text-xs leading-relaxed text-brand-dark font-medium">
-                    <strong>AI Action Items:</strong> 1. Patch DB latency issues. 2. Finalize API documentation for v2. 3. Schedule security audit.
+                    <strong>AI Action Items:</strong> 
+                    <span v-for="(task, index) in engineeringStandup.tasks.slice(0, 3)" :key="task.id">
+                      {{ index + 1 }}. {{ task.title }} &nbsp;
+                    </span>
                   </p>
                   <div class="flex justify-between items-center border-t border-black/5 pt-3 w-full mt-2">
                     <div class="flex items-center">
@@ -158,7 +152,7 @@
                       <img :src="avatar2" alt="" class="w-8 h-8 rounded-full border border-white/90 shadow-sm object-cover -ml-2.5" />
                       <div class="w-8 h-8 rounded-full border border-white/90 shadow-sm bg-white/80 flex items-center justify-center text-[10px] font-bold text-brand-slate -ml-2.5">+5</div>
                     </div>
-                    <span class="text-[11px] text-brand-slate font-semibold">Today, 09:30 AM</span>
+                    <span class="text-[11px] text-brand-slate font-semibold">{{ engineeringStandup.date }}</span>
                   </div>
                 </div>
               </div>
@@ -272,29 +266,31 @@
             <div class="card-glass rounded-[28px] p-7 flex flex-col text-left">
               <div class="flex justify-between items-center mb-5">
                 <h3 class="text-lg sm:text-xl font-bold font-header text-brand-dark">Pending Tasks</h3>
-                <span class="inline-block text-[9px] font-extrabold px-2 py-0.5 rounded-md self-start tracking-wider uppercase border bg-red-500/8 border-red-500/15 text-red-500">4 High</span>
+                <span class="inline-block text-[9px] font-extrabold px-2 py-0.5 rounded-md self-start tracking-wider uppercase border bg-red-500/8 border-red-500/15 text-red-500">
+                  {{ tasks.filter(t => t.priority === 'HIGH PRIORITY' && t.status !== 'done').length }} High
+                </span>
               </div>
 
               <!-- Task checklist list -->
               <div class="flex flex-col gap-3">
                 <div 
-                  v-for="task in pendingTasks" 
+                  v-for="task in tasks.slice(0, 3)" 
                   :key="task.id"
                   class="flex items-center gap-3.5 p-3.5 rounded-2xl bg-white/40 border border-black/[0.03] cursor-pointer transition-all duration-300 hover:bg-white/75 hover:border-black/8 hover:translate-x-1 select-none"
-                  :class="{ 'bg-white/20 border-black/3 opacity-80': task.checked }"
-                  @click="toggleTask(task.id)"
+                  :class="{ 'bg-white/20 border-black/3 opacity-80': task.status === 'done' }"
+                  @click="toggleDashboardTask(task)"
                 >
                   <div 
                     class="w-5 h-5 rounded-md border-2 border-brand-slate/40 flex items-center justify-center transition-all duration-300"
-                    :class="task.checked ? 'border-primary bg-primary text-white' : ''"
+                    :class="task.status === 'done' ? 'border-primary bg-primary text-white' : ''"
                   >
-                    <PhCheck v-if="task.checked" :size="14" weight="bold" class="text-white" />
+                    <PhCheck v-if="task.status === 'done'" :size="14" weight="bold" class="text-white" />
                   </div>
                   <span 
                     class="text-xs font-semibold text-brand-dark transition-all duration-300"
-                    :class="{ 'line-through text-brand-slate': task.checked }"
+                    :class="{ 'line-through text-brand-slate': task.status === 'done' }"
                   >
-                    {{ task.text }}
+                    {{ task.title }}
                   </span>
                 </div>
               </div>
@@ -314,10 +310,33 @@
 
         <!-- Tasks Tab -->
         <div v-else-if="currentTab === 'tasks'">
-          <DashboardTasks @navigate="$emit('navigate', $event)" />
+          <DashboardTasks v-model:tasks="tasks" @navigate="$emit('navigate', $event)" />
         </div>
 
-        <!-- Other tab placeholders -->
+        <!-- Archive Tab -->
+        <div v-else-if="currentTab === 'archive'">
+          <ArchiveView :meetings="meetings" v-model:initialSelectedMeeting="selectedArchiveMeeting" />
+        </div>
+
+        <!-- Settings Tab -->
+        <div v-else-if="currentTab === 'settings'">
+          <SettingsView />
+        </div>
+
+        <!-- Knowledge AI Tab -->
+        <div v-else-if="currentTab === 'knowledge'">
+          <KnowledgeAIView />
+        </div>
+
+        <!-- New Meeting Tab -->
+        <div v-else-if="currentTab === 'new-meeting'">
+          <NewMeetingView 
+            @meetingCreated="handleMeetingCreated" 
+            @goToDashboard="currentTab = 'dashboard'" 
+          />
+        </div>
+
+        <!-- Default Placeholder fallback tab -->
         <div v-else class="card-glass rounded-[28px] p-16 text-center mt-10">
           <h3 class="text-2xl font-bold font-header text-brand-dark mb-3 capitalize">{{ currentTab }} View</h3>
           <p class="text-sm text-brand-slate max-w-[440px] mx-auto mb-6">This section is coming soon.</p>
@@ -345,6 +364,12 @@ import {
   PhCheck 
 } from '@phosphor-icons/vue'
 import DashboardTasks from '../components/DashboardTasks.vue'
+
+// Import newly created frontend layouts
+import NewMeetingView from '../components/NewMeetingView.vue'
+import ArchiveView from '../components/ArchiveView.vue'
+import SettingsView from '../components/SettingsView.vue'
+import KnowledgeAIView from '../components/KnowledgeAIView.vue'
 
 // Import assets
 import logoWordmark from '../assets/new logo.png'
@@ -381,6 +406,144 @@ const currentChartValues = computed(() => {
   }
 })
 
+// Shared Reactive Meetings Database List (pre-populated with mock metrics matching Figma nodes)
+const meetings = ref([
+  {
+    id: 101,
+    title: 'Q3 Strategic Product Roadmap & Resource Allocation',
+    description: 'A comprehensive review of upcoming feature priorities, team velocity, and technical debt reconciliation strategies for the second half of the year.',
+    date: 'Nov 12, 2026',
+    time: '09:30 AM',
+    duration: '45 minutes',
+    type: 'Google Meet',
+    bullets: [
+      'Confirmed the transition to a micro-frontend architecture by late August to support scaling needs.',
+      'Allocated 20% of engineering bandwidth specifically for technical debt and documentation.',
+      'Sarah voiced concerns about the current QA pipeline bottlenecks, leading to a dedicated review scheduled for next week.'
+    ],
+    timeline: [
+      { time: '00:00', title: 'Kickoff' },
+      { time: '12:30', title: 'Roadmap Review' },
+      { time: '24:15', title: 'Resource Conflict' },
+      { time: '38:45', title: 'Budget & Close' }
+    ],
+    tasks: [
+      { id: 1, title: 'Update Q3 Feature Spreadsheet', assignee: 'Marcus Chen', priority: 'HIGH', checked: true },
+      { id: 2, title: 'Draft technical debt reconciliation plan', assignee: 'Elena Rodriguez', priority: 'MED', checked: false },
+      { id: 3, title: 'Schedule follow-up with Infrastructure team', assignee: 'Marcus Chen', priority: 'LOW', checked: false }
+    ],
+    decisions: [
+      { status: 'APPROVED', text: 'Shift to "Core-First" feature release strategy for Q3.' },
+      { status: 'PENDING REVIEW', text: 'Proposed migration to AWS SageMaker for AI training.' }
+    ],
+    transcript: [
+      { speaker: 'Marcus Chen', timestamp: '12:04', text: 'We need to be really realistic about the bandwidth here. If we take on the micro-frontend migration now, the feature work stops for at least three weeks.' },
+      { speaker: 'Sarah Kim', timestamp: '12:18', text: 'I agree. But the current technical debt is already causing a 10% dip in developer velocity. We are paying the price either way.' },
+      { speaker: 'Elena Rodriguez', timestamp: '12:45', text: 'Let’s allocate a specific 20% slice of engineering capacity just for debt. That way we don’t freeze feature work completely.' }
+    ]
+  },
+  {
+    id: 102,
+    title: 'Q4 Strategy Sync',
+    description: 'Discussion focused on scaling GPU clusters and refining the model training pipeline.',
+    date: 'Nov 14, 2026',
+    time: '01:30 PM',
+    duration: '45 minutes',
+    type: 'Zoom',
+    bullets: [
+      'Reviewed scaling targets for GPU instances in AWS cluster.',
+      'Refined the checkpoint frequency during LLM fine-tuning.',
+      'Approved initial draft of model pipeline architecture diagram.'
+    ],
+    timeline: [
+      { time: '00:00', title: 'Intro & GPUs' },
+      { time: '15:00', title: 'Fine-Tuning Checkpoints' },
+      { time: '30:00', title: 'Architecture Review' },
+      { time: '40:00', title: 'Next Steps' }
+    ],
+    tasks: [
+      { id: 4, title: 'Request quote for additional NVIDIA H100 instances', assignee: 'Alex Chen', priority: 'HIGH', checked: false },
+      { id: 5, title: 'Update checkpoint parameters in training script', assignee: 'David Chen', priority: 'MED', checked: true }
+    ],
+    decisions: [
+      { status: 'APPROVED', text: 'Scale GPU cluster sizes by 50% for Q4.' }
+    ],
+    transcript: [
+      { speaker: 'Alex Chen', timestamp: '05:10', text: 'Our LLM fine-tuning runs are hitting VRAM caps. We either optimize batch sizes or get more compute.' },
+      { speaker: 'David Chen', timestamp: '08:30', text: 'I can test lower batch sizes, but it will slow down training. Let’s request more H100 instances first.' }
+    ]
+  },
+  {
+    id: 103,
+    title: 'Design Review: Nexus Pro',
+    description: 'Client feedback session regarding user interface style guides and contrast ratios.',
+    date: 'Nov 15, 2026',
+    time: '10:00 AM',
+    duration: '22 minutes',
+    type: 'In-Person',
+    bullets: [
+      'Client loved the glassmorphism approach but requested higher contrast on text variables.',
+      'Agreed to increase font weight on active navigation text elements.',
+      'Sign-off on default color scheme patterns.'
+    ],
+    timeline: [
+      { time: '00:00', title: 'UI Review' },
+      { time: '10:00', title: 'Contrast Discussion' },
+      { time: '18:00', title: 'Color Palette Sign-off' }
+    ],
+    tasks: [
+      { id: 6, title: 'Increase text color contrast in CSS file', assignee: 'Alex Chen', priority: 'HIGH', checked: false },
+      { id: 7, title: 'Update font weights in navbar component', assignee: 'Alex Chen', priority: 'LOW', checked: true }
+    ],
+    decisions: [
+      { status: 'APPROVED', text: 'Default navbar design styling contrast updates.' }
+    ],
+    transcript: [
+      { speaker: 'Client', timestamp: '02:30', text: 'The glass card outlines look extremely premium. But let’s make sure users can read the text easily.' },
+      { speaker: 'Alex Chen', timestamp: '05:40', text: 'Makes sense. I will bump up the text color to a darker slate color for accessibility.' }
+    ]
+  },
+  {
+    id: 104,
+    title: 'Daily Standup: Engineering',
+    description: 'AI action items standup checkin.',
+    date: 'Nov 16, 2026',
+    time: '09:30 AM',
+    duration: '15 minutes',
+    type: 'Google Meet',
+    bullets: [
+      'Standup updates: DB latency patches, API documentation v2, security audit schedules.',
+      'Infrastructure teams checked metrics logs.'
+    ],
+    timeline: [
+      { time: '00:00', title: 'Syncup start' },
+      { time: '05:00', title: 'DB patch discussions' },
+      { time: '10:00', title: 'Security review plan' }
+    ],
+    tasks: [
+      { id: 8, title: 'Patch DB latency issues', assignee: 'Jane Doe', priority: 'HIGH', checked: false },
+      { id: 9, title: 'Finalize API documentation for v2', assignee: 'Alex Chen', priority: 'MED', checked: false },
+      { id: 10, title: 'Schedule security audit', assignee: 'David Chen', priority: 'HIGH', checked: false }
+    ],
+    decisions: [
+      { status: 'APPROVED', text: 'Roll out DB patch next Tuesday.' }
+    ],
+    transcript: [
+      { speaker: 'Jane Doe', timestamp: '02:10', text: 'The DB latency issues are causing API timeouts. I have a patch ready for testing.' },
+      { speaker: 'Alex Chen', timestamp: '04:15', text: 'Excellent, send me the draft so I can finalize API doc reviews.' }
+    ]
+  }
+])
+
+const engineeringStandup = computed(() => meetings.value.find(m => m.title === 'Daily Standup: Engineering'))
+
+const selectedArchiveMeeting = ref(null)
+
+const openMeetingDetails = (meeting) => {
+  selectedArchiveMeeting.value = meeting
+  currentTab.value = 'archive'
+}
+
 // Upcoming events list
 const upcomingMeetings = ref([
   { id: 1, month: 'NOV', day: '14', title: 'Marketing Sync', time: '1:30 PM', location: 'Zoom', featured: true },
@@ -388,23 +551,35 @@ const upcomingMeetings = ref([
   { id: 3, month: 'NOV', day: '15', title: 'One-on-One: Sarah', time: '4:00 PM', location: 'Google Meet', featured: false }
 ])
 
-// Reactive checklist
-const pendingTasks = ref([
-  { id: 1, text: 'Update security protocols', checked: true },
-  { id: 2, text: 'Review transcript for Nexus', checked: false },
-  { id: 3, text: 'Draft roadmap v2.1', checked: false }
+// Shared Tasks State (elevated from DashboardTasks for proper synchronization)
+const tasks = ref([
+  { id: 1, title: 'Generate summary for Q3 Engineering Sync', priority: 'HIGH PRIORITY', status: 'todo', assignee: 'Alex Chen', due: 'Oct 12', description: 'Create a concise AI summary of the Q3 Engineering Sync meeting covering all action items and decisions.', source: 'Daily Standup: Engineering' },
+  { id: 2, title: 'Review API documentation for new auth flow', priority: 'MEDIUM PRIORITY', status: 'todo', assignee: 'Alex Chen', due: 'Oct 12', description: 'Review and validate the updated API documentation for the new authentication flow before the team review.', source: 'Daily Standup: Engineering' },
+  { id: 3, title: 'Update workspace brand assets', priority: 'LOW PRIORITY', status: 'todo', assignee: 'Alex Chen', due: 'Oct 12', description: 'Refresh all workspace branding assets to align with the new identity guidelines discussed in the Design Review.', source: 'Design Review: Nexus Pro' },
+  { id: 4, title: 'Analyze competitor pricing models from transcript data', priority: 'HIGH PRIORITY', status: 'inprogress', assignee: 'Alex Chen', due: 'Oct 12', description: 'Use the SmartMeet AI transcript data from recent Q4 Strategy meetings to extract competitor pricing intelligence.', source: 'Q4 Strategy Sync' },
+  { id: 5, title: 'Design system component audit', priority: 'MEDIUM PRIORITY', status: 'inprogress', assignee: 'Alex Chen', due: 'Oct 12', description: 'Audit all existing UI components against the updated design system and flag inconsistencies for the next sprint.', source: 'Design Review: Nexus Pro' },
+  { id: 6, title: 'Onboarding flow wireframes', priority: 'MEDIUM PRIORITY', status: 'review', assignee: 'Alex Chen', due: 'Oct 12', description: 'Present wireframes for the new user onboarding flow to the product team for feedback and sign-off.', source: 'Q4 Strategy Sync' },
+  { id: 7, title: 'Generate summary for Q3 Engineering Sync', priority: 'COMPLETED', status: 'done', assignee: 'Alex Chen', due: 'Oct 12', description: 'Completed: AI summary generated and distributed to all meeting participants.', source: 'Daily Standup: Engineering' }
 ])
 
-const toggleTask = (id) => {
-  const task = pendingTasks.value.find(t => t.id === id)
-  if (task) {
-    task.checked = !task.checked
+const toggleDashboardTask = (task) => {
+  task.status = task.status === 'done' ? 'todo' : 'done'
+  if (task.status === 'done') {
+    task.oldPriority = task.priority
+    task.priority = 'COMPLETED'
+  } else {
+    task.priority = task.oldPriority || 'MEDIUM PRIORITY'
   }
 }
 
 // User Action simulation prompts
 const createNewMeeting = () => {
-  alert('Starting SmartMeet live recording workspace session... Connecting bot...')
+  selectedArchiveMeeting.value = null // reset selection when creating new
+  currentTab.value = 'new-meeting'
+}
+
+const handleMeetingCreated = (meeting) => {
+  meetings.value.unshift(meeting)
 }
 
 const exploreTrends = () => {
@@ -412,6 +587,7 @@ const exploreTrends = () => {
 }
 
 const viewAllMeetings = () => {
-  alert('Opening recent recordings archive filter window.')
+  selectedArchiveMeeting.value = null // reset selection to show index list
+  currentTab.value = 'archive'
 }
 </script>

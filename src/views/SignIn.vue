@@ -98,7 +98,7 @@ import Navbar from '../components/Navbar.vue'
 import googleIcon from '../assets/Google.png'
 import appleIcon from '../assets/Apple_logo_black.svg'
 
-defineEmits(['navigate'])
+const emit = defineEmits(['navigate'])
 
 const email = ref('')
 const password = ref('')
@@ -109,11 +109,13 @@ const handleSignIn = () => {
   setTimeout(() => {
     loading.value = false
     alert(`Successfully logged in as ${email.value}!`)
+    emit('navigate', 'dashboard')
   }, 1500)
 }
 
 const handleSSOLogin = (provider) => {
   alert(`Simulating SSO Login with ${provider}...`)
+  emit('navigate', 'dashboard')
 }
 
 const forgotPassword = () => {
