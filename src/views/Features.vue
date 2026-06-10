@@ -1,428 +1,542 @@
 <template>
-  <div class="w-full bg-[#f1f3f9] min-h-screen pb-[60px] relative text-left overflow-x-hidden font-body">
-    
-    <!-- NAVIGATION HEADER BAR -->
-    <div class="max-w-[1200px] mx-auto px-[24px] pt-[24px]">
+  <div class="w-full min-h-screen bg-[#f1f3f9] text-left font-body overflow-x-hidden">
+    <div class="page-shell">
       <Navbar activePage="features" @navigate="$emit('navigate', $event)" />
-    </div>
 
-    <!-- MAIN MARKETING SECTIONS BODY -->
-    <div class="max-w-[1200px] mx-auto px-[24px] flex flex-col gap-[96px] mt-[48px]">
-      
-      <!-- ── SECTION 1: HERO SECTION ── -->
-      <section class="grid grid-cols-1 lg:grid-cols-[1.1fr_0.9fr] gap-[64px] items-center relative py-[48px]">
-        <!-- Left details col -->
-        <div class="flex flex-col items-start text-left">
-          <div class="backdrop-blur-[8px] bg-white/40 border border-white/80 rounded-[100px] px-[16px] py-[6px] shadow-[0_2px_10px_rgba(75,104,255,0.02)] flex items-center mb-[24px]">
-            <span class="bg-grad-text bg-clip-text text-transparent font-header font-bold text-[13px] tracking-wide uppercase">
-              NEW: SmartMeet Engine 2.0
+      <div class="flex flex-col gap-20 pb-20 mt-4">
+
+        <!-- ── HERO ── -->
+        <section class="relative pt-10 pb-6 text-center flex flex-col items-center gap-6">
+          <!-- Subtle ambient orbs -->
+          <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-primary/8 rounded-full filter blur-[100px] pointer-events-none"></div>
+
+          <div class="relative z-10 flex flex-col items-center gap-5">
+            <span class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/8 border border-primary/15 text-primary font-header text-[10px] font-bold tracking-widest uppercase">
+              <span class="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></span>
+              Platform Capabilities
             </span>
-          </div>
-          <h1 class="text-[36px] sm:text-[46px] lg:text-[54px] font-bold tracking-tight leading-[1.1] mb-[24px] font-header text-brand-dark">
-            Intelligence for every<br/>interaction.
-          </h1>
-          <p class="text-[18px] leading-relaxed text-brand-slate max-w-[580px] mb-[36px]">
-            Transform your meetings into actionable knowledge with our suite of AI-powered tools designed for high-performance enterprise teams.
-          </p>
-          <div class="flex flex-wrap items-center gap-[16px]">
-            <button 
-              @click="$emit('navigate', 'signup')"
-              class="px-[28px] py-[16px] rounded-[100px] bg-grad-primary text-white font-header font-bold text-[16px] tracking-wide hover:shadow-[0_4px_15px_rgba(75,104,255,0.25)] active:scale-98 transition-all cursor-pointer"
-            >
-              Start Free Trial
-            </button>
-            <button 
-              @click="playDemo"
-              class="px-[28px] py-[16px] rounded-[100px] bg-[#252525] text-[#e6edff] font-header font-bold text-[16px] tracking-wide hover:bg-[#1a1a1a] active:scale-98 transition-all cursor-pointer border border-[#5f5f5f]/20"
-            >
-              Watch Demo
-            </button>
-          </div>
-        </div>
 
-        <!-- Right sphere/illustration col -->
-        <div class="flex justify-center relative w-full">
-          <div class="w-full max-w-[480px] h-[400px] rounded-[32px] relative overflow-hidden bg-white/45 border border-white/70 shadow-glass backdrop-blur-md flex flex-col justify-center items-center group transition-all duration-300 hover:translate-y-[-4px]">
-            <!-- Glowing overlay bg -->
-            <div class="absolute w-[200px] h-[200px] bg-primary/10 filter blur-[50px] rounded-full pointer-events-none opacity-60"></div>
-            
-            <div class="w-[80%] h-[80%] absolute flex items-center justify-center animate-float">
-              <img :src="aiVisualization" alt="AI Network Sphere" class="w-full h-auto object-contain filter drop-shadow-[0_4px_20px_rgba(75,104,255,0.1)]" />
+            <h1 class="text-4xl sm:text-5xl lg:text-[64px] font-extrabold font-header tracking-tight leading-[1.05] text-brand-dark max-w-3xl">
+              Everything your team needs,<br/>
+              <span class="bg-gradient-to-r from-primary via-[#8b63f5] to-accent bg-clip-text text-transparent">nothing it doesn't.</span>
+            </h1>
+
+            <p class="text-base sm:text-lg text-brand-slate max-w-xl leading-relaxed">
+              From live transcription to cross-platform automation — every SmartMeet feature works together as one intelligent layer for your team.
+            </p>
+
+            <div class="flex flex-wrap items-center justify-center gap-3 mt-1">
+              <button
+                @click="$emit('navigate', 'signup')"
+                class="px-7 py-3.5 rounded-full font-header font-bold text-sm tracking-wide bg-primary text-white shadow-[0_4px_20px_rgba(75,104,255,0.25)] hover:shadow-[0_6px_30px_rgba(75,104,255,0.35)] hover:-translate-y-0.5 transition-all duration-300 active:scale-95 cursor-pointer"
+              >
+                Start Free Trial
+              </button>
+              <button
+                @click="scrollToFeatures"
+                class="px-7 py-3.5 rounded-full font-header font-bold text-sm tracking-wide border border-black/10 text-brand-dark hover:border-primary/30 hover:text-primary transition-all duration-300 active:scale-95 cursor-pointer flex items-center gap-2"
+              >
+                <PhPlay :size="14" weight="fill" class="text-primary" />
+                Explore Features
+              </button>
             </div>
 
-            <!-- Bottom dynamic status popup wrapper -->
-            <div class="absolute bottom-[24px] left-[24px] right-[24px] z-10">
-              <div class="backdrop-blur-[10px] bg-white/80 border border-white/95 px-[20px] py-[16px] rounded-[16px] flex flex-col gap-[8px] shadow-[0_10px_30px_rgba(31,38,135,0.04)]">
-                <div class="flex items-center gap-[8px]">
-                  <PhSparkle :size="16" class="text-primary animate-spin-slow" weight="fill" />
-                  <span class="font-header text-[12px] font-bold text-brand-dark">AI INSIGHT ENGINE active</span>
+            <!-- Stats row -->
+            <div class="flex flex-wrap items-center justify-center gap-8 mt-4 pt-6 border-t border-black/6 w-full max-w-xl">
+              <div v-for="stat in heroStats" :key="stat.label" class="flex flex-col items-center gap-0.5">
+                <span class="text-2xl font-extrabold font-header text-primary">{{ stat.value }}</span>
+                <span class="text-[10px] text-brand-slate uppercase tracking-widest font-bold">{{ stat.label }}</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ── FEATURE PILLARS ── -->
+        <section id="features-list" class="flex flex-col gap-0">
+
+          <!-- Feature 01: Live Transcription -->
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-center py-14 border-t border-black/6">
+            <div class="flex flex-col gap-5 text-left order-2 lg:order-1">
+              <div class="flex items-center gap-3">
+                <span class="text-[56px] font-extrabold font-header text-black/5 leading-none select-none tracking-tighter">01</span>
+                <div class="w-9 h-9 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary flex-shrink-0">
+                  <PhMicrophone :size="18" weight="bold" />
                 </div>
-                <p class="text-[12px] leading-relaxed text-brand-slate italic text-left">
-                  "The meeting reached consensus on Q3 deliverables. Task checklists synchronized automatically."
+              </div>
+              <div class="flex flex-col gap-2">
+                <div class="text-[10px] font-extrabold text-primary uppercase tracking-widest font-header">Real-time Capture</div>
+                <h2 class="text-2xl sm:text-3xl font-extrabold font-header text-brand-dark tracking-tight leading-snug">Every word.<br/>Every speaker.</h2>
+                <p class="text-sm sm:text-base text-brand-slate leading-relaxed max-w-sm">
+                  Our neural voice engine transcribes live, tags every speaker with 99.9% accuracy, and adapts to 40+ languages.
                 </p>
               </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- ── SECTION 2: REAL-TIME INTELLIGENCE ── -->
-      <section class="grid grid-cols-1 lg:grid-cols-[1.1fr_0.9fr] gap-[64px] items-center py-[24px]">
-        <!-- Left features list -->
-        <div class="flex flex-col gap-[24px] items-start">
-          <div class="flex items-center gap-[12px] pb-[8px]">
-            <div class="w-[36px] h-[36px] rounded-full bg-primary/8 border border-primary/15 flex items-center justify-center text-primary">
-              <PhPulse :size="20" weight="bold" />
-            </div>
-            <h2 class="font-header font-bold text-[26px] bg-grad-text bg-clip-text text-transparent inline">
-              Real-time Intelligence
-            </h2>
-          </div>
-          <p class="text-[18px] leading-relaxed text-brand-slate max-w-[540px]">
-            Stay present in your conversations while our AI handles the documentation in real-time. Never miss a nuance or a speaker shift again.
-          </p>
-
-          <div class="flex flex-col gap-[20px] w-full mt-[16px]">
-            <div v-for="(feat, i) in rtFeatures" :key="i" class="flex gap-[16px] items-start p-[16px] rounded-[16px] hover:bg-white/30 transition-all duration-200">
-              <div class="w-[40px] h-[40px] rounded-[12px] bg-white/80 border border-black/5 flex items-center justify-center text-primary shadow-sm flex-shrink-0">
-                <component :is="feat.icon" :size="20" weight="bold" />
-              </div>
-              <div class="flex flex-col text-left">
-                <h4 class="font-header font-bold text-[16px] text-brand-dark">{{ feat.title }}</h4>
-                <p class="text-[14px] text-brand-slate leading-relaxed mt-[4px]">{{ feat.desc }}</p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Right image visual mockup -->
-        <div class="backdrop-blur-[6px] bg-white/40 border border-white/60 p-[8px] rounded-[24px] shadow-[0_4px_30px_rgba(0,0,0,0.02)] w-full flex justify-center items-center overflow-hidden h-[380px]">
-          <div class="w-full h-full rounded-[16px] overflow-hidden relative border border-black/5 bg-white/20">
-            <img :src="workflowVisualization" alt="Workflow Visual" class="w-full h-full object-cover" />
-            <div class="absolute top-[20px] left-[20px] backdrop-blur-[6px] bg-primary/20 border border-primary/30 rounded-[100px] px-[12px] py-[6px]">
-              <span class="font-header font-extrabold text-[10px] text-primary uppercase tracking-[1px]">LIVE TRANSCRIPT FEED</span>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- ── SECTION 3: KNOWLEDGE SYNTHESIS BENTO GRID ── -->
-      <section class="flex flex-col gap-[48px] py-[24px]">
-        <div class="flex flex-col items-center text-center gap-[12px]">
-          <h2 class="font-header font-bold text-[28px] bg-grad-text bg-clip-text text-transparent inline">
-            Knowledge Synthesis
-          </h2>
-          <p class="text-[18px] text-brand-slate max-w-[600px]">
-            From messy conversations to structured executive reports in seconds.
-          </p>
-        </div>
-
-        <!-- Bento Grid -->
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-[24px] items-stretch">
-          <!-- Large Left Card (Col-7) -->
-          <div class="lg:col-span-7 backdrop-blur-[6px] bg-white/50 border border-white/70 rounded-[24px] p-[32px] shadow-[0_4px_24px_rgba(0,0,0,0.02)] flex flex-col justify-between gap-[24px] text-left relative overflow-hidden">
-            <div class="flex flex-col gap-[16px] relative z-10">
-              <div class="w-[48px] h-[48px] rounded-[16px] bg-primary/8 border border-primary/15 flex items-center justify-center text-primary">
-                <PhCheckSquare :size="24" weight="bold" />
-              </div>
-              <h3 class="font-header font-bold text-[22px] text-brand-dark">Automated Executive Summaries</h3>
-              <p class="text-[15px] text-brand-slate leading-relaxed max-w-[500px]">
-                Our custom LLMs extract the core essence of every meeting, providing context-aware summaries tailored specifically for leadership review.
-              </p>
-            </div>
-
-            <!-- Visual loading recap mockup -->
-            <div class="bg-white/40 border border-black/[0.03] rounded-[16px] p-[20px] mt-[12px] flex flex-col gap-[14px]">
-              <div class="flex items-center gap-[10px]">
-                <div class="w-[24px] h-[24px] rounded-full bg-primary/10 flex items-center justify-center text-primary">
-                  <PhSparkle :size="12" weight="fill" />
+              <div class="flex flex-col gap-2.5 mt-1">
+                <div v-for="item in transcriptionFeatures" :key="item" class="flex items-center gap-2.5 text-sm text-brand-dark font-medium">
+                  <div class="w-4 h-4 rounded-full bg-primary/10 flex items-center justify-center text-primary flex-shrink-0">
+                    <PhCheck :size="10" weight="bold" />
+                  </div>
+                  {{ item }}
                 </div>
-                <span class="text-[11px] font-extrabold text-primary uppercase tracking-wider">AI RECAP GENERATED</span>
-              </div>
-              <!-- Skeleton details -->
-              <div class="flex flex-col gap-[8px]">
-                <div class="w-full h-[8px] bg-black/5 rounded-[4px]"></div>
-                <div class="w-[90%] h-[8px] bg-black/5 rounded-[4px]"></div>
-                <div class="w-[70%] h-[8px] bg-black/5 rounded-[4px]"></div>
               </div>
             </div>
-            <div class="absolute w-[200px] h-[200px] bg-secondary/5 filter blur-[40px] rounded-full top-0 right-0 pointer-events-none"></div>
-          </div>
 
-          <!-- Small Right Cards Stack (Col-5) -->
-          <div class="lg:col-span-5 flex flex-col gap-[24px]">
-            <!-- Stack Card 1 -->
-            <div class="backdrop-blur-[6px] bg-white/50 border border-white/70 rounded-[24px] p-[28px] shadow-[0_4px_24px_rgba(0,0,0,0.02)] flex flex-col gap-[12px] text-left">
-              <div class="w-[36px] h-[36px] rounded-[10px] bg-green-500/8 border border-green-500/15 flex items-center justify-center text-green-600">
-                <PhCheck :size="18" weight="bold" />
-              </div>
-              <h4 class="font-header font-bold text-[18px] text-brand-dark">Action Item Extraction</h4>
-              <p class="text-[14px] text-brand-slate leading-relaxed">
-                Automatically detect promises made during the call, extract tasks, and assign them directly to the right teammate.
-              </p>
-            </div>
-
-            <!-- Stack Card 2 -->
-            <div class="backdrop-blur-[6px] bg-white/50 border border-white/70 rounded-[24px] p-[28px] shadow-[0_4px_24px_rgba(0,0,0,0.02)] flex flex-col gap-[12px] text-left">
-              <div class="w-[36px] h-[36px] rounded-[10px] bg-secondary/8 border border-secondary/15 flex items-center justify-center text-secondary">
-                <PhBrain :size="18" weight="bold" />
-              </div>
-              <h4 class="font-header font-bold text-[18px] text-brand-dark">Semantic Topic Sync</h4>
-              <p class="text-[14px] text-brand-slate leading-relaxed">
-                Sync topics and agendas dynamically. Relate historical context across months of consecutive standups automatically.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- ── SECTION 4: ORGANIZATIONAL MEMORY ── -->
-      <section class="grid grid-cols-1 lg:grid-cols-[1.12fr_0.88fr] gap-[64px] items-center py-[24px]">
-        <!-- Left lists -->
-        <div class="flex flex-col gap-[24px] items-start">
-          <div class="flex flex-col items-start gap-[8px]">
-            <h2 class="font-header font-bold text-[28px] bg-grad-text bg-clip-text text-transparent inline">
-              Organizational Memory
-            </h2>
-            <p class="text-[18px] text-brand-slate leading-relaxed">
-              Stop asking "didn't we talk about this three months ago?". SmartMeet AI builds a permanent, searchable database of your team's collective intelligence.
-            </p>
-          </div>
-
-          <div class="flex flex-col gap-[16px] w-full mt-[12px]">
-            <div v-for="(memory, idx) in memories" :key="idx" class="backdrop-blur-[6px] bg-white/40 border border-white/70 rounded-[16px] p-[20px] shadow-[0_4px_12px_rgba(0,0,0,0.02)] text-left flex flex-col gap-[6px]">
-              <div class="flex items-center gap-[10px]">
-                <component :is="memory.icon" :size="18" class="text-primary" />
-                <span class="font-header font-bold text-[15px] text-brand-dark">{{ memory.title }}</span>
-              </div>
-              <p class="text-[13px] text-brand-slate leading-relaxed pl-[28px]">{{ memory.desc }}</p>
-            </div>
-          </div>
-        </div>
-
-        <!-- Right brain noodle badge display -->
-        <div class="flex justify-center items-center">
-          <div class="border-[2px] border-dashed border-primary/20 rounded-full p-[48px] w-full max-w-[420px] aspect-square flex items-center justify-center">
-            <div class="backdrop-blur-[10px] bg-white/50 border border-white/80 rounded-full shadow-[0_16px_40px_rgba(31,38,135,0.04)] w-full h-full flex flex-col items-center justify-center p-[24px] relative group overflow-hidden">
-              <div class="absolute inset-[0] bg-gradient-to-r from-primary/10 to-secondary/10 opacity-30 rounded-full"></div>
-              
-              <div class="w-[100px] h-[100px] rounded-full overflow-hidden border border-black/5 bg-white/60 flex items-center justify-center mb-[16px] relative z-10 transition-transform duration-500 group-hover:scale-105">
-                <img :src="activityTrend" alt="Activity Grid" class="w-[70%] h-auto object-contain" />
-              </div>
-              
-              <span class="font-header font-extrabold text-[24px] text-brand-dark tracking-wide relative z-10 uppercase select-none">brain_noodle</span>
-              <span class="text-[11px] text-primary font-bold mt-[4px] uppercase tracking-wider relative z-10">Active Knowledge Sync</span>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- ── SECTION 5: INTELLIGENT AUTOMATION ── -->
-      <section class="backdrop-blur-[6px] bg-white/40 border border-white/60 rounded-[32px] p-[48px] shadow-[0_8px_32px_rgba(31,38,135,0.02)] flex flex-col gap-[36px]">
-        <div class="grid grid-cols-1 lg:grid-cols-[1.1fr_0.9fr] gap-[48px] items-center">
-          <!-- Left specs details -->
-          <div class="flex flex-col gap-[24px] items-start">
-            <h2 class="font-header font-bold text-[28px] bg-grad-text bg-clip-text text-transparent inline">
-              Intelligent Automation
-            </h2>
-            <p class="text-[18px] text-brand-slate leading-relaxed">
-              SmartMeet doesn't just record; it acts. Seamlessly bridge the gap between your conversations and your execution tools.
-            </p>
-
-            <div class="grid grid-cols-2 gap-[16px] w-full mt-[12px]">
-              <div class="backdrop-blur-[6px] border border-primary/20 bg-white/60 rounded-[12px] p-[20px] text-center shadow-[0_4px_15px_rgba(0,0,0,0.01)] flex flex-col items-center">
-                <span class="font-header font-bold text-[26px] text-primary leading-tight">50+</span>
-                <span class="text-[14px] text-brand-slate mt-[4px]">Integrations</span>
-              </div>
-              <div class="backdrop-blur-[6px] border border-primary/20 bg-white/60 rounded-[12px] p-[20px] text-center shadow-[0_4px_15px_rgba(0,0,0,0.01)] flex flex-col items-center">
-                <span class="font-header font-bold text-[26px] text-primary leading-tight">10k+</span>
-                <span class="text-[14px] text-brand-slate mt-[4px]">Workflows</span>
+            <!-- Transcript card mockup -->
+            <div class="order-1 lg:order-2">
+              <div class="card-glass rounded-[24px] p-5 flex flex-col gap-4">
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center gap-2">
+                    <span class="flex h-2 w-2">
+                      <span class="animate-ping absolute inline-flex h-2 w-2 rounded-full bg-red-400 opacity-75"></span>
+                      <span class="relative inline-flex rounded-full h-2 w-2 bg-red-400"></span>
+                    </span>
+                    <span class="text-[10px] font-bold text-brand-slate uppercase tracking-widest font-header">Live · Q3 Roadmap</span>
+                  </div>
+                  <span class="text-[10px] text-brand-slate font-mono">48:32</span>
+                </div>
+                <!-- Waveform -->
+                <div class="flex items-end gap-[3px] h-8 bg-black/[0.02] rounded-xl px-3">
+                  <div v-for="i in 28" :key="i" class="flex-1 rounded-full bg-primary/40"
+                    :style="{ height: waveHeights[i % waveHeights.length] + '%' }"></div>
+                </div>
+                <!-- Bubbles -->
+                <div class="flex flex-col gap-2.5">
+                  <div v-for="(bubble, i) in transcriptBubbles" :key="i" class="flex flex-col gap-1" :class="bubble.self ? 'items-end' : 'items-start'">
+                    <span class="text-[9px] text-brand-slate font-bold uppercase tracking-wide px-1">{{ bubble.speaker }}</span>
+                    <div class="max-w-[80%] px-3.5 py-2 rounded-2xl text-xs leading-relaxed"
+                      :class="bubble.self ? 'bg-primary text-white rounded-tr-none' : 'bg-white border border-black/8 text-brand-dark rounded-tl-none shadow-sm'">
+                      {{ bubble.text }}
+                    </div>
+                  </div>
+                  <div class="flex items-start">
+                    <div class="flex items-center gap-1 bg-white border border-black/8 rounded-2xl rounded-tl-none px-3.5 py-2 shadow-sm">
+                      <div v-for="d in 3" :key="d" class="w-1.5 h-1.5 rounded-full bg-brand-slate/40 animate-bounce" :style="{ animationDelay: d * 150 + 'ms' }"></div>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
 
-          <!-- Right integrations checklists -->
-          <div class="flex flex-col gap-[16px] w-full">
-            <div 
-              v-for="(auto, idx) in automations" 
-              :key="idx"
-              class="backdrop-blur-[6px] bg-white border border-white/90 rounded-[16px] p-[20px] shadow-[0_4px_12px_rgba(0,0,0,0.02)] flex justify-between items-center hover:translate-x-[2px] transition-transform duration-200 cursor-pointer"
+          <!-- Feature 02: AI Synthesis -->
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-center py-14 border-t border-black/6">
+            <!-- Left card -->
+            <div class="order-1">
+              <div class="card-glass rounded-[24px] p-5 flex flex-col gap-4">
+                <div class="flex items-center justify-between">
+                  <span class="text-[10px] font-extrabold text-brand-dark uppercase tracking-widest font-header flex items-center gap-1.5">
+                    <PhSparkle :size="11" class="text-primary" weight="fill" />
+                    AI Synthesis Engine
+                  </span>
+                  <span class="text-[9px] font-bold text-brand-success bg-brand-success/10 px-2 py-0.5 rounded-full border border-brand-success/20">Done</span>
+                </div>
+                <!-- Summary -->
+                <div class="bg-primary/4 border border-primary/10 rounded-xl p-3.5">
+                  <p class="text-xs text-brand-dark leading-relaxed">
+                    "Team aligned on micro-frontend migration by Q3. Sarah flagged QA pipeline risk → dedicated review scheduled. Budget confirmed at $12,500."
+                  </p>
+                </div>
+                <!-- Tasks -->
+                <div class="flex flex-col gap-1.5">
+                  <div class="text-[9px] font-extrabold text-brand-slate uppercase tracking-widest mb-0.5">Action Items</div>
+                  <div v-for="(task, i) in summaryTasks" :key="i"
+                    class="flex items-center gap-2.5 p-2.5 rounded-xl border border-black/5 bg-white shadow-sm">
+                    <div class="w-3.5 h-3.5 rounded-full flex items-center justify-center flex-shrink-0"
+                      :class="task.done ? 'bg-primary text-white' : 'border border-brand-slate/30'">
+                      <PhCheck v-if="task.done" :size="8" weight="bold" />
+                    </div>
+                    <span class="text-[11px] font-medium text-brand-dark flex-1" :class="{ 'line-through text-brand-slate': task.done }">{{ task.text }}</span>
+                    <span class="text-[8px] font-bold px-1.5 py-0.5 rounded-full"
+                      :class="{
+                        'bg-red-50 text-red-500 border border-red-100': task.priority === 'HIGH',
+                        'bg-amber-50 text-amber-600 border border-amber-100': task.priority === 'MED',
+                        'bg-slate-50 text-slate-400 border border-slate-100': task.priority === 'LOW',
+                      }">{{ task.priority }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Right text -->
+            <div class="flex flex-col gap-5 text-left order-2">
+              <div class="flex items-center gap-3">
+                <span class="text-[56px] font-extrabold font-header text-black/5 leading-none select-none tracking-tighter">02</span>
+                <div class="w-9 h-9 rounded-xl bg-secondary/10 border border-secondary/20 flex items-center justify-center text-secondary flex-shrink-0">
+                  <PhSparkle :size="18" weight="bold" />
+                </div>
+              </div>
+              <div class="flex flex-col gap-2">
+                <div class="text-[10px] font-extrabold text-secondary uppercase tracking-widest font-header">AI Knowledge Synthesis</div>
+                <h2 class="text-2xl sm:text-3xl font-extrabold font-header text-brand-dark tracking-tight leading-snug">Summaries written.<br/>Tasks assigned.</h2>
+                <p class="text-sm sm:text-base text-brand-slate leading-relaxed max-w-sm">
+                  The moment your call ends, SmartMeet has already written the summary, extracted every action item, and assigned it to the right person.
+                </p>
+              </div>
+              <div class="flex flex-col gap-2.5 mt-1">
+                <div v-for="item in synthesisFeatures" :key="item" class="flex items-center gap-2.5 text-sm text-brand-dark font-medium">
+                  <div class="w-4 h-4 rounded-full bg-secondary/10 flex items-center justify-center text-secondary flex-shrink-0">
+                    <PhCheck :size="10" weight="bold" />
+                  </div>
+                  {{ item }}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Feature 03: Semantic Search -->
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-center py-14 border-t border-black/6">
+            <div class="flex flex-col gap-5 text-left order-2 lg:order-1">
+              <div class="flex items-center gap-3">
+                <span class="text-[56px] font-extrabold font-header text-black/5 leading-none select-none tracking-tighter">03</span>
+                <div class="w-9 h-9 rounded-xl bg-accent/10 border border-accent/20 flex items-center justify-center text-accent flex-shrink-0">
+                  <PhMagnifyingGlass :size="18" weight="bold" />
+                </div>
+              </div>
+              <div class="flex flex-col gap-2">
+                <div class="text-[10px] font-extrabold text-accent uppercase tracking-widest font-header">Organizational Memory</div>
+                <h2 class="text-2xl sm:text-3xl font-extrabold font-header text-brand-dark tracking-tight leading-snug">Search by intent,<br/>not keywords.</h2>
+                <p class="text-sm sm:text-base text-brand-slate leading-relaxed max-w-sm">
+                  Ask "what did we decide about pricing last quarter?" SmartMeet understands meaning and surfaces the exact moment, speaker, and context instantly.
+                </p>
+              </div>
+              <div class="flex flex-col gap-2.5 mt-1">
+                <div v-for="item in memoryFeatures" :key="item" class="flex items-center gap-2.5 text-sm text-brand-dark font-medium">
+                  <div class="w-4 h-4 rounded-full bg-accent/10 flex items-center justify-center text-accent flex-shrink-0">
+                    <PhCheck :size="10" weight="bold" />
+                  </div>
+                  {{ item }}
+                </div>
+              </div>
+            </div>
+
+            <!-- Search UI card -->
+            <div class="order-1 lg:order-2">
+              <div class="card-glass rounded-[24px] p-5 flex flex-col gap-4">
+                <!-- Search bar -->
+                <div class="flex items-center gap-2.5 bg-white border border-black/8 rounded-2xl px-4 py-3 shadow-sm">
+                  <PhMagnifyingGlass :size="14" class="text-brand-slate flex-shrink-0" />
+                  <span class="text-sm font-medium text-brand-dark flex-1 min-w-0 truncate">
+                    {{ typedQuery }}<span class="inline-block w-0.5 h-4 bg-primary align-middle ml-0.5 animate-blink" v-if="typedQuery.length < searchTargetText.length || isSearching"></span>
+                  </span>
+                  <div class="w-3.5 h-3.5 border-2 border-primary border-t-transparent rounded-full animate-spin flex-shrink-0" v-if="isSearching"></div>
+                </div>
+
+                <!-- Result -->
+                <transition name="fade-up" mode="out-in">
+                  <div v-if="showSearchResult" class="flex flex-col gap-3">
+                    <div class="text-[9px] font-extrabold text-brand-slate uppercase tracking-widest">Best Match · 98% Confidence</div>
+                    <div class="bg-primary/4 border border-primary/15 rounded-xl p-3.5 flex flex-col gap-2.5">
+                      <div class="flex flex-wrap items-center gap-2">
+                        <span class="text-[9px] font-extrabold text-primary uppercase bg-primary/10 px-2 py-0.5 rounded-full">Strategy Sync — Nov 12</span>
+                        <span class="text-[9px] text-brand-slate font-bold">at 18:42</span>
+                      </div>
+                      <p class="text-xs text-brand-dark leading-relaxed font-medium italic">
+                        "Sarah recommended capping Q3 marketing spend at $12,500 and allocating the remaining to dev licenses."
+                      </p>
+                      <div class="flex items-center gap-2">
+                        <img :src="avatar1" class="w-4 h-4 rounded-full object-cover border border-black/5" />
+                        <span class="text-[10px] text-brand-slate font-semibold">Sarah Kim · VP Marketing</span>
+                      </div>
+                    </div>
+                    <div class="flex flex-col gap-1">
+                      <div v-for="related in relatedResults" :key="related"
+                        class="flex items-center gap-2 p-2 rounded-xl hover:bg-black/3 cursor-pointer transition-colors">
+                        <PhArrowRight :size="11" class="text-brand-slate flex-shrink-0" />
+                        <span class="text-[11px] text-brand-slate font-medium">{{ related }}</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div v-else class="flex flex-col gap-2 py-2">
+                    <div class="h-2 bg-black/5 rounded-full w-full animate-pulse"></div>
+                    <div class="h-2 bg-black/5 rounded-full w-3/4 animate-pulse"></div>
+                    <div class="h-2 bg-black/5 rounded-full w-1/2 animate-pulse"></div>
+                  </div>
+                </transition>
+              </div>
+            </div>
+          </div>
+
+          <!-- Feature 04: Automation -->
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-center py-14 border-t border-black/6">
+            <!-- Left card: integration list -->
+            <div class="order-1">
+              <div class="card-glass rounded-[24px] p-5 flex flex-col gap-4">
+                <div class="flex items-center justify-between">
+                  <span class="text-[10px] font-extrabold text-brand-dark uppercase tracking-widest font-header">Sync Console</span>
+                  <span class="flex items-center gap-1.5 text-[9px] font-bold text-brand-success">
+                    <span class="w-1.5 h-1.5 rounded-full bg-brand-success animate-pulse"></span>
+                    All Systems Synced
+                  </span>
+                </div>
+                <!-- Log lines -->
+                <div class="bg-brand-dark/[0.03] rounded-2xl p-4 flex flex-col gap-2 font-mono text-[10px]">
+                  <div v-for="(log, i) in consoleLogs" :key="i" class="flex items-start gap-2 leading-snug">
+                    <span class="text-brand-slate/40 flex-shrink-0">{{ String(i+1).padStart(2,'0') }}</span>
+                    <span :class="log.color">{{ log.text }}</span>
+                  </div>
+                </div>
+                <!-- Integration status chips -->
+                <div class="flex flex-wrap gap-2">
+                  <div v-for="intg in integrations" :key="intg.name"
+                    class="flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-[10px] font-bold font-header"
+                    :class="intg.active ? 'bg-brand-success/8 border-brand-success/25 text-brand-success' : 'bg-black/3 border-black/8 text-brand-slate/60'">
+                    <span class="w-1.5 h-1.5 rounded-full flex-shrink-0" :class="intg.active ? 'bg-brand-success' : 'bg-brand-slate/30'"></span>
+                    {{ intg.name }}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Right text -->
+            <div class="flex flex-col gap-5 text-left order-2">
+              <div class="flex items-center gap-3">
+                <span class="text-[56px] font-extrabold font-header text-black/5 leading-none select-none tracking-tighter">04</span>
+                <div class="w-9 h-9 rounded-xl bg-brand-success/10 border border-brand-success/20 flex items-center justify-center text-brand-success flex-shrink-0">
+                  <PhLightning :size="18" weight="bold" />
+                </div>
+              </div>
+              <div class="flex flex-col gap-2">
+                <div class="text-[10px] font-extrabold text-brand-success uppercase tracking-widest font-header">Ecosystem Automation</div>
+                <h2 class="text-2xl sm:text-3xl font-extrabold font-header text-brand-dark tracking-tight leading-snug">Decisions become<br/>deliverables instantly.</h2>
+                <p class="text-sm sm:text-base text-brand-slate leading-relaxed max-w-sm">
+                  The moment a decision is made, SmartMeet fires your workflow. Jira tickets created. Slack notified. Notion updated. Zero manual effort.
+                </p>
+              </div>
+              <div class="flex flex-col gap-2.5 mt-1">
+                <div v-for="item in automationFeatures" :key="item" class="flex items-center gap-2.5 text-sm text-brand-dark font-medium">
+                  <div class="w-4 h-4 rounded-full bg-brand-success/10 flex items-center justify-center text-brand-success flex-shrink-0">
+                    <PhCheck :size="10" weight="bold" />
+                  </div>
+                  {{ item }}
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ── CAPABILITIES: Compact light grid ── -->
+        <section class="flex flex-col gap-8 border-t border-black/6 pt-16">
+          <div class="text-center flex flex-col items-center gap-2">
+            <h2 class="text-2xl sm:text-3xl font-extrabold font-header text-brand-dark tracking-tight">All capabilities</h2>
+            <p class="text-sm text-brand-slate max-w-md">Every feature built into one platform. No add-ons, no hidden paywalls.</p>
+          </div>
+
+          <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+            <div
+              v-for="cap in capabilities"
+              :key="cap.title"
+              class="card-glass rounded-[18px] p-4 flex flex-col gap-3 hover:shadow-card-hover transition-all duration-300 group"
             >
-              <div class="flex gap-[12px] items-center">
-                <div class="w-[44px] h-[44px] rounded-full bg-primary/8 flex items-center justify-center text-primary">
-                  <component :is="auto.icon" :size="20" weight="bold" />
-                </div>
-                <div class="flex flex-col text-left">
-                  <span class="font-header font-bold text-[15px] text-brand-dark leading-tight">{{ auto.title }}</span>
-                  <span class="text-[13px] text-brand-slate mt-[4px]">{{ auto.desc }}</span>
-                </div>
+              <div class="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0 transition-transform duration-300 group-hover:scale-110"
+                :style="{ backgroundColor: cap.color + '14', border: '1px solid ' + cap.color + '28', color: cap.color }">
+                <component :is="cap.icon" :size="16" weight="bold" />
               </div>
-              <PhArrowRight :size="16" class="text-brand-slate" weight="bold" />
+              <div class="flex flex-col gap-1 text-left">
+                <h3 class="text-xs font-bold font-header text-brand-dark leading-snug">{{ cap.title }}</h3>
+                <p class="text-[11px] text-brand-slate leading-snug">{{ cap.desc }}</p>
+              </div>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      <!-- ── SECTION 6: FINAL CTA CARD ── -->
-      <section class="backdrop-blur-[6px] border border-primary/30 rounded-[24px] p-[48px] text-center flex flex-col gap-[20px] relative overflow-hidden" style="background-image: linear-gradient(105deg, rgba(64, 128, 245, 0.04) 0%, rgba(129, 96, 246, 0.04) 100%)">
-        <h2 class="font-header font-bold text-[32px] sm:text-[36px] text-brand-dark tracking-tight">
-          Ready to upgrade your meetings?
-        </h2>
-        <p class="text-[16px] sm:text-[18px] text-brand-slate max-w-[500px] mx-auto leading-relaxed">
-          Join over 5,000 high-performance teams who have already eliminated meeting fatigue with SmartMeet AI.
-        </p>
-        <div class="mt-[12px]">
-          <button 
-            @click="$emit('navigate', 'signup')"
-            class="px-[36px] py-[16px] rounded-[12px] bg-grad-primary text-white font-header font-bold text-[16px] shadow-[0_4px_15px_rgba(75,104,255,0.2)] hover:shadow-[0_6px_22px_rgba(75,104,255,0.3)] active:scale-98 transition-all cursor-pointer"
-          >
-            Start Free Trial
-          </button>
-        </div>
-      </section>
+        <!-- ── CTA ── -->
+        <section class="card-glass rounded-[28px] p-10 sm:p-14 text-center flex flex-col items-center gap-5 relative overflow-hidden"
+          style="background-image: linear-gradient(135deg, rgba(75,104,255,0.04) 0%, rgba(139,99,245,0.04) 100%)">
+          <div class="absolute inset-0 bg-gradient-to-br from-primary/3 to-accent/3 pointer-events-none"></div>
+          <h2 class="text-3xl sm:text-4xl font-extrabold font-header text-brand-dark tracking-tight leading-tight relative z-10">
+            Ready to make every meeting count?
+          </h2>
+          <p class="text-base text-brand-slate max-w-md leading-relaxed relative z-10">
+            Join 5,000+ teams who have transformed how they meet, decide, and execute with SmartMeet AI.
+          </p>
+          <div class="flex flex-wrap items-center justify-center gap-3 mt-1 relative z-10">
+            <button
+              @click="$emit('navigate', 'signup')"
+              class="px-8 py-3.5 rounded-full font-header font-bold text-sm tracking-wide bg-primary text-white shadow-[0_4px_20px_rgba(75,104,255,0.2)] hover:shadow-[0_6px_30px_rgba(75,104,255,0.3)] hover:-translate-y-0.5 transition-all duration-300 active:scale-95 cursor-pointer"
+            >
+              Start Free Trial — No Card Required
+            </button>
+            <button
+              @click="$emit('navigate', 'pricing')"
+              class="px-8 py-3.5 rounded-full font-header font-bold text-sm tracking-wide border border-black/10 text-brand-dark hover:border-primary/25 hover:text-primary transition-all duration-300 active:scale-95 cursor-pointer"
+            >
+              View Pricing
+            </button>
+          </div>
+          <!-- Social proof -->
+          <div class="flex items-center gap-3 relative z-10">
+            <div class="flex -space-x-2">
+              <img :src="avatar1" class="w-7 h-7 rounded-full border-2 border-white object-cover shadow-sm" />
+              <img :src="avatar2" class="w-7 h-7 rounded-full border-2 border-white object-cover shadow-sm" />
+              <div class="w-7 h-7 rounded-full border-2 border-white bg-primary/15 flex items-center justify-center text-[9px] text-primary font-bold">+</div>
+            </div>
+            <span class="text-xs text-brand-slate font-medium">Trusted by <span class="text-brand-dark font-bold">5,000+</span> teams</span>
+          </div>
+        </section>
 
-    </div>
+      </div>
 
-    <!-- FOOTER NAV LINK SHELL -->
-    <div class="max-w-[1200px] mx-auto px-[24px] mt-[48px]">
       <Footer @navigate="$emit('navigate', $event)" />
     </div>
-
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue'
-import { 
-  PhSparkle, 
-  PhPulse, 
-  PhCheck, 
-  PhCheckSquare, 
-  PhBrain, 
-  PhClockClockwise, 
-  PhArrowRight, 
-  PhFolderSimple, 
-  PhArrowsMerge, 
-  PhEnvelopeSimple, 
-  PhLightning, 
-  PhGlobe, 
+import { ref, onMounted, onUnmounted } from 'vue'
+import {
+  PhSparkle,
+  PhCheck,
+  PhMicrophone,
+  PhMagnifyingGlass,
+  PhLightning,
+  PhBrain,
+  PhFolderSimple,
+  PhArrowsMerge,
+  PhEnvelopeSimple,
+  PhGlobe,
   PhHeartbeat,
-  PhMagnifyingGlass
+  PhShieldCheck,
+  PhChartBar,
+  PhUsersThree,
+  PhPlay,
+  PhArrowRight,
+  PhTranslate,
+  PhNotebook,
 } from '@phosphor-icons/vue'
 
 import Navbar from '../components/Navbar.vue'
 import Footer from '../components/Footer.vue'
 
-// Import assets
-import aiVisualization from '../assets/AI Visualization.png'
-import workflowVisualization from '../assets/Workflow Visualization.png'
-import activityTrend from '../assets/Activity Trend.png'
+import avatar1 from '../assets/Background+Border.png'
+import avatar2 from '../assets/Background+Border-1.png'
 
 defineEmits(['navigate'])
 
-const playDemo = () => {
-  alert('Playing SmartMeet Engine 2.0 demonstration...')
+// ── Hero ──
+const heroStats = [
+  { value: '99.9%', label: 'Accuracy' },
+  { value: '40+', label: 'Languages' },
+  { value: '50+', label: 'Integrations' },
+  { value: '5k+', label: 'Teams' },
+]
+
+// ── Feature 01 ──
+const waveHeights = [30, 65, 90, 45, 75, 50, 80, 35, 60, 50, 85, 40, 70, 25, 95, 55]
+const transcriptBubbles = [
+  { speaker: 'Marcus Chen', text: "Let's lock in Q3 scope today.", self: false },
+  { speaker: 'You', text: 'Agreed. Infrastructure migration should be first.', self: true },
+  { speaker: 'Sarah Kim', text: "I'll flag the QA pipeline risk before we finalize.", self: false },
+]
+const transcriptionFeatures = [
+  'Speaker diarization with voice profile learning',
+  '99.9% word accuracy across 40+ languages',
+  'Works with Zoom, Meet, Teams & in-person',
+]
+
+// ── Feature 02 ──
+const summaryTasks = [
+  { text: 'Update Q3 feature allocation spreadsheet', done: true, priority: 'HIGH' },
+  { text: 'Schedule QA pipeline review for next week', done: false, priority: 'HIGH' },
+  { text: 'Draft technical debt reconciliation plan', done: false, priority: 'MED' },
+]
+const synthesisFeatures = [
+  'Executive summaries generated in under 30 seconds',
+  'Decisions and action items automatically extracted',
+  'Export-ready for email, Notion, and Jira',
+]
+
+// ── Feature 03 ──
+const searchTargetText = 'What did Sarah say about the budget?'
+const typedQuery = ref('')
+const isSearching = ref(false)
+const showSearchResult = ref(false)
+const relatedResults = [
+  'Budget discussion — Q2 Strategy Review · at 22:14',
+  'Marketing spend cap — OKR Planning · at 08:30',
+]
+let typingTimer = null
+
+const startTyping = () => {
+  typedQuery.value = ''
+  isSearching.value = false
+  showSearchResult.value = false
+  let i = 0
+  const type = () => {
+    if (i <= searchTargetText.length) {
+      typedQuery.value = searchTargetText.slice(0, i)
+      i++
+      typingTimer = setTimeout(type, 65)
+    } else {
+      isSearching.value = true
+      typingTimer = setTimeout(() => {
+        isSearching.value = false
+        showSearchResult.value = true
+        typingTimer = setTimeout(startTyping, 5000)
+      }, 900)
+    }
+  }
+  typingTimer = setTimeout(type, 800)
 }
 
-const rtFeatures = [
-  { 
-    title: "Live Transcription", 
-    desc: "Advanced speaker identification with 99.9% accuracy across 40+ languages.", 
-    icon: PhGlobe 
-  },
-  { 
-    title: "Sentiment Analysis", 
-    desc: "Track engagement levels and emotional resonance throughout the session.", 
-    icon: PhHeartbeat 
-  },
-  { 
-    title: "Rolling Summaries", 
-    desc: "Summaries that evolve as the meeting progresses, perfect for late-joiners.", 
-    icon: PhClockClockwise 
-  }
+const memoryFeatures = [
+  'Natural language search across all meetings',
+  'Speaker-attributed answers with timestamps',
+  'Automatic knowledge graph linking topics',
 ]
 
-const memories = [
-  { 
-    title: "Semantic Search", 
-    desc: "Search by intent, not just keywords. Find 'that time we discussed the pricing strategy' even if the word 'pricing' wasn't used.", 
-    icon: PhMagnifyingGlass 
-  },
-  { 
-    title: "Knowledge Graph", 
-    desc: "See how projects evolve through a visual map of interconnected meeting topics and decision nodes.", 
-    icon: PhBrain 
-  },
-  { 
-    title: "AI-Generated Folders", 
-    desc: "Meetings automatically organize themselves into workspaces based on content, team, and project context.", 
-    icon: PhFolderSimple 
-  }
+// ── Feature 04 ──
+const consoleLogs = [
+  { text: '✓  Meeting ended · 7 action items extracted', color: 'text-brand-slate' },
+  { text: '→  Jira: 2 tickets created in #NX-Sprint-09', color: 'text-primary' },
+  { text: '→  Slack: Recap posted to #product-updates', color: 'text-primary' },
+  { text: '→  Notion: "Q3 Roadmap" page updated', color: 'text-primary' },
+  { text: '✓  All workflows synced in 2.3s', color: 'text-brand-success' },
+]
+const integrations = [
+  { name: 'Slack', active: true },
+  { name: 'Jira', active: true },
+  { name: 'Notion', active: true },
+  { name: 'Gmail', active: true },
+  { name: 'Salesforce', active: false },
+  { name: 'HubSpot', active: false },
+]
+const automationFeatures = [
+  'One-click sync to Jira, Slack, Notion & more',
+  'AI-drafted follow-up emails, ready to send',
+  '50+ native integrations, zero configuration',
 ]
 
-const automations = [
-  { 
-    title: "Auto-sync Ecosystem", 
-    desc: "Push action items automatically to Notion, Jira, and Slack.", 
-    icon: PhArrowsMerge 
-  },
-  { 
-    title: "Automated Follow-ups", 
-    desc: "AI drafts personalized follow-up emails for you to review and send.", 
-    icon: PhEnvelopeSimple 
-  },
-  { 
-    title: "Workflow Triggers", 
-    desc: "Trigger custom webhooks and workflows based on meeting decisions.", 
-    icon: PhLightning 
-  }
+// ── Capabilities (compact) ──
+const capabilities = [
+  { title: 'Live Transcription', desc: 'Real-time, speaker-tagged transcripts in 40+ languages.', icon: PhMicrophone, color: '#4b68ff' },
+  { title: 'AI Summaries', desc: 'Executive-quality recaps generated the moment a call ends.', icon: PhSparkle, color: '#8b63f5' },
+  { title: 'Semantic Search', desc: 'Find any conversation by meaning, not just keywords.', icon: PhMagnifyingGlass, color: '#ec4899' },
+  { title: 'Task Automation', desc: 'Action items synced to Jira, Notion & Slack automatically.', icon: PhLightning, color: '#22c55e' },
+  { title: 'Knowledge Graph', desc: 'See how decisions and topics link across all meetings.', icon: PhBrain, color: '#06b6d4' },
+  { title: 'Sentiment Tracking', desc: 'Track team alignment and engagement in every session.', icon: PhHeartbeat, color: '#f59e0b' },
+  { title: 'Multi-language', desc: '40+ languages with real-time translation for global teams.', icon: PhGlobe, color: '#4b68ff' },
+  { title: 'Meeting Analytics', desc: 'Talk-time, engagement heatmaps, and productivity trends.', icon: PhChartBar, color: '#8b63f5' },
+  { title: 'Team Collaboration', desc: 'Share summaries and comment on transcripts together.', icon: PhUsersThree, color: '#ec4899' },
+  { title: 'Enterprise Security', desc: 'SOC 2 Type II, E2E encryption, and SSO support.', icon: PhShieldCheck, color: '#22c55e' },
+  { title: 'Auto-Folders', desc: 'Meetings organize by project, team, and client context.', icon: PhFolderSimple, color: '#06b6d4' },
+  { title: 'Follow-up Drafts', desc: 'AI writes recap emails per participant. You just send.', icon: PhEnvelopeSimple, color: '#f59e0b' },
 ]
+
+const scrollToFeatures = () => {
+  const el = document.getElementById('features-list')
+  if (el) el.scrollIntoView({ behavior: 'smooth' })
+}
+
+onMounted(() => { startTyping() })
+onUnmounted(() => { if (typingTimer) clearTimeout(typingTimer) })
 </script>
 
 <style scoped>
-.bg-grad-primary {
-  background: linear-gradient(135deg, #3c81f5 0%, #845ff6 100%);
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
 }
+.animate-blink { animation: blink 0.9s ease-in-out infinite; }
 
-.bg-grad-text {
-  background: linear-gradient(135deg, #3c81f5 0%, #845ff6 100%);
-}
-
-.animate-spin-slow {
-  animation: spin 8s linear infinite;
-}
-
-@keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
-
-.animate-float {
-  animation: float 4s ease-in-out infinite;
-}
-
-@keyframes float {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-8px); }
-}
-
-.animate-fade-in {
-  animation: fadeIn 0.4s ease-out forwards;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(12px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-.scroll-container::-webkit-scrollbar {
-  width: 4px;
-}
-.scroll-container::-webkit-scrollbar-track {
-  background: transparent;
-}
-.scroll-container::-webkit-scrollbar-thumb {
-  background: rgba(0, 0, 0, 0.08);
-  border-radius: 99px;
-}
+.fade-up-enter-active { transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
+.fade-up-enter-from { opacity: 0; transform: translateY(12px); }
 </style>

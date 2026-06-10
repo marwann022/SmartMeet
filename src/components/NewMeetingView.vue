@@ -47,22 +47,22 @@
           </div>
         </div>
 
-        <!-- Google Meet Integration Section -->
-        <div v-if="createdMeeting.meetLink" class="mt-2 bg-[#4285f4]/8 border border-[#4285f4]/20 rounded-xl p-4 flex flex-col sm:flex-row justify-between items-center gap-4">
+        <!-- Live Call Integration Section -->
+        <div v-if="createdMeeting.type === 'Google Meet' || createdMeeting.type === 'Zoom'" class="mt-2 bg-[#4285f4]/8 border border-[#4285f4]/20 rounded-xl p-4 flex flex-col sm:flex-row justify-between items-center gap-4">
           <div class="flex items-center gap-3.5 w-full">
-            <img :src="googleMeetIcon" alt="Google Meet" class="w-8 h-8 object-contain flex-shrink-0" />
+            <img :src="googleMeetIcon" alt="Live Room" class="w-8 h-8 object-contain flex-shrink-0" />
             <div class="text-left">
-              <span class="text-xs font-bold text-[#1a73e8] block">Google Meet Room Generated</span>
-              <a :href="createdMeeting.meetLink" target="_blank" class="text-xs font-bold text-brand-dark hover:text-primary transition-colors inline-flex items-center gap-1 mt-0.5 break-all">
-                <span>{{ createdMeeting.meetLink }}</span>
+              <span class="text-xs font-bold text-[#1a73e8] block">{{ createdMeeting.meetLink ? 'Google Meet Room Generated' : 'In-App Live Room Ready' }}</span>
+              <a :href="createdMeeting.meetLink || 'https://meet.jit.si/SmartMeet_' + createdMeeting.id" target="_blank" class="text-xs font-bold text-brand-dark hover:text-primary transition-colors inline-flex items-center gap-1 mt-0.5 break-all">
+                <span>{{ createdMeeting.meetLink || 'https://meet.jit.si/SmartMeet_' + createdMeeting.id }}</span>
                 <PhArrowSquareOut :size="12" />
               </a>
             </div>
           </div>
-          <a :href="createdMeeting.meetLink" target="_blank" class="px-5 py-2.5 rounded-lg bg-[#1a73e8] text-white text-xs font-bold tracking-wide transition-all hover:bg-[#1557b0] hover:shadow-md active:scale-95 flex items-center gap-2 flex-shrink-0 cursor-pointer">
-            <span>Join Meet Now</span>
+          <button @click="$emit('joinCall', createdMeeting)" class="px-5 py-2.5 rounded-lg bg-[#1a73e8] text-white text-xs font-bold tracking-wide transition-all hover:bg-[#1557b0] hover:shadow-md active:scale-95 flex items-center gap-2 flex-shrink-0 cursor-pointer">
+            <span>Join Live Call</span>
             <PhVideoCamera :size="14" weight="bold" />
-          </a>
+          </button>
         </div>
       </div>
 
@@ -366,10 +366,15 @@
           <button 
             type="button"
             @click="submitMeeting" 
-            class="w-full py-4 rounded-2xl bg-grad-primary text-white font-header font-bold text-xs tracking-wider uppercase shadow-[0_6px_20px_rgba(75,104,255,0.25)] hover:shadow-[0_8px_25px_rgba(75,104,255,0.35)] hover:scale-[1.01] active:scale-[0.98] transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer"
+            :disabled="isSubmitting"
+            class="w-full py-4 rounded-2xl bg-grad-primary text-white font-header font-bold text-xs tracking-wider uppercase shadow-[0_6px_20px_rgba(75,104,255,0.25)] hover:shadow-[0_8px_25px_rgba(75,104,255,0.35)] hover:scale-[1.01] active:scale-[0.98] transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            <PhSparkle :size="16" weight="bold" />
-            <span>Create Intelligence-Enabled Meeting</span>
+            <svg v-if="isSubmitting" class="animate-spinner h-4 w-4 text-white mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            <PhSparkle v-else :size="16" weight="bold" />
+            <span>{{ isSubmitting ? 'Generating Google Meet...' : 'Create Intelligence-Enabled Meeting' }}</span>
           </button>
           <button 
             type="button"
@@ -409,7 +414,7 @@ import {
 import googleMeetIcon from '../assets/Google_Meet_icon_(2020).svg.png'
 import slackIcon from '../assets/slack.png'
 
-const emit = defineEmits(['meetingCreated', 'goToDashboard'])
+const emit = defineEmits(['meetingCreated', 'goToDashboard', 'joinCall'])
 
 // Form reactive state
 const form = reactive({
@@ -435,6 +440,55 @@ const errors = reactive({
 
 const successState = ref(false)
 const createdMeeting = ref(null)
+
+const isSubmitting = ref(false)
+const accessToken = ref(sessionStorage.getItem('smartmeet_google_access_token') || '')
+
+const getGoogleAccessToken = (callback, errorCallback) => {
+  if (accessToken.value) {
+    callback(accessToken.value)
+    return
+  }
+
+  if (!window.google) {
+    alert('Google Identity services are still loading. Scheduling with Jitsi embedded call instead.')
+    errorCallback('not_loaded')
+    return
+  }
+
+  const clientId = localStorage.getItem('smartmeet_google_client_id')
+  if (!clientId) {
+    alert('Google Client ID is not configured! Scheduling with Jitsi embedded call instead.')
+    errorCallback('no_client_id')
+    return
+  }
+
+  try {
+    const tokenClient = window.google.accounts.oauth2.initTokenClient({
+      client_id: clientId,
+      scope: 'https://www.googleapis.com/auth/calendar.events',
+      callback: (tokenResponse) => {
+        if (tokenResponse.access_token) {
+          sessionStorage.setItem('smartmeet_google_access_token', tokenResponse.access_token)
+          accessToken.value = tokenResponse.access_token
+          callback(tokenResponse.access_token)
+        } else {
+          errorCallback('no_token')
+        }
+      },
+      error_callback: (err) => {
+        console.error(err)
+        alert('Failed to authorize Google Calendar access. Scheduling with Jitsi embedded call instead.')
+        errorCallback(err)
+      }
+    })
+    tokenClient.requestAccessToken({ prompt: '' })
+  } catch (err) {
+    console.error(err)
+    alert('Failed to initialize Google Auth. Scheduling with Jitsi embedded call instead.')
+    errorCallback(err)
+  }
+}
 
 // Actions
 const addParticipant = () => {
@@ -470,44 +524,147 @@ const validateForm = () => {
   return isValid
 }
 
+const createGoogleMeetEvent = async (token, dateObj, formattedDate, formattedTime) => {
+  let durationMinutes = 30
+  if (form.duration.includes('15')) durationMinutes = 15
+  else if (form.duration.includes('45')) durationMinutes = 45
+  else if (form.duration.includes('60')) durationMinutes = 60
+
+  const endRange = new Date(dateObj.getTime() + durationMinutes * 60 * 1000)
+
+  const eventPayload = {
+    summary: form.title,
+    description: form.description ? form.description + '\n\nAI-Enabled meeting by SmartMeet.' : 'AI-Enabled meeting by SmartMeet.',
+    start: {
+      dateTime: dateObj.toISOString(),
+      timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone
+    },
+    end: {
+      dateTime: endRange.toISOString(),
+      timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone
+    },
+    conferenceData: {
+      createRequest: {
+        requestId: 'smartmeet_' + Date.now() + '_' + Math.random().toString(36).substring(2, 9),
+        conferenceSolutionKey: {
+          type: 'hangoutsMeet'
+        }
+      }
+    },
+    attendees: form.participants.map(p => {
+      const match = p.match(/\(([^)]+)\)/)
+      const email = match ? match[1] : p
+      return { email }
+    })
+  }
+
+  try {
+    const response = await fetch('https://www.googleapis.com/calendar/v3/calendars/primary/events?conferenceDataVersion=1', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(eventPayload)
+    })
+
+    if (!response.ok) {
+      const errorData = await response.json()
+      if (response.status === 401) {
+        sessionStorage.removeItem('smartmeet_google_access_token')
+        accessToken.value = ''
+        alert('Google Calendar session expired. Please sign in again.')
+        isSubmitting.value = false
+        return
+      }
+      throw new Error(errorData.error?.message || 'Failed to create Google event')
+    }
+
+    const eventData = await response.json()
+    const meetLink = eventData.hangoutLink || (eventData.conferenceData && eventData.conferenceData.entryPoints && eventData.conferenceData.entryPoints[0]?.uri)
+
+    if (!meetLink) {
+      throw new Error('Google did not return a Meet link. Please check if Google Calendar has conferencing enabled.')
+    }
+
+    createdMeeting.value = {
+      id: Date.now(),
+      title: form.title,
+      description: form.description,
+      type: form.type,
+      datetime: form.datetime,
+      date: formattedDate,
+      time: formattedTime,
+      duration: form.duration,
+      participantsCount: form.participants.length,
+      meetLink: meetLink,
+      participants: [...form.participants]
+    }
+
+    emit('meetingCreated', createdMeeting.value)
+    successState.value = true
+  } catch (err) {
+    console.error(err)
+    alert('Failed to generate Google Meet room: ' + err.message + '\nScheduling with Jitsi embedded call instead.')
+    createdMeeting.value = {
+      id: Date.now(),
+      title: form.title,
+      description: form.description,
+      type: form.type,
+      datetime: form.datetime,
+      date: formattedDate,
+      time: formattedTime,
+      duration: form.duration,
+      participantsCount: form.participants.length,
+      meetLink: '',
+      participants: [...form.participants]
+    }
+    emit('meetingCreated', createdMeeting.value)
+    successState.value = true
+  } finally {
+    isSubmitting.value = false
+  }
+}
+
 const submitMeeting = () => {
   if (!validateForm()) return
 
-  // Format Date and Time for presentation
   const dateObj = new Date(form.datetime)
   const formattedDate = dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
   const formattedTime = dateObj.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
 
-  // Google Meet Room Generation if Google Meet type is selected
-  let generatedMeetLink = ''
+  const createLocalMeeting = () => {
+    createdMeeting.value = {
+      id: Date.now(),
+      title: form.title,
+      description: form.description,
+      type: form.type,
+      datetime: form.datetime,
+      date: formattedDate,
+      time: formattedTime,
+      duration: form.duration,
+      participantsCount: form.participants.length,
+      meetLink: '',
+      participants: [...form.participants]
+    }
+    emit('meetingCreated', createdMeeting.value)
+    successState.value = true
+    isSubmitting.value = false
+  }
+
   if (form.type === 'Google Meet') {
-    // Generate a random meet code: e.g. xxx-yyyy-zzz
-    const chars = 'abcdefghijklmnopqrstuvwxyz'
-    const part1 = Array.from({length: 3}, () => chars[Math.floor(Math.random() * chars.length)]).join('')
-    const part2 = Array.from({length: 4}, () => chars[Math.floor(Math.random() * chars.length)]).join('')
-    const part3 = Array.from({length: 3}, () => chars[Math.floor(Math.random() * chars.length)]).join('')
-    generatedMeetLink = `https://meet.google.com/${part1}-${part2}-${part3}`
+    isSubmitting.value = true
+    getGoogleAccessToken(
+      (token) => {
+        createGoogleMeetEvent(token, dateObj, formattedDate, formattedTime)
+      },
+      (err) => {
+        createLocalMeeting()
+      }
+    )
+  } else {
+    createLocalMeeting()
   }
-
-  createdMeeting.value = {
-    id: Date.now(),
-    title: form.title,
-    description: form.description,
-    type: form.type,
-    datetime: form.datetime,
-    date: formattedDate,
-    time: formattedTime,
-    duration: form.duration,
-    participantsCount: form.participants.length,
-    meetLink: generatedMeetLink,
-    participants: [...form.participants]
-  }
-
-  // Emit event to Dashboard parent component to append it to meetings array
-  emit('meetingCreated', createdMeeting.value)
-
-  // Trigger success screen state
-  successState.value = true
 }
 
 const resetForm = () => {

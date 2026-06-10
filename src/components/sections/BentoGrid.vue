@@ -40,11 +40,11 @@
         </div>
 
         <div class="flex flex-col gap-3.5 mt-7">
-          <div class="flex justify-between items-center px-5 py-3.5 rounded-2xl bg-white/40 border border-black/[0.04] transition-all duration-300 border-green-500/20 bg-green-500/5">
+          <div class="flex justify-between items-center px-5 py-3.5 rounded-2xl border transition-all duration-300 border-green-500/20 bg-green-500/5">
             <span class="text-xs font-bold text-brand-dark">Positive Feedback</span>
             <span class="text-green-600 bg-green-500/12 py-1 px-2.5 rounded-full text-xs font-bold">84%</span>
           </div>
-          <div class="flex justify-between items-center px-5 py-3.5 rounded-2xl bg-white/40 border border-black/[0.04] transition-all duration-300 border-primary/20 bg-primary/5">
+          <div class="flex justify-between items-center px-5 py-3.5 rounded-2xl border transition-all duration-300 border-primary/20 bg-primary/5">
             <span class="text-xs font-bold text-brand-dark">Alignment Score</span>
             <span class="text-primary bg-primary/12 py-1 px-2.5 rounded-full text-xs font-bold">92%</span>
           </div>

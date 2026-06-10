@@ -1,19 +1,19 @@
 <template>
-  <div class="w-full max-w-full m-0 p-0 overflow-x-hidden">
-    <div class="flex min-h-screen w-screen bg-brand-bg relative text-left">
+  <div class="w-[100%] max-w-[100%] m-[0px] p-[0px] overflow-x-hidden">
+    <div class="flex min-h-[100vh] w-[100%] bg-brand-bg relative text-left">
       <!-- LEFT FIXED SIDEBAR -->
-      <aside class="w-[260px] h-screen fixed left-0 top-0 bottom-0 bg-white/75 border-r border-black/5 backdrop-blur-[20px] z-50 flex flex-col justify-between p-6">
-        <div class="flex flex-col gap-8">
+      <aside class="w-[260px] h-[100vh] fixed left-[0px] top-[0px] bottom-[0px] bg-white/75 border-r border-black/5 backdrop-blur-[20px] z-50 flex flex-col justify-between p-[24px]">
+        <div class="flex flex-col gap-[32px]">
           <!-- Logo -->
           <div class="flex items-center transition-all duration-300 hover:scale-[1.02] cursor-pointer self-start" @click="$emit('navigate', 'home')">
-            <img :src="logoWordmark" alt="SmartMeet" class="h-16 w-auto block" />
+            <img :src="logoWordmark" alt="SmartMeet" class="h-[64px] w-auto block" />
           </div>
 
           <!-- Menu items -->
-          <div class="flex flex-col gap-1">
+          <div class="flex flex-col gap-[4px]">
             <!-- New meeting button wrapper -->
-            <div class="mb-4">
-              <button class="inline-flex items-center justify-center gap-2 px-[24px] py-[12px] rounded-[12px] font-header font-bold text-[11px] tracking-wider uppercase bg-white/80 text-brand-dark border border-black/8 hover:bg-white hover:border-primary/20 hover:shadow-[0_4px_15px_rgba(31,38,135,0.04)] hover:text-primary hover:-translate-y-[2px] transition-all duration-300 w-full cursor-pointer focus:outline-none" @click="createNewMeeting">
+            <div class="mb-[16px]">
+              <button class="inline-flex items-center justify-center gap-[8px] px-[24px] py-[12px] rounded-[12px] font-header font-bold text-[11px] tracking-wider uppercase bg-white/80 text-brand-dark border border-black/8 hover:bg-white hover:border-primary/20 hover:shadow-[0_4px_15px_rgba(31,38,135,0.04)] hover:text-primary hover:-translate-y-[2px] transition-all duration-300 w-[100%] cursor-pointer focus:outline-none focus-visible:outline-none focus:ring-0 focus-visible:ring-0" @click="createNewMeeting">
                 <span>New Meeting</span>
                 <PhPlus :size="14" weight="bold" />
               </button>
@@ -23,8 +23,8 @@
             <button 
               v-for="tab in menuTabs" 
               :key="tab.id"
-              class="w-full py-[14px] px-[16px] rounded-[12px] flex items-center gap-[14px] font-header font-bold text-xs tracking-wide transition-all duration-300 border border-transparent cursor-pointer group text-left focus:outline-none"
-              :class="currentTab === tab.id ? 'bg-primary/8 text-primary border-primary/8 shadow-[inset_0_1px_3px_rgba(75,104,255,0.05)]' : 'text-brand-slate hover:bg-primary/4 hover:text-brand-dark hover:translate-x-1'"
+              class="w-[100%] py-[14px] px-[16px] rounded-[12px] flex items-center gap-[14px] font-header font-bold text-[12px] tracking-wide transition-all duration-300 border border-transparent cursor-pointer group text-left focus:outline-none focus-visible:outline-none focus:ring-0 focus-visible:ring-0"
+              :class="currentTab === tab.id ? 'bg-primary/8 text-primary border-primary/8 shadow-[inset_0_1px_3px_rgba(75,104,255,0.05)]' : 'text-brand-slate hover:bg-primary/4 hover:text-primary hover:translate-x-[4px]'"
               @click="currentTab = tab.id"
             >
               <component 
@@ -40,8 +40,8 @@
         </div>
 
         <!-- User profile section at the bottom -->
-        <div class="flex items-center gap-3 pt-4 border-t border-black/5">
-          <img :src="userProfileImg" alt="Profile" class="w-11 h-11 rounded-full object-cover border border-white/85 shadow-sm" />
+        <div class="flex items-center gap-[12px] pt-[16px] border-t border-black/5">
+          <img :src="userProfileImg" alt="Profile" class="w-[44px] h-[44px] rounded-full object-cover border border-white/85 shadow-sm" />
           <div class="flex flex-col">
             <span class="text-[11px] font-bold text-brand-dark leading-tight">Alex Chen</span>
             <span class="text-[9px] font-extrabold text-primary tracking-wider uppercase">Pro Tier</span>
@@ -50,76 +50,78 @@
       </aside>
 
       <!-- MAIN SCROLLABLE CONTENT AREA -->
-      <main class="flex-1 ml-[260px] min-h-screen px-8 sm:px-12 py-8 bg-brand-bg relative overflow-y-auto w-[calc(100vw-260px)]">
+      <main class="flex-1 mt-[80px] ml-[260px] min-h-[100vh] px-[32px] sm:px-[48px] py-[32px] bg-brand-bg relative overflow-y-auto w-[calc(100%-260px)]">
         <!-- TOP INNER HEADER NAVIGATION -->
-        <header class="sticky top-5 z-[40] flex items-center justify-between px-7 py-2.5 rounded-full bg-white/65 border border-white/70 shadow-glass backdrop-blur-[20px] mb-8 transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] hover:border-white/85 hover:bg-white/75 hover:shadow-[0_12px_40px_0_rgba(31,38,135,0.08),0_0_20px_rgba(75,104,255,0.05)]">
-          <nav class="flex items-center gap-6">
-            <a href="#" class="text-xs font-semibold text-brand-slate hover:text-primary transition-colors py-1.5 px-3.5 rounded-full hover:bg-primary/5" @click.prevent="$emit('navigate', 'home')">Home</a>
-            <a href="#" class="text-xs font-semibold text-brand-slate hover:text-primary transition-colors py-1.5 px-3.5 rounded-full hover:bg-primary/5" @click.prevent="$emit('navigate', 'features')">Features</a>
-            <a href="#" class="text-xs font-semibold text-brand-slate hover:text-primary transition-colors py-1.5 px-3.5 rounded-full hover:bg-primary/5" @click.prevent="$emit('navigate', 'pricing')">Pricing</a>
-            <a href="#" class="text-xs font-semibold py-1.5 px-3.5 rounded-full text-primary bg-primary/5 border border-primary/10" @click.prevent>Dashboard</a>
-          </nav>
-          <div class="flex items-center gap-4">
-            <button class="px-[20px] py-[10px] rounded-full bg-white border border-black/8 text-brand-dark font-header font-bold text-xs tracking-wider uppercase hover:bg-black/5 hover:border-black/15 active:scale-[0.98] transition-all duration-300 cursor-pointer focus:outline-none" @click="$emit('navigate', 'home')">
-              Log Out
-            </button>
-          </div>
-        </header>
+        <div class="fixed left-[260px] right-[0px] top-[20px] px-[32px] sm:px-[48px] z-[40]">
+          <header class="flex items-center justify-between px-[28px] py-[10px] rounded-full bg-white/65 border border-white/70 shadow-glass backdrop-blur-[20px] transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] hover:border-white/85 hover:bg-white/75 hover:shadow-[0_12px_40px_0_rgba(31,38,135,0.08),0_0_20px_rgba(75,104,255,0.05)]">
+            <nav class="flex items-center gap-[24px]">
+              <a href="#" class="text-[12px] font-semibold text-brand-slate hover:text-primary transition-colors py-[6px] px-[14px] rounded-full hover:bg-primary/5" @click.prevent="$emit('navigate', 'home')">Home</a>
+              <a href="#" class="text-[12px] font-semibold text-brand-slate hover:text-primary transition-colors py-[6px] px-[14px] rounded-full hover:bg-primary/5" @click.prevent="$emit('navigate', 'features')">Features</a>
+              <a href="#" class="text-[12px] font-semibold text-brand-slate hover:text-primary transition-colors py-[6px] px-[14px] rounded-full hover:bg-primary/5" @click.prevent="$emit('navigate', 'pricing')">Pricing</a>
+              <a href="#" class="text-[12px] font-semibold py-[6px] px-[14px] rounded-full text-primary bg-primary/5 border border-primary/10" @click.prevent>Dashboard</a>
+            </nav>
+            <div class="flex items-center gap-[16px]">
+              <button class="px-[20px] py-[10px] rounded-full bg-white border border-black/8 text-brand-dark font-header font-bold text-[12px] tracking-wider uppercase hover:bg-black/5 hover:border-black/15 active:scale-[0.98] transition-all duration-300 cursor-pointer focus:outline-none focus-visible:outline-none focus:ring-0 focus-visible:ring-0" @click="$emit('navigate', 'home')">
+                Log Out
+              </button>
+            </div>
+          </header>
+        </div>
 
         <!-- SUB VIEW: Tab switching -->
         <div v-if="currentTab === 'dashboard'">
           <!-- Welcome header row -->
-          <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
+          <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-[32px] gap-[16px]">
             <div>
-              <h1 class="text-3xl sm:text-4xl font-bold font-header text-brand-dark tracking-tight mb-2">Good morning, Alex.</h1>
+              <h1 class="text-[30px] sm:text-[36px] font-bold font-header text-brand-dark tracking-tight mb-[8px]">Good morning, Alex.</h1>
               <p class="text-[14px]">
                 AI analyzed <span class="font-bold text-primary">12 meetings</span> this week. Productivity is up by 18%.
               </p>
             </div>
-            <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-primary/8 border border-primary/10 shadow-sm text-xs font-bold text-primary select-none">
-              <span class="relative flex h-2 w-2">
-                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
-                <span class="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
+            <div class="inline-flex items-center gap-[8px] px-[14px] py-[6px] rounded-full bg-primary/8 border border-primary/10 shadow-sm text-[12px] font-bold text-primary select-none">
+              <span class="relative flex h-[8px] w-[8px]">
+                <span class="animate-ping absolute inline-flex h-[100%] w-[100%] rounded-full bg-primary opacity-75"></span>
+                <span class="relative inline-flex rounded-full h-[8px] w-[8px] bg-primary"></span>
               </span>
               <span>AI Live Syncing</span>
             </div>
           </div>
 
           <!-- Section: Recent Meetings -->
-          <section class="mb-10">
-            <div class="flex justify-between items-center mb-5">
-              <h2 class="text-xl sm:text-2xl font-bold font-header text-brand-dark tracking-tight flex items-center gap-2">
+          <section class="mb-[40px]">
+            <div class="flex justify-between items-center mb-[20px]">
+              <h2 class="text-[20px] sm:text-[24px] font-bold font-header text-brand-dark tracking-tight flex items-center gap-[8px]">
                 <PhClock :size="22" weight="bold" class="text-primary" />
                 Recent Meetings
               </h2>
-              <button class="inline-flex items-center justify-center gap-2 px-4 py-1.5 rounded-xl font-header font-bold text-[11px] tracking-wider uppercase bg-white/80 text-brand-dark border border-black/8 hover:bg-white hover:border-primary/20 hover:text-primary transition-all duration-300 cursor-pointer" @click="viewAllMeetings">View All</button>
+              <button class="inline-flex items-center justify-center gap-[8px] px-[16px] py-[6px] rounded-xl font-header font-bold text-[11px] tracking-wider uppercase bg-white/80 text-brand-dark border border-black/8 hover:bg-white hover:border-primary/20 hover:text-primary transition-all duration-300 cursor-pointer" @click="viewAllMeetings">View All</button>
             </div>
 
             <!-- Bento Meetings Grid -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-[24px] mb-[32px]">
               <!-- Render first 2 meetings from reactive data (excluding Standup) -->
               <div 
                 v-for="meeting in meetings.filter(m => m.title !== 'Daily Standup: Engineering').slice(0, 2)" 
                 :key="meeting.id" 
                 @click="openMeetingDetails(meeting)"
-                class="card-glass rounded-[28px] p-6 flex flex-col justify-between min-h-[200px] hover:translate-y-[-2px] transition-all cursor-pointer text-left"
+                class="card-glass rounded-[28px] p-[24px] flex flex-col justify-between min-h-[200px] hover:translate-y-[-2px] transition-all cursor-pointer text-left"
               >
                 <div class="flex justify-between items-start">
-                  <div class="w-10 h-10 rounded-xl bg-primary/6 border border-primary/15 flex items-center justify-center text-primary shadow-sm flex-shrink-0 transition-transform duration-300 hover:scale-105">
+                  <div class="w-[40px] h-[40px] rounded-xl bg-primary/6 border border-primary/15 flex items-center justify-center text-primary shadow-sm flex-shrink-0 transition-transform duration-300 hover:scale-105">
                     <PhVideoCamera v-if="meeting.type === 'Zoom' || meeting.type === 'Google Meet'" :size="20" weight="bold" />
                     <PhUser v-else :size="20" weight="bold" />
                   </div>
-                  <span class="inline-block text-[9px] font-extrabold px-2 py-0.5 rounded-md self-start tracking-wider uppercase border bg-secondary/8 border-secondary/15 text-secondary">
+                  <span class="inline-block text-[9px] font-extrabold px-[8px] py-[2px] rounded-md self-start tracking-wider uppercase border bg-secondary/8 border-secondary/15 text-secondary">
                     {{ meeting.type }}
                   </span>
                 </div>
-                <div class="my-4">
-                  <h4 class="text-lg font-bold font-header text-brand-dark mb-1.5">{{ meeting.title }}</h4>
-                  <p class="text-xs sm:text-sm leading-relaxed text-brand-slate line-clamp-3">
+                <div class="my-[16px]">
+                  <h4 class="text-[18px] font-bold font-header text-brand-dark mb-[6px]">{{ meeting.title }}</h4>
+                  <p class="text-[12px] sm:text-[14px] leading-relaxed text-brand-slate line-clamp-3">
                     AI Summary: {{ meeting.bullets ? meeting.bullets[0] : meeting.description }}
                   </p>
                 </div>
-                <div class="flex justify-between items-center border-t border-black/5 pt-3.5 text-xs text-brand-slate font-semibold">
+                <div class="flex justify-between items-center border-t border-black/5 pt-[14px] text-[12px] text-brand-slate font-semibold">
                   <span>{{ meeting.duration }}</span>
                   <span>{{ meeting.participantsCount || meeting.participants?.length || 0 }} participants</span>
                 </div>
@@ -129,28 +131,28 @@
               <div 
                 v-if="engineeringStandup"
                 @click="openMeetingDetails(engineeringStandup)"
-                class="col-span-1 md:col-span-2 p-6 rounded-[28px] flex flex-col md:flex-row gap-6 items-center bg-gradient-to-br from-primary/5 via-white/40 to-white/70 border border-white/80 shadow-glass backdrop-blur-md transition-all duration-300 hover:shadow-card-hover hover:border-white/95 cursor-pointer text-left"
+                class="col-span-1 md:col-span-2 p-[24px] rounded-[28px] flex flex-col md:flex-row gap-[24px] items-center bg-gradient-to-br from-primary/5 via-white/40 to-white/70 border border-white/80 shadow-glass backdrop-blur-md transition-all duration-300 hover:shadow-card-hover hover:border-white/95 cursor-pointer text-left"
               >
-                <div class="w-full md:w-[220px] h-[140px] rounded-2xl bg-white/50 border border-black/5 flex items-center justify-center p-3 relative overflow-hidden flex-shrink-0">
-                  <img :src="activityTrendImg" alt="Activity Trend" class="w-full h-full object-contain filter drop-shadow-[0_2px_10px_rgba(75,104,255,0.08)]" />
+                <div class="w-[100%] md:w-[220px] h-[140px] rounded-2xl bg-white/50 border border-black/5 flex items-center justify-center p-[12px] relative overflow-hidden flex-shrink-0">
+                  <img :src="activityTrendImg" alt="Activity Trend" class="w-[100%] h-[100%] object-contain filter drop-shadow-[0_2px_10px_rgba(75,104,255,0.08)]" />
                 </div>
-                <div class="flex-1 flex flex-col justify-between items-start gap-4 text-left w-full">
-                  <div class="flex justify-between items-start w-full">
-                    <h4 class="text-lg font-bold font-header text-brand-dark">{{ engineeringStandup.title }}</h4>
-                    <span class="inline-block text-[9px] font-extrabold px-2 py-0.5 rounded-md self-start tracking-wider uppercase border bg-red-500/8 border-red-500/15 text-red-500">Critical</span>
+                <div class="flex-1 flex flex-col justify-between items-start gap-[16px] text-left w-[100%]">
+                  <div class="flex justify-between items-start w-[100%]">
+                    <h4 class="text-[18px] font-bold font-header text-brand-dark">{{ engineeringStandup.title }}</h4>
+                    <span class="inline-block text-[9px] font-extrabold px-[8px] py-[2px] rounded-md self-start tracking-wider uppercase border bg-red-500/8 border-red-500/15 text-red-500">Critical</span>
                   </div>
-                  <p class="text-xs leading-relaxed text-brand-dark font-medium">
+                  <p class="text-[12px] leading-relaxed text-brand-dark font-medium">
                     <strong>AI Action Items:</strong> 
                     <span v-for="(task, index) in engineeringStandup.tasks.slice(0, 3)" :key="task.id">
                       {{ index + 1 }}. {{ task.title }} &nbsp;
                     </span>
                   </p>
-                  <div class="flex justify-between items-center border-t border-black/5 pt-3 w-full mt-2">
+                  <div class="flex justify-between items-center border-t border-black/5 pt-[12px] w-[100%] mt-[8px]">
                     <div class="flex items-center">
-                      <img :src="avatar1" alt="" class="w-8 h-8 rounded-full border border-white/90 shadow-sm object-cover -ml-2.5 first:ml-0" />
-                      <div class="w-8 h-8 rounded-full border border-white/90 shadow-sm -ml-2.5 bg-primary/20 flex items-center justify-center text-[10px] text-primary font-bold">JD</div>
-                      <img :src="avatar2" alt="" class="w-8 h-8 rounded-full border border-white/90 shadow-sm object-cover -ml-2.5" />
-                      <div class="w-8 h-8 rounded-full border border-white/90 shadow-sm bg-white/80 flex items-center justify-center text-[10px] font-bold text-brand-slate -ml-2.5">+5</div>
+                      <img :src="avatar1" alt="" class="w-[32px] h-[32px] rounded-full border border-white/90 shadow-sm object-cover -ml-[10px] first:ml-[0px]" />
+                      <div class="w-[32px] h-[32px] rounded-full border border-white/90 shadow-sm -ml-[10px] bg-primary/20 flex items-center justify-center text-[10px] text-primary font-bold">JD</div>
+                      <img :src="avatar2" alt="" class="w-[32px] h-[32px] rounded-full border border-white/90 shadow-sm object-cover -ml-[10px]" />
+                      <div class="w-[32px] h-[32px] rounded-full border border-white/90 shadow-sm bg-white/80 flex items-center justify-center text-[10px] font-bold text-brand-slate -ml-[10px]">+5</div>
                     </div>
                     <span class="text-[11px] text-brand-slate font-semibold">{{ engineeringStandup.date }}</span>
                   </div>
@@ -160,25 +162,25 @@
           </section>
 
           <!-- Middle grid section: Activity Chart & Insights Panel -->
-          <div class="grid grid-cols-1 lg:grid-cols-[1.2fr_0.8fr] gap-6 mb-8">
+          <div class="grid grid-cols-1 lg:grid-cols-[1.2fr_0.8fr] gap-[24px] mb-[32px]">
             <!-- Productivity Overview Bar Chart -->
-            <div class="card-glass rounded-[28px] p-7 flex flex-col justify-between h-[360px]">
-              <div class="flex justify-between items-start mb-6">
+            <div class="card-glass rounded-[28px] p-[28px] flex flex-col justify-between h-[360px]">
+              <div class="flex justify-between items-start mb-[24px]">
                 <div>
-                  <h3 class="text-lg sm:text-xl font-bold font-header text-brand-dark">Activity Overview</h3>
-                  <p class="text-xs text-brand-slate">Productivity metrics across workspaces</p>
+                  <h3 class="text-[18px] sm:text-[20px] font-bold font-header text-brand-dark">Activity Overview</h3>
+                  <p class="text-[12px] text-brand-slate">Productivity metrics across workspaces</p>
                 </div>
                 <!-- Week / Month toggle -->
-                <div class="flex bg-black/5 p-1 rounded-xl border border-black/[0.03] gap-1">
+                <div class="flex bg-black/5 p-[4px] rounded-xl border border-black/[0.03] gap-[4px]">
                   <button 
-                    class="px-3 py-1.5 rounded-lg text-[9px] font-extrabold tracking-wider uppercase text-brand-slate transition-all duration-300 hover:text-brand-dark cursor-pointer"
+                    class="px-[12px] py-[6px] rounded-lg text-[9px] font-extrabold tracking-wider uppercase text-brand-slate transition-all duration-300 hover:text-brand-dark cursor-pointer"
                     :class="activeChartPeriod === 'week' ? 'bg-white text-primary border border-black/5 shadow-sm' : ''"
                     @click="activeChartPeriod = 'week'"
                   >
                     Week
                   </button>
                   <button 
-                    class="px-3 py-1.5 rounded-lg text-[9px] font-extrabold tracking-wider uppercase text-brand-slate transition-all duration-300 hover:text-brand-dark cursor-pointer"
+                    class="px-[12px] py-[6px] rounded-lg text-[9px] font-extrabold tracking-wider uppercase text-brand-slate transition-all duration-300 hover:text-brand-dark cursor-pointer"
                     :class="activeChartPeriod === 'month' ? 'bg-white text-primary border border-black/5 shadow-sm' : ''"
                     @click="activeChartPeriod = 'month'"
                   >
@@ -188,11 +190,11 @@
               </div>
 
               <!-- Animated Chart bars -->
-              <div class="flex justify-between items-end gap-2.5 h-[160px] px-2.5 mb-4">
-                <div v-for="(val, idx) in currentChartValues" :key="idx" class="flex-1 flex flex-col items-center gap-2">
+              <div class="flex justify-between items-end gap-[10px] h-[160px] px-[10px] mb-[16px]">
+                <div v-for="(val, idx) in currentChartValues" :key="idx" class="flex-1 flex flex-col items-center gap-[8px]">
                   <div class="w-[18px] sm:w-[24px] h-[160px] bg-black/3 rounded-full relative overflow-hidden flex items-end">
                     <div 
-                      class="w-full bg-primary/30 rounded-full transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]"
+                      class="w-[100%] bg-primary/30 rounded-full transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]"
                       :class="{ 'bg-grad-primary shadow-[0_2px_10px_rgba(75,104,255,0.15)]': idx === 3 }"
                       :style="{ height: val + '%' }"
                     ></div>
@@ -201,93 +203,93 @@
               </div>
 
               <!-- Chart Days label row -->
-              <div class="flex justify-between items-center text-[10px] font-bold text-brand-slate uppercase tracking-wide px-2.5">
+              <div class="flex justify-between items-center text-[10px] font-bold text-brand-slate uppercase tracking-wide px-[10px]">
                 <span v-for="day in chartLabels" :key="day" class="flex-1 text-center font-bold">{{ day }}</span>
               </div>
             </div>
 
             <!-- AI Insights Panel -->
-            <div class="card-glass rounded-[28px] p-7 flex flex-col h-[360px] justify-between text-left">
+            <div class="card-glass rounded-[28px] p-[28px] flex flex-col h-[360px] justify-between text-left">
               <!-- Header -->
-              <div class="flex items-center gap-3 mb-6">
+              <div class="flex items-center gap-[12px] mb-[24px]">
                 <PhSparkle :size="22" weight="bold" class="text-primary" />
-                <h3 class="text-lg sm:text-xl font-bold font-header text-brand-dark">AI Insights</h3>
+                <h3 class="text-[18px] sm:text-[20px] font-bold font-header text-brand-dark">AI Insights</h3>
               </div>
 
               <div class="flex flex-col gap-4 flex-grow justify-center mb-4">
                 <!-- Peak 1 -->
-                <div class="p-4 rounded-2xl bg-white/40 border border-black/[0.03] flex flex-col gap-1.5 transition-all duration-300 hover:bg-white/60 hover:border-black/5">
-                  <div class="text-[8px] font-extrabold tracking-wider uppercase text-primary bg-primary/8 px-2 py-0.5 rounded border border-primary/10 self-start">CONCENTRATION PEAK</div>
-                  <p class="text-xs leading-relaxed text-brand-dark font-medium">
+                <div class="p-[16px] rounded-2xl bg-white/40 border border-black/[0.03] flex flex-col gap-[6px] transition-all duration-300 hover:bg-white/60 hover:border-black/5">
+                  <div class="text-[8px] font-extrabold tracking-wider uppercase text-primary bg-primary/8 px-[8px] py-[2px] rounded border border-primary/10 self-start">CONCENTRATION PEAK</div>
+                  <p class="text-[12px] leading-relaxed text-brand-dark font-medium">
                     Your deep work sessions are most effective between <span class="text-primary font-bold">9:00 AM - 11:30 AM</span>.
                   </p>
                 </div>
 
                 <!-- Peak 2 -->
-                <div class="p-4 rounded-2xl bg-white/40 border border-black/[0.03] flex flex-col gap-1.5 transition-all duration-300 hover:bg-white/60 hover:border-black/5">
-                  <div class="text-[8px] font-extrabold tracking-wider uppercase text-secondary bg-secondary/8 px-2 py-0.5 rounded border border-secondary/10 self-start">MEETING BURNOUT RISK</div>
-                  <p class="text-xs leading-relaxed text-brand-dark font-medium">
+                <div class="p-[16px] rounded-2xl bg-white/40 border border-black/[0.03] flex flex-col gap-[6px] transition-all duration-300 hover:bg-white/60 hover:border-black/5">
+                  <div class="text-[8px] font-extrabold tracking-wider uppercase text-secondary bg-secondary/8 px-[8px] py-[2px] rounded border border-secondary/10 self-start">MEETING BURNOUT RISK</div>
+                  <p class="text-[12px] leading-relaxed text-brand-dark font-medium">
                     Scheduled back-to-back meetings tomorrow. AI suggests a <span class="text-secondary font-bold">15-minute gap</span> at 2 PM.
                   </p>
                 </div>
               </div>
 
               <!-- Action button -->
-              <button class="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-header font-bold text-[11px] tracking-wider uppercase bg-white/80 text-brand-dark border border-primary/20 hover:bg-white hover:border-primary/40 hover:text-primary transition-all duration-300 w-full cursor-pointer" @click="exploreTrends">
+              <button class="inline-flex items-center justify-center gap-[8px] px-[24px] py-[12px] rounded-xl font-header font-bold text-[11px] tracking-wider uppercase bg-white/80 text-brand-dark border border-primary/20 hover:bg-white hover:border-primary/40 hover:text-primary transition-all duration-300 w-[100%] cursor-pointer" @click="exploreTrends">
                 Explore Trends
               </button>
             </div>
           </div>
 
           <!-- Bottom grid section: Upcoming schedule & Pending checklist -->
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-[24px] mb-[32px]">
             <!-- Upcoming Schedule Card -->
-            <div class="card-glass rounded-[28px] p-7 flex flex-col text-left">
-              <h3 class="text-lg sm:text-xl font-bold font-header text-brand-dark mb-5">Upcoming</h3>
+            <div class="card-glass rounded-[28px] p-[28px] flex flex-col text-left">
+              <h3 class="text-[18px] sm:text-[20px] font-bold font-header text-brand-dark mb-[20px]">Upcoming</h3>
               
-              <div class="flex flex-col gap-3">
-                <div v-for="item in upcomingMeetings" :key="item.id" class="flex gap-4 items-center p-3 rounded-2xl bg-white/40 border border-black/[0.03] transition-all duration-300 hover:bg-white/60 hover:border-black/5">
+              <div class="flex flex-col gap-[12px]">
+                <div v-for="item in upcomingMeetings" :key="item.id" class="flex gap-[16px] items-center p-[12px] rounded-2xl bg-white/40 border border-black/[0.03] transition-all duration-300 hover:bg-white/60 hover:border-black/5">
                   <div 
-                    class="w-11 h-11 rounded-xl flex flex-col items-center justify-center text-white flex-shrink-0 select-none"
+                    class="w-[44px] h-[44px] rounded-xl flex flex-col items-center justify-center text-white flex-shrink-0 select-none"
                     :class="item.featured ? 'bg-grad-primary shadow-[0_2px_8px_rgba(75,104,255,0.15)]' : 'bg-white/70 border border-black/5 text-brand-slate shadow-none'"
                   >
                     <span class="text-[8px] font-extrabold uppercase tracking-wider">{{ item.month }}</span>
-                    <span class="text-lg font-bold font-header leading-none">{{ item.day }}</span>
+                    <span class="text-[18px] font-bold font-header leading-none">{{ item.day }}</span>
                   </div>
                   <div class="flex-1 text-left">
-                    <h4 class="text-sm font-bold text-brand-dark mb-1">{{ item.title }}</h4>
-                    <span class="text-xs text-brand-slate font-medium">{{ item.time }} • {{ item.location }}</span>
+                    <h4 class="text-[14px] font-bold text-brand-dark mb-[4px]">{{ item.title }}</h4>
+                    <span class="text-[12px] text-brand-slate font-medium">{{ item.time }} • {{ item.location }}</span>
                   </div>
                 </div>
               </div>
             </div>
 
             <!-- Pending Tasks Card -->
-            <div class="card-glass rounded-[28px] p-7 flex flex-col text-left">
-              <div class="flex justify-between items-center mb-5">
-                <h3 class="text-lg sm:text-xl font-bold font-header text-brand-dark">Pending Tasks</h3>
-                <span class="inline-block text-[9px] font-extrabold px-2 py-0.5 rounded-md self-start tracking-wider uppercase border bg-red-500/8 border-red-500/15 text-red-500">
+            <div class="card-glass rounded-[28px] p-[28px] flex flex-col text-left">
+              <div class="flex justify-between items-center mb-[20px]">
+                <h3 class="text-[18px] sm:text-[20px] font-bold font-header text-brand-dark">Pending Tasks</h3>
+                <span class="inline-block text-[9px] font-extrabold px-[8px] py-[2px] rounded-md self-start tracking-wider uppercase border bg-red-500/8 border-red-500/15 text-red-500">
                   {{ tasks.filter(t => t.priority === 'HIGH PRIORITY' && t.status !== 'done').length }} High
                 </span>
               </div>
 
               <!-- Task checklist list -->
-              <div class="flex flex-col gap-3">
+              <div class="flex flex-col gap-[12px]">
                 <div 
                   v-for="task in tasks.slice(0, 3)" 
                   :key="task.id"
-                  class="flex items-center gap-3.5 p-3.5 rounded-2xl bg-white/40 border border-black/[0.03] cursor-pointer transition-all duration-300 hover:bg-white/75 hover:border-black/8 hover:translate-x-1 select-none"
+                  class="flex items-center gap-[14px] p-[14px] rounded-2xl bg-white/40 border border-black/[0.03] cursor-pointer transition-all duration-300 hover:bg-white/75 hover:border-black/8 hover:translate-x-[4px] select-none"
                   :class="{ 'bg-white/20 border-black/3 opacity-80': task.status === 'done' }"
                   @click="toggleDashboardTask(task)"
                 >
                   <div 
-                    class="w-5 h-5 rounded-md border-2 border-brand-slate/40 flex items-center justify-center transition-all duration-300"
+                    class="w-[20px] h-[20px] rounded-md border-2 border-brand-slate/40 flex items-center justify-center transition-all duration-300"
                     :class="task.status === 'done' ? 'border-primary bg-primary text-white' : ''"
                   >
                     <PhCheck v-if="task.status === 'done'" :size="14" weight="bold" class="text-white" />
                   </div>
                   <span 
-                    class="text-xs font-semibold text-brand-dark transition-all duration-300"
+                    class="text-[12px] font-semibold text-brand-dark transition-all duration-300"
                     :class="{ 'line-through text-brand-slate': task.status === 'done' }"
                   >
                     {{ task.title }}
@@ -298,9 +300,9 @@
           </div>
 
           <!-- Inner Footer -->
-          <footer class="flex justify-between items-center text-[9px] font-bold text-brand-slate tracking-wide uppercase mt-12 py-6 border-t border-black/5">
+          <footer class="flex justify-between items-center text-[9px] font-bold text-brand-slate tracking-wide uppercase mt-[48px] py-[24px] border-t border-black/5">
             <span>© 2026 SmartMeet AI Inc. All rights reserved.</span>
-            <div class="flex gap-6">
+            <div class="flex gap-[24px]">
               <a href="#" class="hover:text-primary transition-colors" @click.prevent>Terms of Service</a>
               <a href="#" class="hover:text-primary transition-colors" @click.prevent>Security</a>
               <a href="#" class="hover:text-primary transition-colors" @click.prevent>Cookies</a>
@@ -333,14 +335,20 @@
           <NewMeetingView 
             @meetingCreated="handleMeetingCreated" 
             @goToDashboard="currentTab = 'dashboard'" 
+            @joinCall="handleJoinLiveCall"
           />
         </div>
 
+        <!-- Live Call Tab -->
+        <div v-else-if="currentTab === 'live-call' && activeLiveMeeting">
+          <EmbeddedMeeting :meeting="activeLiveMeeting" @close="currentTab = 'dashboard'; activeLiveMeeting = null" />
+        </div>
+
         <!-- Default Placeholder fallback tab -->
-        <div v-else class="card-glass rounded-[28px] p-16 text-center mt-10">
-          <h3 class="text-2xl font-bold font-header text-brand-dark mb-3 capitalize">{{ currentTab }} View</h3>
-          <p class="text-sm text-brand-slate max-w-[440px] mx-auto mb-6">This section is coming soon.</p>
-          <button class="px-5 py-2.5 rounded-xl bg-grad-primary text-white font-header font-bold text-xs tracking-wider uppercase cursor-pointer" @click="currentTab = 'dashboard'">Back to Dashboard</button>
+        <div v-else class="card-glass rounded-[28px] p-[64px] text-center mt-[40px]">
+          <h3 class="text-[24px] font-bold font-header text-brand-dark mb-[12px] capitalize">{{ currentTab }} View</h3>
+          <p class="text-[14px] text-brand-slate max-w-[440px] mx-auto mb-[24px]">This section is coming soon.</p>
+          <button class="px-[20px] py-[10px] rounded-xl bg-grad-primary text-white font-header font-bold text-[12px] tracking-wider uppercase cursor-pointer" @click="currentTab = 'dashboard'">Back to Dashboard</button>
         </div>
       </main>
     </div>
@@ -370,6 +378,7 @@ import NewMeetingView from '../components/NewMeetingView.vue'
 import ArchiveView from '../components/ArchiveView.vue'
 import SettingsView from '../components/SettingsView.vue'
 import KnowledgeAIView from '../components/KnowledgeAIView.vue'
+import EmbeddedMeeting from '../components/EmbeddedMeeting.vue'
 
 // Import assets
 import logoWordmark from '../assets/new logo.png'
@@ -538,6 +547,12 @@ const meetings = ref([
 const engineeringStandup = computed(() => meetings.value.find(m => m.title === 'Daily Standup: Engineering'))
 
 const selectedArchiveMeeting = ref(null)
+const activeLiveMeeting = ref(null)
+
+const handleJoinLiveCall = (meeting) => {
+  activeLiveMeeting.value = meeting
+  currentTab.value = 'live-call'
+}
 
 const openMeetingDetails = (meeting) => {
   selectedArchiveMeeting.value = meeting
