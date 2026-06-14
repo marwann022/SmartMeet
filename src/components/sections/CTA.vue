@@ -7,14 +7,14 @@
       </p>
 
       <div class="flex flex-wrap items-center justify-center gap-4">
-        <Button variant="primary" class="bg-white !text-primary hover:bg-white/95" @click="$emit('navigate', 'signup')">
+        <Button variant="primary" class="bg-white !text-white hover:bg-white/95" @click="$emit('navigate', 'signup')">
           Start Free Trial
           <PhArrowRight :size="14" weight="bold" class="ml-1.5 transition-transform duration-300 group-hover:translate-x-1" />
         </Button>
-        <Button variant="secondary" class="border-white/20 !text-white hover:bg-white/10 hover:border-white/40" outlined @click="talkToSales">Talk to sales</Button>
+        <Button variant="secondary" class="border-white/20 !text-primary hover:bg-white/10 hover:border-white/40" outlined @click="talkToSales">Talk to sales</Button>
       </div>
       
-      <p class="text-[11px] text-white/60">No credit card required. Cancel anytime.</p>
+      <p class="text-[11px] text-white/85">No credit card required. Cancel anytime.</p>
     </div>
   </section>
 </template>

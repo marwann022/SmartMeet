@@ -58,7 +58,7 @@
           <div class="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-center py-14 border-t border-black/6">
             <div class="flex flex-col gap-5 text-left order-2 lg:order-1">
               <div class="flex items-center gap-3">
-                <span class="text-[56px] font-extrabold font-header text-black/5 leading-none select-none tracking-tighter">01</span>
+                <span class="text-[56px] font-extrabold font-header text-black/15 leading-none select-none tracking-tighter">01</span>
                 <div class="w-9 h-9 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary flex-shrink-0">
                   <PhMicrophone :size="18" weight="bold" />
                 </div>
@@ -159,7 +159,7 @@
             <!-- Right text -->
             <div class="flex flex-col gap-5 text-left order-2">
               <div class="flex items-center gap-3">
-                <span class="text-[56px] font-extrabold font-header text-black/5 leading-none select-none tracking-tighter">02</span>
+                <span class="text-[56px] font-extrabold font-header text-black/15 leading-none select-none tracking-tighter">02</span>
                 <div class="w-9 h-9 rounded-xl bg-secondary/10 border border-secondary/20 flex items-center justify-center text-secondary flex-shrink-0">
                   <PhSparkle :size="18" weight="bold" />
                 </div>
@@ -186,7 +186,7 @@
           <div class="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-center py-14 border-t border-black/6">
             <div class="flex flex-col gap-5 text-left order-2 lg:order-1">
               <div class="flex items-center gap-3">
-                <span class="text-[56px] font-extrabold font-header text-black/5 leading-none select-none tracking-tighter">03</span>
+                <span class="text-[56px] font-extrabold font-header text-black/15 leading-none select-none tracking-tighter">03</span>
                 <div class="w-9 h-9 rounded-xl bg-accent/10 border border-accent/20 flex items-center justify-center text-accent flex-shrink-0">
                   <PhMagnifyingGlass :size="18" weight="bold" />
                 </div>
@@ -289,7 +289,7 @@
             <!-- Right text -->
             <div class="flex flex-col gap-5 text-left order-2">
               <div class="flex items-center gap-3">
-                <span class="text-[56px] font-extrabold font-header text-black/5 leading-none select-none tracking-tighter">04</span>
+                <span class="text-[56px] font-extrabold font-header text-black/15 leading-none select-none tracking-tighter">04</span>
                 <div class="w-9 h-9 rounded-xl bg-brand-success/10 border border-brand-success/20 flex items-center justify-center text-brand-success flex-shrink-0">
                   <PhLightning :size="18" weight="bold" />
                 </div>
