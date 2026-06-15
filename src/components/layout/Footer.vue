@@ -3,7 +3,7 @@
     <div class="flex flex-col md:flex-row justify-between gap-12 mb-12">
       <!-- Brand Column -->
       <div class="flex flex-col gap-4 max-w-sm">
-        <img src="../assets/new logo.png" alt="SmartMeet" class="h-10 block self-start" />
+        <img src="@/assets/new logo.png" alt="SmartMeet" class="h-10 block self-start" />
         <p class="text-xs text-brand-slate leading-relaxed">
           Pioneering the future of organizational intelligence through advanced voice AI and semantic analysis.
         </p>
@@ -13,9 +13,9 @@
       <div class="grid grid-cols-2 sm:grid-cols-4 gap-8 md:gap-12">
         <div class="flex flex-col gap-3">
           <h4 class="text-[11px] font-bold text-brand-dark tracking-wider uppercase mb-1.5">Product</h4>
-          <a href="#product" class="text-xs text-brand-slate transition-all duration-300 hover:text-primary" @click.prevent="$emit('navigate', 'home#product')">Features</a>
-          <a href="#integrations" class="text-xs text-brand-slate transition-all duration-300 hover:text-primary" @click.prevent="$emit('navigate', 'home#integrations')">Integrations</a>
-          <a href="#testimonials" class="text-xs text-brand-slate transition-all duration-300 hover:text-primary" @click.prevent="$emit('navigate', 'home#testimonials')">Pricing</a>
+          <router-link to="/features" class="text-xs text-brand-slate transition-all duration-300 hover:text-primary">Features</router-link>
+          <router-link to="/#integrations" class="text-xs text-brand-slate transition-all duration-300 hover:text-primary">Integrations</router-link>
+          <router-link to="/pricing" class="text-xs text-brand-slate transition-all duration-300 hover:text-primary">Pricing</router-link>
         </div>
 
         <div class="flex flex-col gap-3">
@@ -29,7 +29,7 @@
           <h4 class="text-[11px] font-bold text-brand-dark tracking-wider uppercase mb-1.5">Company</h4>
           <a href="#" class="text-xs text-brand-slate transition-all duration-300 hover:text-primary" @click.prevent>About Us</a>
           <a href="#" class="text-xs text-brand-slate transition-all duration-300 hover:text-primary" @click.prevent>Careers</a>
-          <a href="#" class="text-xs text-brand-slate transition-all duration-300 hover:text-primary" @click.prevent="$emit('navigate', 'signin')">Privacy Policy</a>
+          <router-link to="/signin" class="text-xs text-brand-slate transition-all duration-300 hover:text-primary">Sign In</router-link>
         </div>
 
         <div class="flex flex-col gap-3">
@@ -62,6 +62,4 @@
 
 <script setup>
 import { PhTwitterLogo, PhLinkedinLogo } from '@phosphor-icons/vue'
-
-defineEmits(['navigate'])
 </script>

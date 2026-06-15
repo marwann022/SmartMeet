@@ -84,7 +84,7 @@
         <!-- Footer navigation -->
         <div class="text-xs text-brand-slate gap-1.5 flex justify-center mt-2">
           <span>Don't have an account?</span>
-          <a href="#" class="text-primary font-bold hover:underline" @click.prevent="$emit('navigate', 'signup')">Sign up for free</a>
+          <router-link to="/signup" class="text-primary font-bold hover:underline">Sign up for free</router-link>
         </div>
       </div>
     </div>
@@ -93,13 +93,13 @@
 
 <script setup>
 import { ref } from 'vue'
+import { useRouter } from 'vue-router'
 import { PhEnvelope, PhLock } from '@phosphor-icons/vue'
-import Navbar from '../components/Navbar.vue'
-import googleIcon from '../assets/Google.png'
-import appleIcon from '../assets/Apple_logo_black.svg'
+import Navbar from '@/components/layout/Navbar.vue'
+import googleIcon from '@/assets/Google.png'
+import appleIcon from '@/assets/Apple_logo_black.svg'
 
-defineEmits(['navigate'])
-
+const router = useRouter()
 const email = ref('')
 const password = ref('')
 const loading = ref(false)
@@ -108,12 +108,12 @@ const handleSignIn = () => {
   loading.value = true
   setTimeout(() => {
     loading.value = false
-    alert(`Successfully logged in as ${email.value}!`)
-  }, 1500)
+    router.push('/dashboard')
+  }, 1000)
 }
 
 const handleSSOLogin = (provider) => {
-  alert(`Simulating SSO Login with ${provider}...`)
+  router.push('/dashboard')
 }
 
 const forgotPassword = () => {
