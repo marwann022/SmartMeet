@@ -32,26 +32,19 @@
         <!-- Summary Detail Level -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div class="flex flex-col gap-2">
-            <label class="font-header font-bold text-[11px] tracking-wider uppercase text-brand-slate ml-1">Summary Detail Level</label>
-            <select 
-              v-model="generalForm.detailLevel"
-              class="w-full px-4 py-3.5 rounded-xl bg-white border border-black/8 font-body text-sm text-brand-dark focus:outline-none focus:border-primary/30 transition-all duration-300 cursor-pointer"
-            >
-              <option value="standard">Standard (Executive summary & key milestones)</option>
-              <option value="comprehensive">Comprehensive (All items, transcript timestamps, speaker analysis)</option>
-            </select>
+            <Select 
+              v-model="generalForm.detailLevel" 
+              :options="detailLevelOptions"
+              label="Summary Detail Level"
+            />
           </div>
 
           <div class="flex flex-col gap-2">
-            <label class="font-header font-bold text-[11px] tracking-wider uppercase text-brand-slate ml-1">AI Summary Focus</label>
-            <select 
-              v-model="generalForm.focusType"
-              class="w-full px-4 py-3.5 rounded-xl bg-white border border-black/8 font-body text-sm text-brand-dark focus:outline-none focus:border-primary/30 transition-all duration-300 cursor-pointer"
-            >
-              <option value="tasks">Action Items & Deliverables</option>
-              <option value="decisions">Decisions & Key Agreements</option>
-              <option value="balanced">Balanced Recipient Summary</option>
-            </select>
+            <Select 
+              v-model="generalForm.focusType" 
+              :options="focusTypeOptions"
+              label="AI Summary Focus"
+            />
           </div>
         </div>
       </div>
@@ -199,6 +192,18 @@ import {
   PhGoogleLogo, 
   PhCheck 
 } from '@phosphor-icons/vue'
+import Select from '../ui/Select.vue'
+
+const detailLevelOptions = [
+  { value: 'standard', label: 'Standard (Executive summary & key milestones)' },
+  { value: 'comprehensive', label: 'Comprehensive (All items, transcript timestamps, speaker analysis)' }
+]
+
+const focusTypeOptions = [
+  { value: 'tasks', label: 'Action Items & Deliverables' },
+  { value: 'decisions', label: 'Decisions & Key Agreements' },
+  { value: 'balanced', label: 'Balanced Recipient Summary' }
+]
 
 // Import assets
 import notionIcon from '../../assets/Notion-logo.svg.png'

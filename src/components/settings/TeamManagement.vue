@@ -104,12 +104,11 @@
               <input v-model="inviteForm.email" type="email" placeholder="Email..." class="w-full px-3.5 py-2.5 rounded-xl bg-white border border-black/8 font-body text-xs text-brand-dark focus:outline-none" />
             </div>
             <div class="flex flex-col gap-1">
-              <label class="text-[10px] font-extrabold text-brand-slate uppercase">Workspace Role</label>
-              <select v-model="inviteForm.role" class="w-full px-3.5 py-2.5 rounded-xl bg-white border border-black/8 font-body text-xs text-brand-dark focus:outline-none cursor-pointer">
-                <option value="Admin">Administrator</option>
-                <option value="Manager">Manager</option>
-                <option value="Member">Regular Member</option>
-              </select>
+              <Select 
+                v-model="inviteForm.role" 
+                :options="roleOptions"
+                label="Workspace Role"
+              />
             </div>
             
             <button @click="sendInvite" class="w-full py-2.5 mt-2 rounded-xl bg-grad-primary text-white font-header font-bold text-[11px] uppercase tracking-wide transition-all cursor-pointer">
@@ -149,6 +148,13 @@ import {
   PhMagnifyingGlass, 
   PhDotsThreeOutlineVertical 
 } from '@phosphor-icons/vue'
+import Select from '../ui/Select.vue'
+
+const roleOptions = [
+  { value: 'Admin', label: 'Administrator' },
+  { value: 'Manager', label: 'Manager' },
+  { value: 'Member', label: 'Regular Member' }
+]
 
 // Import assets
 import userProfileImg from '../../assets/User Profile.png'

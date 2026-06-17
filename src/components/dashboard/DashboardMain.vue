@@ -1,19 +1,28 @@
 <template>
   <div>
     <!-- Welcome header row -->
-    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-[32px] gap-[16px]">
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-[32px] gap-[16px] flex-wrap">
       <div>
         <h1 class="text-[30px] sm:text-[36px] font-bold font-header text-brand-dark tracking-tight mb-[8px]">Good morning, Alex.</h1>
         <p class="text-[14px]">
           AI analyzed <span class="font-bold text-primary">{{ meetingStore.meetings.length + 8 }} meetings</span> this week. Productivity is up by 18%.
         </p>
       </div>
-      <div class="inline-flex items-center gap-[8px] px-[14px] py-[6px] rounded-full bg-primary/8 border border-primary/10 shadow-sm text-[12px] font-bold text-primary select-none animate-pulse-soft">
-        <span class="relative flex h-[8px] w-[8px]">
-          <span class="animate-ping absolute inline-flex h-[100%] w-[100%] rounded-full bg-primary opacity-75"></span>
-          <span class="relative inline-flex rounded-full h-[8px] w-[8px] bg-primary"></span>
-        </span>
-        <span>AI Live Syncing</span>
+      <div class="flex items-center gap-4 flex-wrap sm:flex-nowrap">
+        <!-- Local Search Bar -->
+        <SearchBar 
+          v-model="localSearchQuery" 
+          placeholder="Search dashboard..." 
+          class="w-64"
+        />
+        
+        <div class="inline-flex items-center gap-[8px] px-[14px] py-[6px] rounded-full bg-primary/8 border border-primary/10 shadow-sm text-[12px] font-bold text-primary select-none animate-pulse-soft flex-shrink-0">
+          <span class="relative flex h-[8px] w-[8px]">
+            <span class="animate-ping absolute inline-flex h-[100%] w-[100%] rounded-full bg-primary opacity-75"></span>
+            <span class="relative inline-flex rounded-full h-[8px] w-[8px] bg-primary"></span>
+          </span>
+          <span>AI Live Syncing</span>
+        </div>
       </div>
     </div>
 
@@ -211,15 +220,6 @@
       </div>
     </div>
 
-    <!-- Inner Footer -->
-    <footer class="flex justify-between items-center text-[9px] font-bold text-brand-slate tracking-wide uppercase mt-[48px] py-[24px] border-t border-black/5">
-      <span>© 2026 SmartMeet AI Inc. All rights reserved.</span>
-      <div class="flex gap-[24px]">
-        <a href="#" class="hover:text-primary transition-colors" @click.prevent>Terms of Service</a>
-        <a href="#" class="hover:text-primary transition-colors" @click.prevent>Security</a>
-        <a href="#" class="hover:text-primary transition-colors" @click.prevent>Cookies</a>
-      </div>
-    </footer>
   </div>
 </template>
 
@@ -231,6 +231,7 @@ import { useMeetingStore } from '../../stores/meeting'
 import { useTaskStore } from '../../stores/task'
 import MeetingCard from './MeetingCard.vue'
 import Button from '../ui/Button.vue'
+import SearchBar from '../ui/SearchBar.vue'
 
 // Import assets
 import activityTrendImg from '../../assets/Activity Trend.png'
@@ -247,12 +248,13 @@ const props = defineProps({
 const router = useRouter()
 const meetingStore = useMeetingStore()
 const taskStore = useTaskStore()
+const localSearchQuery = ref('')
 
 // Filtered Standard meetings list (excluding Standup)
 const filteredStandardMeetings = computed(() => {
   const list = meetingStore.meetings.filter(m => m.title !== 'Daily Standup: Engineering')
-  if (!props.searchQuery) return list
-  const q = props.searchQuery.toLowerCase()
+  if (!localSearchQuery.value) return list
+  const q = localSearchQuery.value.toLowerCase()
   return list.filter(m => m.title.toLowerCase().includes(q) || (m.description && m.description.toLowerCase().includes(q)))
 })
 
@@ -261,22 +263,22 @@ const engineeringStandup = computed(() => {
 })
 
 const matchesSearch = (meeting) => {
-  if (!props.searchQuery) return true
-  const q = props.searchQuery.toLowerCase()
+  if (!localSearchQuery.value) return true
+  const q = localSearchQuery.value.toLowerCase()
   return meeting.title.toLowerCase().includes(q) || (meeting.description && meeting.description.toLowerCase().includes(q))
 }
 
 const filteredUpcomingMeetings = computed(() => {
   const list = meetingStore.upcomingMeetings
-  if (!props.searchQuery) return list
-  const q = props.searchQuery.toLowerCase()
+  if (!localSearchQuery.value) return list
+  const q = localSearchQuery.value.toLowerCase()
   return list.filter(m => m.title.toLowerCase().includes(q))
 })
 
 const filteredTasks = computed(() => {
   const list = taskStore.tasks
-  if (!props.searchQuery) return list
-  const q = props.searchQuery.toLowerCase()
+  if (!localSearchQuery.value) return list
+  const q = localSearchQuery.value.toLowerCase()
   return list.filter(t => t.title.toLowerCase().includes(q) || (t.description && t.description.toLowerCase().includes(q)))
 })
 

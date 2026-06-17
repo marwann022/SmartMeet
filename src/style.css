@@ -8,6 +8,55 @@
   }
 }
 
+/* Disable default browser and DaisyUI focus rings, black outlines, and active strokes system-wide */
+*:focus,
+*:focus-visible,
+*:active,
+*:focus-within,
+button:focus,
+button:focus-visible,
+button:active,
+input:focus,
+input:focus-visible,
+input:active,
+select:focus,
+select:focus-visible,
+select:active,
+textarea:focus,
+textarea:focus-visible,
+textarea:active,
+a:focus,
+a:focus-visible,
+a:active,
+[role="button"]:focus,
+[role="button"]:focus-visible,
+[role="button"]:active {
+  outline: none !important;
+  outline-width: 0 !important;
+  outline-color: transparent !important;
+  -webkit-tap-highlight-color: transparent !important;
+}
+
+/* Reset focus ring box-shadow variables used by Tailwind and DaisyUI on buttons/links, preserving custom shadow glows */
+button:focus,
+button:focus-visible,
+button:active,
+.btn:focus,
+.btn:focus-visible,
+.btn:active,
+a:focus,
+a:focus-visible,
+a:active,
+[role="button"]:focus,
+[role="button"]:focus-visible,
+[role="button"]:active {
+  --tw-ring-offset-shadow: 0 0 #0000 !important;
+  --tw-ring-shadow: 0 0 #0000 !important;
+  --tw-ring-width: 0px !important;
+  --tw-ring-color: transparent !important;
+}
+
+
 /* Custom Scrollbar */
 ::-webkit-scrollbar {
   width: 10px;
@@ -100,7 +149,7 @@ body::after {
 
 /* Shell and view container layouts */
 .page-shell {
-  @apply w-full max-w-[1240px] mx-auto px-4 sm:px-6 lg:px-8 flex flex-col min-h-screen;
+  @apply w-full max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 flex flex-col min-h-screen;
 }
 .home-view {
   @apply flex flex-col gap-12 lg:gap-16;

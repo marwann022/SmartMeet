@@ -1,10 +1,30 @@
 <template>
-  <aside class="w-[260px] h-[100vh] fixed left-[0px] top-[0px] bottom-[0px] bg-white/75 border-r border-black/5 backdrop-blur-[20px] z-50 flex flex-col justify-between p-[24px]">
+  <aside 
+    class="w-[260px] h-[100vh] fixed top-[0px] bottom-[0px] bg-white/75 border-r border-black/5 backdrop-blur-[20px] z-50 flex flex-col justify-between p-[24px] transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)]"
+    :class="uiStore.sidebarOpen ? 'left-[0px]' : 'left-[-260px]'"
+  >
+    <!-- Floating border collapse/expand toggle button -->
+    <button 
+      @click="uiStore.toggleSidebar"
+      class="absolute top-[32px] w-[26px] h-[26px] rounded-full bg-white/90 border border-black/8 shadow-[0_2px_8px_rgba(0,0,0,0.08)] hover:shadow-[0_4px_12px_rgba(75,104,255,0.15)] flex items-center justify-center transition-all duration-300 hover:scale-110 hover:border-primary/20 active:scale-95 cursor-pointer focus:outline-none z-[100]"
+      :class="uiStore.sidebarOpen ? 'right-[-13px]' : 'right-[-32px]'"
+      :title="uiStore.sidebarOpen ? 'Collapse Sidebar' : 'Expand Sidebar'"
+    >
+      <PhCaretLeft 
+        :size="12" 
+        weight="bold" 
+        class="text-brand-slate hover:text-primary transition-transform duration-300"
+        :class="{ 'rotate-180': !uiStore.sidebarOpen }"
+      />
+    </button>
+
     <div class="flex flex-col gap-[32px]">
-      <!-- Logo -->
-      <router-link to="/" class="flex items-center transition-all duration-300 hover:scale-[1.02] cursor-pointer self-start">
-        <img src="../../assets/new logo.png" alt="SmartMeet" class="h-[64px] w-auto block" />
-      </router-link>
+      <!-- Logo row -->
+      <div class="flex items-center justify-between w-full">
+        <router-link to="/" class="flex items-center transition-all duration-300 hover:scale-[1.02] cursor-pointer self-start">
+          <img src="../../assets/new logo.png" alt="SmartMeet" class="h-[64px] w-auto block" />
+        </router-link>
+      </div>
 
       <!-- Menu items -->
       <div class="flex flex-col gap-[4px]">
@@ -58,10 +78,13 @@ import {
   PhArchive, 
   PhCheckSquare, 
   PhBrain, 
-  PhGear 
+  PhGear,
+  PhCaretLeft
 } from '@phosphor-icons/vue'
+import { useUiStore } from '../../stores/ui'
 
 const route = useRoute()
+const uiStore = useUiStore()
 
 const menuTabs = [
   { id: 'dashboard', label: 'Dashboard', route: '/dashboard', icon: PhLayout },

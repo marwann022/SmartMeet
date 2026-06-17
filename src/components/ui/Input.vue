@@ -12,7 +12,8 @@
         @input="$emit('update:modelValue', $event.target.value)"
         v-bind="$attrs"
         :class="[
-          'w-full py-3 rounded-xl bg-white border font-body text-sm text-brand-dark placeholder-brand-slate/40 focus:outline-none focus:border-primary/30 focus:shadow-[0_0_0_3px_rgba(75,104,255,0.08)] transition-all duration-300',
+          'w-full py-3 rounded-xl bg-white border font-body text-sm text-brand-dark placeholder-brand-slate/40 focus:outline-none transition-all duration-300',
+          themeFocusClasses[theme] || themeFocusClasses.primary,
           $slots.icon ? 'pl-10 pr-4' : 'px-4'
         ]"
       />
@@ -29,8 +30,20 @@ defineProps({
   label: {
     type: String,
     default: ''
+  },
+  theme: {
+    type: String,
+    default: 'primary'
   }
 })
 
 defineEmits(['update:modelValue'])
+
+const themeFocusClasses = {
+  primary: 'border-black/8 focus:border-primary/30 focus:shadow-[0_0_0_3px_rgba(75,104,255,0.08)]',
+  todo: 'border-primary/20 focus:border-primary/30 focus:shadow-[0_0_0_3px_rgba(75,104,255,0.08)]',
+  inprogress: 'border-amber-500/20 focus:border-amber-500/30 focus:shadow-[0_0_0_3px_rgba(245,158,11,0.08)]',
+  review: 'border-red-500/20 focus:border-red-500/30 focus:shadow-[0_0_0_3px_rgba(239,68,68,0.08)]',
+  done: 'border-emerald-500/20 focus:border-emerald-500/30 focus:shadow-[0_0_0_3px_rgba(16,185,129,0.08)]'
+}
 </script>

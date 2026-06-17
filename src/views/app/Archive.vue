@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col gap-8 text-left">
+  <div class="flex flex-col gap-8 text-left mt-8">
     
     <!-- Detail View Active -->
     <div v-if="meetingStore.selectedMeeting" class="flex flex-col gap-8 animate-fade-in">
@@ -204,10 +204,18 @@
     <div v-else class="flex flex-col gap-6">
       
       <!-- List header -->
-      <div class="flex justify-between items-center">
+      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-2">
         <div>
           <h2 class="text-3xl font-bold font-header text-brand-dark tracking-tight">Archive</h2>
           <p class="text-sm text-brand-slate mt-1">Review past intelligence-enabled meetings and action items</p>
+        </div>
+        <div class="flex items-center gap-4 flex-shrink-0 w-full sm:w-auto">
+          <!-- Local Search Bar -->
+          <SearchBar 
+            v-model="localSearchQuery" 
+            placeholder="Search meetings..." 
+            class="w-64"
+          />
         </div>
       </div>
 

@@ -2,7 +2,7 @@
   <button
     :class="[
       'inline-flex items-center justify-center gap-2 rounded-xl font-header font-bold text-[11px] tracking-wider uppercase transition-all duration-300 active:scale-[0.97] disabled:opacity-50 disabled:pointer-events-none cursor-pointer focus:outline-none',
-      variantClasses[variant],
+      variant === 'primary' ? (themePrimaryClasses[theme] || themePrimaryClasses.primary) : variantClasses[variant],
       sizeClasses[size],
       block ? 'w-full' : ''
     ]"
@@ -39,6 +39,10 @@ defineProps({
   loading: {
     type: Boolean,
     default: false
+  },
+  theme: {
+    type: String,
+    default: 'primary'
   }
 })
 
@@ -49,6 +53,14 @@ const variantClasses = {
   outline: 'bg-transparent border border-black/10 text-brand-dark hover:bg-black/5',
   glass: 'bg-white/80 text-brand-dark border border-black/8 hover:bg-white hover:border-primary/20 hover:text-primary hover:shadow-[0_4px_15px_rgba(31,38,135,0.04)] hover:-translate-y-[2px]',
   danger: 'border border-red-200 text-red-500 bg-red-50/60 hover:bg-red-50 hover:border-red-300'
+}
+
+const themePrimaryClasses = {
+  primary: 'bg-grad-primary text-white shadow-[0_4px_15px_rgba(75,104,255,0.25)] hover:shadow-[0_6px_22px_rgba(75,104,255,0.4)] hover:scale-[1.02]',
+  todo: 'bg-primary text-white shadow-[0_4px_15px_rgba(75,104,255,0.25)] hover:shadow-[0_6px_22px_rgba(75,104,255,0.4)] hover:scale-[1.02]',
+  inprogress: 'bg-amber-600 text-white shadow-[0_4px_15px_rgba(245,158,11,0.25)] hover:shadow-[0_6px_22px_rgba(245,158,11,0.4)] hover:scale-[1.02]',
+  review: 'bg-red-500 text-white shadow-[0_4px_15px_rgba(239,68,68,0.25)] hover:shadow-[0_6px_22px_rgba(239,68,68,0.4)] hover:scale-[1.02]',
+  done: 'bg-emerald-500 text-white shadow-[0_4px_15px_rgba(16,185,129,0.25)] hover:shadow-[0_6px_22px_rgba(16,185,129,0.4)] hover:scale-[1.02]'
 }
 
 const sizeClasses = {

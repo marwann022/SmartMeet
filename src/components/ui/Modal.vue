@@ -1,15 +1,19 @@
 <template>
   <Teleport to="body">
     <Transition name="modal">
-      <div v-if="show" class="fixed inset-0 z-[300] flex items-center justify-center p-4" @click.self="$emit('close')">
+      <div v-if="show" class="fixed inset-0 z-[300] flex items-center justify-center p-4">
         <!-- Backdrop -->
-        <div class="absolute inset-0 bg-black/20 backdrop-blur-sm"></div>
+        <div 
+          class="modal-backdrop absolute inset-0 bg-black/45 backdrop-blur-[6px]" 
+          @click="$emit('close')"
+        ></div>
         
         <!-- Content panel -->
         <div 
           :class="[
-            'relative w-full bg-white/95 border border-white/80 backdrop-blur-[24px] rounded-[24px] shadow-[0_32px_80px_rgba(31,38,135,0.12)] p-8 flex flex-col gap-5 transition-all duration-300',
-            maxWidthClass[maxWidth]
+            'modal-panel relative w-full bg-white/95 border border-white/80 backdrop-blur-[24px] rounded-[24px] shadow-[0_32px_80px_rgba(31,38,135,0.12)] p-8 flex flex-col gap-5 z-10 transition-all duration-300',
+            maxWidthClass[maxWidth],
+            themeAccentBorder[theme] || ''
           ]"
         >
           <!-- Close button -->
@@ -48,6 +52,10 @@ defineProps({
     type: String,
     default: 'md',
     validator: (v) => ['sm', 'md', 'lg', 'xl'].includes(v)
+  },
+  theme: {
+    type: String,
+    default: 'primary'
   }
 })
 
@@ -59,11 +67,40 @@ const maxWidthClass = {
   lg: 'max-w-lg',
   xl: 'max-w-xl'
 }
+
+const themeAccentBorder = {
+  primary: '',
+  todo: 'border-t-4 border-t-primary',
+  inprogress: 'border-t-4 border-t-amber-500',
+  review: 'border-t-4 border-t-red-500',
+  done: 'border-t-4 border-t-emerald-500'
+}
 </script>
 
 <style scoped>
-.modal-enter-active { transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
-.modal-leave-active { transition: all 0.2s ease-in; }
-.modal-enter-from   { opacity: 0; transform: scale(0.93); }
-.modal-leave-to     { opacity: 0; transform: scale(0.97); }
+/* Backdrop transitions - Fade only */
+.modal-enter-active .modal-backdrop,
+.modal-leave-active .modal-backdrop {
+  transition: opacity 0.3s ease;
+}
+.modal-enter-from .modal-backdrop,
+.modal-leave-to .modal-backdrop {
+  opacity: 0;
+}
+
+/* Panel transitions - Bouncy scale and translation */
+.modal-enter-active .modal-panel {
+  transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.modal-leave-active .modal-panel {
+  transition: all 0.25s ease-in;
+}
+.modal-enter-from .modal-panel {
+  opacity: 0;
+  transform: scale(0.9) translateY(16px);
+}
+.modal-leave-to .modal-panel {
+  opacity: 0;
+  transform: scale(0.95) translateY(12px);
+}
 </style>

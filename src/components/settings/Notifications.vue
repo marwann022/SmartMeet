@@ -81,22 +81,20 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-left">
           <!-- Digest Time -->
           <div class="flex flex-col gap-2">
-            <label class="font-header font-bold text-[11px] tracking-wider uppercase text-brand-slate ml-1">Daily Digest Time</label>
-            <select v-model="notifForm.digestTime" class="w-full px-4 py-3.5 rounded-xl bg-white border border-black/8 font-body text-sm text-brand-dark focus:outline-none cursor-pointer">
-              <option value="08:00 AM">08:00 AM</option>
-              <option value="09:00 AM">09:00 AM (Default)</option>
-              <option value="10:00 AM">10:00 AM</option>
-            </select>
+            <Select 
+              v-model="notifForm.digestTime" 
+              :options="digestTimeOptions"
+              label="Daily Digest Time"
+            />
           </div>
 
           <!-- Before Meeting Starts -->
           <div class="flex flex-col gap-2">
-            <label class="font-header font-bold text-[11px] tracking-wider uppercase text-brand-slate ml-1">Before Meeting Starts</label>
-            <select v-model="notifForm.reminderWindow" class="w-full px-4 py-3.5 rounded-xl bg-white border border-black/8 font-body text-sm text-brand-dark focus:outline-none cursor-pointer">
-              <option value="5m">5 minutes before</option>
-              <option value="10m">10 minutes before (Default)</option>
-              <option value="15m">15 minutes before</option>
-            </select>
+            <Select 
+              v-model="notifForm.reminderWindow" 
+              :options="reminderWindowOptions"
+              label="Before Meeting Starts"
+            />
           </div>
 
           <!-- Quiet hours DND Dials -->
@@ -205,6 +203,19 @@ import {
   PhSparkle, 
   PhCheck 
 } from '@phosphor-icons/vue'
+import Select from '../ui/Select.vue'
+
+const digestTimeOptions = [
+  '08:00 AM',
+  { value: '09:00 AM', label: '09:00 AM (Default)' },
+  '10:00 AM'
+]
+
+const reminderWindowOptions = [
+  { value: '5m', label: '5 minutes before' },
+  { value: '10m', label: '10 minutes before (Default)' },
+  { value: '15m', label: '15 minutes before' }
+]
 
 // Import assets
 import gcalIcon from '../../assets/Google.png'

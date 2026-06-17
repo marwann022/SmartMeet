@@ -1,5 +1,5 @@
 <template>
-  <div class="home-view py-10">
+  <div class="home-view pt-10 pb-0">
     <DashboardMain :search-query="searchQuery" />
   </div>
 </template>

@@ -165,16 +165,11 @@
 
               <!-- Duration -->
               <div class="flex flex-col gap-2">
-                <label class="font-header font-bold text-[11px] tracking-wider uppercase text-brand-slate ml-1">Duration</label>
-                <select 
+                <Select 
                   v-model="form.duration" 
-                  class="w-full px-4 py-3.5 rounded-xl bg-white border border-black/8 font-body text-sm text-brand-dark focus:outline-none focus:border-primary/30 transition-all duration-300 cursor-pointer"
-                >
-                  <option value="15 minutes">15 minutes (Quick Catch-up)</option>
-                  <option value="30 minutes">30 minutes (Standard)</option>
-                  <option value="45 minutes">45 minutes (Strategic Sync)</option>
-                  <option value="60 minutes">60 minutes (Deep Dive)</option>
-                </select>
+                  :options="durationOptions"
+                  label="Duration"
+                />
               </div>
             </div>
           </div>
@@ -190,15 +185,11 @@
           <div class="flex flex-col gap-5">
             <!-- AI Summary Style -->
             <div class="flex flex-col gap-2">
-              <label class="font-header font-bold text-[11px] tracking-wider uppercase text-brand-slate ml-1">AI Summary Style</label>
-              <select 
+              <Select 
                 v-model="form.summaryStyle" 
-                class="w-full px-4 py-3.5 rounded-xl bg-white border border-black/8 font-body text-sm text-brand-dark focus:outline-none focus:border-primary/30 transition-all duration-300 cursor-pointer"
-              >
-                <option value="Action-Oriented">Action-Oriented (Tasks & Decisions Focused)</option>
-                <option value="Executive Brief">Executive Brief (High-level Summary)</option>
-                <option value="Chronological Recurrent">Chronological Recurrent (Verbatim timeline transcript summary)</option>
-              </select>
+                :options="summaryStyleOptions"
+                label="AI Summary Style"
+              />
             </div>
 
             <!-- Custom Switches -->
@@ -410,6 +401,20 @@ import {
   PhVideoCamera, 
   PhUser 
 } from '@phosphor-icons/vue'
+import Select from '@/components/ui/Select.vue'
+
+const durationOptions = [
+  { value: '15 minutes', label: '15 minutes (Quick Catch-up)' },
+  { value: '30 minutes', label: '30 minutes (Standard)' },
+  { value: '45 minutes', label: '45 minutes (Strategic Sync)' },
+  { value: '60 minutes', label: '60 minutes (Deep Dive)' }
+]
+
+const summaryStyleOptions = [
+  { value: 'Action-Oriented', label: 'Action-Oriented (Tasks & Decisions Focused)' },
+  { value: 'Executive Brief', label: 'Executive Brief (High-level Summary)' },
+  { value: 'Chronological Recurrent', label: 'Chronological Recurrent (Verbatim timeline transcript summary)' }
+]
 
 // Import assets
 import googleMeetIcon from '@/assets/Google_Meet_icon_(2020).svg.png'

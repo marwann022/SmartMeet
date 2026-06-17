@@ -1,32 +1,11 @@
 <template>
   <div class="flex flex-col justify-between min-h-[720px] h-[calc(100vh-180px)] text-left relative gap-[20px]">
-    
-    <!-- TOP BAR (Reset / Clear chat) -->
-    <div class="flex justify-between items-center pb-[12px] border-b border-black/5 flex-shrink-0">
-      <div class="flex items-center gap-[8px]">
-        <div class="w-[32px] h-[32px] rounded-[10px] bg-primary/8 border border-primary/15 flex items-center justify-center text-primary">
-          <PhBrain :size="16" weight="bold" />
-        </div>
-        <div class="flex flex-col">
-          <h3 class="font-header font-bold text-[18px] text-brand-dark leading-[22px]">Knowledge AI Engine</h3>
-          <p class="text-[11px] text-brand-slate leading-[14px]">Query your team's collective intelligence</p>
-        </div>
-      </div>
-      <button 
-        v-if="messages.length > 0"
-        @click="clearChat"
-        class="inline-flex items-center gap-[6px] px-[12px] py-[6px] rounded-[8px] bg-red-500/8 border border-red-500/15 text-red-500 text-[11px] font-header font-bold tracking-wide uppercase hover:bg-red-500/15 transition-all cursor-pointer focus:outline-none"
-      >
-        <PhTrash :size="12" weight="bold" />
-        <span>Clear Chat</span>
-      </button>
-    </div>
 
     <!-- MAIN INTERACTIVE CANVAS -->
     <div class="flex-1 overflow-y-auto pr-[8px] scroll-container flex flex-col gap-[20px]">
       
       <!-- WELCOME STATE (If no messages) -->
-      <div v-if="messages.length === 0" class="flex-1 flex flex-col justify-center items-center max-w-[810px] mx-auto w-full gap-[36px] py-[40px] animate-fade-in">
+      <div v-if="messages.length === 0" class="flex-1 flex flex-col justify-center items-center max-w-[810px] mx-auto w-full gap-[36px] pb-[40px] animate-fade-in">
         <div class="flex flex-col gap-[24px] items-center text-center">
           <div class="w-[56px] h-[56px] rounded-full bg-primary/8 border border-primary/15 flex items-center justify-center text-primary shadow-sm animate-pulse">
             <PhSparkle :size="28" weight="fill" />
@@ -59,7 +38,7 @@
       </div>
 
       <!-- CHAT MESSAGE LOGS (If messages exist) -->
-      <div v-else class="flex flex-col gap-[20px] py-[10px]">
+      <div v-else class="flex flex-col gap-[20px] py-[10px] position-fixed bottom-2 right-2 left-2">
         <div 
           v-for="msg in messages" 
           :key="msg.id"

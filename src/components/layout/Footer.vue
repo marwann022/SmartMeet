@@ -1,5 +1,5 @@
 <template>
-  <footer class="py-12 border-t border-black/5 mt-16 text-left">
+  <footer class="pt-12 pb-4 border-t border-black/5 mt-16 text-left">
     <div class="flex flex-col md:flex-row justify-between gap-12 mb-12">
       <!-- Brand Column -->
       <div class="flex flex-col gap-4 max-w-sm">

@@ -164,22 +164,20 @@
         <div class="flex flex-col gap-4 text-left">
           <!-- Interface Theme -->
           <div class="flex flex-col gap-1.5">
-            <label class="font-header font-bold text-[10px] tracking-wider uppercase text-brand-slate">Interface Theme</label>
-            <select v-model="profileForm.theme" class="w-full px-3.5 py-2.5 rounded-xl bg-white border border-black/8 font-body text-xs text-brand-dark focus:outline-none transition-all cursor-pointer">
-              <option value="light">Light Mode (Glassmorphism)</option>
-              <option value="dark">Dark Mode (Default)</option>
-              <option value="system">System Synchronized</option>
-            </select>
+            <Select 
+              v-model="profileForm.theme" 
+              :options="themeOptions"
+              label="Interface Theme"
+            />
           </div>
 
           <!-- Language -->
           <div class="flex flex-col gap-1.5">
-            <label class="font-header font-bold text-[10px] tracking-wider uppercase text-brand-slate">Language</label>
-            <select v-model="profileForm.language" class="w-full px-3.5 py-2.5 rounded-xl bg-white border border-black/8 font-body text-xs text-brand-dark focus:outline-none transition-all cursor-pointer">
-              <option value="en-US">English (US)</option>
-              <option value="en-GB">English (UK)</option>
-              <option value="es-ES">Spanish (ES)</option>
-            </select>
+            <Select 
+              v-model="profileForm.language" 
+              :options="languageOptions"
+              label="Language"
+            />
           </div>
         </div>
       </div>
@@ -198,6 +196,19 @@ import {
   PhCalendar, 
   PhGear 
 } from '@phosphor-icons/vue'
+import Select from '../ui/Select.vue'
+
+const themeOptions = [
+  { value: 'light', label: 'Light Mode (Glassmorphism)' },
+  { value: 'dark', label: 'Dark Mode (Default)' },
+  { value: 'system', label: 'System Synchronized' }
+]
+
+const languageOptions = [
+  { value: 'en-US', label: 'English (US)' },
+  { value: 'en-GB', label: 'English (UK)' },
+  { value: 'es-ES', label: 'Spanish (ES)' }
+]
 
 // Import assets
 import userProfileImg from '../../assets/User Profile.png'

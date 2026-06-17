@@ -1,28 +1,63 @@
 <template>
   <div 
+    draggable="true"
+    @dragstart="onDragStart"
     @click="$emit('click')"
-    class="group relative border border-solid rounded-xl p-[17px] flex flex-col gap-3 cursor-pointer transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(0,0,0,0.07)]"
+    class="group relative border border-solid rounded-xl p-[17px] flex flex-col gap-3 cursor-pointer transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(0,0,0,0.07)] select-none hover:cursor-grab active:cursor-grabbing"
     :class="cardStyle"
   >
-    <!-- Top row: priority badge + done check icon -->
+    <!-- Top row: priority badge + action buttons / done check icon -->
     <div class="flex items-start justify-between">
       <Badge :type="badgeType">
         {{ task.priority }}
       </Badge>
       
-      <div v-if="task.status === 'done' || task.done" class="overflow-clip relative shrink-0 w-[24px] h-[24px] flex items-center justify-center">
-        <PhCheckCircle :size="22" weight="regular" class="text-[#39a1b9]" />
-      </div>
-      <div v-else class="opacity-0 group-hover:opacity-100 flex items-center gap-1 transition-opacity duration-200">
-        <button @click.stop="$emit('move', -1)" class="w-6 h-6 rounded-lg bg-black/5 hover:bg-primary/10 hover:text-primary flex items-center justify-center transition-all duration-200 cursor-pointer">
-          <PhArrowLeft :size="11" weight="bold" />
-        </button>
-        <button @click.stop="$emit('move', 1)" class="w-6 h-6 rounded-lg bg-black/5 hover:bg-primary/10 hover:text-primary flex items-center justify-center transition-all duration-200 cursor-pointer">
-          <PhArrowRight :size="11" weight="bold" />
-        </button>
-        <button @click.stop="$emit('delete')" class="w-6 h-6 rounded-lg bg-black/5 hover:bg-red-500/10 hover:text-red-500 flex items-center justify-center transition-all duration-200 cursor-pointer">
-          <PhTrash :size="11" weight="bold" />
-        </button>
+      <!-- Right side actions container -->
+      <div class="relative flex items-center justify-end h-6 min-w-[64px]">
+        <!-- Default State (when not hovered): show check icon only if task is done -->
+        <div class="group-hover:opacity-0 group-hover:pointer-events-none transition-opacity duration-200 flex items-center justify-end w-full">
+          <div v-if="task.status === 'done' || task.done" class="overflow-clip relative shrink-0 w-6 h-6 flex items-center justify-center">
+            <PhCheckCircle :size="20" weight="fill" class="text-green-500" />
+          </div>
+        </div>
+        
+        <!-- Hover State (when hovered): show full action controls -->
+        <div class="absolute right-0 opacity-0 group-hover:opacity-100 pointer-events-none group-hover:pointer-events-auto flex items-center gap-1 transition-opacity duration-200">
+          <button 
+            v-if="task.status !== 'todo'"
+            @click.stop="$emit('move', -1)" 
+            class="w-6 h-6 rounded-lg bg-black/5 hover:bg-primary/10 hover:text-primary flex items-center justify-center transition-all duration-200 cursor-pointer"
+            title="Move Left"
+          >
+            <PhArrowLeft :size="11" weight="bold" />
+          </button>
+          
+          <button 
+            v-if="task.status !== 'done' && !task.done"
+            @click.stop="$emit('toggle')" 
+            class="w-6 h-6 rounded-lg bg-black/5 hover:bg-green-500/10 hover:text-green-600 flex items-center justify-center transition-all duration-200 cursor-pointer"
+            title="Mark Done"
+          >
+            <PhCheck :size="11" weight="bold" />
+          </button>
+          
+          <button 
+            v-if="task.status !== 'done' && !task.done"
+            @click.stop="$emit('move', 1)" 
+            class="w-6 h-6 rounded-lg bg-black/5 hover:bg-primary/10 hover:text-primary flex items-center justify-center transition-all duration-200 cursor-pointer"
+            title="Move Right"
+          >
+            <PhArrowRight :size="11" weight="bold" />
+          </button>
+          
+          <button 
+            @click.stop="$emit('delete')" 
+            class="w-6 h-6 rounded-lg bg-black/5 hover:bg-red-500/10 hover:text-red-500 flex items-center justify-center transition-all duration-200 cursor-pointer"
+            title="Delete Task"
+          >
+            <PhTrash :size="11" weight="bold" />
+          </button>
+        </div>
       </div>
     </div>
 
@@ -45,20 +80,16 @@
         </div>
       </div>
       <!-- Date -->
-      <div class="flex items-center gap-1.5 text-[#5c5e65] font-header font-bold text-[13px]">
-        <PhCalendarBlank :size="14" weight="bold" />
+      <div 
+        class="flex items-center gap-1.5 font-header font-bold text-[13px] transition-colors duration-300"
+        :class="isOverdue ? 'text-red-500' : 'text-[#5c5e65]'"
+      >
+        <PhWarningCircle v-if="isOverdue" :size="14" weight="fill" class="text-red-500 animate-pulse" />
+        <PhCalendarBlank v-else :size="14" weight="bold" />
         <span>{{ task.due }}</span>
+        <span v-if="isOverdue" class="text-[9px] font-extrabold uppercase tracking-wider bg-red-500/8 border border-red-500/15 px-1.5 py-0.5 rounded ml-1">Overdue</span>
       </div>
     </div>
-
-    <!-- Checkbox (done toggle) -->
-    <button
-      v-if="task.status !== 'done' && !task.done"
-      @click.stop="$emit('toggle')"
-      class="absolute top-4 right-16 w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all duration-300 opacity-0 group-hover:opacity-100 border-brand-slate/30 bg-transparent hover:border-primary"
-    >
-      <PhCheck v-if="task.status === 'done' || task.done" :size="10" weight="bold" class="text-white" />
-    </button>
   </div>
 </template>
 
@@ -70,7 +101,8 @@ import {
   PhArrowRight, 
   PhTrash, 
   PhCalendarBlank, 
-  PhCheck 
+  PhCheck,
+  PhWarningCircle
 } from '@phosphor-icons/vue'
 import Badge from '../ui/Badge.vue'
 
@@ -83,29 +115,47 @@ const props = defineProps({
 
 defineEmits(['move', 'delete', 'toggle', 'click'])
 
+const onDragStart = (e) => {
+  e.dataTransfer.effectAllowed = 'move'
+  e.dataTransfer.setData('text/plain', String(props.task.id))
+}
+
+const isOverdue = computed(() => {
+  if (props.task.status === 'done' || props.task.done) return false
+  if (!props.task.dueDate) return false
+  
+  const today = new Date()
+  const yyyy = today.getFullYear()
+  const mm = String(today.getMonth() + 1).padStart(2, '0')
+  const dd = String(today.getDate()).padStart(2, '0')
+  const todayStr = `${yyyy}-${mm}-${dd}`
+  
+  return props.task.dueDate < todayStr
+})
+
+
 const badgeType = computed(() => {
-  const p = props.task.priority.toLowerCase()
-  if (props.task.status === 'done' || props.task.done) return 'completed'
-  if (p.includes('high')) return 'high'
-  if (p.includes('medium') || p.includes('med')) return 'medium'
-  if (p.includes('low')) return 'low'
+  const status = props.task.status
+  if (status === 'todo') return 'primary'
+  if (status === 'inprogress') return 'warning'
+  if (status === 'review') return 'danger'
+  if (status === 'done') return 'success'
   return 'default'
 })
 
 const cardStyle = computed(() => {
-  const t = props.task
-  if (t.status === 'done' || t.done) {
-    return 'bg-gradient-to-br from-brand-slate/5 via-white/30 to-white/50 border-[#39a1b9] blur-[0.35px] opacity-70'
+  const status = props.task.status
+  if (status === 'todo') {
+    return 'bg-gradient-to-br from-primary/5 via-white/50 to-white/80 border-primary/30 backdrop-blur-md hover:from-primary/10 hover:border-primary/50'
   }
-  const priorityLower = t.priority.toLowerCase()
-  if (priorityLower.includes('high')) {
-    return 'bg-gradient-to-br from-red-500/5 via-white/50 to-white/80 border-[#ffb4ab] hover:from-red-500/10'
+  if (status === 'inprogress') {
+    return 'bg-gradient-to-br from-amber-500/5 via-white/50 to-white/80 border-amber-500/30 backdrop-blur-md hover:from-amber-500/10 hover:border-amber-500/50'
   }
-  if (priorityLower.includes('medium') || priorityLower.includes('med')) {
-    return 'bg-gradient-to-br from-primary/5 via-white/50 to-white/80 border-[#3c81f5] backdrop-blur-md hover:from-primary/10'
+  if (status === 'review') {
+    return 'bg-gradient-to-br from-red-500/5 via-white/50 to-white/80 border-red-500/30 backdrop-blur-md hover:from-red-500/10 hover:border-red-500/50'
   }
-  if (priorityLower.includes('low')) {
-    return 'bg-gradient-to-br from-[#571bc1]/5 via-white/50 to-white/80 border-[rgba(87,27,193,0.3)] backdrop-blur-md hover:from-[#571bc1]/10'
+  if (status === 'done') {
+    return 'bg-gradient-to-br from-emerald-500/5 via-white/30 to-white/50 border-emerald-500/20 opacity-75 blur-[0.2px] hover:from-emerald-500/10 hover:border-emerald-500/40'
   }
   return 'bg-gradient-to-br from-white/80 to-white/40 border-black/10'
 })

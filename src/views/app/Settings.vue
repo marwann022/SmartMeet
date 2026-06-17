@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col gap-8 text-left">
+  <div class="flex flex-col gap-8 text-left mt-8">
     <!-- Header -->
     <div class="flex flex-col gap-2">
       <h2 class="text-3xl sm:text-4xl font-bold font-header text-brand-dark tracking-tight">Settings</h2>
@@ -23,7 +23,7 @@
     </div>
 
     <!-- SUB-TABS CONTENT -->
-    <div class="w-full home-view py-10">
+    <div class="w-full home-view pt-10 pb-0">
       <General v-if="activeSubtab === 'general'" />
       <Profile v-else-if="activeSubtab === 'profile'" />
       <TeamManagement v-else-if="activeSubtab === 'team'" />
@@ -33,7 +33,8 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
+import { useRoute } from 'vue-router'
 import { 
   PhGauge, 
   PhUserCircle, 
@@ -46,6 +47,8 @@ import Profile from '@/components/settings/Profile.vue'
 import TeamManagement from '@/components/settings/TeamManagement.vue'
 import Notifications from '@/components/settings/Notifications.vue'
 
+const route = useRoute()
+
 // Subtabs definition
 const subtabs = [
   { id: 'general', label: 'General Settings', icon: PhGauge },
@@ -54,7 +57,13 @@ const subtabs = [
   { id: 'notifications', label: 'Notifications', icon: PhBell }
 ]
 
-const activeSubtab = ref('general')
+const activeSubtab = ref(route.query.tab || 'general')
+
+watch(() => route.query.tab, (newTab) => {
+  if (newTab) {
+    activeSubtab.value = newTab
+  }
+})
 </script>
 
 <style scoped>

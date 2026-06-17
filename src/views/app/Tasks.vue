@@ -1,5 +1,5 @@
 <template>
-  <div class="py-4">
+  <div class="mt-8">
     <DashboardTasks :search-query="searchQuery" />
   </div>
 </template>
