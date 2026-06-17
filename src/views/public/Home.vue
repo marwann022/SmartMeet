@@ -1,11 +1,18 @@
 <template>
-  <div class="home-view py-10">
+  <div class="home-view pt-6">
+
     <Hero />
+
     <BentoGrid />
+
     <Workflow />
+
     <Integrations />
+
     <Testimonials />
+
     <CTA />
+
   </div>
 </template>
 

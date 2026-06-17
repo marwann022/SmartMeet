@@ -1,16 +1,56 @@
 <template>
   <section id="product" class="py-16 text-center border-t border-black/5">
     <div class="max-w-[650px] mx-auto mb-16 px-4">
-      <h2 class="text-3xl sm:text-4xl lg:text-5xl font-bold font-header tracking-tight mb-4 text-brand-dark">The Operating System for Meetings</h2>
-      <p class="text-base text-brand-slate leading-relaxed">
-        One platform to record, transcribe, and analyze every conversation
-        with boardroom-grade precision.
-      </p>
+     <h2
+class="
+text-3xl
+sm:text-5xl
+lg:text-6xl
+
+font-bold
+
+font-header
+
+tracking-tight
+
+mb-4
+"
+>
+Turn conversations into
+company knowledge.
+</h2>
+      <p
+class="
+text-lg
+text-brand-slate
+leading-relaxed
+"
+>
+Capture every decision, action item,
+and insight — then retrieve it instantly with AI.
+</p>
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-[1.22fr_0.78fr] gap-7 mb-7">
       <!-- Main Dashboard Preview Mockup -->
-      <div class="card-glass rounded-[28px] overflow-hidden flex flex-col h-[480px]">
+      <div class="
+  card-glass
+  rounded-[28px]
+
+  overflow-hidden
+  flex
+  flex-col
+
+  h-[480px]
+
+  group
+
+  transition-all
+  duration-700
+
+  hover:-translate-y-2
+  hover:shadow-[0_20px_50px_rgba(75,104,255,0.12)]
+  ">
         <div class="bg-white/40 border-b border-black/5 px-6 py-4 flex items-center gap-4 flex-shrink-0">
           <div class="flex items-center gap-2">
             <span class="w-2.5 h-2.5 rounded-full bg-black/10"></span>
@@ -22,51 +62,208 @@
           </div>
         </div>
         <div class="flex-1 bg-white/20 overflow-hidden relative">
-          <img src="../../assets/Dashboard.png" alt="SmartMeet Dashboard" class="w-full h-auto object-cover" />
+          <img
+  src="../../assets/Dashboard.png"
+  alt="SmartMeet Dashboard"
+  class="
+  w-full
+  h-auto
+  object-cover
+
+  transition-all
+  duration-700
+
+  group-hover:scale-[1.03]
+  "
+/>
         </div>
       </div>
 
-      <!-- Sentiment & Mood Analysis -->
-      <div class="card-glass rounded-[28px] p-9 flex flex-col justify-between text-left h-[480px] group">
-        <div class="flex flex-col gap-4">
-          <div class="w-11 h-11 rounded-[14px] bg-primary/6 border border-primary/15 flex items-center justify-center text-primary mb-2 shadow-[0_4px_10px_rgba(75,104,255,0.02)] transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] group-hover:scale-108 group-hover:bg-primary/10 group-hover:border-primary/30">
-            <PhPulse :size="20" weight="bold" />
-          </div>
-          <h3 class="text-xl font-bold font-header tracking-tight mb-2 text-brand-dark">Sentiment & Mood Analysis</h3>
-          <p class="text-sm leading-relaxed text-brand-slate">
-            AI detects team engagement and sentiment trends across every
-            meeting, helping you understand the pulse of your workspace.
-          </p>
-        </div>
+      <!-- Organizational Memory -->
+<div
+  class="
+  card-glass
+  rounded-[28px]
+  p-9
 
-        <div class="flex flex-col gap-3.5 mt-7">
-          <div class="flex justify-between items-center px-5 py-3.5 rounded-2xl bg-white/40 border border-black/[0.04] transition-all duration-300 border-green-500/20 bg-green-500/5">
-            <span class="text-xs font-bold text-brand-dark">Positive Feedback</span>
-            <span class="text-green-600 bg-green-500/12 py-1 px-2.5 rounded-full text-xs font-bold">84%</span>
-          </div>
-          <div class="flex justify-between items-center px-5 py-3.5 rounded-2xl bg-white/40 border border-black/[0.04] transition-all duration-300 border-primary/20 bg-primary/5">
-            <span class="text-xs font-bold text-brand-dark">Alignment Score</span>
-            <span class="text-primary bg-primary/12 py-1 px-2.5 rounded-full text-xs font-bold">92%</span>
-          </div>
-        </div>
+  flex
+  flex-col
+  justify-between
+
+  text-left
+  h-[480px]
+
+  group
+
+  transition-all
+  duration-500
+
+  hover:-translate-y-2
+  hover:shadow-[0_20px_50px_rgba(75,104,255,0.12)]
+  "
+>
+
+  <div class="flex flex-col gap-4">
+
+    <div
+      class="
+      w-11
+      h-11
+
+      rounded-[14px]
+
+      bg-primary/6
+
+      border
+      border-primary/15
+
+      flex
+      items-center
+      justify-center
+
+      text-primary
+
+      transition-all
+      duration-500
+
+      group-hover:scale-110
+      "
+    >
+      <PhBrain :size="24" weight="duotone" />
+    </div>
+
+    <h3
+      class="
+      text-xl
+      font-bold
+      font-header
+      "
+    >
+      Organizational Memory
+    </h3>
+
+    <p
+      class="
+      text-sm
+      leading-relaxed
+      text-brand-slate
+      "
+    >
+      Ask questions about any meeting and instantly retrieve
+      decisions, timestamps, action items, and discussion context.
+    </p>
+
+  </div>
+
+  <div class="space-y-4">
+
+    <div
+      class="
+      rounded-2xl
+
+      bg-primary/5
+
+      border
+      border-primary/15
+
+      p-4
+      "
+    >
+      <div class="text-[10px] uppercase font-bold text-primary mb-2">
+        AI Query
       </div>
+
+      <div class="text-sm font-medium">
+        What did we decide about authentication?
+      </div>
+    </div>
+
+    <div
+      class="
+      border-l-4
+      border-primary
+
+      pl-4
+      "
+    >
+      <div class="text-xs text-brand-slate">
+        Engineering Sync
+      </div>
+
+      <div class="font-semibold">
+        OAuth implementation approved.
+      </div>
+
+      <div class="text-xs text-brand-slate mt-1">
+        May 28 • 14:22
+      </div>
+    </div>
+
+  </div>
+
+</div>
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-[0.8fr_1.2fr] gap-7">
       <!-- Auto Action Items card -->
-      <div class="card-glass rounded-[28px] p-9 flex flex-col justify-center gap-4 text-left group">
-        <div class="w-11 h-11 rounded-[14px] bg-secondary/6 border border-secondary/15 flex items-center justify-center text-secondary mb-0 flex-shrink-0 transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] group-hover:scale-108 group-hover:bg-secondary/10 group-hover:border-secondary/30">
-          <PhCheckCircle :size="20" weight="bold" />
-        </div>
-        <h3 class="text-xl font-bold font-header tracking-tight mb-2 text-brand-dark">Auto-Action Items</h3>
-        <p class="text-sm leading-relaxed text-brand-slate">
-          Stop taking notes. SmartMeet automatically identifies and assigns
-          tasks to the right people in Slack or Jira.
-        </p>
-      </div>
+<div class="card-glass rounded-[28px] p-9 flex flex-col justify-center gap-4 text-left group">
+  <div class="w-11 h-11 rounded-[14px] bg-secondary/6 border border-secondary/15 flex items-center justify-center text-secondary mb-0 flex-shrink-0 transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] group-hover:scale-108 group-hover:bg-secondary/10 group-hover:border-secondary/30">
+    <PhCheckCircle :size="20" weight="bold" />
+  </div>
+
+  <h3 class="text-xl font-bold font-header tracking-tight mb-2 text-brand-dark">
+    Auto-Action Items
+  </h3>
+
+  <p class="text-sm leading-relaxed text-brand-slate">
+    Stop taking notes. SmartMeet automatically identifies and assigns
+    tasks to the right people in Slack or Jira.
+  </p>
+
+  <div class="space-y-3 mt-4">
+
+    <div class="flex items-center gap-3">
+      <div class="w-2 h-2 rounded-full bg-secondary"></div>
+      <span class="text-sm">
+        Update API documentation
+      </span>
+    </div>
+
+    <div class="flex items-center gap-3">
+      <div class="w-2 h-2 rounded-full bg-secondary"></div>
+      <span class="text-sm">
+        Schedule stakeholder review
+      </span>
+    </div>
+
+    <div class="flex items-center gap-3">
+      <div class="w-2 h-2 rounded-full bg-secondary"></div>
+      <span class="text-sm">
+        Finalize sprint planning
+      </span>
+    </div>
+
+  </div>
+
+</div>
 
       <!-- Interactive Universal Knowledge Search -->
-      <div class="card-glass rounded-[28px] p-9 flex flex-col justify-between text-left">
+      <div class="
+card-glass
+rounded-[28px]
+
+p-10
+
+flex
+flex-col
+justify-between
+
+transition-all
+duration-500
+
+hover:-translate-y-2
+hover:shadow-[0_20px_50px_rgba(75,104,255,0.12)]
+">
         <div class="flex flex-col lg:flex-row gap-8 items-center w-full">
           <div class="flex-1">
             <h3 class="text-xl font-bold font-header tracking-tight mb-2 text-brand-dark">Universal Knowledge Search</h3>
@@ -102,18 +299,110 @@
               </div>
             </div>
 
-            <!-- Prompt pills -->
-            <div class="flex flex-wrap gap-2">
-              <div 
-                v-for="(prompt, idx) in searchPrompts" 
-                :key="idx" 
-                class="text-[11px] font-semibold text-brand-slate bg-white/50 border border-black/5 px-3 py-1.5 rounded-full cursor-pointer transition-all duration-300 hover:text-primary hover:bg-primary/5 hover:border-primary/10 select-none"
-                :class="{ 'text-primary bg-primary/8 border-primary/20 shadow-sm': selectedPromptIndex === idx }"
-                @click="runSearchDemo(idx)"
-              >
-                {{ prompt.text }}
-              </div>
-            </div>
+<!-- Prompt pills -->
+<div class="flex flex-wrap gap-2">
+  <div 
+    v-for="(prompt, idx) in searchPrompts" 
+    :key="idx" 
+    class="text-[11px] font-semibold text-brand-slate bg-white/50 border border-black/5 px-3 py-1.5 rounded-full cursor-pointer transition-all duration-300 hover:text-primary hover:bg-primary/5 hover:border-primary/10 select-none"
+    :class="{ 'text-primary bg-primary/8 border-primary/20 shadow-sm': selectedPromptIndex === idx }"
+    @click="runSearchDemo(idx)"
+  >
+    {{ prompt.text }}
+  </div>
+</div>
+
+<!-- AI Categories -->
+<div class="flex flex-wrap gap-2 mt-2">
+
+  <span
+    class="
+    text-[11px]
+    font-semibold
+
+    text-primary
+
+    bg-primary/8
+
+    border
+    border-primary/15
+
+    px-3
+    py-1.5
+
+    rounded-full
+
+    cursor-pointer
+
+    transition-all
+    duration-300
+
+    hover:bg-primary/15
+    hover:border-primary/30
+    "
+  >
+    Budget Decisions
+  </span>
+
+  <span
+    class="
+    text-[11px]
+    font-semibold
+
+    text-primary
+
+    bg-primary/8
+
+    border
+    border-primary/15
+
+    px-3
+    py-1.5
+
+    rounded-full
+
+    cursor-pointer
+
+    transition-all
+    duration-300
+
+    hover:bg-primary/15
+    hover:border-primary/30
+    "
+  >
+    Roadmap
+  </span>
+
+  <span
+    class="
+    text-[11px]
+    font-semibold
+
+    text-primary
+
+    bg-primary/8
+
+    border
+    border-primary/15
+
+    px-3
+    py-1.5
+
+    rounded-full
+
+    cursor-pointer
+
+    transition-all
+    duration-300
+
+    hover:bg-primary/15
+    hover:border-primary/30
+    "
+  >
+    Action Items
+  </span>
+
+</div>
 
             <!-- Search results preview -->
             <div class="min-h-[110px] flex flex-col justify-center border-t border-black/5 pt-5 text-left">
@@ -142,6 +431,7 @@
 <script setup>
 import { ref, onUnmounted } from 'vue'
 import { PhPulse, PhCheckCircle, PhMagnifyingGlass } from '@phosphor-icons/vue'
+import { PhBrain } from '@phosphor-icons/vue'
 
 const searchQuery = ref('')
 const searching = ref(false)
@@ -215,3 +505,4 @@ onUnmounted(() => {
   if (searchTimeout) clearTimeout(searchTimeout)
 })
 </script>
+<style scoped></style>

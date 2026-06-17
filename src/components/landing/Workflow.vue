@@ -1,38 +1,300 @@
+```vue
 <template>
-  <section id="workflow" class="grid grid-cols-1 lg:grid-cols-[1.1fr_0.9fr] gap-12 lg:gap-20 items-center py-20 border-t border-black/5">
-    <div class="flex flex-col gap-6">
-      <div class="text-left mb-6">
-        <h2 class="text-3xl sm:text-4xl lg:text-5xl font-bold font-header tracking-tight mb-4 text-brand-dark">Simple, automated execution.</h2>
-        <p class="text-base text-brand-slate leading-relaxed">Three simple stages to unlock collective organization intelligence.</p>
-      </div>
-      
-      <div 
-        v-for="(step, index) in steps" 
-        :key="index"
-        class="p-6 sm:p-7 rounded-[20px] bg-white/40 border border-white/70 cursor-pointer transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] text-left hover:bg-white/80 hover:border-black/10"
-        :class="{ 'bg-white border-primary/25 shadow-glass scale-[1.02]': currentWorkflowStep === index }"
-        @click="selectStep(index)"
+  <section
+    id="workflow"
+    class="py-24 border-t border-black/5"
+  >
+    <!-- Header -->
+    <div
+      class="
+      max-w-[700px]
+      mx-auto
+      text-center
+      mb-16
+      px-4
+      "
+    >
+      <span
+        class="
+        text-[10px]
+        font-bold
+        tracking-[0.18em]
+        text-primary
+        uppercase
+        font-header
+        "
       >
-        <div class="flex items-center gap-4 mb-3">
-          <span 
-            class="w-8 h-8 rounded-full bg-black/5 border border-black/5 flex items-center justify-center text-xs font-extrabold text-brand-slate transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)]"
-            :class="{ 'bg-grad-primary border-transparent text-white shadow-[0_4px_10px_rgba(75,104,255,0.15)]': currentWorkflowStep === index }"
-          >
-            0{{ index + 1 }}
-          </span>
-          <h4 class="text-base sm:text-lg font-bold font-header text-brand-dark">{{ step.title }}</h4>
-        </div>
-        <p 
-          class="text-xs sm:text-[13px] leading-relaxed text-brand-slate pl-12 transition-colors duration-300"
-          :class="{ 'text-brand-dark font-medium': currentWorkflowStep === index }"
-        >
-          {{ step.desc }}
-        </p>
-      </div>
+        HOW IT WORKS
+      </span>
+
+      <h2
+        class="
+        text-3xl
+        sm:text-5xl
+        lg:text-6xl
+
+        font-bold
+        font-header
+
+        tracking-tight
+
+        mt-5
+        mb-5
+
+        text-brand-dark
+        "
+      >
+        From conversation to action.
+      </h2>
+
+      <p
+        class="
+        text-base
+        sm:text-lg
+
+        text-brand-slate
+
+        leading-relaxed
+        "
+      >
+        SmartMeet automatically captures,
+        analyzes, and organizes every meeting
+        into searchable company knowledge.
+      </p>
     </div>
 
-    <div class="flex justify-center items-center relative h-[400px] w-full">
-      <img src="../../assets/Workflow Visualization.png" alt="Workflow Visualization" class="h-full w-auto object-contain filter drop-shadow-[0_4px_25px_rgba(31,38,135,0.06)]" />
+    <div
+      class="
+      grid
+      grid-cols-1
+      lg:grid-cols-[1fr_1fr]
+
+      gap-16
+      items-center
+      "
+    >
+
+      <!-- Left Side -->
+      <div class="relative">
+
+        <!-- Timeline Line -->
+        <div
+          class="
+          absolute
+
+          left-5
+          top-16
+          bottom-16
+
+          w-[2px]
+
+          bg-gradient-to-b
+          from-primary
+          via-secondary
+          to-primary
+
+          hidden
+          sm:block
+          "
+        ></div>
+
+        <div
+          v-for="(step, index) in steps"
+          :key="index"
+          @click="selectStep(index)"
+          class="
+          relative
+
+          mb-6
+
+          rounded-[28px]
+
+          card-glass
+
+          p-7
+
+          cursor-pointer
+
+          transition-all
+          duration-500
+          "
+          :class="{
+            'scale-[1.02] border-primary/20 shadow-[0_20px_40px_rgba(75,104,255,0.12)]':
+              currentWorkflowStep === index
+          }"
+        >
+
+          <div class="flex gap-5">
+
+            <div
+              class="
+              w-10
+              h-10
+
+              rounded-full
+
+              flex
+              items-center
+              justify-center
+
+              font-bold
+
+              transition-all
+              duration-500
+              "
+              :class="
+                currentWorkflowStep === index
+                  ? 'bg-grad-primary text-white shadow-[0_4px_12px_rgba(75,104,255,0.2)]'
+                  : 'bg-black/5 text-brand-slate'
+              "
+            >
+              0{{ index + 1 }}
+            </div>
+
+            <div>
+              <h3
+                class="
+                text-lg
+                font-bold
+
+                text-brand-dark
+
+                mb-2
+                "
+              >
+                {{ step.title }}
+              </h3>
+
+              <p
+                class="
+                text-sm
+                leading-relaxed
+
+                text-brand-slate
+                "
+              >
+                {{ step.desc }}
+              </p>
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- Right Side -->
+      <div
+        class="
+        flex
+        justify-center
+
+        relative
+        "
+      >
+
+        <div
+          class="
+          card-glass
+
+          rounded-[32px]
+
+          p-10
+
+          w-full
+          max-w-[520px]
+
+          relative
+
+          overflow-hidden
+
+          transition-all
+          duration-700
+
+          hover:-translate-y-2
+          hover:shadow-[0_25px_60px_rgba(75,104,255,0.12)]
+          "
+        >
+
+          <!-- Glow -->
+          <div
+            class="
+            absolute
+
+            w-[250px]
+            h-[250px]
+
+            bg-primary/10
+
+            rounded-full
+
+            blur-[90px]
+
+            top-10
+            right-0
+            "
+          ></div>
+
+          <!-- Image -->
+          <img
+            src="../../assets/Workflow Visualization.png"
+            alt="Workflow Visualization"
+            class="
+            relative
+
+            z-10
+
+            w-full
+
+            object-contain
+
+            transition-all
+            duration-700
+
+            hover:scale-[1.03]
+            "
+          />
+
+          <!-- Tags -->
+          <div
+            class="
+            mt-8
+
+            flex
+            flex-wrap
+
+            justify-center
+
+            gap-3
+            "
+          >
+
+            <span class="workflow-tag">
+              Transcript
+            </span>
+
+            <span class="workflow-tag">
+              AI Summary
+            </span>
+
+            <span class="workflow-tag">
+              Action Items
+            </span>
+
+            <span class="workflow-tag">
+              Decisions
+            </span>
+
+            <span class="workflow-tag">
+              Knowledge AI
+            </span>
+
+          </div>
+
+        </div>
+
+      </div>
+
     </div>
   </section>
 </template>
@@ -41,18 +303,19 @@
 import { ref, onMounted, onUnmounted } from 'vue'
 
 const currentWorkflowStep = ref(0)
+
 const steps = [
   {
-    title: "Record & Transcribe",
-    desc: "Seamlessly capture meetings on Zoom, Meet, or Teams with 99.9% accuracy across 40+ languages."
+    title: 'Meeting Captured',
+    desc: 'Connect SmartMeet to Google Meet, Zoom, or Microsoft Teams and automatically record conversations.'
   },
   {
-    title: "AI Synthesis",
-    desc: "Our LLMs generate executive summaries, highlight key moments, and identify decisions in seconds."
+    title: 'AI Analysis',
+    desc: 'Generate summaries, decisions, action items, meeting highlights, and intelligent insights instantly.'
   },
   {
-    title: "Actionable Output",
-    desc: "Sync insights with Notion, Slack, or Salesforce. Turn talk into actual business momentum."
+    title: 'Knowledge Stored',
+    desc: 'Every conversation becomes searchable company memory available through Knowledge AI.'
   }
 ]
 
@@ -65,7 +328,8 @@ const selectStep = (index) => {
 
 const startWorkflowTimer = () => {
   workflowInterval = setInterval(() => {
-    currentWorkflowStep.value = (currentWorkflowStep.value + 1) % steps.length
+    currentWorkflowStep.value =
+      (currentWorkflowStep.value + 1) % steps.length
   }, 5000)
 }
 
@@ -82,3 +346,27 @@ onUnmounted(() => {
   if (workflowInterval) clearInterval(workflowInterval)
 })
 </script>
+
+<style scoped>
+.workflow-tag {
+  background: rgba(75, 104, 255, 0.08);
+  border: 1px solid rgba(75, 104, 255, 0.15);
+
+  padding: 8px 14px;
+
+  border-radius: 999px;
+
+  font-size: 11px;
+  font-weight: 700;
+
+  color: #4b68ff;
+
+  transition: all 0.3s ease;
+}
+
+.workflow-tag:hover {
+  background: rgba(75, 104, 255, 0.15);
+  transform: translateY(-2px);
+}
+</style>
+```

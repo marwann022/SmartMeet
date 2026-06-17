@@ -37,218 +37,762 @@
           20% OFF
         </div>
       </div>
+
+<div class="flex flex-wrap justify-center gap-8 py-4">
+  <div class="text-center">
+    <p class="text-3xl font-bold text-brand-dark">2,500+</p>
+    <p class="text-sm text-brand-slate">Teams</p>
+  </div>
+
+  <div class="text-center">
+    <p class="text-3xl font-bold text-brand-dark">40K+</p>
+    <p class="text-sm text-brand-slate">Meetings</p>
+  </div>
+
+  <div class="text-center">
+    <p class="text-3xl font-bold text-brand-dark">120K+</p>
+    <p class="text-sm text-brand-slate">Actions Generated</p>
+  </div>
+</div>
+
     </section>
 
-    <!-- ═══════════════ PRICING CARDS ═══════════════ -->
-    <section ref="cardsRef" class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch">
-      <!-- Starter -->
-      <div :class="['flex flex-col rounded-[28px] p-8 bg-glass-bg border border-white/70 shadow-glass backdrop-blur-glass transition-all duration-500 hover:border-white/95 hover:shadow-card-hover hover:-translate-y-1 group',
-        cardsVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10']"
-        style="transition-delay: 0ms"
+   <!-- ═══════════════ PRICING CARDS ═══════════════ -->
+<section ref="cardsRef" class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch">
+  <!-- Starter -->
+  <!-- Starter -->
+<div
+  @mouseenter="hoveredPlan = 'starter'"
+  @mouseleave="hoveredPlan = null"
+  :class="[
+    'relative flex flex-col rounded-[28px] p-8 bg-glass-bg border border-white/70 shadow-glass backdrop-blur-glass transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] hover:border-white/95',
+
+    cardsVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10',
+
+    hoveredPlan === 'starter'
+      ? 'scale-[1.05] z-20 shadow-[0_30px_80px_rgba(75,104,255,0.18)]'
+      : '',
+
+    hoveredPlan && hoveredPlan !== 'starter'
+      ? 'opacity-60 saturate-50 scale-[0.98]'
+      : ''
+  ]"
+>
+  <div
+    v-if="hoveredPlan && hoveredPlan !== 'starter'"
+    class="absolute inset-0 rounded-[28px] bg-white/10 backdrop-blur-sm pointer-events-none"
+  ></div>
+
+  <div class="flex flex-col gap-1.5 pb-7">
+    <div
+      class="w-fit px-3 py-1 rounded-full bg-primary/10 text-primary text-[10px] font-bold uppercase tracking-wider mb-3"
+    >
+      Individual
+    </div>
+
+    <h2 class="font-header font-bold text-xl text-brand-dark">
+      Starter
+    </h2>
+
+    <p class="text-brand-slate text-sm">
+      Essential intelligence for individuals.
+    </p>
+  </div>
+
+  <div class="flex items-end gap-1 pb-7">
+    <span class="font-header font-bold text-5xl text-brand-dark">
+      $0
+    </span>
+
+    <span class="text-brand-slate text-sm mb-2">
+      /month
+    </span>
+  </div>
+
+  <div class="h-[1px] w-full bg-black/5 mb-6"></div>
+
+  <ul class="flex flex-col gap-3.5 flex-1 pb-8">
+    <li
+      v-for="feature in starterFeatures"
+      :key="feature"
+      class="flex items-center gap-3"
+    >
+      <span
+        class="flex items-center justify-center w-5 h-5 rounded-full bg-primary/10 shrink-0"
       >
-        <div class="flex flex-col gap-1.5 pb-7">
-          <h2 class="font-header font-bold text-xl text-brand-dark">Starter</h2>
-          <p class="text-brand-slate text-sm">Essential intelligence for individuals.</p>
-        </div>
+        <PhCheck
+          :size="11"
+          weight="bold"
+          class="text-primary"
+        />
+      </span>
 
-        <div class="flex items-end gap-1 pb-7 overflow-hidden">
-          <span class="font-header font-bold text-5xl text-brand-dark">$0</span>
-          <span class="text-brand-slate text-sm mb-2 font-body">/month</span>
-        </div>
+      <span class="text-brand-slate text-sm">
+        {{ feature }}
+      </span>
+    </li>
+  </ul>
 
-        <div class="h-[1px] w-full bg-black/5 mb-7"></div>
+  <Button
+    variant="glass"
+    class="w-full"
+    @click="$router.push('/signup')"
+  >
+    Start for Free
+  </Button>
+</div>
 
-        <ul class="flex flex-col gap-3.5 flex-1 pb-8">
-          <li v-for="(feature, fi) in starterFeatures" :key="feature"
-            :class="['flex items-center gap-3 transition-all duration-300', cardsVisible ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-4']"
-            :style="`transition-delay: ${fi * 60 + 100}ms`"
-          >
-            <span class="flex items-center justify-center w-5 h-5 rounded-full bg-primary/10 shrink-0 group-hover:bg-primary/15 transition-colors duration-300">
-              <PhCheck :size="11" weight="bold" class="text-primary" />
-            </span>
-            <span class="text-brand-slate text-sm font-body">{{ feature }}</span>
-          </li>
-        </ul>
+  <!-- Professional (Recommended) -->
+  <!-- Professional -->
+<div
+  @mouseenter="hoveredPlan = 'pro'"
+  @mouseleave="hoveredPlan = null"
+  :class="[
+    'relative flex flex-col rounded-[28px] p-8 bg-white/85 border border-primary/20 backdrop-blur-glass transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)]',
 
-        <Button
-          variant="glass"
-          class="w-full"
-          @click="$router.push('/signup')"
-        >
-          Start for Free
-        </Button>
-      </div>
+    cardsVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10',
 
-      <!-- Professional (Recommended) -->
-      <div :class="['relative flex flex-col rounded-[28px] p-8 bg-white/85 border border-primary/20 shadow-[0_20px_60px_rgba(75,104,255,0.12),0_1px_2px_rgba(255,255,255,0.7)_inset] backdrop-blur-glass transition-all duration-500 hover:shadow-[0_28px_70px_rgba(75,104,255,0.22)] hover:-translate-y-2 lg:scale-[1.04] lg:-mt-2 lg:-mb-2',
-        cardsVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10']"
-        style="transition-delay: 100ms"
+    hoveredPlan === 'pro'
+      ? 'scale-[1.07] z-20 shadow-[0_35px_90px_rgba(75,104,255,0.22)]'
+      : 'lg:scale-[1.03]',
+
+    hoveredPlan && hoveredPlan !== 'pro'
+      ? 'opacity-60 saturate-50 scale-[0.98]'
+      : ''
+  ]"
+>
+  <div
+    v-if="hoveredPlan && hoveredPlan !== 'pro'"
+    class="absolute inset-0 rounded-[28px] bg-white/10 backdrop-blur-sm pointer-events-none"
+  ></div>
+
+  <!-- Top Glow -->
+  <div
+    class="absolute top-0 left-8 right-8 h-[3px] bg-grad-primary rounded-b-full"
+  ></div>
+
+  <!-- Badge -->
+  <div
+    class="absolute -top-4 left-1/2 -translate-x-1/2 px-5 py-2 rounded-full bg-grad-primary shadow-[0_8px_25px_rgba(75,104,255,0.25)]"
+  >
+    <span
+      class="text-[10px] text-white font-bold tracking-[0.18em] uppercase"
+    >
+      Most Popular
+    </span>
+  </div>
+
+  <div class="flex flex-col gap-1.5 pb-7 pt-4">
+    <div
+      class="w-fit px-3 py-1 rounded-full bg-primary/10 text-primary text-[10px] font-bold uppercase tracking-wider mb-3"
+    >
+      Teams
+    </div>
+
+    <h2 class="font-header font-bold text-xl text-brand-dark">
+      Professional
+    </h2>
+
+    <p class="text-brand-slate text-sm">
+      For teams scaling their output.
+    </p>
+  </div>
+
+  <div class="flex items-end gap-1 pb-2">
+    <span
+      class="font-header font-bold text-5xl text-brand-dark"
+    >
+      {{ isAnnual ? '$23' : '$29' }}
+    </span>
+
+    <span class="text-brand-slate text-sm mb-2">
+      /user /mo
+    </span>
+  </div>
+
+  <div class="mb-6">
+    <span
+      v-if="isAnnual"
+      class="text-xs font-bold text-secondary"
+    >
+      Save 20% annually
+    </span>
+  </div>
+
+  <div class="h-[1px] w-full bg-primary/10 mb-6"></div>
+
+  <ul class="flex flex-col gap-3.5 flex-1 pb-8">
+    <li
+      v-for="feature in proFeatures"
+      :key="feature"
+      class="flex items-center gap-3"
+    >
+      <span
+        class="flex items-center justify-center w-5 h-5 rounded-full bg-primary/10 shrink-0"
       >
-        <!-- Animated shimmer top bar -->
-        <div class="absolute top-0 left-8 right-8 h-[3px] rounded-b-full bg-grad-primary opacity-80 overflow-hidden">
-          <div class="absolute inset-0 bg-white/40 animate-shimmer"></div>
-        </div>
+        <PhCheck
+          :size="11"
+          weight="bold"
+          class="text-primary"
+        />
+      </span>
 
-        <!-- Pulsing Recommended badge -->
-        <div class="absolute -top-3.5 left-1/2 -translate-x-1/2 px-4 py-1.5 rounded-full bg-grad-primary shadow-[0_4px_15px_rgba(75,104,255,0.35)] animate-badge-pulse">
-          <span class="font-header font-extrabold text-[10px] text-white tracking-widest uppercase whitespace-nowrap">✦ Recommended</span>
-        </div>
-
-        <div class="flex flex-col gap-1.5 pb-7 pt-2">
-          <h2 class="font-header font-bold text-xl text-brand-dark">Professional</h2>
-          <p class="text-brand-slate text-sm">For teams scaling their output.</p>
-        </div>
-
-        <!-- Animated price flip -->
-        <div class="flex items-end gap-1 pb-1 overflow-hidden">
-          <div class="relative overflow-hidden h-14 flex items-end">
-            <Transition name="price-flip">
-              <span :key="isAnnual ? 'annual' : 'monthly'" class="font-header font-bold text-5xl text-brand-dark block">
-                {{ isAnnual ? '$23' : '$29' }}
-              </span>
-            </Transition>
-          </div>
-          <span class="text-brand-slate text-sm mb-2 font-body">/user /mo</span>
-        </div>
-
-        <Transition name="fade-quick">
-          <div v-if="isAnnual" class="mb-5 text-xs text-secondary font-bold font-body">billed annually — save 20% 🎉</div>
-          <div v-else class="mb-5 text-xs text-transparent select-none">placeholder</div>
-        </Transition>
-
-        <div class="h-[1px] w-full bg-primary/8 mb-7"></div>
-
-        <ul class="flex flex-col gap-3.5 flex-1 pb-8">
-          <li v-for="(feature, fi) in proFeatures" :key="feature"
-            :class="['flex items-center gap-3 transition-all duration-300', cardsVisible ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-4']"
-            :style="`transition-delay: ${fi * 60 + 200}ms`"
-          >
-            <span class="flex items-center justify-center w-5 h-5 rounded-full bg-primary/10 shrink-0">
-              <PhCheck :size="11" weight="bold" class="text-primary" />
-            </span>
-            <span class="text-brand-dark text-sm font-body font-semibold">{{ feature }}</span>
-          </li>
-        </ul>
-
-        <Button
-          variant="primary"
-          class="w-full"
-          @click="$router.push('/signup')"
-        >
-          Start Pro Trial
-        </Button>
-      </div>
-
-      <!-- Enterprise -->
-      <div :class="['flex flex-col rounded-[28px] p-8 bg-glass-bg border border-white/70 shadow-glass backdrop-blur-glass transition-all duration-500 hover:border-white/95 hover:shadow-card-hover hover:-translate-y-1 group',
-        cardsVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10']"
-        style="transition-delay: 200ms"
+      <span
+        class="text-brand-dark text-sm font-semibold"
       >
-        <div class="flex flex-col gap-1.5 pb-7">
-          <h2 class="font-header font-bold text-xl text-brand-dark">Enterprise</h2>
-          <p class="text-brand-slate text-sm">Maximum security and compliance.</p>
-        </div>
+        {{ feature }}
+      </span>
+    </li>
+  </ul>
 
-        <div class="flex items-end gap-2 pb-7">
-          <span class="font-header font-bold text-5xl text-brand-dark">Custom</span>
-        </div>
+  <Button
+    variant="primary"
+    class="w-full"
+    @click="$router.push('/signup')"
+  >
+    Start Pro Trial
+  </Button>
+</div>
 
-        <div class="h-[1px] w-full bg-black/5 mb-7"></div>
 
-        <ul class="flex flex-col gap-3.5 flex-1 pb-8">
-          <li v-for="(feature, fi) in enterpriseFeatures" :key="feature"
-            :class="['flex items-center gap-3 transition-all duration-300', cardsVisible ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-4']"
-            :style="`transition-delay: ${fi * 60 + 300}ms`"
-          >
-            <span class="flex items-center justify-center w-5 h-5 rounded-full bg-primary/10 shrink-0 group-hover:bg-primary/15 transition-colors duration-300">
-              <PhCheck :size="11" weight="bold" class="text-primary" />
-            </span>
-            <span class="text-brand-slate text-sm font-body">{{ feature }}</span>
-          </li>
-        </ul>
+  <!-- Enterprise -->
+ <!-- Enterprise -->
+<div
+  @mouseenter="hoveredPlan = 'enterprise'"
+  @mouseleave="hoveredPlan = null"
+  :class="[
+    'relative flex flex-col rounded-[28px] p-8 bg-glass-bg border border-white/70 shadow-glass backdrop-blur-glass transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] hover:border-white/95',
 
-        <Button
-          variant="outline"
-          class="w-full border-primary/25 !text-primary hover:bg-primary/5"
-          @click="contactSales"
-        >
-          Contact Sales
-        </Button>
+    cardsVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10',
+
+    hoveredPlan === 'enterprise'
+      ? 'scale-[1.05] z-20 shadow-[0_30px_80px_rgba(75,104,255,0.18)]'
+      : '',
+
+    hoveredPlan && hoveredPlan !== 'enterprise'
+      ? 'opacity-60 saturate-50 scale-[0.98]'
+      : ''
+  ]"
+>
+  <div
+    v-if="hoveredPlan && hoveredPlan !== 'enterprise'"
+    class="absolute inset-0 rounded-[28px] bg-white/10 backdrop-blur-sm pointer-events-none"
+  ></div>
+
+  <div class="flex flex-col gap-1.5 pb-7">
+    <div
+      class="w-fit px-3 py-1 rounded-full bg-secondary/10 text-secondary text-[10px] font-bold uppercase tracking-wider mb-3"
+    >
+      Enterprise
+    </div>
+
+    <h2 class="font-header font-bold text-xl text-brand-dark">
+      Enterprise
+    </h2>
+
+    <p class="text-brand-slate text-sm">
+      Maximum security and compliance.
+    </p>
+  </div>
+
+  <div class="flex items-end gap-2 pb-7">
+    <span class="font-header font-bold text-5xl text-brand-dark">
+      Custom
+    </span>
+  </div>
+
+  <div class="h-[1px] w-full bg-black/5 mb-6"></div>
+
+  <ul class="flex flex-col gap-3.5 flex-1 pb-8">
+    <li
+      v-for="feature in enterpriseFeatures"
+      :key="feature"
+      class="flex items-center gap-3"
+    >
+      <span
+        class="flex items-center justify-center w-5 h-5 rounded-full bg-primary/10 shrink-0"
+      >
+        <PhCheck
+          :size="11"
+          weight="bold"
+          class="text-primary"
+        />
+      </span>
+
+      <span class="text-brand-slate text-sm">
+        {{ feature }}
+      </span>
+    </li>
+  </ul>
+
+  <Button
+    variant="outline"
+    class="w-full border-primary/25 !text-primary hover:bg-primary/5"
+    @click="contactSales"
+  >
+    Contact Sales
+  </Button>
+</div>
+</section>
+
+
+
+<!-- ═══════════════ FEATURE COMPARISON TABLE ═══════════════ -->
+<section
+  ref="tableRef"
+  id="feature-breakdown"
+  :class="[
+    'flex flex-col gap-12 transition-all duration-700',
+    tableVisible
+      ? 'opacity-100 translate-y-0'
+      : 'opacity-0 translate-y-8'
+  ]"
+>
+  <!-- Section Header -->
+  <div class="text-center max-w-[750px] mx-auto">
+    <span
+      class="
+      text-[10px]
+      font-bold
+      tracking-[0.18em]
+      text-primary
+      uppercase
+      "
+    >
+      PLAN COMPARISON
+    </span>
+
+    <h2
+      class="
+      mt-4
+      text-3xl
+      sm:text-5xl
+      font-bold
+      font-header
+      tracking-tight
+      text-brand-dark
+      "
+    >
+      Everything included in every plan.
+    </h2>
+
+    <p
+      class="
+      mt-4
+      text-brand-slate
+      text-base
+      leading-relaxed
+      max-w-[600px]
+      mx-auto
+      "
+    >
+      Compare SmartMeet plans and choose the solution that best fits
+      your team's collaboration and intelligence needs.
+    </p>
+  </div>
+
+  <!-- Table -->
+  <div
+    class="
+    overflow-hidden
+
+    rounded-[32px]
+
+    bg-white/60
+
+    backdrop-blur-xl
+
+    border
+    border-white/70
+
+    shadow-[0_20px_60px_rgba(0,0,0,0.06)]
+    "
+  >
+    <!-- Header -->
+    <div
+      class="
+      grid
+      grid-cols-[2fr_1fr_1fr_1fr]
+
+      border-b
+      border-black/5
+      "
+    >
+      <div
+        class="
+        px-8
+        py-7
+
+        text-left
+
+        font-header
+        font-bold
+
+        text-xs
+
+        uppercase
+
+        tracking-[0.18em]
+
+        text-brand-dark
+        "
+      >
+        Features
       </div>
-    </section>
 
-    <!-- ═══════════════ FEATURE COMPARISON TABLE ═══════════════ -->
-    <section ref="tableRef" id="feature-breakdown" :class="['flex flex-col gap-8 transition-all duration-700', tableVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8']">
-      <div class="text-center">
-        <h2 class="font-header font-bold text-3xl text-brand-dark">Feature Breakdown</h2>
-        <p class="text-brand-slate text-sm mt-2">A clear comparison across all plans</p>
+      <div
+        class="
+        px-6
+        py-7
+
+        text-center
+
+        font-header
+        font-bold
+
+        text-xs
+
+        uppercase
+
+        tracking-[0.18em]
+
+        text-brand-slate
+        "
+      >
+        Starter
       </div>
 
-      <div class="rounded-[24px] bg-glass-bg border border-white/70 shadow-glass backdrop-blur-glass overflow-hidden">
-        <div class="grid grid-cols-[2fr_1fr_1fr_1fr] border-b border-black/5">
-          <div class="px-6 py-5 font-header font-bold text-xs text-brand-dark uppercase tracking-widest">Feature</div>
-          <div class="px-6 py-5 font-header font-bold text-xs text-brand-slate uppercase tracking-widest">Starter</div>
-          <div class="px-6 py-5 font-header font-bold text-xs text-primary uppercase tracking-widest">Pro</div>
-          <div class="px-6 py-5 font-header font-bold text-xs text-brand-slate uppercase tracking-widest">Enterprise</div>
-        </div>
+      <!-- PRO -->
+      <div
+        class="
+        px-6
+        py-5
 
-        <template v-for="(row, i) in comparisonTable" :key="i">
-          <div v-if="row.category" class="grid grid-cols-[2fr_1fr_1fr_1fr] border-t border-black/5 bg-primary/[0.03]">
-            <div class="px-6 py-3 col-span-4 font-header font-extrabold text-[10px] text-primary tracking-[0.15em] uppercase">
-              {{ row.label }}
-            </div>
-          </div>
-          <div v-else
-            :class="['grid grid-cols-[2fr_1fr_1fr_1fr] border-t border-black/[0.04] transition-all duration-300 hover:bg-primary/[0.025] cursor-default',
-              tableVisible ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-4',
-              i % 2 !== 0 ? 'bg-black/[0.015]' : '']"
-            :style="`transition-delay: ${i * 50 + 100}ms`"
-          >
-            <div class="px-6 py-4 font-body text-sm text-brand-dark">{{ row.label }}</div>
-            <div class="px-6 py-4 flex items-center"><FeatureCell :value="row.starter" /></div>
-            <div class="px-6 py-4 flex items-center"><FeatureCell :value="row.pro" /></div>
-            <div class="px-6 py-4 flex items-center"><FeatureCell :value="row.enterprise" /></div>
-          </div>
-        </template>
-      </div>
-    </section>
+        text-center
 
-    <!-- ═══════════════ FAQ ═══════════════ -->
-    <section ref="faqRef" :class="['flex flex-col gap-8 max-w-3xl mx-auto w-full transition-all duration-700', faqVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8']">
-      <div class="text-center">
-        <h2 class="font-header font-bold text-3xl text-brand-dark">Frequently Asked Questions</h2>
-      </div>
+        bg-primary/[0.05]
 
-      <div class="flex flex-col gap-3">
+        border-x
+        border-primary/10
+        "
+      >
         <div
-          v-for="(faq, i) in faqs" :key="i"
-          :class="['rounded-[20px] bg-glass-bg border border-white/70 shadow-glass backdrop-blur-glass overflow-hidden transition-all duration-300 hover:border-white/95 hover:shadow-card-hover',
-            faqVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4']"
-          :style="`transition-delay: ${i * 80}ms`"
-        >
-          <button
-            :id="`faq-${i}`"
-            @click="toggleFaq(i)"
-            class="w-full flex items-center justify-between px-7 py-5 text-left cursor-pointer group"
-            :aria-expanded="openFaq === i"
-          >
-            <span :class="['font-header font-bold text-sm pr-4 transition-colors duration-200', openFaq === i ? 'text-primary' : 'text-brand-dark']">{{ faq.q }}</span>
-            <PhCaretDown
-              :size="18" weight="bold"
-              :class="['transition-all duration-300 shrink-0', openFaq === i ? 'rotate-180 text-primary' : 'text-brand-slate group-hover:text-primary']"
-            />
-          </button>
+          class="
+          inline-flex
 
-          <Transition name="faq-expand">
-            <div v-if="openFaq === i" class="px-7 pb-5">
-              <div class="text-brand-slate text-sm leading-relaxed font-body border-t border-black/5 pt-4">
-                {{ faq.a }}
-              </div>
-            </div>
-          </Transition>
+          px-3
+          py-1
+
+          rounded-full
+
+          bg-primary
+
+          text-white
+
+          text-[9px]
+          font-black
+
+          tracking-[0.15em]
+
+          uppercase
+
+          mb-2
+          "
+        >
+          Most Popular
+        </div>
+
+        <div
+          class="
+          font-header
+          font-bold
+
+          text-primary
+
+          text-xs
+
+          uppercase
+
+          tracking-[0.18em]
+          "
+        >
+          Professional
         </div>
       </div>
-    </section>
+
+      <div
+        class="
+        px-6
+        py-7
+
+        text-center
+
+        font-header
+        font-bold
+
+        text-xs
+
+        uppercase
+
+        tracking-[0.18em]
+
+        text-brand-slate
+        "
+      >
+        Enterprise
+      </div>
+    </div>
+
+    <!-- Rows -->
+    <template
+      v-for="(row, i) in comparisonTable"
+      :key="i"
+    >
+      <!-- Category Row -->
+      <div
+        v-if="row.category"
+        class="
+        border-t
+        border-black/5
+
+        bg-gradient-to-r
+        from-primary/[0.08]
+        via-primary/[0.04]
+        to-transparent
+        "
+      >
+        <div
+          class="
+          px-8
+          py-3
+
+          text-[11px]
+
+          font-black
+
+          tracking-[0.18em]
+
+          uppercase
+
+          text-primary
+          "
+        >
+          {{ row.label }}
+        </div>
+      </div>
+
+      <!-- Feature Row -->
+      <div
+        v-else
+        :class="[
+          'grid grid-cols-[2fr_1fr_1fr_1fr]',
+          'border-t border-black/[0.04]',
+          'transition-all duration-300',
+          'hover:bg-primary/[0.025]',
+          tableVisible
+            ? 'opacity-100 translate-x-0'
+            : 'opacity-0 -translate-x-4'
+        ]"
+        :style="`transition-delay:${i * 40 + 100}ms`"
+      >
+        <!-- Feature Name -->
+        <div
+          class="
+          px-8
+          py-5
+
+          text-brand-dark
+
+          font-medium
+          "
+        >
+          {{ row.label }}
+        </div>
+
+        <!-- Starter -->
+        <div
+          class="
+          px-6
+          py-5
+
+          flex
+          items-center
+          justify-center
+          "
+        >
+          <FeatureCell :value="row.starter" />
+        </div>
+
+        <!-- Pro -->
+        <div
+          class="
+          px-6
+          py-5
+
+          flex
+          items-center
+          justify-center
+
+          bg-primary/[0.03]
+
+          border-x
+          border-primary/10
+          "
+        >
+          <FeatureCell :value="row.pro" />
+        </div>
+
+        <!-- Enterprise -->
+        <div
+          class="
+          px-6
+          py-5
+
+          flex
+          items-center
+          justify-center
+          "
+        >
+          <FeatureCell :value="row.enterprise" />
+        </div>
+      </div>
+    </template>
+  </div>
+
+  <!-- Enterprise CTA -->
+  <div
+    class="
+    rounded-[28px]
+
+    bg-primary/[0.04]
+
+    border
+    border-primary/10
+
+    p-8
+
+    text-center
+    "
+  >
+    <h3
+      class="
+      text-xl
+      font-bold
+
+      text-brand-dark
+
+      mb-3
+      "
+    >
+      Need a custom deployment?
+    </h3>
+
+    <p
+      class="
+      text-brand-slate
+
+      max-w-[650px]
+
+      mx-auto
+
+      mb-6
+      "
+    >
+      SmartMeet Enterprise includes private AI deployment,
+      advanced compliance controls, SSO, custom integrations,
+      dedicated onboarding, and priority support.
+    </p>
+
+    <Button
+      variant="outline"
+      class="border-primary/20 !text-primary hover:bg-primary/5"
+      @click="contactSales"
+    >
+      Contact Enterprise Sales
+    </Button>
+  </div>
+</section>
+
+
+
+<!-- ═══════════════ FAQ ═══════════════ -->
+<section ref="faqRef" :class="['flex flex-col gap-8 max-w-3xl mx-auto w-full transition-all duration-700', faqVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8']">
+
+  <!-- Header -->
+  <div class="text-center max-w-[650px] mx-auto">
+    <span class="text-[10px] font-bold tracking-[0.18em] text-primary uppercase">
+      SUPPORT CENTER
+    </span>
+    <h2 class="mt-4 text-3xl sm:text-5xl font-bold font-header text-brand-dark">
+      Frequently Asked Questions
+    </h2>
+    <p class="mt-4 text-brand-slate text-base leading-relaxed">
+      Everything you need to know about SmartMeet,
+      pricing, integrations, and enterprise deployment.
+    </p>
+  </div>
+
+
+  <!-- FAQ Items -->
+  <div class="flex flex-col gap-3">
+    <div
+      v-for="(faq, i) in faqs"
+      :key="i"
+      class="relative overflow-hidden rounded-[24px] border transition-all duration-500 backdrop-blur-xl group"
+      :class="[
+        openFaq === i
+          ? 'bg-white/90 border-primary/20 shadow-[0_20px_50px_rgba(75,104,255,0.12)]'
+          : 'bg-white/50 border-white/70 hover:bg-white/75 hover:border-primary/10',
+        faqVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
+      ]"
+      :style="`transition-delay: ${i * 80}ms`"
+    >
+      <!-- Toggle Button -->
+      <button
+        :id="`faq-${i}`"
+        @click="toggleFaq(i)"
+        class="w-full px-7 py-6 flex items-center justify-between text-left cursor-pointer"
+        :aria-expanded="openFaq === i"
+      >
+        <span
+          class="text-base font-semibold transition-all duration-300"
+          :class="openFaq === i ? 'text-primary' : 'text-brand-dark'"
+        >
+          {{ faq.q }}
+        </span>
+        <div
+          class="w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300"
+          :class="openFaq === i ? 'bg-primary text-white rotate-180' : 'bg-primary/5 text-primary'"
+        >
+          <PhCaretDown :size="18" weight="bold" />
+        </div>
+      </button>
+
+      <!-- Answer -->
+      <Transition name="faq">
+        <div v-if="openFaq === i" class="px-7 pb-6">
+          <div class="border-t border-black/5 pt-5 text-brand-slate text-sm leading-relaxed font-body">
+            {{ faq.a }}
+          </div>
+        </div>
+      </Transition>
+
+      <!-- Decorative glow -->
+      <div
+        v-if="openFaq === i"
+        class="absolute top-0 right-0 w-[200px] h-[200px] bg-primary/10 blur-[80px] pointer-events-none"
+      ></div>
+    </div>
+  </div>
+
+  <!-- Still have questions CTA -->
+  <div class="mt-12 text-center rounded-[28px] bg-primary/5 border border-primary/10 p-8">
+    <h3 class="text-xl font-bold text-brand-dark mb-3">Still have questions?</h3>
+    <p class="text-brand-slate mb-5">Our team is here to help you find the right plan.</p>
+    <Button variant="primary" @click="contactSales">Contact Sales</Button>
+  </div>
+
+</section>
   </div>
 </template>
 
@@ -353,6 +897,23 @@ const faqs = [
 const contactSales = () => {
   window.location.href = "mailto:sales@smartmeet.ai"
 }
+
+
+
+
+
+const starterCoreFeatures = ['5 AI Meetings / month', 'Live Transcription']
+const starterAccessFeatures = ['7-Day Meeting History', 'Basic Search']
+
+const proAiFeatures = ['Unlimited Smart Meetings', 'Neural Summary Engine', 'Sentiment Analysis']
+const proCollaborationFeatures = ['Custom CRM Integrations', 'Team Workspaces']
+
+const enterpriseSecurityFeatures = ['SOC2 Compliance', 'SSO & SCIM', 'Private Deployment']
+const enterpriseSupportFeatures = ['Dedicated Success Manager', 'Priority Support']
+
+
+
+const hoveredPlan = ref(null)
 </script>
 
 <style scoped>
@@ -389,4 +950,25 @@ const contactSales = () => {
 
 @keyframes spin-slow { to { transform: rotate(360deg); } }
 .animate-spin-slow { animation: spin-slow 6s linear infinite; }
+
+
+
+.faq-enter-active,
+.faq-leave-active {
+  transition: all 0.35s ease;
+  overflow: hidden;
+}
+.faq-enter-from,
+.faq-leave-to {
+  opacity: 0;
+  transform: translateY(-10px);
+  max-height: 0;
+}
+.faq-enter-to,
+.faq-leave-from {
+  opacity: 1;
+  transform: translateY(0);
+  max-height: 300px;
+}
+
 </style>

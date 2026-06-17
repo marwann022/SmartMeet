@@ -129,29 +129,50 @@ import Button from '@/components/ui/Button.vue'
 import Input from '@/components/ui/Input.vue'
 import googleIcon from '@/assets/Google.png'
 import appleIcon from '@/assets/Apple_logo_black.svg'
+import { useAuthStore } from '@/stores/auth'
+
 
 const router = useRouter()
+
+const authStore = useAuthStore()
+
 const fullname = ref('')
 const email = ref('')
 const password = ref('')
 const confirmPassword = ref('')
 const loading = ref(false)
 
+
 const handleSignUp = () => {
   if (password.value !== confirmPassword.value) {
-    alert("Passwords do not match!")
+    alert('Passwords do not match!')
     return
   }
-  
+
   loading.value = true
+
   setTimeout(() => {
+    authStore.login({
+      name: fullname.value,
+      email: email.value,
+      plan: 'Free'
+    })
+
     loading.value = false
+
     alert(`Account successfully created for ${fullname.value}!`)
-    router.push('/signin')
+
+    router.push('/dashboard')
   }, 1000)
 }
 
 const handleSSO = (provider) => {
+  authStore.login({
+    name: `${provider} User`,
+    email: 'user@smartmeet.ai',
+    plan: 'Free'
+  })
+
   router.push('/dashboard')
 }
 </script>

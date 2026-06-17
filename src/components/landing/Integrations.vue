@@ -1,51 +1,222 @@
 <template>
-  <section id="integrations" class="py-16 text-center border-t border-black/5 w-full">
-    <h3 class="text-[10px] font-bold tracking-[0.18em] text-primary uppercase mb-6 font-header">UNIVERSAL COMPATIBILITY</h3>
-    
-    <div class="flex flex-wrap justify-center items-center gap-7 max-w-[900px] mx-auto px-4">
-      <!-- Google Meet -->
-      <div class="flex-grow flex-shrink-0 min-w-[170px] max-w-[200px] h-[86px] bg-white/50 border border-white/70 rounded-2xl flex flex-col items-center justify-center gap-2.5 transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] backdrop-blur-sm group hover:bg-white/90 hover:-translate-y-1 hover:scale-[1.02] hover:border-red-500/30 hover:shadow-[0_10px_25px_rgba(234,67,53,0.08)]">
-        <img 
-          src="../../assets/Google_Meet_icon_(2020).svg.png" 
-          alt="Google Meet" 
-          class="h-9 w-auto max-w-[130px] object-contain transition-all duration-300 filter grayscale opacity-55 group-hover:grayscale-0 group-hover:opacity-100" 
-        />
-        <span class="text-[11px] font-bold text-brand-slate transition-colors duration-300 group-hover:text-brand-dark">Google Meet</span>
-      </div>
+  <section
+    id="integrations"
+    class="py-24 border-t border-black/5 w-full"
+  >
+    <!-- Header -->
+    <div
+      class="max-w-[700px] mx-auto text-center mb-16 px-4"
+    >
+      <span
+        class="
+        text-[10px]
+        font-bold
+        tracking-[0.18em]
+        text-primary
+        uppercase
+        font-header
+        "
+      >
+        UNIVERSAL COMPATIBILITY
+      </span>
 
-      <!-- Slack -->
-      <div class="flex-grow flex-shrink-0 min-w-[170px] max-w-[200px] h-[86px] bg-white/50 border border-white/70 rounded-2xl flex flex-col items-center justify-center gap-2.5 transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] backdrop-blur-sm group hover:bg-white/90 hover:-translate-y-1 hover:scale-[1.02] hover:border-pink-500/30 hover:shadow-[0_10px_25px_rgba(236,72,153,0.08)]">
-        <img 
-          src="../../assets/slack.png" 
-          alt="Slack" 
-          class="h-9 w-auto max-w-[130px] object-contain transition-all duration-300 filter grayscale opacity-55 group-hover:grayscale-0 group-hover:opacity-100" 
-        />
-        <span class="text-[11px] font-bold text-brand-slate transition-colors duration-300 group-hover:text-brand-dark">Slack</span>
-      </div>
+      <h2
+        class="
+        text-3xl
+        sm:text-5xl
+        lg:text-6xl
 
-      <!-- Notion -->
-      <div class="flex-grow flex-shrink-0 min-w-[170px] max-w-[200px] h-[86px] bg-white/50 border border-white/70 rounded-2xl flex flex-col items-center justify-center gap-2.5 transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] backdrop-blur-sm group hover:bg-white/90 hover:-translate-y-1 hover:scale-[1.02] hover:border-slate-800/20 hover:shadow-[0_10px_25px_rgba(15,23,42,0.06)]">
-        <img 
-          src="../../assets/Notion-logo.svg.png" 
-          alt="Notion" 
-          class="h-9 w-auto max-w-[130px] object-contain transition-all duration-300 filter grayscale opacity-55 group-hover:grayscale-0 group-hover:opacity-100" 
-        />
-        <span class="text-[11px] font-bold text-brand-slate transition-colors duration-300 group-hover:text-brand-dark">Notion</span>
-      </div>
+        font-bold
+        font-header
 
-      <!-- Salesforce -->
-      <div class="flex-grow flex-shrink-0 min-w-[170px] max-w-[200px] h-[86px] bg-white/50 border border-white/70 rounded-2xl flex flex-col items-center justify-center gap-2.5 transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] backdrop-blur-sm group hover:bg-white/90 hover:-translate-y-1 hover:scale-[1.02] hover:border-sky-500/30 hover:shadow-[0_10px_25px_rgba(0,161,224,0.08)]">
-        <img 
-          src="../../assets/Salesforce.com_logo.svg.png" 
-          alt="Salesforce" 
-          class="h-9 w-auto max-w-[130px] object-contain transition-all duration-300 filter grayscale opacity-55 group-hover:grayscale-0 group-hover:opacity-100" 
-        />
-        <span class="text-[11px] font-bold text-brand-slate transition-colors duration-300 group-hover:text-brand-dark">Salesforce</span>
-      </div>
+        tracking-tight
+
+        text-brand-dark
+
+        mt-5
+        mb-5
+        "
+      >
+        Works with your existing tools.
+      </h2>
+
+      <p
+        class="
+        text-base
+        sm:text-lg
+
+        text-brand-slate
+
+        leading-relaxed
+        "
+      >
+        Connect SmartMeet with the platforms your team
+        already uses and automatically turn conversations
+        into actionable knowledge.
+      </p>
     </div>
+
+<!-- Integrations Grid -->
+<div
+  class="
+  grid
+  grid-cols-2
+  lg:grid-cols-4
+
+  gap-6
+
+  max-w-[1100px]
+  mx-auto
+
+  px-4
+  "
+>
+
+  <!-- Google Meet -->
+  <div class="integration-card group">
+    <img
+      src="../../assets/Google_Meet_icon_(2020).svg.png"
+      alt="Google Meet"
+      class="integration-logo"
+    />
+
+    <span class="integration-name">
+      Google Meet
+    </span>
+  </div>
+
+  <!-- Slack -->
+  <div class="integration-card group">
+    <img
+      src="../../assets/slack.png"
+      alt="Slack"
+      class="integration-logo"
+    />
+
+    <span class="integration-name">
+      Slack
+    </span>
+  </div>
+
+  <!-- Notion -->
+  <div class="integration-card group">
+    <img
+      src="../../assets/Notion-logo.svg.png"
+      alt="Notion"
+      class="integration-logo"
+    />
+
+    <span class="integration-name">
+      Notion
+    </span>
+  </div>
+
+  <!-- Salesforce -->
+  <div class="integration-card group">
+    <img
+      src="../../assets/Salesforce.com_logo.svg.png"
+      alt="Salesforce"
+      class="integration-logo"
+    />
+
+    <span class="integration-name">
+      Salesforce
+    </span>
+  </div>
+
+</div>
   </section>
 </template>
 
 <script setup>
 // Static Component
 </script>
+
+<style scoped>
+.integration-card {
+  @apply relative
+  bg-white/50
+  backdrop-blur-sm
+  border
+  border-white/70
+  rounded-3xl
+
+  h-[130px]
+
+  flex
+  flex-col
+  items-center
+  justify-center
+  gap-3
+
+  transition-all
+  duration-500;
+
+  box-shadow:
+    0 4px 20px rgba(0,0,0,0.03);
+}
+
+.integration-card:hover {
+  transform:
+    translateY(-8px)
+    scale(1.03);
+
+  border-color:
+    rgba(75,104,255,0.25);
+
+  box-shadow:
+    0 20px 45px rgba(75,104,255,0.12);
+}
+
+.integration-logo {
+  height: 42px;
+  width: auto;
+
+  max-width: 120px;
+
+  object-fit: contain;
+
+  filter: grayscale(100%);
+  opacity: .6;
+
+  transition: all .35s ease;
+}
+
+.integration-card:hover .integration-logo {
+  filter: grayscale(0%);
+  opacity: 1;
+}
+
+.integration-name {
+  font-size: 12px;
+  font-weight: 700;
+  color: #64748b;
+}
+
+.integration-card:hover .integration-name {
+  color: #111827;
+}
+
+.coming-soon {
+  position: absolute;
+
+  top: 10px;
+  right: 10px;
+
+  font-size: 9px;
+  font-weight: 700;
+
+  color: #4b68ff;
+
+  background:
+    rgba(75,104,255,.08);
+
+  border:
+    1px solid rgba(75,104,255,.15);
+
+  border-radius: 999px;
+
+  padding:
+    4px 8px;
+}
+</style>
