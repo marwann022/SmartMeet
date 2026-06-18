@@ -1,6 +1,5 @@
 <template>
   <div class="flex flex-col gap-6 animate-fade-in text-left">
-    <!-- Stats Widgets row -->
     <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
       <div v-for="stat in teamStats" :key="stat.id" class="card-glass rounded-2xl p-5 flex flex-col justify-between min-h-[120px] text-left border border-white/80 shadow-glass">
         <div class="flex justify-between items-start">
@@ -16,15 +15,12 @@
       </div>
     </div>
 
-    <!-- Bento Column: Table & Invite panel -->
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
       
-      <!-- Members Table Card (Col-8) -->
       <div class="lg:col-span-8 card-glass rounded-[28px] p-6 flex flex-col gap-5 border border-white/80 shadow-glass">
         <div class="flex justify-between items-center pb-3 border-b border-black/5 flex-wrap gap-3">
           <h3 class="font-header font-bold text-lg text-brand-dark">Team Members</h3>
           
-          <!-- Mini search input -->
           <div class="relative w-48">
             <input 
               v-model="memberSearchQuery" 
@@ -36,7 +32,6 @@
           </div>
         </div>
 
-        <!-- Table -->
         <div class="overflow-x-auto">
           <table class="w-full border-collapse text-left text-xs">
             <thead>
@@ -50,7 +45,6 @@
             </thead>
             <tbody class="divide-y divide-black/5">
               <tr v-for="m in filteredMembers" :key="m.id" class="hover:bg-primary/[0.01]">
-                <!-- Member info -->
                 <td class="py-3 pr-4 flex items-center gap-2.5">
                   <img :src="m.avatar" :alt="m.name" class="w-8 h-8 rounded-full object-cover" />
                   <div class="flex flex-col">
@@ -58,24 +52,20 @@
                     <span class="text-[10px] text-brand-slate">{{ m.email }}</span>
                   </div>
                 </td>
-                <!-- Role badge -->
                 <td class="py-3 px-4">
                   <span class="px-2 py-0.5 rounded text-[9px] font-extrabold uppercase" :class="getRoleBadgeClass(m.role)">
                     {{ m.role }}
                   </span>
                 </td>
-                <!-- Status dot -->
                 <td class="py-3 px-4">
                   <div class="flex items-center gap-1.5">
                     <span class="w-2 h-2 rounded-full" :class="m.status === 'Online' ? 'bg-green-500 shadow-[0_0_6px_rgba(34,197,94,0.3)]' : 'bg-brand-slate/40'"></span>
                     <span class="font-semibold text-brand-dark">{{ m.status }}</span>
                   </div>
                 </td>
-                <!-- Last active -->
                 <td class="py-3 px-4 font-semibold text-brand-slate">
                   {{ m.lastActive }}
                 </td>
-                <!-- Actions menu button -->
                 <td class="py-3 pl-4 text-right">
                   <button @click="handleMemberAction(m.id)" class="w-7 h-7 rounded-lg hover:bg-black/5 flex items-center justify-center text-brand-slate transition-colors cursor-pointer">
                     <PhDotsThreeOutlineVertical :size="14" weight="bold" />
@@ -87,10 +77,8 @@
         </div>
       </div>
 
-      <!-- Invite Stakeholder Column (Col-4) -->
       <div class="lg:col-span-4 flex flex-col gap-6">
         
-        <!-- Invite Member Card -->
         <div class="card-glass rounded-[28px] p-6 flex flex-col gap-4 text-left border border-white/80 shadow-glass">
           <h3 class="font-header font-bold text-base text-brand-dark pb-2 border-b border-black/5">Invite Stakeholder</h3>
           
@@ -117,7 +105,6 @@
           </div>
         </div>
 
-        <!-- Workspace Activity Feed Card -->
         <div class="card-glass rounded-[28px] p-6 flex flex-col gap-4 text-left border border-white/80 shadow-glass">
           <h3 class="font-header font-bold text-base text-brand-dark pb-2 border-b border-black/5">Workspace Activity</h3>
           
@@ -135,6 +122,8 @@
       </div>
 
     </div>
+
+    <Toast />
   </div>
 </template>
 
@@ -149,6 +138,10 @@ import {
   PhDotsThreeOutlineVertical 
 } from '@phosphor-icons/vue'
 import Select from '../ui/Select.vue'
+
+// 🌟 استيراد مكون التوست والـ Composable الخاص به
+import Toast from '../ui/Toast.vue'
+import { useToasts } from '../../composables/useToasts'
 
 const roleOptions = [
   { value: 'Admin', label: 'Administrator' },
@@ -176,6 +169,9 @@ const members = ref([
 
 const memberSearchQuery = ref('')
 
+// 🌟 تفعيل خطاف التنبيهات (useToasts)
+const { success, warning, info } = useToasts()
+
 const filteredMembers = computed(() => {
   if (!memberSearchQuery.value.trim()) return members.value
   const q = memberSearchQuery.value.toLowerCase()
@@ -194,10 +190,11 @@ const getRoleBadgeClass = (role) => {
   }
 }
 
+// 🌟 تعديل الـ Action Menu لاستخدام توست من نوع info
 const handleMemberAction = (id) => {
   const m = members.value.find(member => member.id === id)
   if (m) {
-    alert(`Action menu toggled for ${m.name}. Options: Demote, Revoke Access, Force Logout.`)
+    info(`Options for ${m.name}: Demote, Revoke Access, Force Logout.`);
   }
 }
 
@@ -213,9 +210,10 @@ const activityFeed = ref([
   { text: 'David Chen updated workspace billing settings', time: 'Yesterday' }
 ])
 
+// 🌟 تعديل إرسال الدعوة لاستخدام التوست (success / warning)
 const sendInvite = () => {
   if (!inviteForm.name.trim() || !inviteForm.email.trim()) {
-    alert('Please enter invitee name and email.')
+    warning('Please enter invitee name and email.');
     return
   }
   
@@ -236,7 +234,7 @@ const sendInvite = () => {
     time: 'Just now'
   })
 
-  alert(`Invitation sent to ${inviteForm.name} at ${inviteForm.email}!`)
+  success(`Invitation successfully sent to ${inviteForm.name}!`);
   
   inviteForm.name = ''
   inviteForm.email = ''

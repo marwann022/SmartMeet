@@ -6,6 +6,10 @@ export default {
   ],
   theme: {
     extend: {
+      // Custom breakpoint: compact sidebar mode below 850px (Discord-style icon nav)
+      screens: {
+        'compact': { max: '849px' },
+      },
       colors: {
         primary: {
           DEFAULT: '#4b68ff',      // Royal Blue (DealDeck Main)

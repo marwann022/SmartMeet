@@ -182,10 +182,12 @@
       <button @click="saveGeneral" class="px-6 py-3 rounded-xl bg-grad-primary text-white font-header font-bold text-xs tracking-wider uppercase shadow-[0_4px_15px_rgba(75,104,255,0.2)] hover:shadow-[0_6px_22px_rgba(75,104,255,0.3)] transition-all cursor-pointer">Save AI Preferences</button>
     </div>
   </div>
+
+  <Toast />
 </template>
 
 <script setup>
-import { ref, reactive } from 'vue'
+import { ref, reactive, watch } from 'vue'
 import { 
   PhGauge, 
   PhShieldCheck, 
@@ -193,6 +195,12 @@ import {
   PhCheck 
 } from '@phosphor-icons/vue'
 import Select from '../ui/Select.vue'
+import Toast from '../ui/Toast.vue'
+import { useToasts } from '../../composables/useToasts'
+
+// Import assets
+import notionIcon from '../../assets/Notion-logo.svg.png'
+import slackIcon from '../../assets/slack.png'
 
 const detailLevelOptions = [
   { value: 'standard', label: 'Standard (Executive summary & key milestones)' },
@@ -205,40 +213,105 @@ const focusTypeOptions = [
   { value: 'balanced', label: 'Balanced Recipient Summary' }
 ]
 
-// Import assets
-import notionIcon from '../../assets/Notion-logo.svg.png'
-import slackIcon from '../../assets/slack.png'
+const STORAGE_KEY = 'smartmeet_general_settings'
 
-const generalForm = reactive({
+// Master Default Values State
+const DEFAULT_SETTINGS = {
   autoSummarize: true,
   detailLevel: 'standard',
   focusType: 'tasks',
   privacyFirst: true,
   autoDelete: false
-})
+}
 
-const googleClientId = ref(localStorage.getItem('smartmeet_google_client_id') || '')
+// 1. Core Reactive States
+const generalForm = reactive({ ...DEFAULT_SETTINGS })
+const googleClientId = ref('')
+const { success, info } = useToasts()
 
+// 2. Hydration/Load Phase
+const hydrateFormState = () => {
+  try {
+    const cached = localStorage.getItem(STORAGE_KEY)
+    if (cached) {
+      const parsed = JSON.parse(cached)
+      
+      // Safe merge to fallback gracefully if schema modifications occur
+      Object.assign(generalForm, {
+        autoSummarize: parsed.autoSummarize ?? DEFAULT_SETTINGS.autoSummarize,
+        detailLevel: parsed.detailLevel || DEFAULT_SETTINGS.detailLevel,
+        focusType: parsed.focusType || DEFAULT_SETTINGS.focusType,
+        privacyFirst: parsed.privacyFirst ?? DEFAULT_SETTINGS.privacyFirst,
+        autoDelete: parsed.autoDelete ?? DEFAULT_SETTINGS.autoDelete
+      })
+      
+      googleClientId.value = parsed.googleClientId || ''
+    } else {
+      // Cleanup legacy standalone key if present during migration fallback
+      const legacyGoogleId = localStorage.getItem('smartmeet_google_client_id')
+      if (legacyGoogleId) {
+        googleClientId.value = legacyGoogleId
+        saveToStorage() // Instantly migrate to new model structure
+      }
+    }
+  } catch (error) {
+    console.error('Failed to parse localStorage settings:', error)
+  }
+}
+
+// 3. Centralized Save Functionality
+const saveToStorage = () => {
+  const payload = {
+    ...generalForm,
+    googleClientId: googleClientId.value
+  }
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(payload))
+}
+
+// 4. Performance-Safe Auto Save Layer (Debounced watch)
+let debounceTimeout = null
+watch(
+  [generalForm, googleClientId],
+  () => {
+    clearTimeout(debounceTimeout)
+    debounceTimeout = setTimeout(() => {
+      saveToStorage()
+      console.log('[SmartMeet] Settings auto-saved silently.')
+    }, 400) // 400ms debounce buffer window
+  },
+  { deep: true }
+)
+
+// 5. Explicit Action Handlers
 const resetGeneral = () => {
-  generalForm.autoSummarize = true
-  generalForm.detailLevel = 'standard'
-  generalForm.focusType = 'tasks'
-  generalForm.privacyFirst = true
-  generalForm.autoDelete = false
-  googleClientId.value = localStorage.getItem('smartmeet_google_client_id') || ''
-  alert('Discarded unsaved AI changes.')
+  // Clear layout debounce updates to prevent rewriting defaults on reset
+  clearTimeout(debounceTimeout)
+  
+  // Instantly return state to UI defaults
+  Object.assign(generalForm, DEFAULT_SETTINGS)
+  googleClientId.value = ''
+  
+  // Wipe unified key clean
+  localStorage.removeItem(STORAGE_KEY)
+  localStorage.removeItem('smartmeet_google_client_id') // Wipe old backup legacy key
+  
+  info('Discarded unsaved AI changes and reset to factory configurations.')
 }
 
 const saveGeneral = () => {
-  localStorage.setItem('smartmeet_google_client_id', googleClientId.value)
-  alert('Successfully saved AI engine & Google integration preferences!')
+  clearTimeout(debounceTimeout)
+  saveToStorage()
+  success('AI engine and Google integration preferences saved successfully.')
 }
 
 const handleSyncNow = () => {
-  alert('Knowledge database sync initialized. Fetching Notion databases & Slack threads...')
+  info('Knowledge database sync initialized. Fetching Notion databases and Slack threads.')
 }
 
 const handleManageSync = () => {
-  alert('Google Calendar sync connection details settings open.')
+  info('Google Calendar sync connection details are ready to manage.')
 }
+
+// Hydrate state before mounting phase completes
+hydrateFormState()
 </script>

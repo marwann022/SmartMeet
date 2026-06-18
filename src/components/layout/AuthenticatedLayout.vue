@@ -4,14 +4,21 @@
     <Sidebar />
     
     <!-- MAIN SCROLLABLE CONTENT AREA -->
+    <!-- Main content: offset by 260px desktop sidebar, 76px compact sidebar (always visible below 850px) -->
     <main 
       class="flex-1 mt-[80px] min-h-[calc(100vh-80px)] px-[32px] sm:px-[48px] pb-[16px] bg-brand-bg relative overflow-y-auto flex flex-col justify-between transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)]"
-      :class="uiStore.sidebarOpen ? 'ml-[260px] w-[calc(100%-260px)]' : 'ml-0 w-full'"
+      :class="[
+        uiStore.sidebarOpen ? 'ml-[260px] w-[calc(100%-260px)]' : 'ml-0 w-full',
+        'compact:ml-[76px] compact:w-[calc(100%-76px)]'
+      ]"
     >
       <!-- TOP INNER HEADER NAVIGATION -->
       <div 
         class="fixed right-[0px] top-[20px] px-[32px] sm:px-[48px] z-[40] transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)]"
-        :class="uiStore.sidebarOpen ? 'left-[260px]' : 'left-[0px]'"
+        :class="[
+          uiStore.sidebarOpen ? 'left-[260px]' : 'left-[0px]',
+          'compact:left-[76px]'
+        ]"
       >
         <header class="flex items-center justify-between px-[28px] py-[10px] rounded-full bg-white/65 border border-white/70 shadow-glass backdrop-blur-[20px] transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] hover:border-white/85 hover:bg-white/75 hover:shadow-[0_12px_40px_0_rgba(31,38,135,0.08),0_0_20px_rgba(75,104,255,0.05)]">
           <nav class="flex items-center gap-[24px]">

@@ -8,20 +8,19 @@
       </p>
     </div>
 
-    <!-- Secondary Sub-Navigation (Tabs) -->
-    <div class="bg-white/40 border border-black/5 rounded-2xl p-1.5 flex flex-wrap gap-1 items-center self-start">
-      <button 
-        v-for="subtab in subtabs" 
-        :key="subtab.id"
-        @click="activeSubtab = subtab.id"
-        class="px-5 py-2.5 rounded-xl font-header font-bold text-xs tracking-wide transition-all duration-300 flex items-center gap-2 cursor-pointer border"
-        :class="activeSubtab === subtab.id ? 'bg-primary text-white border-transparent shadow-[0_2px_8px_rgba(75,104,255,0.15)]' : 'text-brand-slate border-transparent hover:bg-black/5 hover:text-brand-dark'"
-      >
-        <component :is="subtab.icon" :size="16" weight="bold" />
-        <span>{{ subtab.label }}</span>
-      </button>
-    </div>
-
+ <div class="bg-white/40 border border-black/5 rounded-2xl p-1.5 flex flex-wrap gap-1 items-center self-start w-fit max-w-full compact:p-1 compact:gap-0.5 compact:rounded-xl compact:max-w-[340px]">
+  <button 
+    v-for="subtab in subtabs" 
+    :key="subtab.id"
+    @click="activeSubtab = subtab.id"
+    :aria-label="subtab.label"
+    class="px-5 py-2.5 rounded-xl font-header font-bold text-xs tracking-wide transition-all duration-300 flex items-center gap-2 cursor-pointer border compact:px-3 compact:py-1.5 compact:rounded-lg"
+    :class="activeSubtab === subtab.id ? 'bg-primary text-white border-transparent shadow-[0_2px_8px_rgba(75,104,255,0.15)]' : 'text-brand-slate border-transparent hover:bg-black/5 hover:text-brand-dark'"
+  >
+    <component :is="subtab.icon" :size="14" class="compact:size-[14px]" weight="bold" />
+    <span class="whitespace-nowrap">{{ subtab.label }}</span>
+  </button>
+</div>
     <!-- SUB-TABS CONTENT -->
     <div class="w-full home-view pt-10 pb-0">
       <General v-if="activeSubtab === 'general'" />
@@ -49,7 +48,6 @@ import Notifications from '@/components/settings/Notifications.vue'
 
 const route = useRoute()
 
-// Subtabs definition
 const subtabs = [
   { id: 'general', label: 'General Settings', icon: PhGauge },
   { id: 'profile', label: 'Profile Settings', icon: PhUserCircle },
