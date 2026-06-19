@@ -22,7 +22,7 @@
   </button>
 </div>
     <!-- SUB-TABS CONTENT -->
-    <div class="w-full home-view pt-10 pb-0">
+    <div class="w-full home-view">
       <General v-if="activeSubtab === 'general'" />
       <Profile v-else-if="activeSubtab === 'profile'" />
       <TeamManagement v-else-if="activeSubtab === 'team'" />

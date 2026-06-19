@@ -8,7 +8,7 @@
       <!-- Calendar Icon -->
       <div 
         class="absolute left-3.5 top-1/2 -translate-y-1/2 text-brand-slate transition-colors duration-200 pointer-events-none z-10"
-        :class="themeIconFocusClasses[theme] || themeIconFocusClasses.primary"
+        :class="hasError ? 'group-focus-within:text-red-500' : (themeIconFocusClasses[theme] || themeIconFocusClasses.primary)"
       >
         <PhCalendarBlank :size="16" weight="bold" />
       </div>
@@ -19,7 +19,7 @@
         @click="toggleCalendar"
         :class="[
           'w-full pl-11 pr-4 py-3 rounded-xl bg-white border font-body text-sm text-brand-dark text-left transition-all duration-300 hover:border-black/15 cursor-pointer focus:outline-none',
-          themeFocusClasses[theme] || themeFocusClasses.primary
+          hasError ? 'border-red-400 focus:border-red-500 focus:shadow-[0_0_0_3px_rgba(239,68,68,0.08)]' : (themeFocusClasses[theme] || themeFocusClasses.primary)
         ]"
       >
         {{ formattedDisplayDate }}
@@ -172,6 +172,10 @@ const props = defineProps({
   theme: {
     type: String,
     default: 'primary'
+  },
+  hasError: {
+    type: Boolean,
+    default: false
   }
 })
 

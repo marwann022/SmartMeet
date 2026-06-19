@@ -151,15 +151,37 @@
 
             <!-- Date, Time & Duration row -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <!-- Date & Time Picker -->
-              <div class="flex flex-col gap-2">
-                <label class="font-header font-bold text-[11px] tracking-wider uppercase text-brand-slate ml-1">Date & Time</label>
-                <input 
-                  v-model="form.datetime" 
-                  type="datetime-local" 
-                  class="w-full px-4 py-3.5 rounded-xl bg-white border border-black/8 font-body text-sm text-brand-dark focus:outline-none focus:border-primary/30 focus:shadow-[0_0_0_3px_rgba(75,104,255,0.08)] transition-all duration-300 cursor-pointer"
-                  :class="{ 'border-red-400': errors.datetime }"
-                />
+              <!-- Date & Time Pickers side-by-side -->
+              <div class="flex flex-col gap-1.5">
+                <div class="grid grid-cols-2 gap-3">
+                  <!-- Date Picker -->
+                  <DatePicker 
+                    v-model="form.date" 
+                    label="Date"
+                    :has-error="!!errors.datetime"
+                  />
+                  
+                  <!-- Time Picker -->
+                  <div class="flex flex-col gap-1.5 w-full text-left">
+                    <label class="text-[10px] font-extrabold uppercase tracking-wider text-brand-slate font-header pl-1">
+                      Time
+                    </label>
+                    <div class="relative w-full group">
+                      <div 
+                        class="absolute left-3.5 top-1/2 -translate-y-1/2 text-brand-slate transition-colors duration-200 pointer-events-none z-10"
+                        :class="errors.datetime ? 'group-focus-within:text-red-500' : 'group-focus-within:text-primary'"
+                      >
+                        <PhClock :size="16" weight="bold" />
+                      </div>
+                      <input 
+                        v-model="form.time" 
+                        type="time" 
+                        class="w-full pl-11 pr-4 py-3 rounded-xl bg-white border font-body text-sm text-brand-dark focus:outline-none transition-all duration-300 cursor-pointer"
+                        :class="errors.datetime ? 'border-red-400 focus:border-red-500 focus:shadow-[0_0_0_3px_rgba(239,68,68,0.08)]' : 'border-black/8 focus:border-primary/30 focus:shadow-[0_0_0_3px_rgba(75,104,255,0.08)]'"
+                      />
+                    </div>
+                  </div>
+                </div>
                 <span v-if="errors.datetime" class="text-[11px] text-red-500 font-semibold ml-1">{{ errors.datetime }}</span>
               </div>
 
@@ -402,6 +424,7 @@ import {
   PhUser 
 } from '@phosphor-icons/vue'
 import Select from '@/components/ui/Select.vue'
+import DatePicker from '@/components/ui/DatePicker.vue'
 
 const durationOptions = [
   { value: '15 minutes', label: '15 minutes (Quick Catch-up)' },
@@ -423,11 +446,29 @@ import slackIcon from '@/assets/slack.png'
 const router = useRouter()
 const meetingStore = useMeetingStore()
 
+// Date & Time picker utility functions
+const getTodayDateString = () => {
+  const today = new Date()
+  const yyyy = today.getFullYear()
+  const mm = String(today.getMonth() + 1).padStart(2, '0')
+  const dd = String(today.getDate()).padStart(2, '0')
+  return `${yyyy}-${mm}-${dd}`
+}
+
+const getDefaultTimeString = () => {
+  const now = new Date()
+  now.setHours(now.getHours() + 1)
+  const hh = String(now.getHours()).padStart(2, '0')
+  return `${hh}:00`
+}
+
 // Form reactive state
 const form = reactive({
   title: '',
   description: '',
   type: 'Google Meet', // Default selection
+  date: getTodayDateString(),
+  time: getDefaultTimeString(),
   datetime: '',
   duration: '30 minutes',
   summaryStyle: 'Action-Oriented',
@@ -521,6 +562,13 @@ const validateForm = () => {
   if (!form.title.trim()) {
     errors.title = 'Meeting title is required.'
     isValid = false
+  }
+
+  // Combine date and time to datetime format YYYY-MM-DDTHH:MM
+  if (form.date && form.time) {
+    form.datetime = `${form.date}T${form.time}`
+  } else {
+    form.datetime = ''
   }
 
   if (!form.datetime) {
@@ -717,6 +765,8 @@ const resetForm = () => {
   form.title = ''
   form.description = ''
   form.type = 'Google Meet'
+  form.date = getTodayDateString()
+  form.time = getDefaultTimeString()
   form.datetime = ''
   form.duration = '30 minutes'
   form.summaryStyle = 'Action-Oriented'
