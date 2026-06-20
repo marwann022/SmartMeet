@@ -7,7 +7,7 @@
     <button 
       ref="buttonRef" type="button" @click="isOpen = !isOpen"
       :class="[
-        'w-full flex items-center justify-between px-4 py-3 rounded-xl bg-white border font-body text-sm transition-all duration-300 cursor-pointer text-brand-dark',
+        'w-full h-12 flex items-center justify-between px-4 rounded-xl bg-white border font-body text-sm transition-all duration-300 cursor-pointer text-brand-dark',
         isOpen ? (themeFocusClasses[theme] || themeFocusClasses.primary) : (themeBorderClasses[theme] || 'border-black/8')
       ]"
     >

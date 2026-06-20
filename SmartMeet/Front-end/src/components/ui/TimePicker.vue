@@ -18,7 +18,7 @@
         type="button"
         @click="toggleDropdown"
         :class="[
-          'w-full pl-11 pr-4 py-3 rounded-xl bg-white border font-body text-sm text-brand-dark text-left transition-all duration-300 hover:border-black/15 cursor-pointer focus:outline-none',
+          'w-full h-12 pl-11 pr-4 flex items-center rounded-xl bg-white border font-body text-sm text-brand-dark text-left transition-all duration-300 hover:border-black/15 cursor-pointer focus:outline-none',
           hasError ? 'border-red-400 focus:border-red-500 focus:shadow-[0_0_0_3px_rgba(239,68,68,0.08)]' : 'border-black/8 focus:border-primary/30 focus:shadow-[0_0_0_3px_rgba(75,104,255,0.08)]'
         ]"
       >
@@ -45,12 +45,11 @@
               
               <div class="h-full overflow-y-auto no-scrollbar flex flex-col gap-1 py-4 scroll-smooth">
                 <button
-                  v-for="h in hoursList"
+                  v-for="h in filteredHoursList"
                   :key="h"
                   type="button"
                   @click="selectHour(h)"
-                  :disabled="isHourDisabled(h)"
-                  class="py-1.5 px-2 text-xs font-semibold rounded-lg text-center transition-all cursor-pointer disabled:opacity-20 disabled:cursor-not-allowed disabled:pointer-events-none"
+                  class="py-1.5 px-2 text-xs font-semibold rounded-lg text-center transition-all cursor-pointer"
                   :class="selectedHour === h ? 'bg-primary text-white font-bold shadow-sm' : 'text-brand-dark hover:bg-black/5'"
                 >
                   {{ String(h).padStart(2, '0') }}
@@ -69,12 +68,11 @@
               
               <div class="h-full overflow-y-auto no-scrollbar flex flex-col gap-1 py-4 scroll-smooth">
                 <button
-                  v-for="m in minutesList"
+                  v-for="m in filteredMinutesList"
                   :key="m"
                   type="button"
                   @click="selectMinute(m)"
-                  :disabled="isMinuteDisabled(m)"
-                  class="py-1.5 px-2 text-xs font-semibold rounded-lg text-center transition-all cursor-pointer disabled:opacity-20 disabled:cursor-not-allowed disabled:pointer-events-none"
+                  class="py-1.5 px-2 text-xs font-semibold rounded-lg text-center transition-all cursor-pointer"
                   :class="selectedMinute === m ? 'bg-primary text-white font-bold shadow-sm' : 'text-brand-dark hover:bg-black/5'"
                 >
                   {{ String(m).padStart(2, '0') }}
@@ -159,9 +157,6 @@ const emit = defineEmits(['update:modelValue', 'change'])
 const isOpen = ref(false)
 const timePickerRef = ref(null)
 
-const hoursList = Array.from({ length: 12 }, (_, i) => i + 1)
-const minutesList = [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55]
-
 // Internal states
 const selectedHour = ref(9)
 const selectedMinute = ref(0)
@@ -213,42 +208,90 @@ const get24Hour = (h, p) => {
   return hr
 }
 
-// Clamps selected time to the future if isToday is true
-const clampTimeToFuture = () => {
-  if (!props.isToday) return
+// Compute filtered list of hours chronologically starting from 12, 1, 2, ..., 11
+const filteredHoursList = computed(() => {
+  const baseHours = [12, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
+  if (!props.isToday) return baseHours
+  
   const now = new Date()
-  const currentHr = now.getHours()
+  const currentHr24 = now.getHours()
+  
+  return baseHours.filter(h => {
+    const hr24 = get24Hour(h, selectedPeriod.value)
+    return hr24 >= currentHr24
+  })
+})
+
+// Compute filtered list of minutes
+const filteredMinutesList = computed(() => {
+  const baseMinutes = [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55]
+  if (!props.isToday) return baseMinutes
+  
+  const now = new Date()
+  const currentHr24 = now.getHours()
   const currentMin = now.getMinutes()
   
   const hr24 = get24Hour(selectedHour.value, selectedPeriod.value)
+  if (hr24 > currentHr24) {
+    return baseMinutes
+  } else if (hr24 === currentHr24) {
+    const filtered = baseMinutes.filter(m => m >= currentMin)
+    return filtered.length > 0 ? filtered : [55] // fallback to 55 if at the end of the hour
+  } else {
+    return []
+  }
+})
+
+// Watch filtered list of hours to keep selection valid
+watch(filteredHoursList, (newList) => {
+  if (newList.length > 0 && !newList.includes(selectedHour.value)) {
+    selectedHour.value = newList[0]
+  }
+}, { immediate: true })
+
+// Watch filtered list of minutes to keep selection valid
+watch(filteredMinutesList, (newList) => {
+  if (newList.length > 0 && !newList.includes(selectedMinute.value)) {
+    selectedMinute.value = newList[0]
+  }
+}, { immediate: true })
+
+// Watch isToday and selectedPeriod to automatically switch AM/PM if invalid
+watch([() => props.isToday, selectedPeriod], ([isTodayVal, periodVal]) => {
+  if (isTodayVal) {
+    const now = new Date()
+    const currentHr24 = now.getHours()
+    if (periodVal === 'AM' && currentHr24 >= 12) {
+      selectedPeriod.value = 'PM'
+    }
+  }
+}, { immediate: true })
+
+// Clamps selected time to the future if isToday is true
+const clampTimeToFuture = () => {
+  if (!props.isToday) return
   
-  if (hr24 < currentHr || (hr24 === currentHr && selectedMinute.value < currentMin)) {
-    // Determine the next valid 5-minute interval
-    let targetHr = currentHr
-    let targetMin = Math.ceil(currentMin / 5) * 5
-    if (targetMin >= 60) {
-      targetMin = 0
-      targetHr += 1
+  const now = new Date()
+  const currentHr24 = now.getHours()
+  const currentMin = now.getMinutes()
+  
+  if (currentHr24 >= 12 && selectedPeriod.value === 'AM') {
+    selectedPeriod.value = 'PM'
+  }
+  
+  const hr24 = get24Hour(selectedHour.value, selectedPeriod.value)
+  if (hr24 < currentHr24 || (hr24 === currentHr24 && selectedMinute.value < currentMin)) {
+    // Select first valid hour
+    const validHours = filteredHoursList.value
+    if (validHours.length > 0) {
+      selectedHour.value = validHours[0]
     }
     
-    // Clamp to 23:55 of today as maximum possible today limit
-    if (targetHr >= 24) {
-      targetHr = 23
-      targetMin = 55
+    // Select first valid minute
+    const validMinutes = filteredMinutesList.value
+    if (validMinutes.length > 0) {
+      selectedMinute.value = validMinutes[0]
     }
-    
-    let p = 'AM'
-    let h = targetHr
-    if (targetHr >= 12) {
-      p = 'PM'
-      if (targetHr > 12) h -= 12
-    } else if (targetHr === 0) {
-      h = 12
-    }
-    
-    selectedHour.value = h
-    selectedMinute.value = targetMin
-    selectedPeriod.value = p
   }
 }
 
@@ -269,12 +312,35 @@ watch(() => props.modelValue, (newVal) => {
 // Watch props.isToday to auto-adjust when date changes
 watch(() => props.isToday, (newVal) => {
   if (newVal) {
-    clampTimeToFuture()
-    const formatted = formatValue(selectedHour.value, selectedMinute.value, selectedPeriod.value)
-    emit('update:modelValue', formatted)
-    emit('change', formatted)
+    const { hour, minute, period } = parseValue(props.modelValue)
+    selectedHour.value = hour
+    selectedMinute.value = minute
+    selectedPeriod.value = period
+    
+    if (new Date().getHours() >= 12 && selectedPeriod.value === 'AM') {
+      selectedPeriod.value = 'PM'
+    }
+    
+    const hr24 = get24Hour(selectedHour.value, selectedPeriod.value)
+    const now = new Date()
+    const currentHr24 = now.getHours()
+    const currentMin = now.getMinutes()
+    
+    if (hr24 < currentHr24 || (hr24 === currentHr24 && selectedMinute.value < currentMin)) {
+      const validHours = filteredHoursList.value
+      const fallbackHour = validHours[0] || 12
+      selectedHour.value = fallbackHour
+      
+      const validMinutes = filteredMinutesList.value
+      const fallbackMinute = validMinutes[0] || 0
+      selectedMinute.value = fallbackMinute
+      
+      const formatted = formatValue(selectedHour.value, selectedMinute.value, selectedPeriod.value)
+      emit('update:modelValue', formatted)
+      emit('change', formatted)
+    }
   }
-})
+}, { immediate: true })
 
 const formattedDisplayTime = computed(() => {
   const mStr = String(selectedMinute.value).padStart(2, '0')
@@ -293,7 +359,7 @@ const toggleDropdown = () => {
   }
 }
 
-// Disabled checks for Hour, Minute, and Period
+// Disabled checks for Period
 const isPeriodDisabled = (p) => {
   if (!props.isToday) return false
   const now = new Date()
@@ -302,28 +368,7 @@ const isPeriodDisabled = (p) => {
   return false
 }
 
-const isHourDisabled = (h) => {
-  if (!props.isToday) return false
-  const now = new Date()
-  const currentHr = now.getHours()
-  const hr24 = get24Hour(h, selectedPeriod.value)
-  if (hr24 < currentHr) return true
-  return false
-}
-
-const isMinuteDisabled = (m) => {
-  if (!props.isToday) return false
-  const now = new Date()
-  const currentHr = now.getHours()
-  const currentMin = now.getMinutes()
-  const hr24 = get24Hour(selectedHour.value, selectedPeriod.value)
-  
-  if (hr24 < currentHr) return true
-  if (hr24 === currentHr && m < currentMin) return true
-  return false
-}
-
-// Selection actions (clamping after each selection just in case)
+// Selection actions
 const selectHour = (h) => {
   selectedHour.value = h
   clampTimeToFuture()

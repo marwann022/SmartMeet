@@ -18,7 +18,7 @@
         type="button"
         @click="toggleCalendar"
         :class="[
-          'w-full pl-11 pr-4 py-3 rounded-xl bg-white border font-body text-sm text-brand-dark text-left transition-all duration-300 hover:border-black/15 cursor-pointer focus:outline-none',
+          'w-full h-12 pl-11 pr-4 rounded-xl bg-white border font-body text-sm text-brand-dark text-left transition-all duration-300 hover:border-black/15 cursor-pointer focus:outline-none flex items-center',
           hasError ? 'border-red-400 focus:border-red-500 focus:shadow-[0_0_0_3px_rgba(239,68,68,0.08)]' : (themeFocusClasses[theme] || themeFocusClasses.primary)
         ]"
       >
@@ -187,8 +187,8 @@ const showYearSelect = ref(false)
 const datePickerRef = ref(null)
 
 const months = [
-  'January', 'February', 'March', 'April', 'May', 'June',
-  'July', 'August', 'September', 'October', 'November', 'December'
+  'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+  'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
 ]
 
 // Current navigation state
