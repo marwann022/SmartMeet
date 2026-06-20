@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col gap-8 text-left">
+  <div class="flex flex-col gap-8 text-left mt-8">
     <!-- Breadcrumb / Header -->
     <div class="flex flex-col gap-2">
       <div class="flex items-center gap-2 text-primary font-bold text-xs tracking-wider uppercase">
@@ -12,79 +12,14 @@
       </p>
     </div>
 
-    <!-- Success Screen State -->
-    <div v-if="successState" class="card-glass rounded-[28px] p-8 md:p-12 flex flex-col items-center text-center max-w-2xl mx-auto w-full gap-6 animate-fade-in">
-      <div class="w-16 h-16 rounded-full bg-green-500/10 border border-green-500/20 flex items-center justify-center text-green-500 shadow-sm animate-bounce">
-        <PhCheck :size="32" weight="bold" />
-      </div>
-      <div>
-        <h3 class="text-2xl font-bold font-header text-brand-dark mb-2">Meeting Scheduled Successfully!</h3>
-        <p class="text-sm text-brand-slate">
-          Your AI-powered intelligence-enabled session has been synced and created.
-        </p>
-      </div>
-
-      <!-- Detail Card -->
-      <div class="bg-white/40 border border-black/[0.03] rounded-2xl p-6 w-full text-left flex flex-col gap-4">
-        <div class="flex justify-between items-start gap-4">
-          <div>
-            <h4 class="font-bold font-header text-brand-dark text-lg leading-tight">{{ createdMeeting.title }}</h4>
-            <p v-if="createdMeeting.description" class="text-xs text-brand-slate mt-1">{{ createdMeeting.description }}</p>
-          </div>
-          <span class="inline-block text-[9px] font-extrabold px-2.5 py-1 rounded-md tracking-wider uppercase border border-primary/20 bg-primary/10 text-primary">
-            {{ createdMeeting.type }}
-          </span>
-        </div>
-
-        <div class="grid grid-cols-2 gap-4 pt-3 border-t border-black/5 text-xs text-brand-slate font-medium">
-          <div class="flex items-center gap-2">
-            <PhCalendar :size="16" class="text-primary" />
-            <span>{{ createdMeeting.date }} at {{ createdMeeting.time }}</span>
-          </div>
-          <div class="flex items-center gap-2">
-            <PhClock :size="16" class="text-primary" />
-            <span>{{ createdMeeting.duration }}</span>
-          </div>
-        </div>
-
-        <!-- Live Call Integration Section -->
-        <div v-if="createdMeeting.type === 'Google Meet' || createdMeeting.type === 'Zoom'" class="mt-2 bg-[#4285f4]/8 border border-[#4285f4]/20 rounded-xl p-4 flex flex-col sm:flex-row justify-between items-center gap-4">
-          <div class="flex items-center gap-3.5 w-full">
-            <img :src="googleMeetIcon" alt="Live Room" class="w-8 h-8 object-contain flex-shrink-0" />
-            <div class="text-left">
-              <span class="text-xs font-bold text-[#1a73e8] block">{{ createdMeeting.meetLink ? 'Google Meet Room Generated' : 'In-App Live Room Ready' }}</span>
-              <a :href="createdMeeting.meetLink || 'https://meet.jit.si/SmartMeet_' + createdMeeting.id" target="_blank" class="text-xs font-bold text-brand-dark hover:text-primary transition-colors inline-flex items-center gap-1 mt-0.5 break-all">
-                <span>{{ createdMeeting.meetLink || 'https://meet.jit.si/SmartMeet_' + createdMeeting.id }}</span>
-                <PhArrowSquareOut :size="12" />
-              </a>
-            </div>
-          </div>
-          <button @click="joinLiveCall(createdMeeting)" class="px-5 py-2.5 rounded-lg bg-[#1a73e8] text-white text-xs font-bold tracking-wide transition-all hover:bg-[#1557b0] hover:shadow-md active:scale-95 flex items-center gap-2 flex-shrink-0 cursor-pointer">
-            <span>Join Live Call</span>
-            <PhVideoCamera :size="14" weight="bold" />
-          </button>
-        </div>
-      </div>
-
-      <!-- Action Footer -->
-      <div class="flex flex-col sm:flex-row gap-3 w-full justify-center mt-2">
-        <button @click="goToDashboard" class="px-6 py-3 rounded-xl bg-white border border-black/8 font-header font-bold text-xs tracking-wider uppercase hover:bg-black/5 active:scale-98 transition-all duration-300 cursor-pointer">
-          Go to Dashboard
-        </button>
-        <button @click="resetForm" class="px-6 py-3 rounded-xl bg-grad-primary text-white font-header font-bold text-xs tracking-wider uppercase shadow-[0_4px_15px_rgba(75,104,255,0.25)] hover:shadow-[0_6px_22px_rgba(75,104,255,0.4)] active:scale-98 transition-all duration-300 cursor-pointer">
-          Schedule Another
-        </button>
-      </div>
-    </div>
-
     <!-- Main Scheduler Form -->
-    <div v-else class="grid grid-cols-1 lg:grid-cols-[1.2fr_0.8fr] gap-8">
+    <div class="grid grid-cols-1 lg:grid-cols-[1.2fr_0.8fr] gap-8">
       
       <!-- Left Column: Details & Intelligence Settings -->
       <div class="flex flex-col gap-8">
         
         <!-- Meeting details card -->
-        <div class="card-glass rounded-[28px] p-6 sm:p-8 flex flex-col gap-6">
+        <div class="card-glass rounded-[28px] p-6 sm:p-8 flex flex-col gap-6 relative z-20">
           <div class="flex items-center gap-2.5 pb-4 border-b border-black/5">
             <PhInfo :size="20" class="text-primary" />
             <h3 class="font-header font-bold text-xl text-brand-dark">Meeting Details</h3>
@@ -115,36 +50,27 @@
               ></textarea>
             </div>
 
-            <!-- Meeting Type Select (Google Meet, Zoom, In-person) -->
+            <!-- Meeting Type Select (Personal Discussion, Brainstorm) -->
             <div class="flex flex-col gap-2">
               <label class="font-header font-bold text-[11px] tracking-wider uppercase text-brand-slate ml-1">Meeting Type</label>
-              <div class="grid grid-cols-3 gap-3">
+              <div class="grid grid-cols-2 gap-3">
                 <button 
                   type="button"
-                  @click="form.type = 'Google Meet'" 
+                  @click="form.type = 'Personal Discussion'" 
                   class="flex flex-col items-center justify-center gap-2 p-3.5 rounded-xl border transition-all duration-300 cursor-pointer"
-                  :class="form.type === 'Google Meet' ? 'bg-[#4285f4]/8 border-[#4285f4] text-[#1a73e8] font-bold shadow-sm' : 'bg-white border-black/8 text-brand-slate hover:bg-black/5'"
-                >
-                  <img :src="googleMeetIcon" alt="Google Meet" class="w-6 h-6 object-contain" />
-                  <span class="text-xs">Google Meet</span>
-                </button>
-                <button 
-                  type="button"
-                  @click="form.type = 'Zoom'" 
-                  class="flex flex-col items-center justify-center gap-2 p-3.5 rounded-xl border transition-all duration-300 cursor-pointer"
-                  :class="form.type === 'Zoom' ? 'bg-[#2d8cff]/8 border-[#2d8cff] text-[#2d8cff] font-bold shadow-sm' : 'bg-white border-black/8 text-brand-slate hover:bg-black/5'"
-                >
-                  <PhVideoCamera :size="24" class="text-[#2d8cff]" weight="bold" />
-                  <span class="text-xs">Zoom Call</span>
-                </button>
-                <button 
-                  type="button"
-                  @click="form.type = 'In-Person'" 
-                  class="flex flex-col items-center justify-center gap-2 p-3.5 rounded-xl border transition-all duration-300 cursor-pointer"
-                  :class="form.type === 'In-Person' ? 'bg-primary/8 border-primary text-primary font-bold shadow-sm' : 'bg-white border-black/8 text-brand-slate hover:bg-black/5'"
+                  :class="form.type === 'Personal Discussion' ? 'bg-primary/8 border-primary text-primary font-bold shadow-sm' : 'bg-white border-black/8 text-brand-slate hover:bg-black/5'"
                 >
                   <PhUser :size="24" class="text-primary" weight="bold" />
-                  <span class="text-xs">In-Person</span>
+                  <span class="text-xs">Personal Discussion</span>
+                </button>
+                <button 
+                  type="button"
+                  @click="form.type = 'Brainstorm'" 
+                  class="flex flex-col items-center justify-center gap-2 p-3.5 rounded-xl border transition-all duration-300 cursor-pointer"
+                  :class="form.type === 'Brainstorm' ? 'bg-primary/8 border-primary text-primary font-bold shadow-sm' : 'bg-white border-black/8 text-brand-slate hover:bg-black/5'"
+                >
+                  <PhBrain :size="24" class="text-primary" weight="bold" />
+                  <span class="text-xs">Brainstorm</span>
                 </button>
               </div>
             </div>
@@ -162,25 +88,12 @@
                   />
                   
                   <!-- Time Picker -->
-                  <div class="flex flex-col gap-1.5 w-full text-left">
-                    <label class="text-[10px] font-extrabold uppercase tracking-wider text-brand-slate font-header pl-1">
-                      Time
-                    </label>
-                    <div class="relative w-full group">
-                      <div 
-                        class="absolute left-3.5 top-1/2 -translate-y-1/2 text-brand-slate transition-colors duration-200 pointer-events-none z-10"
-                        :class="errors.datetime ? 'group-focus-within:text-red-500' : 'group-focus-within:text-primary'"
-                      >
-                        <PhClock :size="16" weight="bold" />
-                      </div>
-                      <input 
-                        v-model="form.time" 
-                        type="time" 
-                        class="w-full pl-11 pr-4 py-3 rounded-xl bg-white border font-body text-sm text-brand-dark focus:outline-none transition-all duration-300 cursor-pointer"
-                        :class="errors.datetime ? 'border-red-400 focus:border-red-500 focus:shadow-[0_0_0_3px_rgba(239,68,68,0.08)]' : 'border-black/8 focus:border-primary/30 focus:shadow-[0_0_0_3px_rgba(75,104,255,0.08)]'"
-                      />
-                    </div>
-                  </div>
+                  <TimePicker 
+                    v-model="form.time" 
+                    label="Time"
+                    :has-error="!!errors.datetime"
+                    :is-today="isTodaySelected"
+                  />
                 </div>
                 <span v-if="errors.datetime" class="text-[11px] text-red-500 font-semibold ml-1">{{ errors.datetime }}</span>
               </div>
@@ -332,27 +245,6 @@
           </div>
 
           <div class="flex flex-col gap-4">
-            <!-- Sync GCal -->
-            <div class="flex items-center justify-between p-3.5 bg-white/40 border border-black/[0.03] rounded-2xl">
-              <div class="flex items-center gap-3 w-[70%]">
-                <div class="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-500 flex-shrink-0">
-                  <PhGoogleLogo :size="18" weight="bold" />
-                </div>
-                <div class="flex flex-col text-left">
-                  <span class="text-xs font-bold text-brand-dark leading-snug">Sync to Google Calendar</span>
-                  <span class="text-[9px] text-brand-slate leading-normal">Invite emails & calendar block</span>
-                </div>
-              </div>
-              <button 
-                type="button"
-                @click="form.syncGCal = !form.syncGCal"
-                class="w-[44px] h-[24px] rounded-full transition-colors duration-300 focus:outline-none relative flex items-center cursor-pointer border border-black/5"
-                :class="form.syncGCal ? 'bg-[#4285f4]' : 'bg-brand-slate/30'"
-              >
-                <span class="absolute w-[18px] h-[18px] bg-white rounded-full transition-transform duration-300 shadow-sm" :style="{ transform: form.syncGCal ? 'translateX(22px)' : 'translateX(3px)' }"></span>
-              </button>
-            </div>
-
             <!-- Sync Slack -->
             <div class="flex items-center justify-between p-3.5 bg-white/40 border border-black/[0.03] rounded-2xl">
               <div class="flex items-center gap-3 w-[70%]">
@@ -387,7 +279,7 @@
               <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
             </svg>
             <PhSparkle v-else :size="16" weight="bold" />
-            <span>{{ isSubmitting ? 'Generating Google Meet...' : 'Create Intelligence-Enabled Meeting' }}</span>
+            <span>{{ isSubmitting ? 'Creating Meeting...' : 'Create Intelligence-Enabled Meeting' }}</span>
           </button>
           <button 
             type="button"
@@ -404,7 +296,7 @@
 </template>
 
 <script setup>
-import { ref, reactive } from 'vue'
+import { ref, reactive, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useMeetingStore } from '@/stores/meeting'
 import { 
@@ -418,13 +310,12 @@ import {
   PhX, 
   PhCalendar, 
   PhClock, 
-  PhGoogleLogo, 
-  PhArrowSquareOut, 
   PhVideoCamera, 
   PhUser 
 } from '@phosphor-icons/vue'
 import Select from '@/components/ui/Select.vue'
 import DatePicker from '@/components/ui/DatePicker.vue'
+import TimePicker from '@/components/ui/TimePicker.vue'
 
 const durationOptions = [
   { value: '15 minutes', label: '15 minutes (Quick Catch-up)' },
@@ -440,7 +331,6 @@ const summaryStyleOptions = [
 ]
 
 // Import assets
-import googleMeetIcon from '@/assets/Google_Meet_icon_(2020).svg.png'
 import slackIcon from '@/assets/slack.png'
 
 const router = useRouter()
@@ -466,7 +356,7 @@ const getDefaultTimeString = () => {
 const form = reactive({
   title: '',
   description: '',
-  type: 'Google Meet', // Default selection
+  type: 'Personal Discussion', // Default selection
   date: getTodayDateString(),
   time: getDefaultTimeString(),
   datetime: '',
@@ -476,8 +366,11 @@ const form = reactive({
   transcribe: true,
   extractTasks: true,
   participants: ['Sarah Jenkins (s.jenkins@smartmeet.ai)', 'Marcus Wright (m.wright@smartmeet.ai)'],
-  syncGCal: true,
   syncSlack: false
+})
+
+const isTodaySelected = computed(() => {
+  return form.date === getTodayDateString()
 })
 
 const participantInput = ref('')
@@ -588,183 +481,52 @@ const joinLiveCall = (meeting) => {
   router.push('/live-meeting')
 }
 
-const createGoogleMeetEvent = async (token, dateObj, formattedDate, formattedTime) => {
-  let durationMinutes = 30
-  if (form.duration.includes('15')) durationMinutes = 15
-  else if (form.duration.includes('45')) durationMinutes = 45
-  else if (form.duration.includes('60')) durationMinutes = 60
-
-  const endRange = new Date(dateObj.getTime() + durationMinutes * 60 * 1000)
-
-  const eventPayload = {
-    summary: form.title,
-    description: form.description ? form.description + '\n\nAI-Enabled meeting by SmartMeet.' : 'AI-Enabled meeting by SmartMeet.',
-    start: {
-      dateTime: dateObj.toISOString(),
-      timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone
-    },
-    end: {
-      dateTime: endRange.toISOString(),
-      timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone
-    },
-    conferenceData: {
-      createRequest: {
-        requestId: 'smartmeet_' + Date.now() + '_' + Math.random().toString(36).substring(2, 9),
-        conferenceSolutionKey: {
-          type: 'hangoutsMeet'
-        }
-      }
-    },
-    attendees: form.participants.map(p => {
-      const match = p.match(/\(([^)]+)\)/)
-      const email = match ? match[1] : p
-      return { email }
-    })
-  }
-
-  try {
-    const response = await fetch('https://www.googleapis.com/calendar/v3/calendars/primary/events?conferenceDataVersion=1', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(eventPayload)
-    })
-
-    if (!response.ok) {
-      const errorData = await response.json()
-      if (response.status === 401) {
-        sessionStorage.removeItem('smartmeet_google_access_token')
-        accessToken.value = ''
-        alert('Google Calendar session expired. Please sign in again.')
-        isSubmitting.value = false
-        return
-      }
-      throw new Error(errorData.error?.message || 'Failed to create Google event')
-    }
-
-    const eventData = await response.json()
-    const meetLink = eventData.hangoutLink || (eventData.conferenceData && eventData.conferenceData.entryPoints && eventData.conferenceData.entryPoints[0]?.uri)
-
-    if (!meetLink) {
-      throw new Error('Google did not return a Meet link. Please check if Google Calendar has conferencing enabled.')
-    }
-
-    const newMeeting = {
-      title: form.title,
-      description: form.description,
-      type: form.type,
-      datetime: form.datetime,
-      date: formattedDate,
-      time: formattedTime,
-      duration: form.duration,
-      participantsCount: form.participants.length,
-      meetLink: meetLink,
-      participants: [...form.participants],
-      bullets: [],
-      timeline: [],
-      tasks: [],
-      decisions: [],
-      transcript: []
-    }
-
-    meetingStore.createMeeting(newMeeting)
-    createdMeeting.value = {
-      ...newMeeting,
-      id: meetingStore.meetings[0].id // Use the generated ID
-    }
-
-    successState.value = true
-  } catch (err) {
-    console.error(err)
-    alert('Failed to generate Google Meet room: ' + err.message + '\nScheduling with Jitsi embedded call instead.')
-    
-    const newMeeting = {
-      title: form.title,
-      description: form.description,
-      type: form.type,
-      datetime: form.datetime,
-      date: formattedDate,
-      time: formattedTime,
-      duration: form.duration,
-      participantsCount: form.participants.length,
-      meetLink: '',
-      participants: [...form.participants],
-      bullets: [],
-      timeline: [],
-      tasks: [],
-      decisions: [],
-      transcript: []
-    }
-
-    meetingStore.createMeeting(newMeeting)
-    createdMeeting.value = {
-      ...newMeeting,
-      id: meetingStore.meetings[0].id
-    }
-    
-    successState.value = true
-  } finally {
-    isSubmitting.value = false
-  }
-}
-
 const submitMeeting = () => {
   if (!validateForm()) return
+  isSubmitting.value = true
 
   const dateObj = new Date(form.datetime)
   const formattedDate = dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
   const formattedTime = dateObj.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
 
-  const createLocalMeeting = () => {
-    const newMeeting = {
-      title: form.title,
-      description: form.description,
-      type: form.type,
-      datetime: form.datetime,
-      date: formattedDate,
-      time: formattedTime,
-      duration: form.duration,
-      participantsCount: form.participants.length,
-      meetLink: '',
-      participants: [...form.participants],
-      bullets: [],
-      timeline: [],
-      tasks: [],
-      decisions: [],
-      transcript: []
-    }
-
-    meetingStore.createMeeting(newMeeting)
-    createdMeeting.value = {
-      ...newMeeting,
-      id: meetingStore.meetings[0].id
-    }
-
-    successState.value = true
-    isSubmitting.value = false
+  const meetingId = Date.now()
+  const newMeeting = {
+    title: form.title,
+    description: form.description,
+    type: form.type,
+    datetime: form.datetime,
+    date: formattedDate,
+    time: formattedTime,
+    duration: form.duration,
+    participantsCount: form.participants.length,
+    meetLink: `https://meet.jit.si/SmartMeet_${meetingId}`,
+    participants: [...form.participants],
+    bullets: [],
+    timeline: [],
+    tasks: [],
+    decisions: [],
+    transcript: []
   }
 
-  if (form.type === 'Google Meet') {
-    isSubmitting.value = true
-    getGoogleAccessToken(
-      (token) => {
-        createGoogleMeetEvent(token, dateObj, formattedDate, formattedTime)
-      },
-      (err) => {
-        createLocalMeeting()
-      }
-    )
-  } else {
-    createLocalMeeting()
+  meetingStore.createMeeting(newMeeting)
+  
+  // Set the active live meeting with the created details
+  const created = {
+    ...newMeeting,
+    id: meetingStore.meetings[0].id
   }
+  meetingStore.activeLiveMeeting = created
+
+  isSubmitting.value = false
+  
+  // Redirect directly to the live meeting page
+  router.push('/live-meeting')
 }
 
 const resetForm = () => {
   form.title = ''
   form.description = ''
-  form.type = 'Google Meet'
+  form.type = 'Personal Discussion'
   form.date = getTodayDateString()
   form.time = getDefaultTimeString()
   form.datetime = ''
@@ -774,7 +536,6 @@ const resetForm = () => {
   form.transcribe = true
   form.extractTasks = true
   form.participants = ['Sarah Jenkins (s.jenkins@smartmeet.ai)', 'Marcus Wright (m.wright@smartmeet.ai)']
-  form.syncGCal = true
   form.syncSlack = false
   
   successState.value = false

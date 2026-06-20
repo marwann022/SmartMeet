@@ -171,8 +171,8 @@
         <div class="flex flex-col gap-[12px]">
           <div v-for="item in filteredUpcomingMeetings" :key="item.id" class="flex gap-[16px] items-center p-[12px] rounded-2xl bg-white/40 border border-black/[0.03] transition-all duration-300 hover:bg-white/60 hover:border-black/5">
             <div 
-              class="w-[44px] h-[44px] rounded-xl flex flex-col items-center justify-center text-white flex-shrink-0 select-none"
-              :class="item.featured ? 'bg-grad-primary shadow-[0_2px_8px_rgba(75,104,255,0.15)]' : 'bg-white/70 border border-black/5 text-brand-slate shadow-none'"
+              class="w-[44px] h-[44px] rounded-xl flex flex-col items-center justify-center flex-shrink-0 select-none"
+              :class="item.featured ? 'bg-grad-primary text-white shadow-[0_2px_8px_rgba(75,104,255,0.15)]' : 'bg-brand-slate/10 border border-brand-slate/20 text-brand-dark shadow-none'"
             >
               <span class="text-[8px] font-extrabold uppercase tracking-wider">{{ item.month }}</span>
               <span class="text-[18px] font-bold font-header leading-none">{{ item.day }}</span>

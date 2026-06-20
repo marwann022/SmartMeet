@@ -5,7 +5,8 @@
   >
     <div class="flex justify-between items-start">
       <div class="w-[40px] h-[40px] rounded-xl bg-primary/6 border border-primary/15 flex items-center justify-center text-primary shadow-sm flex-shrink-0 transition-transform duration-300 hover:scale-105">
-        <PhVideoCamera v-if="meeting.type === 'Zoom' || meeting.type === 'Google Meet'" :size="20" weight="bold" />
+        <PhBrain v-if="meeting.type === 'Brainstorm'" :size="20" weight="bold" />
+        <PhVideoCamera v-else-if="meeting.type === 'Zoom' || meeting.type === 'Jitsi' || meeting.type === 'Google Meet'" :size="20" weight="bold" />
         <PhUser v-else :size="20" weight="bold" />
       </div>
       <span class="inline-block text-[9px] font-extrabold px-[8px] py-[2px] rounded-md self-start tracking-wider uppercase border bg-secondary/8 border-secondary/15 text-secondary">
@@ -28,7 +29,7 @@
 </template>
 
 <script setup>
-import { PhVideoCamera, PhUser } from '@phosphor-icons/vue'
+import { PhVideoCamera, PhUser, PhBrain } from '@phosphor-icons/vue'
 
 defineProps({
   meeting: {
