@@ -130,6 +130,7 @@ import Input from '@/components/ui/Input.vue'
 import googleIcon from '@/assets/Google.png'
 import appleIcon from '@/assets/Apple_logo_black.svg'
 import { useAuthStore } from '@/stores/auth'
+import axios from "axios"
 
 
 const router = useRouter()
@@ -143,27 +144,45 @@ const confirmPassword = ref('')
 const loading = ref(false)
 
 
-const handleSignUp = () => {
+const handleSignUp = async () => {
   if (password.value !== confirmPassword.value) {
     alert('Passwords do not match!')
     return
   }
 
-  loading.value = true
+  try {
+    loading.value = true
 
-  setTimeout(() => {
-    authStore.login({
-      name: fullname.value,
-      email: email.value,
-      plan: 'Free'
-    })
+    const names = fullname.value.trim().split(' ')
 
+    const firstName = names[0]
+
+    const lastName =
+      names.length > 1
+        ? names.slice(1).join(' ')
+        : 'User'
+
+    const { data } = await axios.post(
+      'http://localhost:5000/api/users/register',
+      {
+        firstName,
+        lastName,
+        email: email.value,
+        password: password.value
+      }
+    )
+
+    alert(data.message)
+
+    router.push('/signin')
+  } catch (error) {
+    alert(
+      error.response?.data?.message ||
+      'Registration failed'
+    )
+  } finally {
     loading.value = false
-
-    alert(`Account successfully created for ${fullname.value}!`)
-
-    router.push('/dashboard')
-  }, 1000)
+  }
 }
 
 const handleSSO = (provider) => {

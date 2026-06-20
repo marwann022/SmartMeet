@@ -10,6 +10,8 @@
   },
   "dependencies": {
     "@phosphor-icons/vue": "^2.2.1",
+    "axios": "^1.18.0",
+    "cors": "^2.8.6",
     "daisyui": "^5.5.23",
     "pinia": "^3.0.4",
     "vue": "^3.4.0",

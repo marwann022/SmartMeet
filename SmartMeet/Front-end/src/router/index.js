@@ -30,7 +30,7 @@ const routes = [
     // ── AUTH ───────────────────────────────────────────────
     {
         path: '/signin',
-        name: 'SignIn',
+        name: 'SigniIn',
         component: () =>
             import ('@/views/auth/SignIn.vue')
     },
