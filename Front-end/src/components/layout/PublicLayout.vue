@@ -1,5 +1,5 @@
 <template>
-  <div class="w-full max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 min-h-screen flex flex-col justify-between">
+  <div class="w-full max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 min-h-screen flex flex-col justify-between">
     <Navbar />
     
     <main class="flex-grow">
