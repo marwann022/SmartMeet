@@ -126,9 +126,9 @@
     </Modal>
 
     <!-- Reusable Modal for Add Task -->
-    <Modal :show="showAddModal" :title="modalTitle" @close="showAddModal = false" maxWidth="md" :theme="modalTheme">
+    <Modal :show="showAddModal" title="New Task" @close="showAddModal = false" maxWidth="md" theme="primary">
       <div class="flex flex-col gap-4 text-left">
-        <Input v-model="newTask.title" label="Task Title" placeholder="What needs to be done?" :theme="modalTheme" />
+        <Input v-model="newTask.title" label="Task Title" placeholder="What needs to be done?" theme="primary" />
         
         <div class="flex flex-col gap-1.5 w-full">
           <label class="text-[10px] font-extrabold uppercase tracking-wider text-brand-slate pl-1 font-header">Description</label>
@@ -136,8 +136,7 @@
             v-model="newTask.description" 
             placeholder="Provide details..." 
             rows="3"
-            class="w-full px-4 py-3 rounded-xl bg-white border font-body text-sm text-brand-dark placeholder-brand-slate/50 focus:outline-none transition-all duration-300 resize-none"
-            :class="textareaThemeClasses[modalTheme]"
+            class="w-full px-4 py-3 rounded-xl bg-white border font-body text-sm text-brand-dark placeholder-brand-slate/50 focus:outline-none transition-all duration-300 resize-none border-primary/20 focus:border-primary/30 focus:shadow-[0_0_0_3px_rgba(75,104,255,0.08)]"
           />
         </div>
 
@@ -147,7 +146,7 @@
             v-model="newTask.status" 
             :options="statusOptions" 
             label="Status"
-            :theme="modalTheme"
+            theme="primary"
           />
 
           <!-- Custom Priority Dropdown Component -->
@@ -155,7 +154,7 @@
             v-model="newTask.priority" 
             :options="priorityOptions" 
             label="Priority"
-            :theme="modalTheme"
+            theme="primary"
           />
         </div>
 
@@ -164,10 +163,10 @@
           v-model="newTask.dueDate" 
           label="Due Date" 
           direction="up"
-          :theme="modalTheme"
+          theme="primary"
         />
 
-        <Button variant="primary" class="w-full mt-4" @click="addTask" :theme="modalTheme">
+        <Button variant="primary" class="w-full mt-4" @click="addTask" theme="primary">
           <template #icon-left>
             <PhPlus :size="13" weight="bold" />
           </template>
@@ -240,22 +239,6 @@ const statusOptions = [
   { value: 'review', label: 'Review' },
   { value: 'done', label: 'Done' }
 ]
-
-const modalTitle = computed(() => {
-  const col = columns.find(c => c.id === newTask.value.status)
-  return col ? `New Task (${col.label})` : 'New Task'
-})
-
-const modalTheme = computed(() => {
-  return newTask.value.status || 'todo'
-})
-
-const textareaThemeClasses = {
-  todo: 'border-primary/20 focus:border-primary/30 focus:shadow-[0_0_0_3px_rgba(75,104,255,0.08)]',
-  inprogress: 'border-amber-500/20 focus:border-amber-500/30 focus:shadow-[0_0_0_3px_rgba(245,158,11,0.08)]',
-  review: 'border-red-500/20 focus:border-red-500/30 focus:shadow-[0_0_0_3px_rgba(239,68,68,0.08)]',
-  done: 'border-emerald-500/20 focus:border-emerald-500/30 focus:shadow-[0_0_0_3px_rgba(16,185,129,0.08)]'
-}
 
 const localSearchQuery = ref('')
 
