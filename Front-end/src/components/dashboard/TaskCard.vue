@@ -34,15 +34,6 @@
           
           <button 
             v-if="task.status !== 'done' && !task.done"
-            @click.stop="$emit('toggle')" 
-            class="w-6 h-6 rounded-lg bg-black/5 hover:bg-green-500/10 hover:text-green-600 flex items-center justify-center transition-all duration-200 cursor-pointer"
-            title="Mark Done"
-          >
-            <PhCheck :size="11" weight="bold" />
-          </button>
-          
-          <button 
-            v-if="task.status !== 'done' && !task.done"
             @click.stop="$emit('move', 1)" 
             class="w-6 h-6 rounded-lg bg-black/5 hover:bg-primary/10 hover:text-primary flex items-center justify-center transition-all duration-200 cursor-pointer"
             title="Move Right"

@@ -1,84 +1,187 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
+import axios from 'axios'
 
 export const useTaskStore = defineStore('task', () => {
-  const tasks = ref([
-    { id: 1, title: 'Patch DB latency issues', description: 'Identified in Daily Standup: P95 query time exceeds 800ms. Needs immediate fix before next deploy.', priority: 'High', status: 'todo', assignee: 'Alex Chen', avatarColor: 'bg-primary', due: 'Jun 10', dueDate: '2026-06-10', overdue: true, done: false, source: 'Daily Standup: Engineering' },
-    { id: 2, title: 'Finalize API docs for v2', description: 'All public endpoints need updated examples and error response tables. Share with front-end team by EOD Friday.', priority: 'High', status: 'todo', assignee: 'Sarah Kim', avatarColor: 'bg-secondary', due: 'Jun 12', dueDate: '2026-06-12', overdue: false, done: false, source: 'Daily Standup: Engineering' },
-    { id: 3, title: 'Schedule security audit', description: 'Coordinate with the infosec team to book a full penetration test on the new auth service before launch.', priority: 'Medium', status: 'todo', assignee: 'James Park', avatarColor: 'bg-accent', due: 'Jun 18', dueDate: '2026-06-18', overdue: false, done: false, source: 'Q4 Strategy Sync' },
-    { id: 4, title: 'Update UI contrast ratios', description: 'Client flagged low contrast on text variables during Design Review. Revise glassmorphic card text to meet AA standard.', priority: 'Medium', status: 'inprogress', assignee: 'Alex Chen', avatarColor: 'bg-primary', due: 'Jun 11', dueDate: '2026-06-11', overdue: true, done: false, source: 'Design Review: Nexus Pro' },
-    { id: 5, title: 'Draft roadmap v2.1', description: 'Compile feature proposals from Q3 retro, prioritize by engineering effort and business impact into a Notion doc.', priority: 'Low', status: 'inprogress', assignee: 'Sarah Kim', avatarColor: 'bg-secondary', due: 'Jun 20', dueDate: '2026-06-20', overdue: false, done: false, source: 'Q4 Strategy Sync' },
-    { id: 6, title: 'Scale GPU cluster config', description: 'Discuss with DevOps to increase A100 cluster from 8 to 16 nodes ahead of the model training sprint.', priority: 'High', status: 'inprogress', assignee: 'James Park', avatarColor: 'bg-accent', due: 'Jun 14', dueDate: '2026-06-14', overdue: false, done: false, source: 'Q4 Strategy Sync' },
-    { id: 7, title: 'Update security protocols', description: 'Review and update auth token expiry policies and rotate all production secrets after new compliance directive.', priority: 'High', status: 'done', assignee: 'Alex Chen', avatarColor: 'bg-primary', due: 'Jun 8', dueDate: '2026-06-08', overdue: false, done: true, source: 'Daily Standup: Engineering' },
-    { id: 8, title: 'Review Nexus transcript', description: 'Cross-reference the AI-generated transcript with the client\'s recorded feedback and identify discrepancies.', priority: 'Low', status: 'done', assignee: 'Sarah Kim', avatarColor: 'bg-secondary', due: 'Jun 9', dueDate: '2026-06-09', overdue: false, done: true, source: 'Design Review: Nexus Pro' }
-  ])
-
+  const tasks = ref([])
   const statusOrder = ['todo', 'inprogress', 'review', 'done']
 
-  const addTask = (task) => {
-    tasks.value.unshift({
-      id: Date.now(),
-      title: task.title,
-      description: task.description || 'No description provided.',
-      priority: task.priority || 'Medium',
-      status: task.status || 'todo',
-      assignee: task.assignee || 'Alex Chen',
-      avatarColor: task.avatarColor || 'bg-primary',
-      due: task.due || 'TBD',
-      dueDate: task.dueDate || '',
-      overdue: false,
-      done: task.status === 'done',
-      source: task.source || 'Manual Entry'
-    })
-  }
+  const getHeaders = () => ({
+    headers: {
+      Authorization: `Bearer ${localStorage.getItem('token')}`
+    }
+  })
 
-  const updateTask = (updatedTask) => {
-    const idx = tasks.value.findIndex(t => t.id === updatedTask.id)
-    if (idx !== -1) {
-      tasks.value[idx] = { ...tasks.value[idx], ...updatedTask }
+  const fetchTasks = async () => {
+    try {
+      const token = localStorage.getItem('token')
+      if (!token) return
+
+      const { data } = await axios.get('http://localhost:5000/api/tasks', getHeaders())
+      if (data.success) {
+        tasks.value = data.tasks
+      }
+    } catch (error) {
+      console.error('Failed to fetch tasks:', error)
     }
   }
 
-  const removeTask = (id) => {
-    tasks.value = tasks.value.filter(t => t.id !== id)
+  const addTask = async (task) => {
+    try {
+      const newTaskData = {
+        title: task.title,
+        description: task.description || 'No description provided.',
+        priority: task.priority || 'MEDIUM PRIORITY',
+        status: task.status || 'todo',
+        assignee: task.assignee || 'Alex Chen',
+        avatarColor: task.avatarColor || 'bg-primary',
+        due: task.due || 'TBD',
+        dueDate: task.dueDate || '',
+        source: task.source || 'Manual Entry'
+      }
+      const { data } = await axios.post('http://localhost:5000/api/tasks', newTaskData, getHeaders())
+      if (data.success) {
+        tasks.value.unshift(data.task)
+      }
+    } catch (error) {
+      console.error('Failed to add task:', error)
+      alert(error.response?.data?.message || 'Failed to add task')
+    }
   }
 
-  const toggleTask = (task) => {
+  const updateTask = async (updatedTask) => {
+    try {
+      const { data } = await axios.put(`http://localhost:5000/api/tasks/${updatedTask.id}`, updatedTask, getHeaders())
+      if (data.success) {
+        const idx = tasks.value.findIndex(t => t.id === updatedTask.id)
+        if (idx !== -1) {
+          tasks.value[idx] = { ...tasks.value[idx], ...data.task }
+        }
+      }
+    } catch (error) {
+      console.error('Failed to update task:', error)
+    }
+  }
+
+  const removeTask = async (id) => {
+    try {
+      const { data } = await axios.delete(`http://localhost:5000/api/tasks/${id}`, getHeaders())
+      if (data.success) {
+        tasks.value = tasks.value.filter(t => t.id !== id)
+      }
+    } catch (error) {
+      console.error('Failed to delete task:', error)
+      alert(error.response?.data?.message || 'Failed to delete task')
+    }
+  }
+
+  const toggleTask = async (task) => {
+    const originalDone = task.done
+    const originalStatus = task.status
+    const originalPreviousStatus = task.previousStatus
+
+    let newDone, newStatus, newPreviousStatus;
     if (!task.done) {
-      task.previousStatus = task.status
-      task.done = true
-      task.status = 'done'
+      newPreviousStatus = task.status
+      newDone = true
+      newStatus = 'done'
     } else {
-      task.done = false
-      task.status = task.previousStatus || 'todo'
+      newDone = false
+      newStatus = task.previousStatus || 'todo'
+      newPreviousStatus = task.previousStatus
+    }
+
+    // Optimistic UI update
+    task.done = newDone
+    task.status = newStatus
+    task.previousStatus = newPreviousStatus
+
+    try {
+      await axios.put(`http://localhost:5000/api/tasks/${task.id}`, {
+        done: newDone,
+        status: newStatus,
+        previousStatus: newPreviousStatus
+      }, getHeaders())
+    } catch (error) {
+      console.error('Failed to toggle task:', error)
+      // Rollback on error
+      task.done = originalDone
+      task.status = originalStatus
+      task.previousStatus = originalPreviousStatus
     }
   }
 
-  const moveTask = (task, direction) => {
+  const moveTask = async (task, direction) => {
     const currentIndex = statusOrder.indexOf(task.status)
     const nextIndex = currentIndex + direction
     if (nextIndex >= 0 && nextIndex < statusOrder.length) {
-      if (task.status !== 'done') {
-        task.previousStatus = task.status
+      const originalStatus = task.status
+      const originalPreviousStatus = task.previousStatus
+      const originalDone = task.done
+
+      const newStatus = statusOrder[nextIndex]
+      const newDone = newStatus === 'done'
+      const newPreviousStatus = task.status !== 'done' ? task.status : task.previousStatus
+
+      // Optimistic update
+      task.status = newStatus
+      task.done = newDone
+      if (originalStatus !== 'done') {
+        task.previousStatus = originalStatus
       }
-      task.status = statusOrder[nextIndex]
-      task.done = task.status === 'done'
+
+      try {
+        await axios.put(`http://localhost:5000/api/tasks/${task.id}`, {
+          status: newStatus,
+          done: newDone,
+          previousStatus: task.previousStatus
+        }, getHeaders())
+      } catch (error) {
+        console.error('Failed to move task:', error)
+        // Rollback on error
+        task.status = originalStatus
+        task.previousStatus = originalPreviousStatus
+        task.done = originalDone
+      }
     }
   }
 
-  const setTaskStatus = (id, newStatus) => {
+  const setTaskStatus = async (id, newStatus) => {
     const task = tasks.value.find(t => String(t.id) === String(id))
     if (task) {
-      if (newStatus !== 'done') {
-        task.previousStatus = task.status
-      }
+      const originalStatus = task.status
+      const originalPreviousStatus = task.previousStatus
+      const originalDone = task.done
+
+      const newDone = newStatus === 'done'
+      const newPreviousStatus = task.status !== 'done' ? task.status : task.previousStatus
+
+      // Optimistic update
       task.status = newStatus
-      task.done = newStatus === 'done'
+      task.done = newDone
+      if (originalStatus !== 'done') {
+        task.previousStatus = originalStatus
+      }
+
+      try {
+        await axios.put(`http://localhost:5000/api/tasks/${id}`, {
+          status: newStatus,
+          done: newDone,
+          previousStatus: task.previousStatus
+        }, getHeaders())
+      } catch (error) {
+        console.error('Failed to set task status:', error)
+        // Rollback
+        task.status = originalStatus
+        task.previousStatus = originalPreviousStatus
+        task.done = originalDone
+      }
     }
   }
 
   return {
     tasks,
+    fetchTasks,
     addTask,
     updateTask,
     removeTask,

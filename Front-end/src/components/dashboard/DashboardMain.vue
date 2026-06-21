@@ -224,7 +224,7 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { PhClock, PhSparkle, PhCheck } from '@phosphor-icons/vue'
 import { useMeetingStore } from '../../stores/meeting'
@@ -249,6 +249,10 @@ const router = useRouter()
 const meetingStore = useMeetingStore()
 const taskStore = useTaskStore()
 const localSearchQuery = ref('')
+
+onMounted(() => {
+  taskStore.fetchTasks()
+})
 
 // Filtered Standard meetings list (excluding Standup)
 const filteredStandardMeetings = computed(() => {

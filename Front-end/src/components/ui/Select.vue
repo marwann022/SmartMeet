@@ -22,7 +22,7 @@
       <transition name="fade-dropdown">
         <div 
           v-if="isOpen" ref="dropdownMenuRef" :style="dropdownPosition"
-          class="fixed z-[250] rounded-xl bg-white border border-black/8 shadow-[0_12px_32px_rgba(0,0,0,0.08)] py-1 flex flex-col max-h-[200px] overflow-y-auto"
+          class="fixed z-[350] rounded-xl bg-white border border-black/8 shadow-[0_12px_32px_rgba(0,0,0,0.08)] py-1 flex flex-col max-h-[200px] overflow-y-auto"
         >
           <button 
             v-for="opt in formattedOptions" :key="opt.value" type="button" @click="selectOption(opt.value)"
