@@ -176,6 +176,8 @@ import googleIcon from '@/assets/Google.png'
 import appleIcon from '@/assets/Apple_logo_black.svg'
 
 import { useAuthStore } from '@/stores/auth'
+import axios from "axios"
+
 
 const router = useRouter()
 const authStore = useAuthStore()
@@ -184,20 +186,48 @@ const email = ref('')
 const password = ref('')
 const loading = ref(false)
 
-const handleSignIn = () => {
-  loading.value = true
+const handleSignIn = async () => {
+  try {
+    loading.value = true
 
-  setTimeout(() => {
-    authStore.login({
-  name: email.value.split('@')[0],
-  email: email.value,
-  plan: 'Free'
-})
+    const { data } = await axios.post(
+      "http://localhost:5000/api/users/login",
+      {
+        email: email.value,
+        password: password.value
+      }
+    )
 
+    // Save JWT Token
+    localStorage.setItem("token", data.token)
+
+    // Save User Data
+    const userData = {
+  name: `${data.user.firstName} ${data.user.lastName}`,
+  email: data.user.email,
+  plan: "Free"
+}
+
+// Save User Data
+localStorage.setItem(
+  "user",
+  JSON.stringify(userData)
+)
+
+// Update Store
+authStore.login(userData)
+    alert(data.message)
+
+    router.push("/dashboard")
+
+  } catch (error) {
+    alert(
+      error.response?.data?.message ||
+      "Login failed"
+    )
+  } finally {
     loading.value = false
-
-    router.push('/dashboard')
-  }, 1000)
+  }
 }
 
 const handleSSOLogin = (provider) => {
@@ -213,6 +243,8 @@ const handleSSOLogin = (provider) => {
 const forgotPassword = () => {
   alert('Password reset link has been sent to your inbox.')
 }
+
+localStorage.getItem("token")
 </script>
 
 <style scoped>

@@ -89,7 +89,7 @@
           to="/signin"
           class=" text-xs font-semibold text-brand-slate hover:text-primary transition-colors"
         >
-          Sign In
+          Sign in
         </router-link>
 
         <router-link
@@ -316,9 +316,20 @@ const clearAll = () => {
 }
 
 const handleLogout = () => {
+  console.log("LOGOUT CLICKED")
+
+  // Close dropdown
   isProfileOpen.value = false
+
+  // Clear Store
   authStore.logout()
-  router.push('/signin')
+
+  // Extra safety
+  localStorage.removeItem("token")
+  localStorage.removeItem("user")
+
+  // Redirect
+  router.push("/signin")
 }
 
 // Click Outside Handler

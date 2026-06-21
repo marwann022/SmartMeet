@@ -6,6 +6,11 @@
 
 <script setup>
 import DashboardMain from '@/components/dashboard/DashboardMain.vue'
+import { onMounted } from "vue"
+import { useRouter } from "vue-router"
+
+const router = useRouter()
+
 
 defineProps({
   searchQuery: {
@@ -13,4 +18,14 @@ defineProps({
     default: ''
   }
 })
+
+onMounted(() => {
+  const token = localStorage.getItem("token")
+
+  if (!token) {
+    router.push("/signin")
+  }
+})
+
+
 </script>
