@@ -192,10 +192,10 @@
             class="flex items-center gap-2.5 cursor-pointer focus:outline-none bg-transparent border-0"
           >
             <img
-              src="@/assets/User Profile.png"
-              alt="Profile"
-              class="w-9 h-9 rounded-full object-cover border border-white/80 shadow-sm transition-all duration-300 hover:scale-105"
-            />
+  :src="profileImage"
+  alt="Profile"
+  class="w-9 h-9 rounded-full object-cover border border-white/80 shadow-sm transition-all duration-300 hover:scale-105"
+/>
 
             <div class="flex flex-col text-left">
               <span
@@ -245,9 +245,9 @@
                 <div class="border-t border-black/5 my-1"></div>
 
                 <button
-                  @click="handleLogout"
-                  class="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-semibold text-red-500 hover:bg-red-50 transition-all duration-200 cursor-pointer text-left focus:outline-none"
-                >
+  @click.stop="handleLogout"
+  class="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-semibold text-red-500 hover:bg-red-500/20 transition-all duration-200 cursor-pointer text-left focus:outline-none"
+>
                   <PhSignOut :size="14" weight="bold" />
                   <span>Log Out</span>
                 </button>
@@ -316,20 +316,13 @@ const clearAll = () => {
 }
 
 const handleLogout = () => {
-  console.log("LOGOUT CLICKED")
-
-  // Close dropdown
-  isProfileOpen.value = false
-
-  // Clear Store
   authStore.logout()
 
-  // Extra safety
-  localStorage.removeItem("token")
-  localStorage.removeItem("user")
+  isProfileOpen.value = false
 
-  // Redirect
-  router.push("/signin")
+  router.replace("/")
+
+  window.location.reload()
 }
 
 // Click Outside Handler
@@ -349,6 +342,18 @@ onMounted(() => {
 onUnmounted(() => {
   document.removeEventListener('click', handleClickOutside)
 })
+
+const profileImage = computed(() => {
+  if (user.value?.avatar) {
+    return `http://localhost:5000/uploads/${user.value.avatar}`
+  }
+
+  return `https://ui-avatars.com/api/?name=${
+    encodeURIComponent(user.value?.name || "User")
+  }&background=4B68FF&color=fff`
+})
+
+
 </script>
 
 <style scoped>

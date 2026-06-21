@@ -35,6 +35,30 @@ const userSchema = new mongoose.Schema({
         enum: ["user", "admin"],
         default: "user",
     },
+    phone: {
+        type: String,
+        default: ""
+    },
+
+    company: {
+        type: String,
+        default: ""
+    },
+
+    jobTitle: {
+        type: String,
+        default: ""
+    },
+
+    avatar: {
+        type: String,
+        default: ""
+    },
+
+    twoFactor: {
+        type: Boolean,
+        default: false
+    },
     //used for if the user deleted it's account i still have it's data in the database but it will not be active
     isActive: {
         type: Boolean,

@@ -24,7 +24,7 @@
                 class="w-full h-full object-cover"
               />
               <div
-                class="absolute inset-0 bg-black/40 flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-opacity"
+                class="absolute inset-0 bg-black/40 flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-opacity" @click="triggerAvatarUpload"
               >
                 <PhCamera :size="18" weight="bold" />
               </div>
@@ -36,6 +36,13 @@
               >
                 Change Photo
               </button>
+              <input
+  ref="avatarInput"
+  type="file"
+  accept="image/*"
+  class="hidden"
+  @change="handleAvatarUpload"
+/>
               <span class="text-[10px] text-brand-slate mt-1"
                 >Accepts PNG, JPG or SVG. Max 2MB.</span
               >
@@ -320,8 +327,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, watch } from "vue";
-import {
+import { ref, reactive, onMounted } from "vue";import {
   PhUserCircle,
   PhCamera,
   PhLockKey,
@@ -334,9 +340,11 @@ import Select from "../ui/Select.vue";
 import PasswordChangeModal from "./PasswordChangeModal.vue";
 import Toast from "../ui/Toast.vue";
 import { useToasts } from "../../composables/useToasts";
-
 // Import assets
-import userProfileImg from "../../assets/User Profile.png";
+import axios from "axios"
+import { useAuthStore } from "@/stores/auth";
+
+const authStore = useAuthStore();
 
 const themeOptions = [
   { value: "light", label: "Light Mode (Glassmorphism)" },
@@ -350,12 +358,10 @@ const languageOptions = [
   { value: "es-ES", label: "Spanish (ES)" },
 ];
 
-// Single unified storage key configuration
-const STORAGE_KEY = "smartmeet_general_settings";
 
 // Master factory default values configuration
 const DEFAULT_PROFILE = {
-  avatar: userProfileImg,
+  avatar: "",
   fullName: "Alexander Sterling",
   jobTitle: "Principal Product Architect",
   email: "alex.sterling@quantum-dynamics.io",
@@ -368,7 +374,61 @@ const DEFAULT_PROFILE = {
 
 // Core states matching layout structures
 const profileForm = reactive({ ...DEFAULT_PROFILE });
+
+const loadProfile = async () => {
+  try {
+
+    const token = localStorage.getItem("token");
+
+    const { data } = await axios.get(
+      "http://localhost:5000/api/users/profile",
+      {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      }
+    );
+
+    profileForm.fullName =
+      `${data.user.firstName} ${data.user.lastName}`;
+
+    profileForm.email =
+      data.user.email;
+
+    profileForm.phone =
+      data.user.phone || "";
+
+    profileForm.company =
+      data.user.company || "";
+
+    profileForm.jobTitle =
+      data.user.jobTitle || "";
+
+    profileForm.twoFactor =
+      data.user.twoFactor || false;
+    if (data.user.avatar) {
+  profileForm.avatar =
+    `http://localhost:5000/uploads/${data.user.avatar}`;
+} else {
+  profileForm.avatar =
+    `https://ui-avatars.com/api/?name=${encodeURIComponent(
+      `${data.user.firstName} ${data.user.lastName}`
+    )}&background=4B68FF&color=ffffff`;
+}
+
+  } catch (err) {
+
+  console.error("Load Profile Error:", err);
+
+  authStore.logout();
+
+  window.location.href = "/signin";
+
+}
+};
+
 const showPasswordModal = ref(false);
+const avatarInput = ref(null);
 const { success, error, info } = useToasts();
 
 const deviceSessions = ref([
@@ -391,75 +451,125 @@ const deviceSessions = ref([
 // --- Unified Persistence Logic Layer ---
 
 // Hydrates the state cleanly from localStorage on startup
-const hydrateFormState = () => {
-  try {
-    const cached = localStorage.getItem(STORAGE_KEY);
-    if (cached) {
-      const parsed = JSON.parse(cached);
 
-      // Perform defensive safe merge to gracefully fallback if fields are missing or corrupt
-      Object.assign(profileForm, {
-        avatar: parsed.avatar || DEFAULT_PROFILE.avatar,
-        fullName: parsed.fullName || DEFAULT_PROFILE.fullName,
-        jobTitle: parsed.jobTitle || DEFAULT_PROFILE.jobTitle,
-        email: parsed.email || DEFAULT_PROFILE.email,
-        phone: parsed.phone || DEFAULT_PROFILE.phone,
-        company: parsed.company || DEFAULT_PROFILE.company,
-        twoFactor: parsed.twoFactor ?? DEFAULT_PROFILE.twoFactor,
-        theme: parsed.theme || DEFAULT_PROFILE.theme,
-        language: parsed.language || DEFAULT_PROFILE.language,
-      });
-    }
-  } catch (error) {
-    console.error("[SmartMeet] Configuration hydration mapping failed:", error);
-  }
-};
 
 // Serializes and commits state snapshot directly onto disk
-const commitToStorage = () => {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(profileForm));
-};
+
 
 // Auto-save runtime processing layer with performance safe debouncing (400ms)
-let debounceTimeout = null;
-watch(
-  profileForm,
-  () => {
-    clearTimeout(debounceTimeout);
-    debounceTimeout = setTimeout(() => {
-      commitToStorage();
-      console.log("[SmartMeet] Profile state saved silently.");
-    }, 400);
-  },
-  { deep: true }
-);
+
 
 // Run early initialization to hydrate state cleanly before view mounting renders
-hydrateFormState();
+
+onMounted(() => {
+  loadProfile();
+});
 
 // --- Explicit Event Actions ---
 
-const saveProfile = () => {
-  clearTimeout(debounceTimeout);
-  commitToStorage();
-  success("Profile settings updated successfully.");
+const saveProfile = async () => {
+
+  try {
+
+    const token =
+      localStorage.getItem("token");
+
+    const names =
+      profileForm.fullName.trim().split(" ");
+
+    const firstName = names[0];
+
+    const lastName =
+      names.length > 1
+        ? names.slice(1).join(" ")
+        : "";
+
+    await axios.put(
+      "http://localhost:5000/api/users/profile",
+      {
+        firstName,
+        lastName,
+        phone: profileForm.phone,
+        company: profileForm.company,
+        jobTitle: profileForm.jobTitle,
+        twoFactor: profileForm.twoFactor
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      }
+    );
+
+    authStore.updateUser({
+      name: profileForm.fullName
+    });
+
+    await loadProfile();
+
+    success(
+      "Profile Updated Successfully"
+    );
+
+  } catch (err) {
+
+    console.error(err);
+
+    error(
+      "Failed To Update Profile"
+    );
+
+  }
 };
 
-// For contextual consistency, this acts as the "Discard/Reset Changes" clearing hook
-const resetGeneral = () => {
-  clearTimeout(debounceTimeout);
 
-  // Wipe localized records
-  localStorage.removeItem(STORAGE_KEY);
 
-  // Instantly reflect baseline states within current UI context
-  Object.assign(profileForm, DEFAULT_PROFILE);
-  info("Profile configurations have been restored to system defaults.");
-};
 
-const triggerAvatarUpload = () => {
-  info("Avatar upload is simulated in this frontend demo.");
-};
+const handleAvatarUpload = async (event) => {
+
+  try {
+
+    const file = event.target.files[0]
+
+    if (!file) return
+
+    const token =
+      localStorage.getItem("token")
+
+    const formData = new FormData()
+
+    formData.append(
+      "avatar",
+      file
+    )
+
+    const { data } =
+      await axios.post(
+        "http://localhost:5000/api/users/avatar",
+        formData,
+        {
+          headers: {
+            Authorization:
+              `Bearer ${token}`
+          }
+        }
+      )
+
+    profileForm.avatar =
+  `http://localhost:5000/uploads/${data.avatar}`;
+
+authStore.updateUser({
+  avatar: data.avatar
+});
+
+success("Avatar Updated Successfully");
+
+  } catch (error) {
+
+    console.error(error)
+
+  }
+}
 
 const handleChangePassword = () => {
   showPasswordModal.value = true;
@@ -483,5 +593,9 @@ const handleUpgrade = () => {
 
 const handleManageSub = () => {
   info("Redirecting to the subscription billing portal.");
+};
+
+const triggerAvatarUpload = () => {
+  avatarInput.value.click();
 };
 </script>

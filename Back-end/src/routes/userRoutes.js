@@ -1,6 +1,13 @@
 import express from "express";
 import { protect } from "../middleware/authMiddleware.js";
-import { register, login, getProfile } from "../controllers/userController.js";
+import {
+    register,
+    login,
+    getProfile,
+    updateProfile,
+    uploadAvatar
+} from "../controllers/userController.js";
+import upload from "../middleware/uploadMiddleware.js";
 
 const router = express.Router();
 
@@ -8,5 +15,18 @@ router.post("/register", register);
 router.post("/login", login);
 
 router.get("/profile", protect, getProfile);
+
+router.put(
+    "/profile",
+    protect,
+    updateProfile
+);
+
+router.post(
+    "/avatar",
+    protect,
+    upload.single("avatar"),
+    uploadAvatar
+);
 
 export default router;
