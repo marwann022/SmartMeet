@@ -162,7 +162,7 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import { PhEnvelope, PhLock } from "@phosphor-icons/vue";
 
@@ -180,6 +180,39 @@ const authStore = useAuthStore();
 const email = ref("");
 const password = ref("");
 const loading = ref(false);
+
+onMounted(async () => {
+  const hash = window.location.hash;
+  if (hash) {
+    const params = new URLSearchParams(hash.substring(1));
+    const idToken = params.get("id_token");
+    if (idToken) {
+      try {
+        loading.value = true;
+        // Clean up hash from URL
+        window.history.replaceState({}, document.title, window.location.pathname);
+        
+        const { data } = await axios.post("http://localhost:5000/api/users/google-login", {
+          token: idToken,
+        });
+
+        const userData = {
+          name: `${data.user.firstName} ${data.user.lastName}`,
+          email: data.user.email,
+          plan: "Free",
+          avatar: data.user.avatar,
+        };
+
+        authStore.login(userData, data.token);
+        router.push("/dashboard");
+      } catch (error) {
+        alert(error.response?.data?.message || "Google Login failed");
+      } finally {
+        loading.value = false;
+      }
+    }
+  }
+});
 
 const handleSignIn = async () => {
   try {
@@ -213,6 +246,28 @@ const handleSignIn = async () => {
 };
 
 const handleSSOLogin = (provider) => {
+  if (provider === "Google") {
+    const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
+    if (!clientId || clientId === "your_google_client_id_here") {
+      alert("Google Client ID is not configured in the frontend .env file.");
+      return;
+    }
+    
+    const redirectUri = encodeURIComponent(window.location.origin + "/signin");
+    const scope = encodeURIComponent("openid profile email");
+    const nonce = Math.random().toString(36).substring(2);
+    
+    const oauthUrl = `https://accounts.google.com/o/oauth2/v2/auth?` +
+      `client_id=${clientId}&` +
+      `redirect_uri=${redirectUri}&` +
+      `response_type=id_token&` +
+      `scope=${scope}&` +
+      `nonce=${nonce}`;
+      
+    window.location.href = oauthUrl;
+    return;
+  }
+
   authStore.login(
     {
       name: `${provider} User`,

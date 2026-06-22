@@ -26,7 +26,12 @@ const userSchema = new mongoose.Schema({
     },
     password: {
         type: String,
-        required: [true, "Please Enter Your Password"],
+        required: [
+            function() {
+                return !this.googleId;
+            },
+            "Please Enter Your Password"
+        ],
         minlength: [8, "Password should be greater than 8 characters"],
         select: false,
     },
@@ -58,6 +63,10 @@ const userSchema = new mongoose.Schema({
     twoFactor: {
         type: Boolean,
         default: false
+    },
+    googleId: {
+        type: String,
+        default: null
     },
     //used for if the user deleted it's account i still have it's data in the database but it will not be active
     isActive: {
@@ -100,7 +109,7 @@ userSchema.virtual("fullName").get(function() {
 
 // Hashing The password of the user before saving
 userSchema.pre("save", async function() {
-    if (!this.isModified("password")) return;
+    if (!this.isModified("password") || !this.password) return;
 
     const salt = await bcrypt.genSalt(12);
     this.password = await bcrypt.hash(this.password, salt);

@@ -23,8 +23,8 @@
 </div>
     <!-- SUB-TABS CONTENT -->
     <div class="w-full home-view">
-      <General v-if="activeSubtab === 'general'" />
-      <Profile v-else-if="activeSubtab === 'profile'" />
+      <Profile v-if="activeSubtab === 'profile'" />
+      <General v-else-if="activeSubtab === 'general'" />
       <TeamManagement v-else-if="activeSubtab === 'team'" />
       <Notifications v-else-if="activeSubtab === 'notifications'" />
     </div>
@@ -49,13 +49,13 @@ import Notifications from '@/components/settings/Notifications.vue'
 const route = useRoute()
 
 const subtabs = [
-  { id: 'general', label: 'General Settings', icon: PhGauge },
   { id: 'profile', label: 'Profile Settings', icon: PhUserCircle },
+  { id: 'general', label: 'General Settings', icon: PhGauge },
   { id: 'team', label: 'Team Management', icon: PhUsersThree },
   { id: 'notifications', label: 'Notifications', icon: PhBell }
 ]
 
-const activeSubtab = ref(route.query.tab || 'general')
+const activeSubtab = ref(route.query.tab || 'profile')
 
 watch(() => route.query.tab, (newTab) => {
   if (newTab) {

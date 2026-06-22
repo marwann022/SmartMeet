@@ -4,6 +4,9 @@ import generateToken from "../utils/generateToken.js";
 import sendEmail from "../utils/sendEmail.js";
 
 import crypto from "crypto";
+import { OAuth2Client } from "google-auth-library";
+
+const googleClient = new OAuth2Client();
 
 // ---------------- Register ----------------
 export const register = async(req, res) => {
@@ -105,6 +108,82 @@ export const login = async(req, res) => {
             success: true,
             message: "Login Successful",
             token,
+            user: user.getPublicProfile(),
+        });
+
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: error.message,
+        });
+    }
+};
+
+// ---------------- Google Login ----------------
+export const googleLogin = async (req, res) => {
+    try {
+        const { token } = req.body;
+
+        if (!token) {
+            return res.status(400).json({
+                success: false,
+                message: "No Google token provided",
+            });
+        }
+
+        const clientId = process.env.GOOGLE_CLIENT_ID;
+        if (!clientId || clientId === "your_google_client_id_here") {
+            return res.status(500).json({
+                success: false,
+                message: "Backend Google Client ID is not configured. Please set GOOGLE_CLIENT_ID in the .env file.",
+            });
+        }
+
+        const ticket = await googleClient.verifyIdToken({
+            idToken: token,
+            audience: clientId,
+        });
+
+        const payload = ticket.getPayload();
+        const { sub: googleId, email, given_name: firstName, family_name: lastName, picture: avatar } = payload;
+
+        // Find user by Google ID or by Email
+        let user = await User.findOne({
+            $or: [
+                { googleId },
+                { email: email.toLowerCase() }
+            ]
+        });
+
+        if (user) {
+            // If user exists but googleId is not linked yet
+            if (!user.googleId) {
+                user.googleId = googleId;
+            }
+            // Update avatar if they don't have one
+            if (!user.avatar && avatar) {
+                user.avatar = avatar;
+            }
+            user.lastLogin = new Date();
+            await user.save();
+        } else {
+            // Create user
+            user = await User.create({
+                firstName: firstName || "Google",
+                lastName: lastName || "User",
+                email: email.toLowerCase(),
+                googleId,
+                avatar: avatar || "",
+            });
+        }
+
+        // Generate JWT
+        const localToken = generateToken(user._id);
+
+        res.status(200).json({
+            success: true,
+            message: "Login Successful via Google",
+            token: localToken,
             user: user.getPublicProfile(),
         });
 
