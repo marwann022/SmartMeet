@@ -198,24 +198,21 @@ const handleSignIn = async () => {
       }
     )
 
-    // Save JWT Token
-    localStorage.setItem("token", data.token)
+    console.log("LOGIN RESPONSE:", data)
+    console.log("USER:", data.user)
 
-    // Save User Data
     const userData = {
-  name: `${data.user.firstName} ${data.user.lastName}`,
-  email: data.user.email,
-  plan: "Free"
-}
+      name: `${data.user.firstName} ${data.user.lastName}`,
+      email: data.user.email,
+      plan: "Free",
+      avatar: data.user.avatar
+    }
 
-// Save User Data
-localStorage.setItem(
-  "user",
-  JSON.stringify(userData)
-)
+    authStore.login(
+      userData,
+      data.token
+    )
 
-// Update Store
-authStore.login(userData)
     alert(data.message)
 
     router.push("/dashboard")
@@ -231,11 +228,15 @@ authStore.login(userData)
 }
 
 const handleSSOLogin = (provider) => {
-  authStore.login({
-    name: `${provider} User`,
-    email: 'user@smartmeet.ai',
-    plan: 'Free'
-  })
+
+  authStore.login(
+    {
+      name: `${provider} User`,
+      email: 'user@smartmeet.ai',
+      plan: 'Free'
+    },
+    "demo-token"
+  )
 
   router.push('/dashboard')
 }

@@ -111,9 +111,93 @@ export const login = async(req, res) => {
 };
 
 
+//---------------------profile----------------------
+
 export const getProfile = async(req, res) => {
-    res.status(200).json({
-        success: true,
-        user: req.user
-    });
+    try {
+        const user = await User.findById(req.user.id);
+
+        res.status(200).json({
+            success: true,
+            user
+        });
+
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: error.message
+        });
+    }
 };
+
+
+//---------------------update profile----------------------
+export const updateProfile = async(req, res) => {
+    try {
+
+        const user = await User.findById(req.user.id);
+
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                message: "User not found"
+            });
+        }
+
+        user.firstName =
+            req.body.firstName || user.firstName;
+
+        user.lastName =
+            req.body.lastName || user.lastName;
+
+        user.phone =
+            req.body.phone || user.phone;
+
+        user.company =
+            req.body.company || user.company;
+
+        user.jobTitle =
+            req.body.jobTitle || user.jobTitle;
+
+        user.avatar =
+            req.body.avatar || user.avatar;
+
+        user.twoFactor =
+            req.body.twoFactor;
+
+        await user.save();
+
+        res.status(200).json({
+            success: true,
+            message: "Profile Updated",
+            user
+        });
+
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: error.message
+        });
+    }
+};
+
+//---------------------upload avatar----------------------
+export const uploadAvatar = async(
+    req,
+    res
+) => {
+
+    const user = await User.findById(
+        req.user.id
+    )
+
+    user.avatar =
+        req.file.filename
+
+    await user.save()
+
+    res.json({
+        success: true,
+        avatar: user.avatar
+    })
+}

@@ -80,15 +80,24 @@
 
     <!-- User profile: full info on desktop, avatar-only centered in compact mode -->
     <div class="flex items-center gap-[12px] pt-[16px] border-t border-black/5 compact:justify-center compact:gap-0 compact:pt-3">
-      <img 
-        src="../../assets/User Profile.png" 
-        alt="Profile" 
-        class="w-[44px] h-[44px] rounded-full object-cover border border-white/85 shadow-sm compact:w-10 compact:h-10" 
-      />
+      <img
+  :src="
+    user?.avatar
+      ? `http://localhost:5000/uploads/${user.avatar}`
+      : `https://ui-avatars.com/api/?name=${encodeURIComponent(user?.name || 'User')}&background=4B68FF&color=ffffff`
+  "
+  alt="Profile"
+  class="w-[44px] h-[44px] rounded-full object-cover border border-white/85 shadow-sm compact:w-10 compact:h-10"
+/>
       <div class="flex flex-col compact:hidden">
-        <span class="text-[11px] font-bold text-brand-dark leading-tight">Alex Chen</span>
-        <span class="text-[9px] font-extrabold text-primary tracking-wider uppercase">Pro Tier</span>
-      </div>
+  <span class="text-[11px] font-bold text-brand-dark leading-tight">
+    {{ user?.name || "Guest User" }}
+  </span>
+
+  <span class="text-[9px] font-extrabold text-primary tracking-wider uppercase">
+    {{ user?.plan || "Free" }}
+  </span>
+</div>
     </div>
   </aside>
 </template>
@@ -106,8 +115,16 @@ import {
 } from '@phosphor-icons/vue'
 import { useUiStore } from '../../stores/ui'
 
+import { computed } from 'vue'
+import { useAuthStore } from '../../stores/auth'
+
 const route = useRoute()
 const uiStore = useUiStore()
+
+const authStore = useAuthStore()
+
+const user = computed(() => authStore.user)
+console.log("USER DATA:", user.value)
 
 const menuTabs = [
   { id: 'dashboard', label: 'Dashboard', route: '/dashboard', icon: PhLayout },
