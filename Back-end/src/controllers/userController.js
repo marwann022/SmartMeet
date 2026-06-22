@@ -1,6 +1,10 @@
 import User from "../models/User.js";
 import generateToken from "../utils/generateToken.js";
 
+import sendEmail from "../utils/sendEmail.js";
+
+import crypto from "crypto";
+
 // ---------------- Register ----------------
 export const register = async(req, res) => {
     try {
@@ -70,6 +74,8 @@ export const login = async(req, res) => {
             email: email.toLowerCase(),
         }).select("+password");
 
+
+
         // User not found
         if (!user) {
             return res.status(401).json({
@@ -109,6 +115,167 @@ export const login = async(req, res) => {
         });
     }
 };
+
+//---------------------forget password----------------------------
+export const forgotPassword = async(req, res) => {
+    try {
+        console.log("FORGOT PASSWORD HIT");
+        const { email } = req.body;
+
+        if (!email) {
+            return res.status(400).json({
+                success: false,
+                message: "Email is required",
+            });
+        }
+
+        const user = await User.findOne({
+            email: email.toLowerCase(),
+        });
+
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                message: "No account found with this email",
+            });
+        }
+
+        const resetToken =
+            crypto.randomBytes(32).toString("hex");
+
+        user.resetPasswordToken = resetToken;
+
+        user.resetPasswordExpire =
+            Date.now() + 10 * 60 * 1000;
+
+        await user.save();
+
+        const resetUrl =
+            `http://localhost:5173/reset-password/${resetToken}`;
+
+
+
+        await sendEmail({
+            to: user.email,
+            subject: "SmartMeet Password Reset",
+            html: `
+        <div style="font-family: Arial, sans-serif;">
+          <h2>Password Reset Request</h2>
+
+          <p>Hello ${user.firstName},</p>
+
+          <p>
+            We received a request to reset your password.
+          </p>
+
+          <p>
+            This email confirms that the request was received.
+          </p>
+
+          <p>
+  Click the button below to reset your password:
+</p>
+
+<div style="margin:20px 0;">
+  <a
+    href="${resetUrl}"
+    style="
+      background:#2563eb;
+      color:white;
+      padding:12px 20px;
+      text-decoration:none;
+      border-radius:6px;
+      display:inline-block;
+      font-weight:bold;
+    "
+  >
+    Reset Password
+  </a>
+</div>
+
+<p>
+  This link expires in 10 minutes.
+</p>
+
+<p>
+  Or copy this link:
+</p>
+
+<p>
+  ${resetUrl}
+</p>
+
+          <br/>
+
+          <p>
+            SmartMeet Team
+          </p>
+        </div>
+      `,
+        });
+
+        res.status(200).json({
+            success: true,
+            message: "Password reset email sent successfully",
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: error.message,
+        });
+    }
+};
+
+
+
+
+export const resetPassword = async(req, res) => {
+    try {
+
+        const { token } = req.params;
+        const { password } = req.body;
+
+        if (!password) {
+            return res.status(400).json({
+                success: false,
+                message: "Password is required"
+            });
+        }
+
+        const user = await User.findOne({
+            resetPasswordToken: token,
+            resetPasswordExpire: { $gt: Date.now() }
+        }).select("+password");
+
+        if (!user) {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid or expired token"
+            });
+        }
+
+        user.password = password;
+        user.resetPasswordToken = null;
+        user.resetPasswordExpire = null;
+
+        await user.save();
+
+        res.status(200).json({
+            success: true,
+            message: "Password reset successfully"
+        });
+
+    } catch (error) {
+
+        res.status(500).json({
+            success: false,
+            message: error.message
+        });
+
+    }
+};
+
+
 
 
 //---------------------profile----------------------

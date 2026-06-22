@@ -104,12 +104,12 @@
                 </label>
 
                 <a
-                  href="#"
-                  class="text-primary font-header font-bold text-xs hover:text-blue-800 transition-colors"
-                  @click.prevent="forgotPassword"
-                >
-                  Forgot Password?
-                </a>
+  href="#"
+  class="text-primary font-header font-bold text-xs hover:text-blue-800 transition-colors"
+  @click.prevent="goToForgotPassword"
+>
+  Forgot Password?
+</a>
               </div>
 
               <div class="relative w-full group">
@@ -246,6 +246,11 @@ const forgotPassword = () => {
 }
 
 localStorage.getItem("token")
+
+
+const goToForgotPassword = () => {
+  router.push('/forgot-password')
+}
 </script>
 
 <style scoped>
