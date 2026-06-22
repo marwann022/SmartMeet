@@ -1,7 +1,7 @@
 <template>
   <section
     id="integrations"
-    class="py-24 border-t border-black/5 w-full"
+    class="py-8 border-t border-black/5 w-full"
   >
     <!-- Header -->
     <div
@@ -134,24 +134,19 @@
 
 <style scoped>
 .integration-card {
-  @apply relative
-  bg-white/50
-  backdrop-blur-sm
-  border
-  border-white/70
-  rounded-3xl
-
-  h-[130px]
-
-  flex
-  flex-col
-  items-center
-  justify-center
-  gap-3
-
-  transition-all
-  duration-500;
-
+  position: relative;
+  background-color: rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  border: 1px solid rgba(255, 255, 255, 0.70);
+  border-radius: 24px;
+  height: 130px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  transition: all 500ms;
   box-shadow:
     0 4px 20px rgba(0,0,0,0.03);
 }

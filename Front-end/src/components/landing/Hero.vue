@@ -1,6 +1,6 @@
 <template>
   <section
-    class="grid grid-cols-1 lg:grid-cols-[1.1fr_0.9fr] gap-16 lg:gap-24 items-center pb-20 relative"
+    class="grid grid-cols-1 lg:grid-cols-[1.1fr_0.9fr] gap-16 lg:gap-24 items-center relative"
   >
     <!-- Left Side -->
     <div class="flex flex-col items-start text-left">
@@ -64,7 +64,7 @@
     <div class="flex justify-center relative">
       <!-- Floating Card -->
       <div
-        class="absolute top-8 -left-[150px] card-glass px-5 py-4 rounded-2xl animate-float-slow"
+        class="absolute top-8 -left-[90px] card-glass px-5 py-4 rounded-2xl animate-float-slow"
       >
         <div class="text-xs text-brand-slate mb-1">Alignment Score</div>
 
@@ -73,7 +73,7 @@
 
       <!-- Floating Card -->
       <div
-        class="absolute bottom-20 -right-[150px] card-glass px-5 py-4 rounded-2xl animate-float-reverse"
+        class="absolute bottom-20 -right-[90px] card-glass px-5 py-4 rounded-2xl animate-float-reverse"
       >
         <div class="text-xs text-brand-slate mb-1">Tasks Generated</div>
 

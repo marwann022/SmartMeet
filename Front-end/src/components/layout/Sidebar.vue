@@ -148,14 +148,28 @@ const isActive = (path) => {
   left: calc(100% + 12px);
   background-color: rgba(15, 23, 42, 0.9);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-
-  @apply pointer-events-none absolute top-1/2 -translate-y-1/2
-         whitespace-nowrap rounded-lg text-white text-[11px]
-         font-bold font-header tracking-wide px-3 py-1.5
-         opacity-0 invisible scale-95 transition-all duration-200;
+  pointer-events: none;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%) scale(0.95);
+  white-space: nowrap;
+  border-radius: 8px;
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 700;
+  font-family: "Montserrat", sans-serif;
+  letter-spacing: 0.025em;
+  padding: 6px 12px;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 200ms;
 }
 
-.group:hover .sidebar-tooltip {
-  @apply compact:opacity-100 compact:visible compact:scale-100;
+@media (max-width: 849px) {
+  .group:hover .sidebar-tooltip {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(-50%) scale(1);
+  }
 }
 </style>

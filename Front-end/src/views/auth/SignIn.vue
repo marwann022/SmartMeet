@@ -2,13 +2,17 @@
   <div class="page-shell">
     <Navbar />
 
-    <div class="flex items-center justify-center min-h-[calc(100vh-140px)] py-10 px-4">
+    <div
+      class="flex items-center justify-center min-h-[calc(100vh-140px)] py-10 px-4"
+    >
       <div
         class="w-full max-w-[480px] bg-white/70 border border-white/70 backdrop-blur-lg rounded-[32px] p-8 sm:p-12 shadow-glass flex flex-col gap-7 items-center transition-all duration-300 hover:border-white/95 hover:shadow-card-hover"
       >
         <!-- Header -->
         <div class="text-center flex flex-col gap-2">
-          <h2 class="text-2xl sm:text-3xl font-bold font-header text-brand-dark">
+          <h2
+            class="text-2xl sm:text-3xl font-bold font-header text-brand-dark"
+          >
             Welcome Back
           </h2>
 
@@ -37,11 +41,7 @@
             class="flex-1 flex items-center justify-center gap-3 py-3 px-4 rounded-xl border border-black/8 bg-white/50 text-[11px] font-bold text-brand-dark transition-all duration-300 hover:bg-white hover:border-primary/20 hover:shadow-sm cursor-pointer"
             @click="handleSSOLogin('Apple')"
           >
-            <img
-              :src="appleIcon"
-              alt="Apple"
-              class="w-4 h-4 object-contain"
-            />
+            <img :src="appleIcon" alt="Apple" class="w-4 h-4 object-contain" />
             <span>Continue With Apple</span>
           </button>
         </div>
@@ -60,10 +60,7 @@
         </div>
 
         <!-- Credentials Form -->
-        <form
-          class="flex flex-col gap-6 w-full"
-          @submit.prevent="handleSignIn"
-        >
+        <form class="flex flex-col gap-6 w-full" @submit.prevent="handleSignIn">
           <div class="flex flex-col gap-5 w-full">
             <!-- Email -->
             <div class="flex flex-col gap-2 text-left w-full">
@@ -102,14 +99,6 @@
                 >
                   Password
                 </label>
-
-                <a
-  href="#"
-  class="text-primary font-header font-bold text-xs hover:text-blue-800 transition-colors"
-  @click.prevent="goToForgotPassword"
->
-  Forgot Password?
-</a>
               </div>
 
               <div class="relative w-full group">
@@ -128,6 +117,15 @@
                   :disabled="loading"
                   class="w-full h-12 bg-white border border-black/8 rounded-xl pl-11 pr-4 text-brand-dark text-sm font-semibold outline-none transition-all duration-300 shadow-[inset_0_1px_3px_rgba(0,0,0,0.03)] placeholder-brand-slate/60 focus:border-primary focus:shadow-[inset_0_1px_3px_rgba(0,0,0,0.03),0_0_12px_rgba(75,104,255,0.15)]"
                 />
+              </div>
+              <div class="flex justify-end items-center">
+                <a
+                  href="#"
+                  class="text-primary font-header font-bold text-xs hover:text-blue-800 transition-colors"
+                  @click.prevent="goToForgotPassword"
+                >
+                  Forgot Password?
+                </a>
               </div>
             </div>
           </div>
@@ -148,9 +146,7 @@
         </form>
 
         <!-- Footer -->
-        <div
-          class="text-xs text-brand-slate gap-1.5 flex justify-center mt-2"
-        >
+        <div class="text-xs text-brand-slate gap-1.5 flex justify-center mt-2">
           <span>Don't have an account?</span>
 
           <router-link
@@ -166,91 +162,78 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
-import { useRouter } from 'vue-router'
-import { PhEnvelope, PhLock } from '@phosphor-icons/vue'
+import { ref } from "vue";
+import { useRouter } from "vue-router";
+import { PhEnvelope, PhLock } from "@phosphor-icons/vue";
 
-import Navbar from '@/components/layout/Navbar.vue'
+import Navbar from "@/components/layout/Navbar.vue";
 
-import googleIcon from '@/assets/Google.png'
-import appleIcon from '@/assets/Apple_logo_black.svg'
+import googleIcon from "@/assets/Google.png";
+import appleIcon from "@/assets/Apple_logo_black.svg";
 
-import { useAuthStore } from '@/stores/auth'
-import axios from "axios"
+import { useAuthStore } from "@/stores/auth";
+import axios from "axios";
 
+const router = useRouter();
+const authStore = useAuthStore();
 
-const router = useRouter()
-const authStore = useAuthStore()
-
-const email = ref('')
-const password = ref('')
-const loading = ref(false)
+const email = ref("");
+const password = ref("");
+const loading = ref(false);
 
 const handleSignIn = async () => {
   try {
-    loading.value = true
+    loading.value = true;
 
-    const { data } = await axios.post(
-      "http://localhost:5000/api/users/login",
-      {
-        email: email.value,
-        password: password.value
-      }
-    )
+    const { data } = await axios.post("http://localhost:5000/api/users/login", {
+      email: email.value,
+      password: password.value,
+    });
 
-    console.log("LOGIN RESPONSE:", data)
-    console.log("USER:", data.user)
+    console.log("LOGIN RESPONSE:", data);
+    console.log("USER:", data.user);
 
     const userData = {
       name: `${data.user.firstName} ${data.user.lastName}`,
       email: data.user.email,
       plan: "Free",
-      avatar: data.user.avatar
-    }
+      avatar: data.user.avatar,
+    };
 
-    authStore.login(
-      userData,
-      data.token
-    )
+    authStore.login(userData, data.token);
 
-    alert(data.message)
+    alert(data.message);
 
-    router.push("/dashboard")
-
+    router.push("/dashboard");
   } catch (error) {
-    alert(
-      error.response?.data?.message ||
-      "Login failed"
-    )
+    alert(error.response?.data?.message || "Login failed");
   } finally {
-    loading.value = false
+    loading.value = false;
   }
-}
+};
 
 const handleSSOLogin = (provider) => {
-
   authStore.login(
     {
       name: `${provider} User`,
-      email: 'user@smartmeet.ai',
-      plan: 'Free'
+      email: "user@smartmeet.ai",
+      plan: "Free",
     },
-    "demo-token"
-  )
+    "demo-token",
+  );
 
-  router.push('/dashboard')
-}
+  router.push("/dashboard");
+};
 
 const forgotPassword = () => {
-  alert('Password reset link has been sent to your inbox.')
-}
+  alert("Password reset link has been sent to your inbox.");
+};
 
-localStorage.getItem("token")
-
+localStorage.getItem("token");
 
 const goToForgotPassword = () => {
-  router.push('/forgot-password')
-}
+  router.push("/forgot-password");
+};
 </script>
 
 <style scoped>

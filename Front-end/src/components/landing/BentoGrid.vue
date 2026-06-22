@@ -1,5 +1,5 @@
 <template>
-  <section id="product" class="py-16 text-center border-t border-black/5">
+  <section id="product" class="py-8 text-center border-t border-black/5">
     <div class="max-w-[650px] mx-auto mb-16 px-4">
      <h2
 class="

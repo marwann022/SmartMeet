@@ -1,7 +1,7 @@
 <template>
   <section
     id="results"
-    class="py-24 border-t border-black/5 w-full"
+    class="py-8 border-t border-black/5 w-full"
   >
     <!-- Header -->
     <div
@@ -249,6 +249,7 @@
   );
 
   -webkit-background-clip: text;
+  background-clip: text;
   -webkit-text-fill-color: transparent;
 
   margin-bottom: 16px;

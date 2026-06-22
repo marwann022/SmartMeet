@@ -2,7 +2,7 @@
 <template>
   <section
     id="workflow"
-    class="py-24 border-t border-black/5"
+    class="py-8 border-t border-black/5"
   >
     <!-- Header -->
     <div
