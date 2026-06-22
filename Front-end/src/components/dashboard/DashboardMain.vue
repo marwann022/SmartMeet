@@ -3,7 +3,7 @@
     <!-- Welcome header row -->
     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-[32px] gap-[16px] flex-wrap">
       <div>
-        <h1 class="text-[30px] sm:text-[36px] font-bold font-header text-brand-dark tracking-tight mb-[8px]">Good morning, Alex.</h1>
+        <h1 class="text-[30px] sm:text-[36px] font-bold font-header text-brand-dark tracking-tight mb-[8px]">Good morning, {{ firstName }}.</h1>
         <p class="text-[14px]">
           AI analyzed <span class="font-bold text-primary">{{ meetingStore.meetings.length + 8 }} meetings</span> this week. Productivity is up by 18%.
         </p>
@@ -171,8 +171,8 @@
         <div class="flex flex-col gap-[12px]">
           <div v-for="item in filteredUpcomingMeetings" :key="item.id" class="flex gap-[16px] items-center p-[12px] rounded-2xl bg-white/40 border border-black/[0.03] transition-all duration-300 hover:bg-white/60 hover:border-black/5">
             <div 
-              class="w-[44px] h-[44px] rounded-xl flex flex-col items-center justify-center text-white flex-shrink-0 select-none"
-              :class="item.featured ? 'bg-grad-primary shadow-[0_2px_8px_rgba(75,104,255,0.15)]' : 'bg-white/70 border border-black/5 text-brand-slate shadow-none'"
+              class="w-[44px] h-[44px] rounded-xl flex flex-col items-center justify-center flex-shrink-0 select-none"
+              :class="item.featured ? 'bg-grad-primary text-white shadow-[0_2px_8px_rgba(75,104,255,0.15)]' : 'bg-brand-slate/10 border border-brand-slate/20 text-brand-dark shadow-none'"
             >
               <span class="text-[8px] font-extrabold uppercase tracking-wider">{{ item.month }}</span>
               <span class="text-[18px] font-bold font-header leading-none">{{ item.day }}</span>
@@ -232,6 +232,14 @@ import { useTaskStore } from '../../stores/task'
 import MeetingCard from './MeetingCard.vue'
 import Button from '../ui/Button.vue'
 import SearchBar from '../ui/SearchBar.vue'
+import { useAuthStore } from "@/stores/auth"
+
+const authStore = useAuthStore()
+
+const firstName = computed(() => {
+  return authStore.user?.name?.split(" ")[0] || "User"
+})
+
 
 // Import assets
 import activityTrendImg from '../../assets/Activity Trend.png'

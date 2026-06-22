@@ -10,7 +10,7 @@ export const useMeetingStore = defineStore('meeting', () => {
       date: 'Nov 12, 2026',
       time: '09:30 AM',
       duration: '45 minutes',
-      type: 'Google Meet',
+      type: 'Personal Discussion',
       bullets: [
         'Confirmed the transition to a micro-frontend architecture by late August to support scaling needs.',
         'Allocated 20% of engineering bandwidth specifically for technical debt and documentation.',
@@ -105,7 +105,7 @@ export const useMeetingStore = defineStore('meeting', () => {
       date: 'Nov 16, 2026',
       time: '09:30 AM',
       duration: '15 minutes',
-      type: 'Google Meet',
+      type: 'Brainstorm',
       bullets: [
         'Standup updates: DB latency patches, API documentation v2, security audit schedules.',
         'Infrastructure teams checked metrics logs.'
@@ -133,7 +133,7 @@ export const useMeetingStore = defineStore('meeting', () => {
   const upcomingMeetings = ref([
     { id: 1, month: 'NOV', day: '14', title: 'Marketing Sync', time: '1:30 PM', location: 'Zoom', featured: true },
     { id: 2, month: 'NOV', day: '15', title: 'Project Nexus Launch', time: '10:00 AM', location: 'In-Person', featured: false },
-    { id: 3, month: 'NOV', day: '15', title: 'One-on-One: Sarah', time: '4:00 PM', location: 'Google Meet', featured: false }
+    { id: 3, month: 'NOV', day: '15', title: 'One-on-One: Sarah', time: '4:00 PM', location: 'Jitsi', featured: false }
   ])
 
   const selectedMeeting = ref(null)

@@ -148,34 +148,6 @@
       </div>
     </div>
 
-    <!-- Google Calendar & Meet Integration Settings -->
-    <div class="card-glass rounded-[28px] p-6 sm:p-8 flex flex-col gap-6 border border-white/80 shadow-glass">
-      <div class="flex items-center gap-3 pb-4 border-b border-black/5">
-        <div class="w-10 h-10 rounded-xl bg-primary/8 border border-primary/15 flex items-center justify-center text-primary">
-          <PhGoogleLogo :size="20" weight="bold" />
-        </div>
-        <div class="flex flex-col text-left">
-          <h3 class="font-header font-bold text-lg text-brand-dark">Google Meet Integration</h3>
-          <p class="text-xs text-brand-slate">Configure your Google credentials to enable real Google Meet call generation and calendar syncing.</p>
-        </div>
-      </div>
-
-      <div class="flex flex-col gap-4 text-left">
-        <div class="flex flex-col gap-2">
-          <label class="font-header font-bold text-[11px] tracking-wider uppercase text-brand-slate ml-1">Google OAuth Client ID</label>
-          <input 
-            v-model="googleClientId" 
-            type="text" 
-            placeholder="e.g. 1234567890-abcdefg.apps.googleusercontent.com" 
-            class="w-full px-4 py-3.5 rounded-xl bg-white border border-black/8 font-body text-sm text-brand-dark focus:outline-none focus:border-primary/30 transition-all duration-300"
-          />
-          <span class="text-[11px] text-brand-slate leading-relaxed ml-1 mt-1 block">
-            To generate a real Google Meet link client-side, create an OAuth 2.0 Web Application Client ID in the Google Cloud Console. Ensure you add <strong>http://localhost:5173</strong> (or your current workspace origin) to the <strong>Authorized JavaScript Origins</strong> list.
-          </span>
-        </div>
-      </div>
-    </div>
-
     <!-- Footer Actions -->
     <div class="flex justify-end items-center gap-4 pt-4 border-t border-black/5">
       <button @click="resetGeneral" class="px-5 py-2.5 rounded-xl bg-white border border-black/8 font-header font-bold text-xs tracking-wider uppercase text-brand-dark hover:bg-black/5 transition-all cursor-pointer">Discard Changes</button>
@@ -189,7 +161,6 @@ import { ref, reactive } from 'vue'
 import { 
   PhGauge, 
   PhShieldCheck, 
-  PhGoogleLogo, 
   PhCheck 
 } from '@phosphor-icons/vue'
 import Select from '../ui/Select.vue'
@@ -217,21 +188,17 @@ const generalForm = reactive({
   autoDelete: false
 })
 
-const googleClientId = ref(localStorage.getItem('smartmeet_google_client_id') || '')
-
 const resetGeneral = () => {
   generalForm.autoSummarize = true
   generalForm.detailLevel = 'standard'
   generalForm.focusType = 'tasks'
   generalForm.privacyFirst = true
   generalForm.autoDelete = false
-  googleClientId.value = localStorage.getItem('smartmeet_google_client_id') || ''
   alert('Discarded unsaved AI changes.')
 }
 
 const saveGeneral = () => {
-  localStorage.setItem('smartmeet_google_client_id', googleClientId.value)
-  alert('Successfully saved AI engine & Google integration preferences!')
+  alert('Successfully saved AI engine preferences!')
 }
 
 const handleSyncNow = () => {

@@ -68,13 +68,19 @@ import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUiStore } from '../../stores/ui'
 import Sidebar from './Sidebar.vue'
+import { useAuthStore } from '@/stores/auth'
 
 const router = useRouter()
 const searchQuery = ref('')
 const uiStore = useUiStore()
+const authStore = useAuthStore()
 
 const logout = () => {
-  router.push('/')
+  authStore.logout()
+
+  router.replace('/')
+
+  window.location.reload()
 }
 
 const onAfterLeave = () => {

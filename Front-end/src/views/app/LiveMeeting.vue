@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col h-[calc(100vh-140px)] gap-6 text-brand-dark animate-fade-in">
+  <div class="flex flex-col h-[calc(100vh-140px)] gap-6 text-brand-dark animate-fade-in mt-8">
     <!-- Header Row -->
     <div class="flex items-center justify-between">
       <div class="flex items-center gap-4">
