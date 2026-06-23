@@ -10,8 +10,12 @@ const run = async () => {
   console.log(`Question: "${question}"\n---\n`);
 
   const results = await searchMeetings(question, "team1", 5);
-  const matches = results.documents?.[0] || [];
-  const metadatas = results.metadatas?.[0] || [];
+  const matches = results.matches 
+    ? results.matches.map(m => m.metadata?.text || "") 
+    : (results.documents?.[0] || []);
+  const metadatas = results.matches 
+    ? results.matches.map(m => m.metadata || {}) 
+    : (results.metadatas?.[0] || []);
 
   if (matches.length === 0) {
     console.log("No relevant meetings found.");
