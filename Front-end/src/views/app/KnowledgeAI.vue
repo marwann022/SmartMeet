@@ -304,18 +304,6 @@ const suggestedPrompts = [
     desc: "Database selection rationale",
     icon: PhBrain
   },
-  {
-    text: "Who is responsible for the dashboard redesign?",
-    query: "Who is responsible for the dashboard redesign?",
-    desc: "Task assignments from meetings",
-    icon: PhUser
-  },
-  {
-    text: "What API architecture was selected?",
-    query: "What API architecture was selected?",
-    desc: "REST vs GraphQL decision",
-    icon: PhCurrencyDollar
-  }
 ]
 
 const messages = ref([])
