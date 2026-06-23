@@ -187,34 +187,101 @@
 
       <!-- Pending Tasks Card -->
       <div class="card-glass rounded-[28px] p-[28px] flex flex-col text-left border border-white/85 shadow-glass">
-        <div class="flex justify-between items-center mb-[20px]">
+        <div class="flex justify-between items-center mb-[16px]">
           <h3 class="text-[18px] sm:text-[20px] font-bold font-header text-brand-dark">Pending Tasks</h3>
-          <span class="inline-block text-[9px] font-extrabold px-[8px] py-[2px] rounded-md self-start tracking-wider uppercase border bg-red-500/8 border-red-500/15 text-red-500">
-            {{ highPriorityTasksCount }} High
-          </span>
+        </div>
+
+        <!-- Overall Priority Stats Capsule Widget -->
+        <div class="flex items-center justify-between bg-white/70 backdrop-blur-md border border-black/5 rounded-[24px] p-4 shadow-sm mb-6 w-full text-center">
+          <div class="flex flex-col items-center flex-1 border-r border-black/5">
+            <span class="text-[9px] uppercase font-extrabold tracking-wider text-brand-slate font-header">Total Tasks</span>
+            <span class="text-[20px] font-header font-bold text-brand-dark leading-none mt-1.5">{{ taskStore.tasks.length }}</span>
+          </div>
+          <div class="flex flex-col items-center flex-1 border-r border-black/5">
+            <div class="flex items-center gap-1">
+              <span class="w-2 h-2 rounded-full bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.3)] animate-pulse"></span>
+              <span class="text-[9px] uppercase font-extrabold tracking-wider text-brand-slate font-header">High</span>
+            </div>
+            <span class="text-[20px] font-header font-bold text-brand-dark leading-none mt-1.5">{{ highPriorityCount }}</span>
+          </div>
+          <div class="flex flex-col items-center flex-1 border-r border-black/5">
+            <div class="flex items-center gap-1">
+              <span class="w-2 h-2 rounded-full bg-primary shadow-[0_0_8px_rgba(75,104,255,0.3)] animate-pulse"></span>
+              <span class="text-[9px] uppercase font-extrabold tracking-wider text-brand-slate font-header">Medium</span>
+            </div>
+            <span class="text-[20px] font-header font-bold text-brand-dark leading-none mt-1.5">{{ mediumPriorityCount }}</span>
+          </div>
+          <div class="flex flex-col items-center flex-1">
+            <div class="flex items-center gap-1">
+              <span class="w-2 h-2 rounded-full bg-purple-500 shadow-[0_0_8px_rgba(168,85,247,0.3)] animate-pulse"></span>
+              <span class="text-[9px] uppercase font-extrabold tracking-wider text-brand-slate font-header">Low</span>
+            </div>
+            <span class="text-[20px] font-header font-bold text-brand-dark leading-none mt-1.5">{{ lowPriorityCount }}</span>
+          </div>
         </div>
 
         <!-- Task checklist list -->
         <div class="flex flex-col gap-[12px]">
           <div 
-            v-for="task in filteredTasks.slice(0, 3)" 
+            v-for="task in filteredTasks.slice(0, 5)" 
             :key="task.id"
-            class="flex items-center gap-[14px] p-[14px] rounded-2xl bg-white/40 border border-black/[0.03] cursor-pointer transition-all duration-300 hover:bg-white/75 hover:border-black/8 hover:translate-x-[4px] select-none"
+            class="flex items-center justify-between p-[14px] gap-3 rounded-2xl bg-white/40 border border-black/[0.03] transition-all duration-300 hover:bg-white/75 hover:border-black/8 hover:translate-x-[4px] select-none"
             :class="{ 'bg-white/20 border-black/3 opacity-80': task.status === 'done' || task.done }"
-            @click="taskStore.toggleTask(task)"
           >
-            <div 
-              class="w-[20px] h-[20px] rounded-md border-2 border-brand-slate/40 flex items-center justify-center transition-all duration-300"
-              :class="task.status === 'done' || task.done ? 'border-primary bg-primary text-white' : ''"
-            >
-              <PhCheck v-if="task.status === 'done' || task.done" :size="14" weight="bold" class="text-white" />
+            <div class="flex items-center gap-[14px]">
+              <!-- Checkbox on the left -->
+              <button 
+                type="button"
+                class="w-5 h-5 flex items-center justify-center flex-shrink-0 rounded-full border-2 transition-all duration-300 focus:outline-none cursor-pointer"
+                :class="task.status === 'done' || task.done 
+                  ? 'border-emerald-500 bg-emerald-500 text-white cursor-not-allowed' 
+                  : 'border-brand-slate/40 hover:border-primary bg-transparent'"
+                @click.stop="markDone(task)"
+                :disabled="task.status === 'done' || task.done"
+                :title="task.status === 'done' || task.done ? 'Task completed' : 'Mark as Done'"
+              >
+                <PhCheck v-if="task.status === 'done' || task.done" :size="12" weight="bold" />
+              </button>
+              
+              <span 
+                class="text-[12px] font-semibold text-brand-dark transition-all duration-300 text-left"
+                :class="{ 'line-through text-brand-slate': task.status === 'done' || task.done }"
+              >
+                {{ task.title }}
+              </span>
             </div>
-            <span 
-              class="text-[12px] font-semibold text-brand-dark transition-all duration-300"
-              :class="{ 'line-through text-brand-slate': task.status === 'done' || task.done }"
-            >
-              {{ task.title }}
-            </span>
+
+            <!-- Status Tag + 2 arrows under it on the right -->
+            <div class="flex flex-col items-center gap-1.5 flex-shrink-0 min-w-[80px]">
+              <!-- Status Tag in one line -->
+              <span 
+                class="text-[9px] font-extrabold uppercase px-[8px] py-[2px] rounded-md tracking-wider border select-none transition-colors duration-300 block text-center min-w-[76px]"
+                :class="statusTagStyle(task.status)"
+              >
+                {{ formatStatusLabel(task.status) }}
+              </span>
+
+              <!-- Left and Right Arrows under it (hidden if task is done) -->
+              <div v-if="task.status !== 'done' && !task.done" class="flex items-center gap-2">
+                <button 
+                  type="button"
+                  @click.stop="moveStage(task, -1)"
+                  :disabled="task.status === 'todo'"
+                  class="w-5 h-5 rounded bg-black/5 hover:bg-primary/10 hover:text-primary flex items-center justify-center transition-all disabled:opacity-30 disabled:pointer-events-none cursor-pointer focus:outline-none"
+                  title="Move Left"
+                >
+                  <PhArrowLeft :size="10" weight="bold" />
+                </button>
+                <button 
+                  type="button"
+                  @click.stop="moveStage(task, 1)"
+                  class="w-5 h-5 rounded bg-black/5 hover:bg-primary/10 hover:text-primary flex items-center justify-center transition-all cursor-pointer focus:outline-none"
+                  title="Move Right"
+                >
+                  <PhArrowRight :size="10" weight="bold" />
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -226,7 +293,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { PhClock, PhSparkle, PhCheck } from '@phosphor-icons/vue'
+import { PhClock, PhSparkle, PhCheck, PhArrowLeft, PhArrowRight } from '@phosphor-icons/vue'
 import { useMeetingStore } from '../../stores/meeting'
 import { useTaskStore } from '../../stores/task'
 import MeetingCard from './MeetingCard.vue'
@@ -287,16 +354,72 @@ const filteredUpcomingMeetings = computed(() => {
   return list.filter(m => m.title.toLowerCase().includes(q))
 })
 
+const getPriorityWeight = (priority) => {
+  const p = (priority || '').toLowerCase()
+  if (p.includes('high')) return 3
+  if (p.includes('medium') || p.includes('med')) return 2
+  if (p.includes('low')) return 1
+  return 0
+}
+
 const filteredTasks = computed(() => {
-  const list = taskStore.tasks
-  if (!localSearchQuery.value) return list
-  const q = localSearchQuery.value.toLowerCase()
-  return list.filter(t => t.title.toLowerCase().includes(q) || (t.description && t.description.toLowerCase().includes(q)))
+  let list = taskStore.tasks
+  if (localSearchQuery.value) {
+    const q = localSearchQuery.value.toLowerCase()
+    list = list.filter(t => t.title.toLowerCase().includes(q) || (t.description && t.description.toLowerCase().includes(q)))
+  }
+  return [...list].sort((a, b) => getPriorityWeight(b.priority) - getPriorityWeight(a.priority))
 })
 
-const highPriorityTasksCount = computed(() => {
-  return taskStore.tasks.filter(t => t.priority.toLowerCase().includes('high') && t.status !== 'done' && !t.done).length
+const highPriorityCount = computed(() => {
+  return taskStore.tasks.filter(t => t.priority.toLowerCase().includes('high')).length
 })
+
+const mediumPriorityCount = computed(() => {
+  return taskStore.tasks.filter(t => t.priority.toLowerCase().includes('medium') || t.priority.toLowerCase().includes('med')).length
+})
+
+const lowPriorityCount = computed(() => {
+  return taskStore.tasks.filter(t => t.priority.toLowerCase().includes('low')).length
+})
+
+const markDone = (task) => {
+  if (task.status === 'done' || task.done) return
+  taskStore.setTaskStatus(task.id || task._id, 'done')
+  task.status = 'done'
+  task.done = true
+}
+
+const moveStage = (task, direction) => {
+  if (task.status === 'done' || task.done) return
+  
+  const statusOrder = ['todo', 'inprogress', 'review', 'done']
+  const currentIndex = statusOrder.indexOf(task.status || 'todo')
+  const nextIndex = currentIndex + direction
+  
+  if (nextIndex >= 0 && nextIndex < statusOrder.length) {
+    const nextStatus = statusOrder[nextIndex]
+    taskStore.setTaskStatus(task.id || task._id, nextStatus)
+    task.status = nextStatus
+    task.done = nextStatus === 'done'
+  }
+}
+
+const statusTagStyle = (status) => {
+  if (status === 'todo') return 'bg-primary/8 border-primary/15 text-primary'
+  if (status === 'inprogress') return 'bg-amber-500/8 border-amber-500/15 text-amber-600'
+  if (status === 'review') return 'bg-red-500/8 border-red-500/15 text-red-500'
+  if (status === 'done') return 'bg-emerald-500/8 border-emerald-500/15 text-emerald-600'
+  return 'bg-brand-slate/8 border-brand-slate/15 text-brand-slate'
+}
+
+const formatStatusLabel = (status) => {
+  if (status === 'todo') return 'To Do'
+  if (status === 'inprogress') return 'In Progress'
+  if (status === 'review') return 'Review'
+  if (status === 'done') return 'Done'
+  return status
+}
 
 // Productivity Chart State
 const activeChartPeriod = ref('week')

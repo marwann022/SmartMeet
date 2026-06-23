@@ -257,6 +257,23 @@
         </div>
       </template>
     </div>
+    <!-- Reusable Modal for Logout Confirmation -->
+    <Modal :show="showLogoutModal" title="Confirm Log Out" @close="showLogoutModal = false" maxWidth="sm">
+      <div class="flex flex-col gap-4 text-left">
+        <p class="text-brand-slate text-sm font-body">
+          Are you sure you want to log out of your SmartMeet account? Any unsaved changes may be lost.
+        </p>
+        
+        <div class="flex gap-3 pt-2">
+          <Button variant="danger" class="flex-1" @click="confirmLogout">
+            Log Out
+          </Button>
+          <Button variant="outline" class="flex-1" @click="showLogoutModal = false">
+            Cancel
+          </Button>
+        </div>
+      </div>
+    </Modal>
   </header>
 </template>
 
@@ -265,6 +282,8 @@ import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { PhBell, PhUser, PhGear, PhSignOut, PhTrash } from '@phosphor-icons/vue'
 import { useAuthStore } from '@/stores/auth'
+import Modal from '@/components/ui/Modal.vue'
+import Button from '@/components/ui/Button.vue'
 
 const router = useRouter()
 const authStore = useAuthStore()
@@ -276,6 +295,8 @@ const authenticated = computed(() =>
 const user = computed(() =>
   authStore.user
 )
+
+const showLogoutModal = ref(false)
 
 // UI Open/Close States
 const isNotificationsOpen = ref(false)
@@ -316,12 +337,14 @@ const clearAll = () => {
 }
 
 const handleLogout = () => {
+  showLogoutModal.value = true
+}
+
+const confirmLogout = () => {
   authStore.logout()
-
+  showLogoutModal.value = false
   isProfileOpen.value = false
-
   router.replace("/")
-
   window.location.reload()
 }
 

@@ -6,10 +6,11 @@
     <!-- MAIN SCROLLABLE CONTENT AREA -->
     <!-- Main content: offset by 260px desktop sidebar, 76px compact sidebar (always visible below 850px) -->
     <main 
-      class="flex-1 mt-[80px] min-h-[calc(100vh-80px)] px-[32px] sm:px-[48px] pb-[16px] bg-brand-bg relative overflow-y-auto flex flex-col justify-between transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)]"
+      class="flex-1 mt-[80px] bg-brand-bg relative flex flex-col justify-between transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)]"
       :class="[
         uiStore.sidebarOpen ? 'ml-[260px] w-[calc(100%-260px)]' : 'ml-0 w-full',
-        'compact:ml-[76px] compact:w-[calc(100%-76px)]'
+        'compact:ml-[76px] compact:w-[calc(100%-76px)]',
+        $route.path === '/knowledge-ai' ? 'overflow-y-hidden h-[calc(100vh-80px)] pb-0 px-[32px] sm:px-[48px]' : 'overflow-y-auto min-h-[calc(100vh-80px)] px-[32px] sm:px-[48px] pb-[16px]'
       ]"
     >
       <!-- TOP INNER HEADER NAVIGATION -->
@@ -51,7 +52,7 @@
       </div>
 
       <!-- Shared App Footer -->
-      <footer class="flex justify-between items-center text-[9px] font-bold text-brand-slate tracking-wide uppercase mt-[48px] pt-[16px] pb-[4px] border-t border-black/5 flex-shrink-0 w-full">
+      <footer v-if="$route.path !== '/knowledge-ai'" class="flex justify-between items-center text-[9px] font-bold text-brand-slate tracking-wide uppercase mt-[48px] pt-[16px] pb-[4px] border-t border-black/5 flex-shrink-0 w-full">
         <span>© 2026 SmartMeet AI Inc. All rights reserved.</span>
         <div class="flex gap-[24px]">
           <a href="#" class="hover:text-primary transition-colors" @click.prevent>Terms of Service</a>
@@ -60,6 +61,24 @@
         </div>
       </footer>
     </main>
+    
+    <!-- Reusable Modal for Logout Confirmation -->
+    <Modal :show="showLogoutModal" title="Confirm Log Out" @close="showLogoutModal = false" maxWidth="sm">
+      <div class="flex flex-col gap-4 text-left">
+        <p class="text-brand-slate text-sm font-body">
+          Are you sure you want to log out of your SmartMeet account? Any unsaved changes may be lost.
+        </p>
+        
+        <div class="flex gap-3 pt-2">
+          <Button variant="danger" class="flex-1" @click="confirmLogout">
+            Log Out
+          </Button>
+          <Button variant="outline" class="flex-1" @click="showLogoutModal = false">
+            Cancel
+          </Button>
+        </div>
+      </div>
+    </Modal>
   </div>
 </template>
 
@@ -69,17 +88,24 @@ import { useRouter } from 'vue-router'
 import { useUiStore } from '../../stores/ui'
 import Sidebar from './Sidebar.vue'
 import { useAuthStore } from '@/stores/auth'
+import Modal from '@/components/ui/Modal.vue'
+import Button from '@/components/ui/Button.vue'
 
 const router = useRouter()
 const searchQuery = ref('')
 const uiStore = useUiStore()
 const authStore = useAuthStore()
 
+const showLogoutModal = ref(false)
+
 const logout = () => {
+  showLogoutModal.value = true
+}
+
+const confirmLogout = () => {
   authStore.logout()
-
+  showLogoutModal.value = false
   router.replace('/')
-
   window.location.reload()
 }
 

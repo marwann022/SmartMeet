@@ -24,6 +24,35 @@
       </div>
     </div>
 
+    <!-- Overall Priority Stats Widget -->
+    <div class="flex items-center bg-white/70 backdrop-blur-md border border-black/5 rounded-[28px] p-5 py-4 shadow-sm w-fit mr-auto -mt-6">
+      <div class="flex flex-col items-center px-6 border-r border-black/5">
+        <span class="text-[10px] uppercase font-extrabold tracking-wider text-brand-slate font-header">Total Tasks</span>
+        <span class="text-[26px] font-header font-bold text-brand-dark leading-none mt-2">{{ taskStore.tasks.length }}</span>
+      </div>
+      <div class="flex flex-col items-center px-6 border-r border-black/5">
+        <div class="flex items-center gap-1.5">
+          <span class="w-2 h-2 rounded-full bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.4)]"></span>
+          <span class="text-[10px] uppercase font-extrabold tracking-wider text-brand-slate font-header">High</span>
+        </div>
+        <span class="text-[26px] font-header font-bold text-brand-dark leading-none mt-2">{{ highTasksCount }}</span>
+      </div>
+      <div class="flex flex-col items-center px-6 border-r border-black/5">
+        <div class="flex items-center gap-1.5">
+          <span class="w-2 h-2 rounded-full bg-primary shadow-[0_0_8px_rgba(75,104,255,0.4)]"></span>
+          <span class="text-[10px] uppercase font-extrabold tracking-wider text-brand-slate font-header">Medium</span>
+        </div>
+        <span class="text-[26px] font-header font-bold text-brand-dark leading-none mt-2">{{ mediumTasksCount }}</span>
+      </div>
+      <div class="flex flex-col items-center px-6">
+        <div class="flex items-center gap-1.5">
+          <span class="w-2 h-2 rounded-full bg-purple-500 shadow-[0_0_8px_rgba(168,85,247,0.4)]"></span>
+          <span class="text-[10px] uppercase font-extrabold tracking-wider text-brand-slate font-header">Low</span>
+        </div>
+        <span class="text-[26px] font-header font-bold text-brand-dark leading-none mt-2">{{ lowTasksCount }}</span>
+      </div>
+    </div>
+
     <!-- Kanban Grid: 4 columns -->
     <div class="flex flex-col gap-6">
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 items-start">
@@ -86,11 +115,19 @@
     </div>
 
     <!-- Reusable Modal for Task Detail -->
-    <Modal :show="!!selectedTask" :title="selectedTask?.title" @close="selectedTask = null" maxWidth="lg">
+    <Modal :show="!!selectedTask" title="" :theme="selectedTask?.status" @close="selectedTask = null" maxWidth="lg">
       <div v-if="selectedTask" class="flex flex-col gap-4 text-left">
+        <!-- Title -->
+        <h3 
+          class="font-header font-bold text-xl text-brand-dark leading-snug"
+          :class="selectedTask.status === 'done' || selectedTask.done ? 'line-through text-brand-slate opacity-70' : ''"
+        >
+          {{ selectedTask.title }}
+        </h3>
+
         <div class="flex items-center gap-2.5">
           <Badge :type="badgeType(selectedTask)">
-            {{ selectedTask.priority }}
+            {{ formatPriority(selectedTask.priority) }}
           </Badge>
           <span class="text-[10px] text-brand-slate font-body">· {{ selectedTask.source }}</span>
         </div>
@@ -107,6 +144,24 @@
           <div class="flex items-center gap-1.5 text-[#5c5e65] font-header font-bold text-xs">
             <PhCalendarBlank :size="14" weight="bold" />
             {{ selectedTask.due }}
+          </div>
+        </div>
+
+        <!-- Interactive Stage Switcher in Modal -->
+        <div class="flex flex-col gap-2 border-t border-black/5 pt-4">
+          <label class="text-[10px] font-extrabold uppercase tracking-wider text-brand-slate pl-1 font-header">Move Stage</label>
+          <div class="grid grid-cols-4 gap-2">
+            <button 
+              v-for="opt in statusOptions"
+              :key="opt.value"
+              @click="taskStore.setTaskStatus(selectedTask.id, opt.value); selectedTask.status = opt.value"
+              class="py-2 px-2 rounded-xl border font-bold text-xs transition-all duration-300 text-center cursor-pointer font-header"
+              :class="selectedTask.status === opt.value
+                ? 'bg-primary text-white border-transparent shadow-[0_4px_12px_rgba(75,104,255,0.25)]'
+                : 'bg-white/50 border-black/5 hover:bg-white hover:border-black/10 text-brand-dark'"
+            >
+              {{ opt.label }}
+            </button>
           </div>
         </div>
         
@@ -209,11 +264,34 @@ const columns = [
   { id: 'done', label: 'Done', icon: PhCheckCircle }
 ]
 
+const getPriorityWeight = (priority) => {
+  const p = (priority || '').toLowerCase()
+  if (p.includes('high')) return 3
+  if (p.includes('medium') || p.includes('med')) return 2
+  if (p.includes('low')) return 1
+  return 0
+}
+
 const tasksByStatus = (status) => {
-  const list = taskStore.tasks.filter(t => t.status === status)
-  if (!localSearchQuery.value) return list
-  const q = localSearchQuery.value.toLowerCase()
-  return list.filter(t => t.title.toLowerCase().includes(q) || (t.description && t.description.toLowerCase().includes(q)))
+  let list = taskStore.tasks.filter(t => t.status === status)
+  if (localSearchQuery.value) {
+    const q = localSearchQuery.value.toLowerCase()
+    list = list.filter(t => t.title.toLowerCase().includes(q) || (t.description && t.description.toLowerCase().includes(q)))
+  }
+  return [...list].sort((a, b) => getPriorityWeight(b.priority) - getPriorityWeight(a.priority))
+}
+
+const highTasksCount = computed(() => taskStore.tasks.filter(t => (t.priority || '').toLowerCase().includes('high')).length)
+const mediumTasksCount = computed(() => taskStore.tasks.filter(t => (t.priority || '').toLowerCase().includes('medium') || (t.priority || '').toLowerCase().includes('med')).length)
+const lowTasksCount = computed(() => taskStore.tasks.filter(t => (t.priority || '').toLowerCase().includes('low')).length)
+
+const formatPriority = (p) => {
+  if (!p) return ''
+  const lower = p.toLowerCase()
+  if (lower.includes('high')) return 'High'
+  if (lower.includes('medium') || lower.includes('med')) return 'Medium'
+  if (lower.includes('low')) return 'Low'
+  return p
 }
 
 const badgeType = (task) => {

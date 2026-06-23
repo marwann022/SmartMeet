@@ -9,7 +9,7 @@
     <!-- Top row: priority badge + action buttons / done check icon -->
     <div class="flex items-start justify-between">
       <Badge :type="badgeType">
-        {{ task.priority }}
+        {{ formattedPriority }}
       </Badge>
       
       <!-- Right side actions container -->
@@ -53,7 +53,7 @@
     </div>
 
     <!-- Title -->
-    <div class="h-11 flex items-center">
+    <div class="min-h-[44px] flex items-center py-1">
       <p 
         class="font-header font-normal text-lg leading-snug"
         :class="task.status === 'done' || task.done ? 'line-through text-brand-slate opacity-70' : task.priority.toLowerCase().includes('high') ? 'text-[#0b0f19]' : 'text-[#3c3f47]'"
@@ -122,6 +122,15 @@ const isOverdue = computed(() => {
   const todayStr = `${yyyy}-${mm}-${dd}`
   
   return props.task.dueDate < todayStr
+})
+
+const formattedPriority = computed(() => {
+  const p = props.task.priority || ''
+  const lower = p.toLowerCase()
+  if (lower.includes('high')) return 'High'
+  if (lower.includes('medium') || lower.includes('med')) return 'Medium'
+  if (lower.includes('low')) return 'Low'
+  return p
 })
 
 
