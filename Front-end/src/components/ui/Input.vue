@@ -4,7 +4,7 @@
       {{ label }}
     </label>
     <div class="relative w-full group">
-      <div v-if="$slots.icon" class="absolute left-3.5 top-1/2 -translate-y-1/2 text-brand-slate group-focus-within:text-primary transition-colors duration-200">
+      <div v-if="$slots.icon" class="absolute left-3.5 top-1/2 -translate-y-1/2 text-brand-slate transition-colors duration-200" :class="[error ? 'text-red-500' : 'group-focus-within:text-primary']">
         <slot name="icon"></slot>
       </div>
       <input
@@ -13,11 +13,14 @@
         v-bind="$attrs"
         :class="[
           'w-full py-3 rounded-xl bg-white border font-body text-sm text-brand-dark placeholder-brand-slate/40 focus:outline-none transition-all duration-300',
-          themeFocusClasses[theme] || themeFocusClasses.primary,
+          error ? 'border-red-500 focus:border-red-500 focus:shadow-[0_0_0_3px_rgba(239,68,68,0.08)]' : (themeFocusClasses[theme] || themeFocusClasses.primary),
           $slots.icon ? 'pl-10 pr-4' : 'px-4'
         ]"
       />
     </div>
+    <span v-if="error" class="text-[11px] text-red-500 font-semibold pl-1 animate-fadeIn">
+      {{ error }}
+    </span>
   </div>
 </template>
 
@@ -34,6 +37,10 @@ defineProps({
   theme: {
     type: String,
     default: 'primary'
+  },
+  error: {
+    type: String,
+    default: ''
   }
 })
 

@@ -2,6 +2,18 @@ import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
 
 const userSchema = new mongoose.Schema({
+    name: {
+        type: String,
+        required: [true, "Full Name is required."],
+        trim: true,
+        minlength: [3, "Name must be at least 3 characters."],
+        validate: {
+            validator: function(v) {
+                return /^[a-zA-Z\s'\-]+$/.test(v);
+            },
+            message: "Name can only contain letters."
+        }
+    },
     firstName: {
         type: String,
         required: [true, "Please Enter Your First Name"],
@@ -10,19 +22,21 @@ const userSchema = new mongoose.Schema({
     },
     lastName: {
         type: String,
-        required: [true, "Please Enter Your Last Name"],
         trim: true,
         maxlength: [20, "Last Name cannot exceed 20 characters"],
     },
     email: {
         type: String,
-        required: [true, "Please Enter Your Email"],
+        required: [true, "Email address is required."],
         unique: true,
         lowercase: true,
-        match: [
-            /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-            "Please enter a valid email"
-        ]
+        trim: true,
+        validate: {
+            validator: function(v) {
+                return /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(v);
+            },
+            message: "Please enter a valid email address."
+        }
     },
     password: {
         type: String,
@@ -30,7 +44,7 @@ const userSchema = new mongoose.Schema({
             function() {
                 return !this.googleId;
             },
-            "Please Enter Your Password"
+            "Password is required"
         ],
         minlength: [8, "Password should be greater than 8 characters"],
         select: false,

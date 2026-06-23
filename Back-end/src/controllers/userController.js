@@ -11,30 +11,104 @@ const googleClient = new OAuth2Client();
 // ---------------- Register ----------------
 export const register = async(req, res) => {
     try {
-        const { firstName, lastName, email, password } = req.body;
+        const { name, email, password, confirmPassword } = req.body;
 
-        // Validation
-        if (!firstName || !lastName || !email || !password) {
+        // 1. Plain-Text Checks
+        // Full Name Validation
+        if (!name || name.trim() === '') {
             return res.status(400).json({
                 success: false,
-                message: "Please fill all fields",
+                message: "Full Name is required.",
+            });
+        }
+        if (!/^[a-zA-Z\s'\-]+$/.test(name)) {
+            return res.status(400).json({
+                success: false,
+                message: "Name can only contain letters.",
+            });
+        }
+        if (name.trim().length < 3) {
+            return res.status(400).json({
+                success: false,
+                message: "Name must be at least 3 characters.",
             });
         }
 
-        // Check if email already exists
+        // Email Validation
+        if (!email || email.trim() === '') {
+            return res.status(400).json({
+                success: false,
+                message: "Email address is required.",
+            });
+        }
+        if (!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email)) {
+            return res.status(400).json({
+                success: false,
+                message: "Please enter a valid email address.",
+            });
+        }
+
+        // Password Validation
+        if (!password) {
+            return res.status(400).json({
+                success: false,
+                message: "Password is required.",
+            });
+        }
+        if (password.length < 3) {
+            return res.status(400).json({
+                success: false,
+                message: "Password must be at least 3 characters.",
+            });
+        }
+
+        // Password checklist strength requirements
+        const hasLowercase = /[a-z]/.test(password);
+        const hasUppercase = /[A-Z]/.test(password);
+        const hasNumber = /[0-9]/.test(password);
+        const hasSpecial = /[^a-zA-Z0-9]/.test(password);
+        const min8 = password.length >= 8;
+
+        if (!hasLowercase || !hasUppercase || !hasNumber || !hasSpecial || !min8) {
+            return res.status(400).json({
+                success: false,
+                message: "Password does not meet all requirements.",
+            });
+        }
+
+        // Confirm Password Validation
+        if (!confirmPassword) {
+            return res.status(400).json({
+                success: false,
+                message: "Please confirm your password.",
+            });
+        }
+        if (password !== confirmPassword) {
+            return res.status(400).json({
+                success: false,
+                message: "Passwords do not match.",
+            });
+        }
+
+        // 2. Duplicate Check
         const existingUser = await User.findOne({
             email: email.toLowerCase(),
         });
 
         if (existingUser) {
-            return res.status(400).json({
+            return res.status(409).json({
                 success: false,
-                message: "Email already exists",
+                message: "Email address already registered.",
             });
         }
 
-        // Create user
+        // 4. Persist
+        const names = name.trim().split(/\s+/);
+        const firstName = names[0];
+        const lastName = names.slice(1).join(" ") || "";
+
         const user = await User.create({
+            name: name.trim(),
             firstName,
             lastName,
             email,
@@ -65,35 +139,45 @@ export const login = async(req, res) => {
         const { email, password } = req.body;
 
         // Validation
-        if (!email || !password) {
+        if (!email || email.trim() === '') {
             return res.status(400).json({
                 success: false,
-                message: "Please provide email and password",
+                message: "Email Address is required.",
+            });
+        }
+        if (!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email)) {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid email format",
+            });
+        }
+        if (!password) {
+            return res.status(400).json({
+                success: false,
+                message: "Password is required",
             });
         }
 
-        // Find user
+        // 1. Lookup
         const user = await User.findOne({
             email: email.toLowerCase(),
         }).select("+password");
 
-
-
         // User not found
         if (!user) {
-            return res.status(401).json({
+            return res.status(404).json({
                 success: false,
-                message: "Invalid Email or Password",
+                message: "Email not found. Please sign up first.",
             });
         }
 
-        // Compare passwords
+        // 2. Verification
         const isMatch = await user.matchPassword(password);
 
         if (!isMatch) {
             return res.status(401).json({
                 success: false,
-                message: "Invalid Email or Password",
+                message: "Incorrect password",
             });
         }
 
@@ -160,6 +244,10 @@ export const googleLogin = async (req, res) => {
             if (!user.googleId) {
                 user.googleId = googleId;
             }
+            // Ensure they have name set if missing
+            if (!user.name) {
+                user.name = `${user.firstName || firstName} ${user.lastName || lastName}`.trim();
+            }
             // Update avatar if they don't have one
             if (!user.avatar && avatar) {
                 user.avatar = avatar;
@@ -168,7 +256,9 @@ export const googleLogin = async (req, res) => {
             await user.save();
         } else {
             // Create user
+            const fullName = `${firstName || "Google"} ${lastName || "User"}`.trim();
             user = await User.create({
+                name: fullName,
                 firstName: firstName || "Google",
                 lastName: lastName || "User",
                 email: email.toLowerCase(),
