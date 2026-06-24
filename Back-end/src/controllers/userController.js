@@ -204,7 +204,7 @@ export const login = async(req, res) => {
 };
 
 // ---------------- Google Login ----------------
-export const googleLogin = async (req, res) => {
+export const googleLogin = async(req, res) => {
     try {
         const { token } = req.body;
 
@@ -424,10 +424,18 @@ export const resetPassword = async(req, res) => {
         }
 
         user.password = password;
+
         user.resetPasswordToken = null;
+
         user.resetPasswordExpire = null;
 
         await user.save();
+
+        res.status(200).json({
+            success: true,
+            message: "Password reset successfully"
+        });
+
 
         res.status(200).json({
             success: true,
@@ -442,8 +450,7 @@ export const resetPassword = async(req, res) => {
         });
 
     }
-};
-
+}
 
 
 
@@ -516,6 +523,106 @@ export const updateProfile = async(req, res) => {
         });
     }
 };
+
+//--------------------------chnge password--------------------
+export const changePassword = async(
+    req,
+    res
+) => {
+    try {
+
+        const {
+            currentPassword,
+            newPassword
+        } = req.body;
+
+        if (!currentPassword ||
+            !newPassword
+        ) {
+            return res.status(400).json({
+                success: false,
+                message: "Current password and new password are required"
+            });
+        }
+
+        // Password checklist strength requirements
+        const hasLowercase = /[a-z]/.test(newPassword);
+        const hasUppercase = /[A-Z]/.test(newPassword);
+        const hasNumber = /[0-9]/.test(newPassword);
+        const hasSpecial = /[^a-zA-Z0-9]/.test(newPassword);
+        const min8 = newPassword.length >= 8;
+
+        if (!hasLowercase ||
+            !hasUppercase ||
+            !hasNumber ||
+            !hasSpecial ||
+            !min8
+        ) {
+            return res.status(400).json({
+                success: false,
+                message: "Password does not meet all requirements."
+            });
+        }
+
+        if (currentPassword === newPassword) {
+            return res.status(400).json({
+                success: false,
+                message: "New password must be different from current password"
+            });
+        }
+
+        const user =
+            await User.findById(
+                req.user.id
+            ).select("+password");
+
+        if (!user.password) {
+            return res.status(400).json({
+                success: false,
+                message: "This account uses Google Sign In"
+            });
+        }
+
+        const isMatch =
+            await user.matchPassword(
+                currentPassword
+            );
+
+        if (!user.password) {
+            return res.status(400).json({
+                success: false,
+                message: "This account uses Google Sign In"
+            });
+        }
+
+        if (!isMatch) {
+            return res.status(400).json({
+                success: false,
+                message: "Current password is incorrect"
+            });
+        }
+
+        user.password =
+            newPassword;
+
+        await user.save();
+
+        res.status(200).json({
+            success: true,
+            message: "Password updated successfully"
+        });
+
+    } catch (error) {
+
+        res.status(500).json({
+            success: false,
+            message: error.message
+        });
+
+    }
+};
+
+
 
 //---------------------upload avatar----------------------
 export const uploadAvatar = async(

@@ -34,6 +34,27 @@
         @toggle="visible.new = !visible.new"
         @blur="touchField('newPassword')"
       />
+      <div class="text-xs space-y-1 text-brand-slate">
+  <p :class="/[a-z]/.test(form.newPassword) ? 'text-green-600' : ''">
+    ✓ Lowercase letter
+  </p>
+
+  <p :class="/[A-Z]/.test(form.newPassword) ? 'text-green-600' : ''">
+    ✓ Uppercase letter
+  </p>
+
+  <p :class="/[0-9]/.test(form.newPassword) ? 'text-green-600' : ''">
+    ✓ Number
+  </p>
+
+  <p :class="/[^a-zA-Z0-9]/.test(form.newPassword) ? 'text-green-600' : ''">
+    ✓ Special character
+  </p>
+
+  <p :class="form.newPassword.length >= 8 ? 'text-green-600' : ''">
+    ✓ 8+ characters
+  </p>
+</div>
 
       <PasswordField
         v-model="form.confirmPassword"
@@ -70,8 +91,8 @@
 import { computed, defineComponent, h, reactive, ref, watch } from 'vue'
 import { PhEye, PhEyeSlash, PhShieldCheck } from '@phosphor-icons/vue'
 import Modal from '../ui/Modal.vue'
-import { usePasswordStorage } from '../../composables/usePasswordStorage'
 import { useToasts } from '../../composables/useToasts'
+import axios from "axios"
 
 const props = defineProps({
   show: {
@@ -82,7 +103,6 @@ const props = defineProps({
 
 const emit = defineEmits(['close', 'updated'])
 
-const { setPassword, matchesPassword, hasPassword } = usePasswordStorage()
 const { success, error, info } = useToasts()
 
 const form = reactive({
@@ -123,9 +143,7 @@ const resetForm = () => {
 watch(
   () => props.show,
   (isShown) => {
-    if (isShown) {
-      info('Passwords are saved locally for this frontend demo under smartmeet_user_password.')
-    } else {
+    if (!isShown) {
       resetForm()
     }
   }
@@ -133,15 +151,22 @@ watch(
 
 const validation = computed(() => ({
   currentPassword: !form.currentPassword
-    ? 'Current password is required.'
-    : hasPassword() && !matchesPassword(form.currentPassword)
-      ? 'Current password does not match the saved SmartMeet password.'
-      : '',
+  ? 'Current password is required.'
+  : '',
   newPassword: !form.newPassword
-    ? 'New password is required.'
-    : form.newPassword.length < 8
-      ? 'New password must be at least 8 characters.'
-      : '',
+  ? 'New password is required.'
+  : !/[a-z]/.test(form.newPassword)
+    ? 'Must contain a lowercase letter.'
+    : !/[A-Z]/.test(form.newPassword)
+      ? 'Must contain an uppercase letter.'
+      : !/[0-9]/.test(form.newPassword)
+        ? 'Must contain a number.'
+        : !/[^a-zA-Z0-9]/.test(form.newPassword)
+          ? 'Must contain a special character.'
+          : form.newPassword.length < 8
+            ? 'Password must be at least 8 characters.'
+            : '',
+
   confirmPassword: !form.confirmPassword
     ? 'Please confirm the new password.'
     : form.confirmPassword !== form.newPassword
@@ -164,25 +189,68 @@ const handleClose = () => {
   if (!isSaving.value) emit('close')
 }
 
-const submitPassword = () => {
-  submitted.value = true
+const submitPassword = async () => {
+
+  submitted.value = true;
 
   if (!canSubmit.value) {
-    const message = validation.value.confirmPassword || validation.value.currentPassword || 'Validation failed.'
-    error(message)
-    return
+
+    const message =
+      validation.value.confirmPassword ||
+      validation.value.currentPassword ||
+      validation.value.newPassword ||
+      "Validation failed";
+
+    error(message);
+
+    return;
   }
 
-  isSaving.value = true
+  try {
 
-  window.setTimeout(() => {
-    setPassword(form.newPassword)
-    success('Password updated successfully.')
-    emit('updated')
-    emit('close')
-    isSaving.value = false
-  }, 650)
-}
+    isSaving.value = true;
+
+    const token =
+      localStorage.getItem("token");
+
+    await axios.put(
+      "http://localhost:5000/api/users/change-password",
+      {
+        currentPassword:
+          form.currentPassword,
+
+        newPassword:
+          form.newPassword
+      },
+      {
+        headers: {
+          Authorization:
+            `Bearer ${token}`
+        }
+      }
+    );
+
+    success(
+      "Password updated successfully"
+    );
+
+    emit("updated");
+
+    emit("close");
+
+  } catch (err) {
+
+    error(
+      err.response?.data?.message ||
+      "Failed to update password"
+    );
+
+  } finally {
+
+    isSaving.value = false;
+
+  }
+};
 
 const PasswordField = defineComponent({
   props: {

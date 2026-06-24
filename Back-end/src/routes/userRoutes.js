@@ -2,14 +2,15 @@ import express from "express";
 import { protect } from "../middleware/authMiddleware.js";
 
 import {
-    register,
     login,
-    googleLogin,
-    forgotPassword,
-    resetPassword,
+    register,
     getProfile,
     updateProfile,
-    uploadAvatar
+    changePassword,
+    forgotPassword,
+    resetPassword,
+    uploadAvatar,
+    googleLogin
 } from "../controllers/userController.js";
 
 import upload from "../middleware/uploadMiddleware.js";
@@ -40,6 +41,12 @@ router.put(
     "/profile",
     protect,
     updateProfile
+);
+
+router.put(
+    "/change-password",
+    protect,
+    changePassword
 );
 
 router.post(
