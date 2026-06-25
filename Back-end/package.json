@@ -29,7 +29,8 @@
         "nodemailer": "^9.0.1",
         "openai": "^6.44.0",
         "qrcode": "^1.5.4",
-        "speakeasy": "^2.0.0"
+        "speakeasy": "^2.0.0",
+        "ua-parser-js": "^2.0.10"
     },
     "devDependencies": {
         "nodemon": "^3.1.14"

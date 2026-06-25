@@ -9,6 +9,9 @@ import { OAuth2Client } from "google-auth-library";
 import speakeasy from "speakeasy";
 import QRCode from "qrcode";
 
+import Session from "../models/Session.js";
+import { UAParser } from "ua-parser-js";
+
 const googleClient = new OAuth2Client();
 
 // ---------------- Register ----------------
@@ -188,17 +191,104 @@ export const login = async(req, res) => {
         user.lastLogin = new Date();
         await user.save();
 
+        const parser = new UAParser(req.headers["user-agent"]);
+
+        const deviceInfo = parser.getResult();
+        console.log(deviceInfo);
+
         // Generate JWT
         const token = generateToken(user._id);
+
+        console.log("Creating session...");
+        // await Session.create({
+        //     user: user._id,
+
+        //     refreshToken: token,
+
+        //     browser: deviceInfo.browser.name || "Unknown",
+
+        //     browserVersion: deviceInfo.browser.version || "",
+
+        //     os: deviceInfo.os.name || "Unknown",
+
+        //     osVersion: deviceInfo.os.version || "",
+
+        //     device: deviceInfo.device.model || "Desktop",
+
+        //     deviceType: deviceInfo.device.type || "desktop",
+
+        //     ip: req.ip,
+
+        //     lastActive: new Date()
+        // });
+        console.log("Before Session.create");
+
+        let session;
+
+        try {
+
+            const session = await Session.create({
+
+                user: user._id,
+
+                refreshToken: token,
+
+                browser: deviceInfo.browser.name || "Unknown",
+
+                browserVersion: deviceInfo.browser.version || "",
+
+                os: deviceInfo.os.name || "Unknown",
+
+                osVersion: deviceInfo.os.version || "",
+
+                device: deviceInfo.device.model || "Desktop",
+
+                deviceType: deviceInfo.device.type || "desktop",
+
+                ip: req.ip,
+
+                lastActive: new Date()
+
+            });
+
+            console.log("Session Saved Successfully");
+
+            console.log(session);
+            const count = await Session.countDocuments();
+
+            console.log("Total Sessions:", count);
+
+            const sessions = await Session.find();
+
+            console.log("All Sessions:");
+
+            console.log(sessions);
+
+        } catch (err) {
+
+            console.error("SESSION CREATE ERROR:");
+
+            console.error(err);
+
+        }
+
+
+
+        console.log("Session created successfully");
 
         res.status(200).json({
             success: true,
             message: "Login Successful",
             token,
+            sessionId: session ? session._id : null,
             user: user.getPublicProfile(),
         });
 
     } catch (error) {
+
+        console.error("LOGIN ERROR:");
+        console.error(error);
+
         res.status(500).json({
             success: false,
             message: error.message,
@@ -762,6 +852,38 @@ export const disableTwoFactor = async(req, res) => {
         res.status(200).json({
             success: true,
             message: "2FA disabled"
+        });
+
+    } catch (error) {
+
+        res.status(500).json({
+            success: false,
+            message: error.message
+        });
+
+    }
+
+};
+
+//----------------sessions--------------------------
+export const getUserSessions = async(req, res) => {
+
+    try {
+
+        console.log("REQ USER:");
+
+        console.log(req.user);
+
+        const sessions = await Session.find({
+                user: req.user._id
+            })
+            .sort({
+                createdAt: -1
+            });
+
+        res.status(200).json({
+            success: true,
+            sessions
         });
 
     } catch (error) {

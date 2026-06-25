@@ -192,8 +192,11 @@ onMounted(async () => {
           avatar: data.user.avatar,
         };
 
-        authStore.login(userData, data.token);
-        router.push("/dashboard");
+        localStorage.setItem("sessionId", data.sessionId);
+
+authStore.login(userData, data.token);
+
+router.push("/dashboard");
       } catch (error) {
         alert(error.response?.data?.message || "Google Login failed");
       } finally {
@@ -229,9 +232,15 @@ const handleSignIn = async () => {
       avatar: data.user.avatar,
     };
 
-    authStore.login(userData, data.token);
-    alert(data.message);
-    router.push("/dashboard");
+    // Save the current session id
+localStorage.setItem("sessionId", data.sessionId);
+
+// Existing login
+authStore.login(userData, data.token);
+
+alert(data.message);
+
+router.push("/dashboard");
   } catch (error) {
     alert(error.response?.data?.message || "Login failed");
   } finally {

@@ -11,7 +11,8 @@ import {
     resetPassword,
     uploadAvatar,
     googleLogin,
-    setupTwoFactor
+    setupTwoFactor,
+    getUserSessions
 } from "../controllers/userController.js";
 
 import upload from "../middleware/uploadMiddleware.js";
@@ -61,6 +62,12 @@ router.post(
     "/2fa/setup",
     protect,
     setupTwoFactor
+);
+
+router.get(
+    "/sessions",
+    protect,
+    getUserSessions
 );
 
 export default router;

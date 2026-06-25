@@ -191,38 +191,65 @@
             >
 
             <div
-              v-for="session in deviceSessions"
-              :key="session.id"
-              class="flex justify-between items-center p-3.5 bg-white/40 border border-black/[0.03] rounded-2xl"
-            >
-              <div class="flex items-center gap-3">
-                <div
-                  class="w-10 h-10 rounded-full bg-primary/8 flex items-center justify-center text-primary"
-                >
-                  <PhLaptop v-if="session.device.includes('Mac')" :size="20" />
-                  <PhDeviceMobile v-else :size="20" />
-                </div>
-                <div class="flex flex-col">
-                  <span class="text-xs font-bold text-brand-dark"
-                    >{{ session.device }} - {{ session.location }}</span
-                  >
-                  <span class="text-[10px] text-brand-slate mt-0.5"
-                    >{{ session.status }} • {{ session.browser }}</span
-                  >
-                </div>
-              </div>
-              <button
-                @click="revokeSession(session.id)"
-                class="text-xs font-bold uppercase px-3 py-1.5 rounded-lg transition-all cursor-pointer"
-                :class="
-                  session.device.includes('Mac')
-                    ? 'text-brand-slate/60 bg-black/[0.03] hover:text-red-600'
-                    : 'text-red-500 hover:text-red-600 hover:bg-red-50'
-                "
-              >
-                {{ session.device.includes("Mac") ? "This Device" : "Revoke" }}
-              </button>
-            </div>
+  v-for="session in sessions"
+  :key="session._id"
+  class="flex justify-between items-center p-3.5 bg-white/40 border border-black/[0.03] rounded-2xl"
+>
+
+  <div class="flex items-center gap-3">
+
+    <div
+      class="w-10 h-10 rounded-full bg-primary/8 flex items-center justify-center text-primary"
+    >
+
+      <PhLaptop
+        v-if="session.deviceType === 'desktop'"
+        :size="20"
+      />
+
+      <PhDeviceMobile
+        v-else
+        :size="20"
+      />
+
+    </div>
+
+    <div>
+
+      <div class="font-bold">
+        {{ session.device }} - {{ session.os }}
+      </div>
+
+      <div class="text-xs text-gray-500">
+        {{ session.browser }}
+        •
+        {{ new Date(session.lastActive).toLocaleString() }}
+      </div>
+
+    </div>
+
+  </div>
+
+<div>
+
+  <span
+    v-if="session._id === currentSessionId"
+    class="text-xs font-bold bg-gray-100 text-gray-500 px-3 py-1 rounded-lg"
+  >
+    THIS DEVICE
+  </span>
+
+  <button
+    v-else
+    @click="revokeSession(session._id)"
+    class="text-red-500 font-bold hover:text-red-700"
+  >
+    Revoke
+  </button>
+
+</div>
+
+</div>
           </div>
         </div>
       </div>
@@ -357,7 +384,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from "vue";import {
+import { ref, reactive, onMounted, watch } from "vue";import {
   PhUserCircle,
   PhCamera,
   PhLockKey,
@@ -374,6 +401,7 @@ import { useToasts } from "../../composables/useToasts";
 import axios from "axios"
 import { useAuthStore } from "@/stores/auth";
 import Modal from "../ui/Modal.vue";
+
 
 
 const verifyTwoFactor = async () => {
@@ -506,26 +534,56 @@ const showTwoFactorModal = ref(false);
 const qrCode = ref("");
 
 const verificationCode = ref("");
+const sessions = ref([]);
+
+const currentSessionId = ref(
+  localStorage.getItem("sessionId")
+);
+
+
+watch(sessions, () => {
+    console.log("Vue Sessions Updated");
+    console.log(sessions.value);
+});
 
 const avatarInput = ref(null);
 const { success, error, info } = useToasts();
 
-const deviceSessions = ref([
-  {
-    id: 1,
-    device: 'MacBook Pro 16"',
-    location: "San Francisco",
-    status: "Active Now",
-    browser: "Chrome",
-  },
-  {
-    id: 2,
-    device: "iPhone 15 Pro",
-    location: "New York",
-    status: "2 hours ago",
-    browser: "iOS App",
-  },
-]);
+
+
+
+
+
+
+const loadSessions = async () => {
+
+    try {
+
+        const token = localStorage.getItem("token");
+
+        const { data } = await axios.get(
+            "http://localhost:5000/api/users/sessions",
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            }
+        );
+
+        sessions.value = data.sessions;
+
+console.log("Sessions Count:", sessions.value.length);
+console.table(sessions.value);
+
+        console.log("Loaded Sessions:", sessions.value);
+
+    } catch (err) {
+
+        console.error(err);
+
+    }
+
+};
 
 // --- Unified Persistence Logic Layer ---
 
@@ -540,8 +598,9 @@ const deviceSessions = ref([
 
 // Run early initialization to hydrate state cleanly before view mounting renders
 
-onMounted(() => {
-  loadProfile();
+onMounted(async () => {
+  await loadProfile();
+  await loadSessions();
 });
 
 // --- Explicit Event Actions ---
@@ -694,16 +753,34 @@ const handleChangePassword = () => {
   showPasswordModal.value = true;
 };
 
-const revokeSession = (id) => {
-  const session = deviceSessions.value.find((s) => s.id === id);
-  if (session) {
-    if (session.device.includes("Mac")) {
-      error("Cannot revoke the session for your currently active device.");
-      return;
-    }
-    deviceSessions.value = deviceSessions.value.filter((s) => s.id !== id);
-    success(`Revoked active session for ${session.device}.`);
+const revokeSession = async (id) => {
+
+  try {
+
+    const token = localStorage.getItem("token");
+
+    await axios.delete(
+      `http://localhost:5000/api/users/sessions/${id}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      }
+    );
+
+    sessions.value =
+      sessions.value.filter(s => s._id !== id);
+
+    success("Session revoked");
+
+  } catch (err) {
+
+    console.error(err);
+
+    error("Failed to revoke session");
+
   }
+
 };
 
 const handleUpgrade = () => {
