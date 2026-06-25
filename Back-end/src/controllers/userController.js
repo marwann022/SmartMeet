@@ -6,6 +6,9 @@ import sendEmail from "../utils/sendEmail.js";
 import crypto from "crypto";
 import { OAuth2Client } from "google-auth-library";
 
+import speakeasy from "speakeasy";
+import QRCode from "qrcode";
+
 const googleClient = new OAuth2Client();
 
 // ---------------- Register ----------------
@@ -644,3 +647,130 @@ export const uploadAvatar = async(
         avatar: user.avatar
     })
 }
+
+
+
+//-------------------2f factor authenticator----------------
+export const setupTwoFactor = async(req, res) => {
+
+    try {
+
+        const user =
+            await User.findById(req.user.id);
+
+        const secret =
+            speakeasy.generateSecret({
+                name: `SmartMeet (${user.email})`
+            });
+
+        user.twoFactorSecret =
+            secret.base32;
+
+        await user.save();
+
+        const qrCode =
+            await QRCode.toDataURL(
+                secret.otpauth_url
+            );
+
+        res.status(200).json({
+            success: true,
+            qrCode
+        });
+
+    } catch (error) {
+
+        res.status(500).json({
+            success: false,
+            message: error.message
+        });
+
+    }
+
+};
+
+
+export const verifyTwoFactor = async(req, res) => {
+
+    try {
+
+        const { token } = req.body;
+
+        const user =
+            await User.findById(req.user.id);
+
+        if (!user.twoFactorSecret) {
+
+            return res.status(400).json({
+                success: false,
+                message: "2FA setup not found"
+            });
+
+        }
+
+        const verified =
+            speakeasy.totp.verify({
+                secret: user.twoFactorSecret,
+                encoding: "base32",
+                token,
+                window: 1
+            });
+
+        if (!verified) {
+
+            return res.status(400).json({
+                success: false,
+                message: "Invalid code"
+            });
+
+        }
+
+        user.twoFactorEnabled = true;
+
+        await user.save();
+
+        res.status(200).json({
+            success: true,
+            message: "2FA enabled successfully"
+        });
+
+    } catch (error) {
+
+        res.status(500).json({
+            success: false,
+            message: error.message
+        });
+
+    }
+
+};
+
+
+export const disableTwoFactor = async(req, res) => {
+
+    try {
+
+        const user =
+            await User.findById(req.user.id);
+
+        user.twoFactorEnabled = false;
+
+        user.twoFactorSecret = null;
+
+        await user.save();
+
+        res.status(200).json({
+            success: true,
+            message: "2FA disabled"
+        });
+
+    } catch (error) {
+
+        res.status(500).json({
+            success: false,
+            message: error.message
+        });
+
+    }
+
+};

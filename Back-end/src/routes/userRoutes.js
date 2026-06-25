@@ -10,7 +10,8 @@ import {
     forgotPassword,
     resetPassword,
     uploadAvatar,
-    googleLogin
+    googleLogin,
+    setupTwoFactor
 } from "../controllers/userController.js";
 
 import upload from "../middleware/uploadMiddleware.js";
@@ -54,6 +55,12 @@ router.post(
     protect,
     upload.single("avatar"),
     uploadAvatar
+);
+
+router.post(
+    "/2fa/setup",
+    protect,
+    setupTwoFactor
 );
 
 export default router;

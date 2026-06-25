@@ -74,9 +74,14 @@ const userSchema = new mongoose.Schema({
         default: ""
     },
 
-    twoFactor: {
+    twoFactorEnabled: {
         type: Boolean,
         default: false
+    },
+
+    twoFactorSecret: {
+        type: String,
+        default: null
     },
     googleId: {
         type: String,

@@ -146,7 +146,7 @@
             </div>
             <button
               type="button"
-              @click="profileForm.twoFactor = !profileForm.twoFactor"
+              @click="setupTwoFactor"
               class="w-[44px] h-[24px] rounded-full transition-colors duration-300 focus:outline-none relative flex items-center cursor-pointer border border-black/5"
               :class="
                 profileForm.twoFactor ? 'bg-primary' : 'bg-brand-slate/30'
@@ -323,6 +323,36 @@
     :show="showPasswordModal"
     @close="showPasswordModal = false"
   />
+
+  <Modal
+  :show="showTwoFactorModal"
+  title="Setup Two-Factor Authentication"
+  @close="showTwoFactorModal = false"
+>
+  <div class="flex flex-col gap-4">
+
+    <img
+      :src="qrCode"
+      class="w-64 mx-auto"
+    />
+
+    <input
+      v-model="verificationCode"
+      type="text"
+      placeholder="Enter 6 digit code"
+      class="border rounded-xl p-3"
+    />
+
+    <button
+      @click="verifyTwoFactor"
+      class="bg-primary text-white rounded-xl py-3"
+    >
+      Verify
+    </button>
+
+  </div>
+</Modal>
+
   <Toast />
 </template>
 
@@ -343,6 +373,50 @@ import { useToasts } from "../../composables/useToasts";
 // Import assets
 import axios from "axios"
 import { useAuthStore } from "@/stores/auth";
+import Modal from "../ui/Modal.vue";
+
+
+const verifyTwoFactor = async () => {
+
+  try {
+
+    const token =
+      localStorage.getItem("token");
+
+    await axios.post(
+      "http://localhost:5000/api/users/2fa/verify",
+      {
+        token:
+          verificationCode.value
+      },
+      {
+        headers: {
+          Authorization:
+            `Bearer ${token}`
+        }
+      }
+    );
+
+    profileForm.twoFactor = true;
+
+    success(
+      "Two-Factor Authentication Enabled"
+    );
+
+    showTwoFactorModal.value =
+      false;
+
+  } catch (err) {
+
+    error(
+      err.response?.data?.message ||
+      "Invalid code"
+    );
+
+  }
+
+};
+
 
 const authStore = useAuthStore();
 
@@ -427,7 +501,12 @@ const loadProfile = async () => {
 }
 };
 
-const showPasswordModal = ref(false);
+const showTwoFactorModal = ref(false);
+
+const qrCode = ref("");
+
+const verificationCode = ref("");
+
 const avatarInput = ref(null);
 const { success, error, info } = useToasts();
 
@@ -466,6 +545,46 @@ onMounted(() => {
 });
 
 // --- Explicit Event Actions ---
+
+
+const setupTwoFactor = async () => {
+
+  try {
+
+    const token =
+      localStorage.getItem("token");
+
+    const { data } =
+      await axios.post(
+        "http://localhost:5000/api/users/2fa/setup",
+        {},
+        {
+          headers: {
+            Authorization:
+              `Bearer ${token}`
+          }
+        }
+      );
+
+    qrCode.value =
+      data.qrCode;
+
+    showTwoFactorModal.value =
+      true;
+
+  } catch (err) {
+
+    console.error(err);
+
+    error(
+      "Failed to setup 2FA"
+    );
+
+  }
+
+};
+
+
 
 const saveProfile = async () => {
 
