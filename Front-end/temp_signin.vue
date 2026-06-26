@@ -10,14 +10,10 @@
         </div>
 
         <!-- SSO Authentication -->
-        <div class="flex flex-col sm:flex-row gap-3 w-full">
-          <button type="button" class="flex-1 flex items-center justify-center gap-3 py-3 px-4 rounded-xl border border-black/8 bg-white/50 text-[11px] font-bold text-brand-dark transition-all duration-300 hover:bg-white hover:border-primary/20 hover:shadow-sm cursor-pointer" @click="handleSSOLogin('Google')">
+        <div class="w-full">
+          <button type="button" class="w-full flex items-center justify-center gap-3 py-3 px-4 rounded-xl border border-black/8 bg-white/50 text-[11px] font-bold text-brand-dark transition-all duration-300 hover:bg-white hover:border-primary/20 hover:shadow-sm cursor-pointer" @click="handleSSOLogin('Google')">
             <img :src="googleIcon" alt="Google" class="w-4 h-4 object-contain" />
             <span>Continue With Google</span>
-          </button>
-          <button type="button" class="flex-1 flex items-center justify-center gap-3 py-3 px-4 rounded-xl border border-black/8 bg-white/50 text-[11px] font-bold text-brand-dark transition-all duration-300 hover:bg-white hover:border-primary/20 hover:shadow-sm cursor-pointer" @click="handleSSOLogin('Apple')">
-            <img :src="appleIcon" alt="Apple" class="w-4 h-4 object-contain" />
-            <span>Continue With Apple</span>
           </button>
         </div>
 
@@ -96,7 +92,6 @@ import { ref } from 'vue'
 import { PhEnvelope, PhLock } from '@phosphor-icons/vue'
 import Navbar from '../components/Navbar.vue'
 import googleIcon from '../assets/Google.png'
-import appleIcon from '../assets/Apple_logo_black.svg'
 
 defineEmits(['navigate'])
 

@@ -256,6 +256,7 @@ import { ref, onMounted, nextTick } from 'vue'
 import axios from 'axios'
 import { useAuthStore } from '@/stores/auth'
 import { useTaskStore } from '@/stores/task'
+import { useNotificationStore } from '@/stores/notification'
 import Toast from '@/components/ui/Toast.vue'
 import { useToasts } from '@/composables/useToasts'
 import {
@@ -276,6 +277,7 @@ import {
 
 const authStore = useAuthStore()
 const taskStore = useTaskStore()
+const notificationStore = useNotificationStore()
 const inputQuery = ref('')
 const aiTyping = ref(false)
 const listening = ref(false)
@@ -577,6 +579,21 @@ const submitQuery = async () => {
         time: replyTime,
         suggestion
       })
+      
+      // Programmatically trigger notifications for AI-detected tasks assigned to current user
+      if (suggestion && Array.isArray(suggestion.tasks)) {
+        const myName = authStore.user?.name || 'Marwan'
+        suggestion.tasks.forEach(t => {
+          const desc = (t.description || '').toLowerCase()
+          if (!desc.includes('assigned to') || desc.includes(`assigned to ${myName.toLowerCase()}`)) {
+            notificationStore.addNotification({
+              text: `AI detected a new task for you: "${t.title}"`,
+              type: 'task'
+            })
+          }
+        })
+      }
+      
       aiTyping.value = false
       scrollToBottom()
     }, 800)

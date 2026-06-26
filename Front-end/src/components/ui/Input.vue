@@ -1,6 +1,6 @@
 <template>
   <div class="flex flex-col gap-1.5 w-full text-left">
-    <label v-if="label" class="text-[10px] font-extrabold uppercase tracking-wider text-brand-slate font-header pl-1">
+    <label v-if="label" class="text-[11px] font-semibold text-brand-slate tracking-wide font-header pl-1">
       {{ label }}
     </label>
     <div class="relative w-full group">

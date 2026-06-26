@@ -1,4 +1,5 @@
 import Task from "../models/Task.js";
+import { createNotification } from "../services/notificationService.js";
 
 // @desc    Get all tasks for logged in user
 // @route   GET /api/tasks
@@ -44,6 +45,18 @@ export const createTask = async (req, res) => {
             dueDate,
             source,
         });
+
+        // Generate a notification for the newly assigned task, if user preferences allow
+        const settings = req.user.notificationSettings;
+        const summariesEnabled = !settings || settings.summaries !== false;
+        if (summariesEnabled) {
+            await createNotification({
+                user: req.user._id,
+                text: `New task assigned: "${title}"`,
+                type: "task",
+                relatedId: task._id.toString(),
+            });
+        }
 
         res.status(201).json({
             success: true,

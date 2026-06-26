@@ -156,7 +156,7 @@
                   <div
                     v-for="notification in notifications"
                     :key="notification.id"
-                    @click="markAsRead(notification.id)"
+                    @click="handleNotificationClick(notification)"
                     class="p-2.5 rounded-xl transition-all duration-200 cursor-pointer border flex flex-col gap-1 text-[11px] leading-relaxed relative"
                     :class="notification.read 
                       ? 'bg-transparent border-transparent hover:bg-black/5' 
@@ -278,15 +278,17 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { PhBell, PhUser, PhGear, PhSignOut, PhTrash } from '@phosphor-icons/vue'
 import { useAuthStore } from '@/stores/auth'
+import { useNotificationStore } from '@/stores/notification'
 import Modal from '@/components/ui/Modal.vue'
 import Button from '@/components/ui/Button.vue'
 
 const router = useRouter()
 const authStore = useAuthStore()
+const notificationStore = useNotificationStore()
 
 const authenticated = computed(() =>
   authStore.isAuthenticated
@@ -306,34 +308,34 @@ const isProfileOpen = ref(false)
 const notificationsRef = ref(null)
 const profileRef = ref(null)
 
-// Mock Notifications
-const notifications = ref([
-  { id: 1, text: 'Sarah Kim updated v2 API docs deadline', time: '10m ago', read: false },
-  { id: 2, text: 'DevOps scaled GPU cluster to 16 nodes', time: '2h ago', read: false },
-  { id: 3, text: 'Penetration test report is ready for download', time: '1d ago', read: true }
-])
+// Bind Notifications state and computed count to Pinia store
+const notifications = computed(() => notificationStore.notifications)
+const unreadCount = computed(() => notificationStore.unreadCount)
 
-// Computed Unread Count
-const unreadCount = computed(() => 
-  notifications.value.filter(n => !n.read).length
-)
-
-// Actions
+// Actions mapped to store actions
 const markAsRead = (id) => {
-  const notification = notifications.value.find(n => n.id === id)
-  if (notification) {
-    notification.read = true
+  notificationStore.markAsRead(id)
+}
+
+const handleNotificationClick = (notification) => {
+  markAsRead(notification.id)
+  isNotificationsOpen.value = false
+  
+  if (notification.type === 'task') {
+    router.push('/tasks')
+  } else if (notification.type === 'meeting') {
+    router.push('/archive')
+  } else {
+    router.push('/dashboard')
   }
 }
 
 const markAllAsRead = () => {
-  notifications.value.forEach(n => {
-    n.read = true
-  })
+  notificationStore.markAllAsRead()
 }
 
 const clearAll = () => {
-  notifications.value = []
+  notificationStore.clearAll()
 }
 
 const handleLogout = () => {
@@ -360,10 +362,20 @@ const handleClickOutside = (event) => {
 
 onMounted(() => {
   document.addEventListener('click', handleClickOutside)
+  if (authenticated.value) {
+    notificationStore.fetchNotifications()
+  }
 })
 
 onUnmounted(() => {
   document.removeEventListener('click', handleClickOutside)
+})
+
+// Fetch notifications as soon as authentication state becomes true (e.g. login)
+watch(authenticated, (newVal) => {
+  if (newVal) {
+    notificationStore.fetchNotifications()
+  }
 })
 
 const profileImage = computed(() => {

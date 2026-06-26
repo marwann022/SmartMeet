@@ -109,6 +109,15 @@ const userSchema = new mongoose.Schema({
         type: Date,
         default: null
     },
+    notificationSettings: {
+        summaries: { type: Boolean, default: true },
+        reports: { type: Boolean, default: true },
+        digestTime: { type: String, default: "09:00 AM" },
+        reminderWindow: { type: String, default: "10m" },
+        quietHours: { type: Boolean, default: false },
+        pushDesktop: { type: Boolean, default: true },
+        pushMobile: { type: Boolean, default: true }
+    },
 }, {
     timestamps: true, // gives time for created at and updated at
     toJSON: { virtuals: true },
@@ -124,6 +133,12 @@ userSchema.virtual("profileUrl").get(function() {
 
 userSchema.virtual("fullName").get(function() {
     return `${this.firstName} ${this.lastName}`;
+});
+
+userSchema.virtual("twoFactor").get(function() {
+    return this.twoFactorEnabled;
+}).set(function(val) {
+    this.twoFactorEnabled = val;
 });
 
 // Hashing The password of the user before saving

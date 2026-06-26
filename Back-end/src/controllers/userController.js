@@ -586,6 +586,8 @@ export const updateProfile = async(req, res) => {
         user.lastName =
             req.body.lastName || user.lastName;
 
+        user.name = `${user.firstName} ${user.lastName}`.trim();
+
         user.phone =
             req.body.phone || user.phone;
 
@@ -895,4 +897,64 @@ export const getUserSessions = async(req, res) => {
 
     }
 
+};
+
+//----------------notification settings--------------------------
+// @desc    Get logged in user's notification settings
+// @route   GET /api/users/notification-settings
+// @access  Private
+export const getNotificationSettings = async (req, res) => {
+    try {
+        const user = await User.findById(req.user._id).select("notificationSettings");
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                message: "User not found",
+            });
+        }
+
+        res.status(200).json({
+            success: true,
+            notificationSettings: user.notificationSettings || {},
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: error.message,
+        });
+    }
+};
+
+// @desc    Update logged in user's notification settings
+// @route   PUT /api/users/notification-settings
+// @access  Private
+export const updateNotificationSettings = async (req, res) => {
+    try {
+        const user = await User.findById(req.user._id);
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                message: "User not found",
+            });
+        }
+
+        // Merge or replace settings
+        user.notificationSettings = {
+            ...user.notificationSettings,
+            ...req.body,
+        };
+
+        await user.save();
+
+        res.status(200).json({
+            success: true,
+            message: "Notification settings updated successfully",
+            notificationSettings: user.notificationSettings,
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: error.message,
+        });
+    }
 };

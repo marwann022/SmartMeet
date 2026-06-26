@@ -3,6 +3,7 @@
     class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start animate-fade-in text-left"
   >
     <div class="lg:col-span-8 flex flex-col gap-6">
+      <!-- Email Notifications -->
       <div
         class="card-glass rounded-[28px] p-6 sm:p-8 flex flex-col gap-6 border border-white/80 shadow-glass"
       >
@@ -23,6 +24,7 @@
         </div>
 
         <div class="flex flex-col gap-4">
+          <!-- Meeting Summaries -->
           <div
             class="flex items-center justify-between p-3.5 bg-white/40 border border-black/[0.03] rounded-2xl"
           >
@@ -51,6 +53,7 @@
             </button>
           </div>
 
+          <!-- Performance Reports -->
           <div
             class="flex items-center justify-between p-3.5 bg-white/40 border border-black/[0.03] rounded-2xl"
           >
@@ -79,38 +82,10 @@
               ></span>
             </button>
           </div>
-
-          <div
-            class="flex items-center justify-between p-3.5 bg-white/40 border border-black/[0.03] rounded-2xl"
-          >
-            <div class="flex flex-col w-[80%] text-left">
-              <span class="text-sm font-bold text-brand-dark leading-tight"
-                >Product Updates</span
-              >
-              <span class="text-xs text-brand-slate mt-0.5"
-                >New features releases, AI engine improvements, and templates
-                tips</span
-              >
-            </div>
-            <button
-              type="button"
-              @click="notifForm.updates = !notifForm.updates"
-              class="w-[44px] h-[24px] rounded-full transition-colors duration-300 focus:outline-none relative flex items-center cursor-pointer border border-black/5"
-              :class="notifForm.updates ? 'bg-primary' : 'bg-brand-slate/30'"
-            >
-              <span
-                class="absolute w-[18px] h-[18px] bg-white rounded-full transition-transform duration-300 shadow-sm"
-                :style="{
-                  transform: notifForm.updates
-                    ? 'translateX(22px)'
-                    : 'translateX(3px)',
-                }"
-              ></span>
-            </button>
-          </div>
         </div>
       </div>
 
+      <!-- Meeting Reminders -->
       <div
         class="card-glass rounded-[28px] p-6 sm:p-8 flex flex-col gap-6 border border-white/80 shadow-glass"
       >
@@ -183,7 +158,9 @@
       </div>
     </div>
 
+    <!-- Sidebar Settings -->
     <div class="lg:col-span-4 flex flex-col gap-6">
+      <!-- AI Insights Recommendation -->
       <div
         class="bg-gradient-to-br from-primary/10 via-white/50 to-white/80 border border-primary/20 rounded-[24px] p-6 text-left flex flex-col gap-3"
       >
@@ -194,8 +171,8 @@
           <span>AI Insights Recommendation</span>
         </div>
         <p class="text-xs text-brand-dark font-medium leading-relaxed">
-          "SmartMeet AI suggests moving summaries to 'Daily Digest' to reduce
-          notification fatigue during peak morning core hours."
+          SmartMeet AI suggests moving summaries to 'Daily Digest' to reduce
+          notification fatigue during peak morning core hours.
         </p>
         <button
           @click="applyDigestRecommendation"
@@ -205,6 +182,7 @@
         </button>
       </div>
 
+      <!-- Push Settings -->
       <div
         class="card-glass rounded-[28px] p-6 flex flex-col gap-4 text-left border border-white/80 shadow-glass"
       >
@@ -215,6 +193,7 @@
         </h3>
 
         <div class="flex flex-col gap-3 mt-1">
+          <!-- Desktop Notifications -->
           <div
             @click="notifForm.pushDesktop = !notifForm.pushDesktop"
             class="flex items-center gap-3 cursor-pointer select-none"
@@ -234,6 +213,7 @@
             >
           </div>
 
+          <!-- Mobile Push Alerts -->
           <div
             @click="notifForm.pushMobile = !notifForm.pushMobile"
             class="flex items-center gap-3 cursor-pointer select-none"
@@ -252,60 +232,7 @@
               >Mobile Push Alerts</span
             >
           </div>
-
-          <div
-            @click="notifForm.pushBrowser = !notifForm.pushBrowser"
-            class="flex items-center gap-3 cursor-pointer select-none"
-          >
-            <div
-              class="w-[20px] h-[20px] rounded-[4px] border-[2px] border-brand-slate/40 flex items-center justify-center"
-              :class="
-                notifForm.pushBrowser
-                  ? 'border-primary bg-primary text-white'
-                  : ''
-              "
-            >
-              <PhCheck v-if="notifForm.pushBrowser" :size="12" weight="bold" />
-            </div>
-            <span class="text-xs font-semibold text-brand-dark"
-              >Browser Pop-ups</span
-            >
-          </div>
         </div>
-      </div>
-
-      <div
-        class="card-glass rounded-[28px] p-6 flex flex-col gap-4 text-left border border-white/80 shadow-glass"
-      >
-        <h3
-          class="font-header font-bold text-base text-brand-dark pb-2 border-b border-black/5"
-        >
-          Google Calendar Sync
-        </h3>
-
-        <div class="flex items-center gap-3 py-1">
-          <img
-            :src="gcalIcon"
-            alt="Google Calendar"
-            class="w-9 h-9 object-contain"
-          />
-          <div class="flex flex-col">
-            <span class="text-xs font-bold text-brand-dark"
-              >work-profile@smartmeet.ai</span
-            >
-            <span
-              class="text-[10px] text-green-500 font-semibold uppercase tracking-wider mt-0.5"
-              >Connected</span
-            >
-          </div>
-        </div>
-
-        <button
-          @click="handleManageSync"
-          class="w-full py-2.5 rounded-xl bg-white border border-black/8 text-[11px] font-bold font-header tracking-wide uppercase text-brand-dark hover:bg-black/5 transition-all cursor-pointer"
-        >
-          Manage Sync Settings
-        </button>
       </div>
     </div>
 
@@ -314,13 +241,12 @@
 </template>
 
 <script setup>
-import { reactive } from "vue";
+import { reactive, onMounted, ref, watch } from "vue";
+import axios from "axios";
 import { PhEnvelope, PhBell, PhSparkle, PhCheck } from "@phosphor-icons/vue";
 import Select from "../ui/Select.vue";
-
-// استيراد أدوات التوست
-import Toast from '../ui/Toast.vue'
-import { useToasts } from '../../composables/useToasts'
+import Toast from "../ui/Toast.vue";
+import { useToasts } from "../../composables/useToasts";
 
 const digestTimeOptions = [
   "08:00 AM",
@@ -334,32 +260,78 @@ const reminderWindowOptions = [
   { value: "15m", label: "15 minutes before" },
 ];
 
-import gcalIcon from "../../assets/Google.png";
-
 const notifForm = reactive({
   summaries: true,
   reports: true,
-  updates: false,
   digestTime: "09:00 AM",
   reminderWindow: "10m",
   quietHours: false,
   pushDesktop: true,
   pushMobile: true,
-  pushBrowser: false,
 });
 
-// تفعيل خطاف التنبيهات
-const { success, info } = useToasts();
+const { success } = useToasts();
+const isLoaded = ref(false);
+
+const getHeaders = () => ({
+  headers: {
+    Authorization: `Bearer ${localStorage.getItem("token")}`,
+  },
+});
+
+// Fetch settings from the backend database on mount
+const fetchSettings = async () => {
+  try {
+    const { data } = await axios.get(
+      "http://localhost:5000/api/users/notification-settings",
+      getHeaders(),
+    );
+    if (data.success && data.notificationSettings) {
+      Object.assign(notifForm, data.notificationSettings);
+    }
+  } catch (error) {
+    console.error("Failed to fetch notification settings:", error);
+  } finally {
+    isLoaded.value = true;
+  }
+};
+
+// Save settings to the backend database
+const saveSettings = async () => {
+  try {
+    const { data } = await axios.put(
+      "http://localhost:5000/api/users/notification-settings",
+      notifForm,
+      getHeaders(),
+    );
+    if (data.success) {
+      success("Preferences auto-saved.");
+    }
+  } catch (error) {
+    console.error("Failed to update notification settings:", error);
+  }
+};
+
+// Trigger auto-save whenever any toggle or select element changes
+watch(
+  notifForm,
+  () => {
+    if (isLoaded.value) {
+      saveSettings();
+    }
+  },
+  { deep: true },
+);
+
+onMounted(() => {
+  fetchSettings();
+});
 
 const applyDigestRecommendation = () => {
   notifForm.summaries = false;
   notifForm.digestTime = "09:00 AM";
   success(
-    "Successfully applied AI recommendation. Summaries scheduled for 09:00 AM digest."
+    "Successfully applied AI recommendation. Summaries scheduled for 09:00 AM digest.",
   );
-};
-
-const handleManageSync = () => {
-  info("Opening Google Calendar sync configuration portal.");
 };
 </script>

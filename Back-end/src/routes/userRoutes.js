@@ -12,7 +12,9 @@ import {
     uploadAvatar,
     googleLogin,
     setupTwoFactor,
-    getUserSessions
+    getUserSessions,
+    getNotificationSettings,
+    updateNotificationSettings
 } from "../controllers/userController.js";
 
 import upload from "../middleware/uploadMiddleware.js";
@@ -69,5 +71,9 @@ router.get(
     protect,
     getUserSessions
 );
+
+router.route("/notification-settings")
+    .get(protect, getNotificationSettings)
+    .put(protect, updateNotificationSettings);
 
 export default router;

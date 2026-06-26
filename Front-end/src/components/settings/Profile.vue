@@ -171,15 +171,25 @@
               <span class="text-sm font-bold text-brand-dark leading-tight"
                 >Change Account Password</span
               >
-              <span class="text-xs text-brand-slate mt-0.5"
-                >Ensure your account is protected with strong credentials</span
-              >
+              <span class="text-xs text-brand-slate mt-0.5">
+                {{ authStore.user?.googleId 
+                  ? "Your account is secured via Google Sign-In. Password management is handled by Google." 
+                  : "Ensure your account is protected with strong credentials" }}
+              </span>
             </div>
             <button
+              v-if="!authStore.user?.googleId"
               @click="handleChangePassword"
               class="px-5 py-2.5 rounded-xl bg-white border border-black/8 hover:bg-black/5 text-xs font-bold font-header text-brand-dark transition-all cursor-pointer"
             >
               Update Password
+            </button>
+            <button
+              v-else
+              disabled
+              class="px-5 py-2.5 rounded-xl bg-black/5 border border-black/5 text-xs font-bold font-header text-brand-slate transition-all cursor-not-allowed opacity-60"
+            >
+              Google Auth
             </button>
           </div>
 
@@ -530,6 +540,7 @@ const loadProfile = async () => {
 };
 
 const showTwoFactorModal = ref(false);
+const showPasswordModal = ref(false);
 
 const qrCode = ref("");
 

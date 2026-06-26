@@ -263,7 +263,7 @@ const PasswordField = defineComponent({
   emits: ['update:modelValue', 'toggle', 'blur'],
   setup(fieldProps, { emit: fieldEmit }) {
     return () => h('div', { class: 'flex flex-col gap-1.5' }, [
-      h('label', { class: 'font-header text-[11px] font-bold uppercase tracking-wider text-brand-slate ml-1' }, fieldProps.label),
+      h('label', { class: 'font-header text-[11px] font-semibold text-brand-slate tracking-wide ml-1' }, fieldProps.label),
       h('div', { class: 'relative' }, [
         h('input', {
           value: fieldProps.modelValue,
