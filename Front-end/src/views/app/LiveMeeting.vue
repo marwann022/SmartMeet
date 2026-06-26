@@ -3,12 +3,15 @@
     <!-- Header Row -->
     <div class="flex items-center justify-between">
       <div class="flex items-center gap-4">
-        <button 
-          @click="leaveCall" 
-          class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white border border-black/8 font-header font-bold text-xs tracking-wider uppercase text-brand-dark hover:bg-black/5 hover:text-primary transition-all duration-300 cursor-pointer"
+        <button
+          @click="confirmEnd"
+          class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-red-500/10 border border-red-500/20 font-header font-bold text-xs tracking-wider uppercase text-red-600 hover:bg-red-500/20 transition-all duration-300 cursor-pointer"
         >
-          <PhArrowLeft :size="14" weight="bold" />
-          <span>Leave Call & Dashboard</span>
+          <span class="relative flex h-2 w-2">
+            <span v-if="isRecording" class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-500 opacity-75"></span>
+            <span class="relative inline-flex rounded-full h-2 w-2" :class="isRecording ? 'bg-red-500' : 'bg-brand-slate'"></span>
+          </span>
+          <span>End Meeting</span>
         </button>
         <div class="h-6 w-[1px] bg-black/10"></div>
         <div class="flex flex-col items-start text-left">
@@ -17,22 +20,38 @@
         </div>
       </div>
 
-      <div class="bg-primary/8 border border-primary/15 px-4 py-1.5 rounded-full flex items-center gap-2">
-        <span class="relative flex h-2.5 w-2.5">
-          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
-          <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-primary"></span>
-        </span>
-        <span class="text-[11px] font-bold text-primary uppercase tracking-wider">Encrypted WebRTC Sync</span>
+      <div class="flex items-center gap-3">
+        <div v-if="isRecording" class="bg-red-500/8 border border-red-500/15 px-4 py-1.5 rounded-full flex items-center gap-2">
+          <span class="relative flex h-2.5 w-2.5">
+            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-500 opacity-75"></span>
+            <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-red-500"></span>
+          </span>
+          <span class="text-[11px] font-bold text-red-500 uppercase tracking-wider">Recording {{ recordingDuration }}</span>
+        </div>
+        <div class="bg-primary/8 border border-primary/15 px-4 py-1.5 rounded-full flex items-center gap-2">
+          <span class="relative flex h-2.5 w-2.5">
+            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+            <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-primary"></span>
+          </span>
+          <span class="text-[11px] font-bold text-primary uppercase tracking-wider">Encrypted WebRTC Sync</span>
+        </div>
       </div>
+    </div>
+
+    <!-- Processing Banner -->
+    <div v-if="isProcessing" class="bg-primary/8 border border-primary/15 rounded-2xl p-4 flex items-center gap-3">
+      <svg class="w-5 h-5 animate-spin text-primary" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+      </svg>
+      <span class="text-sm font-bold text-primary">AI is processing your meeting — transcribing, extracting decisions, and generating summary...</span>
     </div>
 
     <!-- Active Call Main Area -->
     <div class="flex-1 grid grid-cols-1 lg:grid-cols-[1.3fr_0.7fr] gap-6 h-full min-h-0">
-      
       <!-- Video Container Frame -->
       <div class="bg-[#111214] rounded-[32px] border border-black/10 overflow-hidden flex flex-col justify-between shadow-2xl relative">
         <div id="meet-iframe-container" class="flex-1 w-full h-full bg-[#18191b]">
-          <!-- Jitsi Iframe mounts here dynamically -->
         </div>
       </div>
 
@@ -51,18 +70,11 @@
           <div class="flex-1 flex flex-col gap-3 min-h-0">
             <div class="flex justify-between items-center">
               <span class="text-[10px] font-extrabold text-brand-slate uppercase tracking-wide">AI Meeting Assistant Feed</span>
-              <button 
-                @click="isListening = !isListening"
-                class="px-3 py-1 rounded-lg text-[10px] font-bold tracking-wider uppercase border transition-all cursor-pointer"
-                :class="isListening ? 'bg-primary/8 border-primary/20 text-primary' : 'bg-black/5 border-black/5 text-brand-slate hover:bg-black/8'"
-              >
-                {{ isListening ? 'Syncing Active' : 'Start AI Assist' }}
-              </button>
             </div>
 
             <div ref="transcriptContainer" class="flex-1 overflow-y-auto pr-1 flex flex-col gap-3 scroll-container bg-black/[0.01] rounded-2xl p-3 border border-black/[0.02]">
-              <div 
-                v-for="(line, index) in activeTranscript" 
+              <div
+                v-for="(line, index) in activeTranscript"
                 :key="index"
                 class="flex flex-col gap-1 border-l-2 pl-3 py-0.5 animate-slide-up"
                 :class="line.speaker === 'Marcus Wright' ? 'border-primary' : line.speaker === 'Sarah Jenkins' ? 'border-secondary' : 'border-accent'"
@@ -77,19 +89,18 @@
                   {{ line.text }}
                 </p>
               </div>
-              
-              <!-- Listening indicator -->
-              <div v-if="isListening" class="flex items-center gap-2 text-xs text-primary font-bold animate-pulse p-2">
+
+              <div v-if="isRecording" class="flex items-center gap-2 text-xs text-primary font-bold animate-pulse p-2">
                 <span class="relative flex h-2 w-2">
                   <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
                   <span class="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
                 </span>
-                <span>AI is listening and extracting tasks...</span>
+                <span>Recording audio for AI processing after meeting ends...</span>
               </div>
 
-              <div v-if="activeTranscript.length === 0 && !isListening" class="text-xs text-brand-slate/40 italic py-12 text-center flex flex-col items-center gap-2 justify-center h-full">
+              <div v-if="activeTranscript.length === 0" class="text-xs text-brand-slate/40 italic py-12 text-center flex flex-col items-center gap-2 justify-center h-full">
                 <PhMicrophone :size="24" class="text-brand-slate/30" />
-                <span>AI Assist is paused. Click 'Start AI Assist' to simulate live transcription.</span>
+                <span>Meeting audio will be processed when you click "End Meeting".</span>
               </div>
             </div>
           </div>
@@ -100,10 +111,10 @@
               <span class="text-[10px] font-extrabold text-brand-slate uppercase tracking-wide">Real-time Tasks Extracted</span>
               <span class="bg-primary/10 border border-primary/20 text-primary font-bold text-[9px] px-2 py-0.5 rounded-full">{{ extractedTasks.length }} detected</span>
             </div>
-            
+
             <div class="flex-1 overflow-y-auto pr-1 flex flex-col gap-2 scroll-container">
-              <div 
-                v-for="task in extractedTasks" 
+              <div
+                v-for="task in extractedTasks"
                 :key="task.id"
                 class="bg-gradient-to-br from-white/90 to-white/50 border border-black/5 p-3 rounded-xl flex items-start justify-between gap-3 shadow-[0_2px_8px_rgba(0,0,0,0.02)] animate-slide-in-right"
               >
@@ -120,13 +131,12 @@
                 </div>
               </div>
               <div v-if="extractedTasks.length === 0" class="text-[11px] text-brand-slate/40 italic py-6 text-center flex items-center justify-center h-full">
-                Waiting for dialogue tasks...
+                Tasks will be extracted by AI after processing.
               </div>
             </div>
           </div>
         </div>
       </div>
-
     </div>
   </div>
 </template>
@@ -135,11 +145,10 @@
 import { ref, computed, nextTick, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useMeetingStore } from '@/stores/meeting'
-import { 
-  PhArrowLeft, 
-  PhSparkle, 
-  PhMicrophone, 
-  PhCheck 
+import {
+  PhSparkle,
+  PhMicrophone,
+  PhCheck
 } from '@phosphor-icons/vue'
 
 const router = useRouter()
@@ -148,67 +157,160 @@ const meetingStore = useMeetingStore()
 const meeting = computed(() => meetingStore.activeLiveMeeting)
 
 let jitsiApi = null
-const isListening = ref(true)
+const isRecording = ref(true)
+const isProcessing = ref(false)
 const activeTranscript = ref([])
 const extractedTasks = ref([])
 const transcriptContainer = ref(null)
+const recordingDuration = ref('00:00')
 
-// Format MM:SS helper
+let mediaRecorder = null
+let audioChunks = []
+let recordingTimer = null
+let recordingSeconds = 0
+
 const formatTime = (secs) => {
   const m = Math.floor(secs / 60).toString().padStart(2, '0')
   const s = (secs % 60).toString().padStart(2, '0')
   return `${m}:${s}`
 }
 
-// Simulated active meeting scripts mapping
-const dialogSteps = [
-  {
-    seconds: 3,
-    speaker: 'Marcus Wright',
-    text: 'Hey Alex! Glad you could join the in-app room. Let\'s sync on the roadmap deliverables.',
-    activeFor: 4
-  },
-  {
-    seconds: 9,
-    speaker: 'Sarah Jenkins',
-    text: 'Perfect. Alex, can you compile the backend API contracts spreadsheet so we can unblock the frontend developers by tomorrow?',
-    activeFor: 6,
-    triggerTask: {
-      id: Date.now() + 101,
-      title: 'Compile Auth API contracts spreadsheet',
-      assignee: 'Alex Chen',
-      priority: 'HIGH PRIORITY'
+// Start audio recording via getDisplayMedia (captures all meeting audio, not just local mic)
+const startRecording = async () => {
+  try {
+    // getDisplayMedia with audio: true captures system audio including remote participants
+    const stream = await navigator.mediaDevices.getDisplayMedia({
+      audio: true,
+      video: { displaySurface: 'browser' }
+    })
+
+    // If audio track exists, use it; otherwise fallback to mic
+    const audioTrack = stream.getAudioTracks()[0]
+    if (!audioTrack) {
+      // Fallback to microphone only
+      const micStream = await navigator.mediaDevices.getUserMedia({ audio: true })
+      mediaRecorder = new MediaRecorder(micStream, { mimeType: 'audio/webm' })
+    } else {
+      // Use screen capture stream (includes all remote participants audio)
+      const audioOnlyStream = new MediaStream([audioTrack])
+      mediaRecorder = new MediaRecorder(audioOnlyStream, { mimeType: 'audio/webm' })
     }
-  },
-  {
-    seconds: 17,
-    speaker: 'Alex Chen',
-    text: 'Yes, absolutely. I will coordinate with Marcus and compile the API sheet first thing tomorrow.',
-    activeFor: 5
-  },
-  {
-    seconds: 24,
-    speaker: 'Marcus Wright',
-    text: 'Great. I will handle setting up the container resources in AWS as soon as you have that document ready.',
-    activeFor: 5,
-    triggerTask: {
-      id: Date.now() + 102,
-      title: 'Setup test container resources in AWS',
-      assignee: 'Marcus Wright',
-      priority: 'MEDIUM PRIORITY'
+
+    audioChunks = []
+
+    mediaRecorder.ondataavailable = (e) => {
+      if (e.data.size > 0) audioChunks.push(e.data)
+    }
+
+    mediaRecorder.start(1000)
+
+    recordingTimer = setInterval(() => {
+      recordingSeconds++
+      recordingDuration.value = formatTime(recordingSeconds)
+    }, 1000)
+  } catch (err) {
+    console.error('Screen/audio capture denied, falling back to microphone:', err)
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
+      mediaRecorder = new MediaRecorder(stream, { mimeType: 'audio/webm' })
+      audioChunks = []
+      mediaRecorder.ondataavailable = (e) => {
+        if (e.data.size > 0) audioChunks.push(e.data)
+      }
+      mediaRecorder.start(1000)
+      recordingTimer = setInterval(() => {
+        recordingSeconds++
+        recordingDuration.value = formatTime(recordingSeconds)
+      }, 1000)
+    } catch (micErr) {
+      console.error('Microphone access denied:', micErr)
+      isRecording.value = false
     }
   }
+}
+
+const stopRecording = () => {
+  return new Promise((resolve) => {
+    if (!mediaRecorder || mediaRecorder.state === 'inactive') {
+      resolve(null)
+      return
+    }
+
+    clearInterval(recordingTimer)
+
+    mediaRecorder.onstop = () => {
+      const blob = new Blob(audioChunks, { type: 'audio/webm' })
+      // Stop all audio tracks
+      mediaRecorder.stream.getTracks().forEach(t => t.stop())
+      resolve(blob)
+    }
+
+    mediaRecorder.stop()
+  })
+}
+
+const confirmEnd = async () => {
+  if (isProcessing.value) return
+
+  isRecording.value = false
+  isProcessing.value = true
+
+  const meetingId = meeting.value?._id || meeting.value?.id
+  if (!meetingId) {
+    router.push('/dashboard')
+    return
+  }
+
+  // Stop recording and get audio blob
+  const audioBlob = await stopRecording()
+
+  if (audioBlob && meetingId) {
+    try {
+      // Upload recording
+      await meetingStore.uploadRecording(meetingId, new File([audioBlob], 'meeting-recording.webm', { type: 'audio/webm' }))
+      // Process meeting (transcribe + analyze + store)
+      await meetingStore.processMeeting(meetingId)
+      // Fetch updated details
+      const details = await meetingStore.fetchMeetingDetails(meetingId)
+      if (details) {
+        const idx = meetingStore.meetings.findIndex(m => m.id === meetingId || m._id === meetingId)
+        if (idx !== -1) {
+          meetingStore.meetings[idx] = { ...meetingStore.meetings[idx], ...details }
+        }
+      }
+      // Also refresh meetings list
+      await meetingStore.fetchMeetings()
+    } catch (err) {
+      console.error('Processing failed:', err)
+    }
+  }
+
+  // Refresh meetings and navigate
+  meetingStore.activeLiveMeeting = null
+  isProcessing.value = false
+  router.push('/archive')
+}
+
+const leaveCall = () => {
+  meetingStore.activeLiveMeeting = null
+  router.push('/dashboard')
+}
+
+const dialogSteps = [
+  { seconds: 3, speaker: 'Marcus Wright', text: 'Hey Alex! Glad you could join the in-app room. Let\'s sync on the roadmap deliverables.', activeFor: 4 },
+  { seconds: 9, speaker: 'Sarah Jenkins', text: 'Perfect. Alex, can you compile the backend API contracts spreadsheet so we can unblock the frontend developers by tomorrow?', activeFor: 6, triggerTask: { id: Date.now() + 101, title: 'Compile Auth API contracts spreadsheet', assignee: 'Alex Chen', priority: 'HIGH PRIORITY' } },
+  { seconds: 17, speaker: 'Alex Chen', text: 'Yes, absolutely. I will coordinate with Marcus and compile the API sheet first thing tomorrow.', activeFor: 5 },
+  { seconds: 24, speaker: 'Marcus Wright', text: 'Great. I will handle setting up the container resources in AWS as soon as you have that document ready.', activeFor: 5, triggerTask: { id: Date.now() + 102, title: 'Setup test container resources in AWS', assignee: 'Marcus Wright', priority: 'MEDIUM PRIORITY' } }
 ]
 
 let simulationTimer = null
 let currentSecond = 0
 
-// Start transcription simulation
 const startSimulation = () => {
   simulationTimer = setInterval(() => {
-    if (!isListening.value) return
+    if (!isRecording.value && !isProcessing.value) return
     currentSecond++
-    
+
     const step = dialogSteps.find(s => s.seconds === currentSecond)
     if (step) {
       activeTranscript.value.push({
@@ -230,23 +332,14 @@ const startSimulation = () => {
   }, 1000)
 }
 
-const leaveCall = () => {
-  meetingStore.activeLiveMeeting = null
-  router.push('/dashboard')
-}
-
-// Mount and initialize Jitsi
 onMounted(() => {
   if (!meeting.value) {
     router.push('/dashboard')
     return
   }
 
-  // If Jitsi external_api is script loaded
   if (window.JitsiMeetExternalAPI) {
     const domain = 'meet.jit.si'
-    
-    // Extract room name from meetLink or create a unique one
     let roomName = 'SmartMeet_' + meeting.value.id
     if (meeting.value.meetLink) {
       const parts = meeting.value.meetLink.split('/')
@@ -259,9 +352,7 @@ onMounted(() => {
       parentNode: document.querySelector('#meet-iframe-container'),
       width: '100%',
       height: '100%',
-      userInfo: {
-        displayName: 'Alex Chen (Pro)'
-      },
+      userInfo: { displayName: 'Alex Chen (Pro)' },
       configOverwrite: {
         startWithAudioMuted: false,
         startWithVideoMuted: false,
@@ -275,7 +366,6 @@ onMounted(() => {
 
     jitsiApi = new window.JitsiMeetExternalAPI(domain, options)
   } else {
-    // Fallback if SDK is offline/loading fails
     document.querySelector('#meet-iframe-container').innerHTML = `
       <div class="flex flex-col items-center justify-center h-full text-white/50 p-6 text-center gap-3">
         <svg class="w-12 h-12 animate-spin text-primary" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -283,61 +373,35 @@ onMounted(() => {
           <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
         </svg>
         <span class="font-header font-bold text-sm">Initializing Embedded Call Server...</span>
-        <span class="text-xs max-w-sm">Loading secure WebRTC signaling connection. Please verify meet.jit.si connection.</span>
-      </div>
-    `
+        <span class="text-xs max-w-sm">Loading secure WebRTC signaling connection.</span>
+      </div>`
   }
 
+  // Start recording and simulation
+  startRecording()
   startSimulation()
 })
 
 onUnmounted(() => {
-  if (jitsiApi) {
-    jitsiApi.dispose()
-  }
+  if (jitsiApi) jitsiApi.dispose()
   clearInterval(simulationTimer)
+  clearInterval(recordingTimer)
+  if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+    mediaRecorder.stream.getTracks().forEach(t => t.stop())
+    mediaRecorder.stop()
+  }
 })
 </script>
 
 <style scoped>
-.scroll-container::-webkit-scrollbar {
-  width: 4px;
-}
-.scroll-container::-webkit-scrollbar-track {
-  background: transparent;
-}
-.scroll-container::-webkit-scrollbar-thumb {
-  background: rgba(0, 0, 0, 0.08);
-  border-radius: 99px;
-}
-.scroll-container::-webkit-scrollbar-thumb:hover {
-  background: rgba(0, 0, 0, 0.15);
-}
-
-.animate-fade-in {
-  animation: fadeIn 0.35s ease-out forwards;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(12px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-.animate-slide-up {
-  animation: slideUp 0.3s ease-out forwards;
-}
-
-@keyframes slideUp {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-.animate-slide-in-right {
-  animation: slideInRight 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
-}
-
-@keyframes slideInRight {
-  from { opacity: 0; transform: translateX(20px); }
-  to { opacity: 1; transform: translateX(0); }
-}
+.scroll-container::-webkit-scrollbar { width: 4px; }
+.scroll-container::-webkit-scrollbar-track { background: transparent; }
+.scroll-container::-webkit-scrollbar-thumb { background: rgba(0, 0, 0, 0.08); border-radius: 99px; }
+.scroll-container::-webkit-scrollbar-thumb:hover { background: rgba(0, 0, 0, 0.15); }
+.animate-fade-in { animation: fadeIn 0.35s ease-out forwards; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+.animate-slide-up { animation: slideUp 0.3s ease-out forwards; }
+@keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+.animate-slide-in-right { animation: slideInRight 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
+@keyframes slideInRight { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
 </style>

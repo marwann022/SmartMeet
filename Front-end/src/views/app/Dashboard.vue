@@ -8,9 +8,10 @@
 import DashboardMain from '@/components/dashboard/DashboardMain.vue'
 import { onMounted } from "vue"
 import { useRouter } from "vue-router"
+import { useMeetingStore } from "@/stores/meeting"
 
 const router = useRouter()
-
+const meetingStore = useMeetingStore()
 
 defineProps({
   searchQuery: {
@@ -25,6 +26,8 @@ onMounted(() => {
   if (!token) {
     router.push("/signin")
   }
+
+  meetingStore.fetchMeetings()
 })
 
 

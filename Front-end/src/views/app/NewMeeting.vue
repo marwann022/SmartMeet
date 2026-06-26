@@ -625,20 +625,9 @@ const joinLiveCall = (meeting) => {
   router.push("/live-meeting");
 };
 
-const submitMeeting = () => {
+const submitMeeting = async () => {
   if (!validateForm()) return;
   isSubmitting.value = true;
-
-  const dateObj = new Date(form.datetime);
-  const formattedDate = dateObj.toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  });
-  const formattedTime = dateObj.toLocaleTimeString("en-US", {
-    hour: "2-digit",
-    minute: "2-digit",
-  });
 
   const meetingId = Date.now();
   const newMeeting = {
@@ -646,31 +635,18 @@ const submitMeeting = () => {
     description: form.description,
     type: form.type,
     datetime: form.datetime,
-    date: formattedDate,
-    time: formattedTime,
     duration: form.duration,
-    participantsCount: form.participants.length,
     meetLink: `https://meet.jit.si/SmartMeet_${meetingId}`,
     participants: [...form.participants],
-    bullets: [],
-    timeline: [],
-    tasks: [],
-    decisions: [],
-    transcript: [],
   };
 
-  meetingStore.createMeeting(newMeeting);
-
-  // Set the active live meeting with the created details
-  const created = {
+  const created = await meetingStore.createMeeting(newMeeting);
+  meetingStore.activeLiveMeeting = created || {
     ...newMeeting,
-    id: meetingStore.meetings[0].id,
+    id: meetingId.toString(),
   };
-  meetingStore.activeLiveMeeting = created;
 
   isSubmitting.value = false;
-
-  // Redirect directly to the live meeting page
   router.push("/live-meeting");
 };
 

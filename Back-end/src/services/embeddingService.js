@@ -17,3 +17,12 @@ export const getEmbedding = async (text) => {
   const result = await e(text, { pooling: "mean", normalize: true });
   return Array.from(result.data);
 };
+
+export const generateEmbeddingsForChunks = async (chunks) => {
+  return Promise.all(
+    chunks.map(async (chunk) => ({
+      ...chunk,
+      embedding: await getEmbedding(chunk.text),
+    }))
+  );
+};

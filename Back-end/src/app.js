@@ -1,6 +1,7 @@
 import express from "express";
 import path from "path"
 import userRoutes from "./routes/userRoutes.js";
+import meetingRoutes from "./routes/meetingRoutes.js";
 import taskRoutes from "./routes/taskRoutes.js";
 import ragRoutes from "./routes/ragRoutes.js";
 import cors from "cors";
@@ -20,6 +21,7 @@ app.get("/", (req, res) => {
 });
 
 app.use("/api/users", userRoutes);
+app.use("/api/meetings", meetingRoutes);
 app.use("/api/tasks", taskRoutes);
 app.use("/api/rag", ragRoutes);
 
