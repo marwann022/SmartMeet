@@ -66,11 +66,9 @@
             class="hover:!text-primary"
             @click="showDemoModal = true"
           >
-            <template #icon-left>
-              <PhPlay :size="14" weight="fill" class="mr-1 text-secondary" />
-            </template>
-            Watch 2m Demo
-          </Button>
+          Explore More
+        
+        </Button>
         </div>
 
         <!-- Social Proof/Trust Row (Fixed: Uses actual image assets now) -->
@@ -413,7 +411,7 @@
 
 <script setup>
 import { ref, onMounted, onUnmounted, nextTick } from "vue";
-import { PhArrowRight, PhPlay, PhCheck } from "@phosphor-icons/vue";
+import { PhArrowRight, PhPlay, PhCheck, PhArrowUpRight } from "@phosphor-icons/vue";
 import Button from "../ui/Button.vue";
 import Modal from "../ui/Modal.vue";
 
