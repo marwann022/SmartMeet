@@ -14,14 +14,64 @@ import { UAParser } from "ua-parser-js";
 
 const googleClient = new OAuth2Client();
 
+
+//---------------Genarate comunity code----------------
+const generateCommunityCode = () => {
+    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    let code = "";
+
+    for (let i = 0; i < 8; i++) {
+        code += chars.charAt(
+            Math.floor(Math.random() * chars.length)
+        );
+    }
+
+    return code;
+};
+
+
+
 // ---------------- Register ----------------
 export const register = async(req, res) => {
     try {
-        const { name, email, password, confirmPassword } = req.body;
+        const { name, email, password, confirmPassword, role, communityCode } =
+        req.body;
+
+        const allowedRoles = ["admin", "user"];
+
+        if (!allowedRoles.includes(role)) {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid role selected.",
+            });
+        }
+
+        if (role === "user" && (!communityCode || !communityCode.trim())) {
+            return res.status(400).json({
+                success: false,
+                message: "Community Code is required.",
+            });
+        }
+
+        if (role === "user") {
+
+            const admin = await User.findOne({
+                role: "admin",
+                communityCode: communityCode.trim()
+            });
+
+            if (!admin) {
+                return res.status(400).json({
+                    success: false,
+                    message: "Invalid Community Code."
+                });
+            }
+
+        }
 
         // 1. Plain-Text Checks
         // Full Name Validation
-        if (!name || name.trim() === '') {
+        if (!name || name.trim() === "") {
             return res.status(400).json({
                 success: false,
                 message: "Full Name is required.",
@@ -41,7 +91,7 @@ export const register = async(req, res) => {
         }
 
         // Email Validation
-        if (!email || email.trim() === '') {
+        if (!email || email.trim() === "") {
             return res.status(400).json({
                 success: false,
                 message: "Email address is required.",
@@ -113,12 +163,34 @@ export const register = async(req, res) => {
         const firstName = names[0];
         const lastName = names.slice(1).join(" ") || "";
 
+        let generatedCommunityCode = "";
+
+        if (role === "admin") {
+
+            do {
+
+                generatedCommunityCode = generateCommunityCode();
+
+            } while (
+                await User.findOne({
+                    communityCode: generatedCommunityCode
+                })
+            );
+
+        }
+
         const user = await User.create({
             name: name.trim(),
             firstName,
             lastName,
             email,
             password,
+
+            role,
+
+            communityCode: role === "admin" ?
+                generatedCommunityCode :
+                (communityCode || "").trim()
         });
 
         // Generate JWT
@@ -128,6 +200,9 @@ export const register = async(req, res) => {
             success: true,
             message: "User registered successfully",
             token,
+            communityCode: role === "admin" ?
+                generatedCommunityCode :
+                null,
             user: user.getPublicProfile(),
         });
 
@@ -145,7 +220,7 @@ export const login = async(req, res) => {
         const { email, password } = req.body;
 
         // Validation
-        if (!email || email.trim() === '') {
+        if (!email || email.trim() === "") {
             return res.status(400).json({
                 success: false,
                 message: "Email Address is required.",
@@ -226,9 +301,7 @@ export const login = async(req, res) => {
         let session;
 
         try {
-
-            const session = await Session.create({
-
+            session = await Session.create({
                 user: user._id,
 
                 refreshToken: token,
@@ -247,8 +320,7 @@ export const login = async(req, res) => {
 
                 ip: req.ip,
 
-                lastActive: new Date()
-
+                lastActive: new Date(),
             });
 
             console.log("Session Saved Successfully");
@@ -263,16 +335,11 @@ export const login = async(req, res) => {
             console.log("All Sessions:");
 
             console.log(sessions);
-
         } catch (err) {
-
             console.error("SESSION CREATE ERROR:");
 
             console.error(err);
-
         }
-
-
 
         console.log("Session created successfully");
 
@@ -283,9 +350,7 @@ export const login = async(req, res) => {
             sessionId: session ? session._id : null,
             user: user.getPublicProfile(),
         });
-
     } catch (error) {
-
         console.error("LOGIN ERROR:");
         console.error(error);
 
@@ -322,14 +387,17 @@ export const googleLogin = async(req, res) => {
         });
 
         const payload = ticket.getPayload();
-        const { sub: googleId, email, given_name: firstName, family_name: lastName, picture: avatar } = payload;
+        const {
+            sub: googleId,
+            email,
+            given_name: firstName,
+            family_name: lastName,
+            picture: avatar,
+        } = payload;
 
         // Find user by Google ID or by Email
         let user = await User.findOne({
-            $or: [
-                { googleId },
-                { email: email.toLowerCase() }
-            ]
+            $or: [{ googleId }, { email: email.toLowerCase() }],
         });
 
         if (user) {
@@ -339,7 +407,8 @@ export const googleLogin = async(req, res) => {
             }
             // Ensure they have name set if missing
             if (!user.name) {
-                user.name = `${user.firstName || firstName} ${user.lastName || lastName}`.trim();
+                user.name =
+                    `${user.firstName || firstName} ${user.lastName || lastName}`.trim();
             }
             // Update avatar if they don't have one
             if (!user.avatar && avatar) {
@@ -369,7 +438,6 @@ export const googleLogin = async(req, res) => {
             token: localToken,
             user: user.getPublicProfile(),
         });
-
     } catch (error) {
         res.status(500).json({
             success: false,
@@ -402,20 +470,15 @@ export const forgotPassword = async(req, res) => {
             });
         }
 
-        const resetToken =
-            crypto.randomBytes(32).toString("hex");
+        const resetToken = crypto.randomBytes(32).toString("hex");
 
         user.resetPasswordToken = resetToken;
 
-        user.resetPasswordExpire =
-            Date.now() + 10 * 60 * 1000;
+        user.resetPasswordExpire = Date.now() + 10 * 60 * 1000;
 
         await user.save();
 
-        const resetUrl =
-            `http://localhost:5173/reset-password/${resetToken}`;
-
-
+        const resetUrl = `http://localhost:5173/reset-password/${resetToken}`;
 
         await sendEmail({
             to: user.email,
@@ -488,31 +551,27 @@ export const forgotPassword = async(req, res) => {
     }
 };
 
-
-
-
 export const resetPassword = async(req, res) => {
     try {
-
         const { token } = req.params;
         const { password } = req.body;
 
         if (!password) {
             return res.status(400).json({
                 success: false,
-                message: "Password is required"
+                message: "Password is required",
             });
         }
 
         const user = await User.findOne({
             resetPasswordToken: token,
-            resetPasswordExpire: { $gt: Date.now() }
+            resetPasswordExpire: { $gt: Date.now() },
         }).select("+password");
 
         if (!user) {
             return res.status(400).json({
                 success: false,
-                message: "Invalid or expired token"
+                message: "Invalid or expired token",
             });
         }
 
@@ -526,26 +585,20 @@ export const resetPassword = async(req, res) => {
 
         res.status(200).json({
             success: true,
-            message: "Password reset successfully"
+            message: "Password reset successfully",
         });
-
 
         res.status(200).json({
             success: true,
-            message: "Password reset successfully"
+            message: "Password reset successfully",
         });
-
     } catch (error) {
-
         res.status(500).json({
             success: false,
-            message: error.message
+            message: error.message,
         });
-
     }
-}
-
-
+};
 
 //---------------------profile----------------------
 
@@ -555,88 +608,68 @@ export const getProfile = async(req, res) => {
 
         res.status(200).json({
             success: true,
-            user
+            user,
         });
-
     } catch (error) {
         res.status(500).json({
             success: false,
-            message: error.message
+            message: error.message,
         });
     }
 };
 
-
 //---------------------update profile----------------------
 export const updateProfile = async(req, res) => {
     try {
-
         const user = await User.findById(req.user.id);
 
         if (!user) {
             return res.status(404).json({
                 success: false,
-                message: "User not found"
+                message: "User not found",
             });
         }
 
-        user.firstName =
-            req.body.firstName || user.firstName;
+        user.firstName = req.body.firstName || user.firstName;
 
-        user.lastName =
-            req.body.lastName || user.lastName;
+        user.lastName = req.body.lastName || user.lastName;
 
         user.name = `${user.firstName} ${user.lastName}`.trim();
 
-        user.phone =
-            req.body.phone || user.phone;
+        user.phone = req.body.phone || user.phone;
 
-        user.company =
-            req.body.company || user.company;
+        user.company = req.body.company || user.company;
 
-        user.jobTitle =
-            req.body.jobTitle || user.jobTitle;
+        user.jobTitle = req.body.jobTitle || user.jobTitle;
 
-        user.avatar =
-            req.body.avatar || user.avatar;
+        user.avatar = req.body.avatar || user.avatar;
 
-        user.twoFactor =
-            req.body.twoFactor;
+        user.twoFactor = req.body.twoFactor;
 
         await user.save();
 
         res.status(200).json({
             success: true,
             message: "Profile Updated",
-            user
+            user,
         });
-
     } catch (error) {
         res.status(500).json({
             success: false,
-            message: error.message
+            message: error.message,
         });
     }
 };
 
 //--------------------------chnge password--------------------
-export const changePassword = async(
-    req,
-    res
-) => {
+export const changePassword = async(req, res) => {
     try {
+        const { currentPassword, newPassword } = req.body;
 
-        const {
-            currentPassword,
-            newPassword
-        } = req.body;
-
-        if (!currentPassword ||
-            !newPassword
-        ) {
+        if (!currentPassword || !newPassword) {
             return res.status(400).json({
                 success: false,
-                message: "Current password and new password are required"
+                message: "Current password and new password are required",
             });
         }
 
@@ -647,174 +680,127 @@ export const changePassword = async(
         const hasSpecial = /[^a-zA-Z0-9]/.test(newPassword);
         const min8 = newPassword.length >= 8;
 
-        if (!hasLowercase ||
-            !hasUppercase ||
-            !hasNumber ||
-            !hasSpecial ||
-            !min8
-        ) {
+        if (!hasLowercase || !hasUppercase || !hasNumber || !hasSpecial || !min8) {
             return res.status(400).json({
                 success: false,
-                message: "Password does not meet all requirements."
+                message: "Password does not meet all requirements.",
             });
         }
 
         if (currentPassword === newPassword) {
             return res.status(400).json({
                 success: false,
-                message: "New password must be different from current password"
+                message: "New password must be different from current password",
             });
         }
 
-        const user =
-            await User.findById(
-                req.user.id
-            ).select("+password");
+        const user = await User.findById(req.user.id).select("+password");
 
         if (!user.password) {
             return res.status(400).json({
                 success: false,
-                message: "This account uses Google Sign In"
+                message: "This account uses Google Sign In",
             });
         }
 
-        const isMatch =
-            await user.matchPassword(
-                currentPassword
-            );
+        const isMatch = await user.matchPassword(currentPassword);
 
         if (!user.password) {
             return res.status(400).json({
                 success: false,
-                message: "This account uses Google Sign In"
+                message: "This account uses Google Sign In",
             });
         }
 
         if (!isMatch) {
             return res.status(400).json({
                 success: false,
-                message: "Current password is incorrect"
+                message: "Current password is incorrect",
             });
         }
 
-        user.password =
-            newPassword;
+        user.password = newPassword;
 
         await user.save();
 
         res.status(200).json({
             success: true,
-            message: "Password updated successfully"
+            message: "Password updated successfully",
         });
-
     } catch (error) {
-
         res.status(500).json({
             success: false,
-            message: error.message
+            message: error.message,
         });
-
     }
 };
 
-
-
 //---------------------upload avatar----------------------
-export const uploadAvatar = async(
-    req,
-    res
-) => {
+export const uploadAvatar = async(req, res) => {
+    const user = await User.findById(req.user.id);
 
-    const user = await User.findById(
-        req.user.id
-    )
+    user.avatar = req.file.filename;
 
-    user.avatar =
-        req.file.filename
-
-    await user.save()
+    await user.save();
 
     res.json({
         success: true,
-        avatar: user.avatar
-    })
-}
-
-
+        avatar: user.avatar,
+    });
+};
 
 //-------------------2f factor authenticator----------------
 export const setupTwoFactor = async(req, res) => {
-
     try {
+        const user = await User.findById(req.user.id);
 
-        const user =
-            await User.findById(req.user.id);
+        const secret = speakeasy.generateSecret({
+            name: `SmartMeet (${user.email})`,
+        });
 
-        const secret =
-            speakeasy.generateSecret({
-                name: `SmartMeet (${user.email})`
-            });
-
-        user.twoFactorSecret =
-            secret.base32;
+        user.twoFactorSecret = secret.base32;
 
         await user.save();
 
-        const qrCode =
-            await QRCode.toDataURL(
-                secret.otpauth_url
-            );
+        const qrCode = await QRCode.toDataURL(secret.otpauth_url);
 
         res.status(200).json({
             success: true,
-            qrCode
+            qrCode,
         });
-
     } catch (error) {
-
         res.status(500).json({
             success: false,
-            message: error.message
+            message: error.message,
         });
-
     }
-
 };
 
-
 export const verifyTwoFactor = async(req, res) => {
-
     try {
-
         const { token } = req.body;
 
-        const user =
-            await User.findById(req.user.id);
+        const user = await User.findById(req.user.id);
 
         if (!user.twoFactorSecret) {
-
             return res.status(400).json({
                 success: false,
-                message: "2FA setup not found"
+                message: "2FA setup not found",
             });
-
         }
 
-        const verified =
-            speakeasy.totp.verify({
-                secret: user.twoFactorSecret,
-                encoding: "base32",
-                token,
-                window: 1
-            });
+        const verified = speakeasy.totp.verify({
+            secret: user.twoFactorSecret,
+            encoding: "base32",
+            token,
+            window: 1,
+        });
 
         if (!verified) {
-
             return res.status(400).json({
                 success: false,
-                message: "Invalid code"
+                message: "Invalid code",
             });
-
         }
 
         user.twoFactorEnabled = true;
@@ -823,27 +809,19 @@ export const verifyTwoFactor = async(req, res) => {
 
         res.status(200).json({
             success: true,
-            message: "2FA enabled successfully"
+            message: "2FA enabled successfully",
         });
-
     } catch (error) {
-
         res.status(500).json({
             success: false,
-            message: error.message
+            message: error.message,
         });
-
     }
-
 };
 
-
 export const disableTwoFactor = async(req, res) => {
-
     try {
-
-        const user =
-            await User.findById(req.user.id);
+        const user = await User.findById(req.user.id);
 
         user.twoFactorEnabled = false;
 
@@ -853,59 +831,50 @@ export const disableTwoFactor = async(req, res) => {
 
         res.status(200).json({
             success: true,
-            message: "2FA disabled"
+            message: "2FA disabled",
         });
-
     } catch (error) {
-
         res.status(500).json({
             success: false,
-            message: error.message
+            message: error.message,
         });
-
     }
-
 };
 
 //----------------sessions--------------------------
 export const getUserSessions = async(req, res) => {
-
     try {
-
         console.log("REQ USER:");
 
         console.log(req.user);
 
         const sessions = await Session.find({
-                user: req.user._id
-            })
-            .sort({
-                createdAt: -1
-            });
+            user: req.user._id,
+        }).sort({
+            createdAt: -1,
+        });
 
         res.status(200).json({
             success: true,
-            sessions
+            sessions,
         });
-
     } catch (error) {
-
         res.status(500).json({
             success: false,
-            message: error.message
+            message: error.message,
         });
-
     }
-
 };
 
 //----------------notification settings--------------------------
 // @desc    Get logged in user's notification settings
 // @route   GET /api/users/notification-settings
 // @access  Private
-export const getNotificationSettings = async (req, res) => {
+export const getNotificationSettings = async(req, res) => {
     try {
-        const user = await User.findById(req.user._id).select("notificationSettings");
+        const user = await User.findById(req.user._id).select(
+            "notificationSettings",
+        );
         if (!user) {
             return res.status(404).json({
                 success: false,
@@ -928,7 +897,7 @@ export const getNotificationSettings = async (req, res) => {
 // @desc    Update logged in user's notification settings
 // @route   PUT /api/users/notification-settings
 // @access  Private
-export const updateNotificationSettings = async (req, res) => {
+export const updateNotificationSettings = async(req, res) => {
     try {
         const user = await User.findById(req.user._id);
         if (!user) {
