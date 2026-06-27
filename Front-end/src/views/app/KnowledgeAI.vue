@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col h-[calc(100vh-100px)] text-left relative overflow-hidden bg-transparent pt-2">
+  <div class="flex flex-col h-full text-left relative overflow-hidden bg-transparent pt-2">
     
     <!-- Wrapper matching full navbar width -->
     <div class="w-full flex-1 flex flex-col min-h-0 relative">

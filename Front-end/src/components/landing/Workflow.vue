@@ -1,5 +1,5 @@
 <template>
-  <section id="workflow" class="bg-brand-bg py-10 relative w-full border-t border-black/5">
+  <section id="workflow" class="bg-brand-bg py-10 relative w-full border-t border-black/5 dark:border-white/5">
     <!-- Header -->
     <div class="max-w-[700px] mx-auto text-center mb-4 px-4 relative z-10">
       <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/8 border border-primary/15 text-primary text-[10px] font-bold tracking-wider uppercase mb-5 font-header">
@@ -40,7 +40,7 @@
           <div class="w-14 h-14 rounded-full flex items-center justify-center font-header font-extrabold text-sm border-2 transition-all duration-500 ease-out"
                :class="activeStep === idx 
                  ? 'bg-grad-primary text-white border-primary shadow-[0_4px_15px_rgba(75,104,255,0.25)] scale-110' 
-                 : 'bg-white text-brand-slate border-black/10 hover:border-black/15 hover:text-brand-dark group-hover:scale-105'">
+                 : 'bg-white dark:bg-slate-900 text-brand-slate border-black/10 dark:border-white/10 hover:border-black/15 dark:hover:border-white/20 hover:text-brand-dark group-hover:scale-105'">
             0{{ idx + 1 }}
           </div>
           <!-- Step Label -->
@@ -56,9 +56,9 @@
         <button v-for="(step, idx) in steps" :key="'mob-' + idx"
              @click="selectStep(idx)"
              class="flex items-center gap-4 p-4 rounded-xl border text-left cursor-pointer focus:outline-none transition-all duration-300 bg-transparent"
-             :class="activeStep === idx ? 'bg-primary/5 border-primary/20 text-brand-dark font-semibold' : 'bg-white/60 border-black/5 text-brand-slate'">
+             :class="activeStep === idx ? 'bg-primary/5 dark:bg-primary/10 border-primary/20 text-brand-dark font-semibold' : 'bg-white/60 dark:bg-slate-900/60 border-black/5 dark:border-white/5 text-brand-slate'">
           <div class="w-10 h-10 rounded-full flex items-center justify-center font-header font-bold text-xs border"
-               :class="activeStep === idx ? 'bg-grad-primary text-white border-primary' : 'bg-white border-black/10'">
+               :class="activeStep === idx ? 'bg-grad-primary text-white border-primary' : 'bg-white dark:bg-slate-800 border-black/10 dark:border-white/10'">
             0{{ idx + 1 }}
           </div>
           <span class="text-xs uppercase font-bold font-header tracking-wider">{{ step.shortTitle }}</span>
@@ -89,11 +89,11 @@
             <!-- Dynamic UI Mockup Panel (Nested Radius: rounded-2xl) -->
             <div class="flex-grow-0 flex-shrink-0 w-full md:w-[320px] flex items-center justify-center">
               <!-- Visual Mockup Container (Harmonized Radius: rounded-2xl) -->
-              <div class="w-full h-[210px] bg-white border border-black/10 rounded-2xl p-4 shadow-glass relative overflow-hidden flex flex-col justify-between">
+              <div class="w-full h-[210px] bg-white dark:bg-slate-950/80 border border-black/10 dark:border-white/10 rounded-2xl p-4 shadow-glass relative overflow-hidden flex flex-col justify-between">
                 <div class="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent"></div>
                 
                 <!-- Mockup Header -->
-                <div class="flex justify-between items-center border-b border-black/5 pb-2.5">
+                <div class="flex justify-between items-center border-b border-black/5 dark:border-white/5 pb-2.5">
                   <div class="flex items-center gap-2">
                     <div class="w-2.5 h-2.5 rounded-full bg-slate-200 flex items-center justify-center">
                       <span class="w-1.5 h-1.5 rounded-full" :class="activeStep === 0 ? 'bg-red-500 animate-pulse' : 'bg-slate-400'"></span>
@@ -123,7 +123,7 @@
                       <span>Analyzing Transcript</span>
                       <span>90% Complete</span>
                     </div>
-                    <div class="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                    <div class="w-full h-1.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
                       <div class="h-full w-4/5 bg-secondary rounded-full"></div>
                     </div>
                     <div class="text-[10px] text-brand-slate italic">"Finalizing deployment details next Tuesday..."</div>
@@ -132,7 +132,7 @@
                   <!-- Step 3: Sync Widget -->
                   <div v-else-if="activeStep === 2" class="flex items-center gap-3 justify-center">
                     <!-- Harmonized inner radius: rounded-lg -->
-                    <div class="p-2 bg-slate-50 border border-black/5 rounded-lg text-center shadow-sm">
+                    <div class="p-2 bg-slate-50 dark:bg-slate-900/60 border border-black/5 dark:border-white/5 rounded-lg text-center shadow-sm">
                       <span class="text-[8px] font-bold text-brand-slate block mb-1">SmartMeet</span>
                       <div class="w-8 h-8 rounded bg-primary flex items-center justify-center text-white text-xs font-bold font-header select-none">SM</div>
                     </div>
@@ -146,7 +146,7 @@
                       </svg>
                     </div>
                     <!-- Harmonized inner radius: rounded-lg -->
-                    <div class="p-2 bg-slate-50 border border-black/5 rounded-lg text-center shadow-sm">
+                    <div class="p-2 bg-slate-50 dark:bg-slate-900/60 border border-black/5 dark:border-white/5 rounded-lg text-center shadow-sm">
                       <span class="text-[8px] font-bold text-brand-slate block mb-1">Slack Dev</span>
                       <div class="w-8 h-8 rounded bg-[#4a154b] flex items-center justify-center text-white text-xs font-bold font-header select-none">S</div>
                     </div>
@@ -155,7 +155,7 @@
                   <!-- Step 4: AI Conversational Search -->
                   <div v-else-if="activeStep === 3" class="space-y-2 text-left">
                     <!-- Harmonized inner radius: rounded-lg -->
-                    <div class="p-2 bg-slate-50 border border-black/5 rounded-lg flex gap-2">
+                    <div class="p-2 bg-slate-50 dark:bg-slate-900/60 border border-black/5 dark:border-white/5 rounded-lg flex gap-2">
                       <span class="text-[10px] font-bold text-primary">Q:</span>
                       <span class="text-[10px] font-medium text-brand-dark">What did we agree?</span>
                     </div>
@@ -168,7 +168,7 @@
                 </div>
 
                 <!-- Mockup Footer -->
-                <div class="text-[8px] text-brand-slate font-mono flex justify-between border-t border-black/5 pt-2">
+                <div class="text-[8px] text-brand-slate font-mono flex justify-between border-t border-black/5 dark:border-white/5 pt-2">
                   <span>SSL encrypted</span>
                   <span>ID: SM_0{{ activeStep + 1 }}</span>
                 </div>

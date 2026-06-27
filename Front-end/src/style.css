@@ -3,8 +3,32 @@
 @tailwind utilities;
 
 @layer base {
+  :root {
+    --brand-bg: #f1f3f9;
+    --brand-dark: #0f172a;
+    --brand-slate: #64748b;
+    --glass-bg: linear-gradient(135deg, rgba(255, 255, 255, 0.8) 0%, rgba(243, 246, 255, 0.72) 50%, rgba(255, 243, 248, 0.65) 100%);
+    --glass-bg-hover: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(235, 242, 255, 0.8) 50%, rgba(255, 235, 244, 0.72) 100%);
+    --border-glass: rgba(255, 255, 255, 0.7);
+    --border-glass-hover: rgba(255, 255, 255, 0.95);
+    --shadow-glass: 0 8px 32px 0 rgba(31, 38, 135, 0.06), 0 1px 2px 0 rgba(255, 255, 255, 0.5) inset;
+    --shadow-glass-hover: 0 20px 40px 0 rgba(31, 38, 135, 0.08), 0 1px 2px 0 rgba(255, 255, 255, 0.7) inset;
+  }
+
+  .dark {
+    --brand-bg: #090d16;
+    --brand-dark: #f8fafc;
+    --brand-slate: #94a3b8;
+    --glass-bg: linear-gradient(135deg, rgba(15, 23, 42, 0.65) 0%, rgba(30, 41, 59, 0.6) 50%, rgba(15, 23, 42, 0.65) 100%);
+    --glass-bg-hover: linear-gradient(135deg, rgba(30, 41, 59, 0.75) 0%, rgba(15, 23, 42, 0.7) 50%, rgba(30, 41, 59, 0.75) 100%);
+    --border-glass: rgba(255, 255, 255, 0.08);
+    --border-glass-hover: rgba(255, 255, 255, 0.15);
+    --shadow-glass: 0 8px 32px 0 rgba(0, 0, 0, 0.3), 0 1px 2px 0 rgba(255, 255, 255, 0.05) inset;
+    --shadow-glass-hover: 0 20px 40px 0 rgba(0, 0, 0, 0.4), 0 1px 2px 0 rgba(255, 255, 255, 0.08) inset;
+  }
+
   body {
-    @apply bg-brand-bg text-brand-dark min-h-screen font-body overflow-x-hidden leading-relaxed relative;
+    @apply bg-brand-bg text-brand-dark min-h-screen font-body overflow-x-hidden leading-relaxed relative transition-colors duration-300;
   }
 }
 
@@ -141,10 +165,17 @@ body::after {
 
 /* Glassmorphism custom base styles */
 .card-glass {
-  @apply bg-glass-bg border border-white/70 shadow-glass backdrop-blur-glass transition-all duration-300;
+  background: var(--glass-bg);
+  border: 1px solid var(--border-glass);
+  box-shadow: var(--shadow-glass);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .card-glass:hover {
-  @apply bg-glass-bg-hover border-white/95 shadow-card-hover;
+  background: var(--glass-bg-hover);
+  border-color: var(--border-glass-hover);
+  box-shadow: var(--shadow-glass-hover);
 }
 
 /* Shell and view container layouts */

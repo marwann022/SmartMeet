@@ -121,11 +121,11 @@
         <a href="#" class="hover-3d my-12 mx-2 cursor-pointer">
 
           <div
-            class="w-[540px] bg-white/60 border border-white/80 rounded-[32px] shadow-glass backdrop-blur-glass overflow-hidden flex flex-col min-h-[480px] lg:h-[520px] transition-all duration-500 hover:border-white hover:shadow-card-hover group"
+            class="w-[540px] bg-white/60 dark:bg-slate-900/60 border border-white/80 dark:border-slate-800/80 rounded-[32px] shadow-glass backdrop-blur-glass overflow-hidden flex flex-col min-h-[480px] lg:h-[520px] transition-all duration-500 hover:border-white dark:hover:border-slate-700 hover:shadow-card-hover group"
           >
             <!-- Top Bar (Harmonized Radius: rounded-t-[30px]) -->
             <div
-              class="bg-white/50 border-b border-black/5 px-6 py-4 flex items-center justify-between flex-shrink-0 rounded-t-[30px]"
+              class="bg-white/50 dark:bg-slate-800/50 border-b border-black/5 dark:border-white/5 px-6 py-4 flex items-center justify-between flex-shrink-0 rounded-t-[30px]"
             >
               <div class="flex items-center gap-3">
                 <div class="flex gap-1.5">
@@ -158,7 +158,7 @@
             >
               <!-- Left Panel: Live Audio Feed & Transcriber -->
               <div
-                class="border-r border-black/5 p-5 flex flex-col justify-between bg-white/20"
+                class="border-r border-black/5 dark:border-white/5 p-5 flex flex-col justify-between bg-white/20 dark:bg-slate-950/20"
               >
                 <!-- Top: Audio Waveform -->
                 <div class="flex flex-col gap-3">
@@ -171,7 +171,7 @@
         
                   <!-- Pulsing Waveform (Harmonized Radius: rounded-xl) -->
                   <div
-                    class="h-16 bg-white/40 rounded-xl border border-black/5 flex items-center justify-center gap-[3px] px-6 relative overflow-hidden"
+                    class="h-16 bg-white/40 dark:bg-slate-900/40 rounded-xl border border-black/5 dark:border-white/5 flex items-center justify-center gap-[3px] px-6 relative overflow-hidden"
                   >
                     <div
                       v-for="i in 28"
@@ -184,7 +184,7 @@
                   </div>
                 </div>
         
-                <div class="border-t border-black/5 mt-4"></div>
+                <div class="border-t border-black/5 dark:border-white/5 mt-4"></div>
         
                 <!-- Bottom: Scrolling Live Transcript -->
                 <div
@@ -207,8 +207,8 @@
                         class="p-3 rounded-xl border text-xs transition-all duration-500 font-body"
                         :class="
                           idx === 0
-                            ? 'bg-primary/5 border-primary/20 text-brand-dark shadow-[0_2px_12px_rgba(75,104,255,0.03)] font-semibold'
-                            : 'bg-white/30 border-black/5 text-brand-slate'
+                            ? 'bg-primary/5 dark:bg-primary/10 border-primary/20 text-brand-dark shadow-[0_2px_12px_rgba(75,104,255,0.03)] font-semibold'
+                            : 'bg-white/30 dark:bg-slate-850/30 border-black/5 dark:border-white/5 text-brand-slate'
                         "
                       >
                         <div
@@ -228,7 +228,7 @@
               </div>
         
               <!-- Right Panel: AI Compiled Action Items -->
-              <div class="p-5 flex flex-col justify-between bg-white/40">
+              <div class="p-5 flex flex-col justify-between bg-white/40 dark:bg-slate-900/40">
                 <div class="flex flex-col gap-4">
                   <div
                     class="flex justify-between items-center text-[10px] font-bold text-brand-slate uppercase tracking-wider font-header"
@@ -247,7 +247,7 @@
                       <div
                         v-for="task in compiledTasks"
                         :key="task.id"
-                        class="p-3.5 rounded-xl bg-white border border-black/5 shadow-sm flex items-start gap-3 transition-all duration-300 hover:border-primary/20 hover:shadow-md"
+                        class="p-3.5 rounded-xl bg-white dark:bg-slate-950/80 border border-black/5 dark:border-white/5 shadow-sm flex items-start gap-3 transition-all duration-300 hover:border-primary/20 hover:shadow-md"
                       >
                         <!-- Checked indicator -->
                         <div
@@ -255,7 +255,7 @@
                           :class="
                             task.done
                               ? 'bg-green-500 text-white'
-                              : 'bg-slate-50 border border-black/10 text-transparent'
+                              : 'bg-slate-50 dark:bg-slate-900 border border-black/10 dark:border-white/10 text-transparent'
                           "
                         >
                           <PhCheck :size="10" weight="bold" />
@@ -320,7 +320,7 @@
                 </div>
         
                 <!-- Bottom Tags -->
-                <div class="border-t border-black/5 pt-4">
+                <div class="border-t border-black/5 dark:border-white/5 pt-4">
                   <div
                     class="text-[9px] font-bold text-brand-slate uppercase tracking-wider mb-2 font-header"
                   >
@@ -331,7 +331,7 @@
                     <span
                       v-for="tag in activeTags"
                       :key="tag"
-                      class="text-[9px] font-bold font-header px-2 py-0.5 rounded-full bg-slate-100 border border-black/5 text-brand-slate"
+                      class="text-[9px] font-bold font-header px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 border border-black/5 dark:border-white/5 text-brand-slate"
                     >
                       {{ tag }}
                     </span>

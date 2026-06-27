@@ -4,16 +4,15 @@
     `compact:` utilities apply only when screen width < 850px (see tailwind.config.js).
   -->
   <aside 
-    class="w-[260px] h-[100vh] fixed top-[0px] bottom-[0px] bg-white/75 border-r border-black/5 backdrop-blur-[20px] z-50 flex flex-col justify-between p-[24px] transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] compact:w-[76px] compact:p-3 compact:px-2"
+    class="w-[260px] h-[100vh] fixed top-[0px] bottom-[0px] bg-white/75 dark:bg-slate-900/75 border-r border-black/5 dark:border-white/5 backdrop-blur-[20px] z-50 flex flex-col justify-between p-[24px] transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] compact:hidden"
     :class="[
-      uiStore.sidebarOpen ? 'left-[0px]' : 'left-[-260px]',
-      'compact:left-0'
+      uiStore.sidebarOpen ? 'left-[0px]' : 'left-[-260px]'
     ]"
   >
     <!-- Collapse toggle: desktop only — hidden in compact mode where sidebar stays fixed & visible -->
     <button 
       @click="uiStore.toggleSidebar"
-      class="absolute top-[32px] w-[26px] h-[26px] rounded-full bg-white/90 border border-black/8 shadow-[0_2px_8px_rgba(0,0,0,0.08)] hover:shadow-[0_4px_12px_rgba(75,104,255,0.15)] flex items-center justify-center transition-all duration-300 hover:scale-110 hover:border-primary/20 active:scale-95 cursor-pointer focus:outline-none z-[100] compact:hidden"
+      class="absolute top-[32px] w-[26px] h-[26px] rounded-full bg-white/90 dark:bg-slate-800/90 border border-black/8 dark:border-white/10 shadow-[0_2px_8px_rgba(0,0,0,0.08)] dark:shadow-[0_2px_8px_rgba(0,0,0,0.3)] hover:shadow-[0_4px_12px_rgba(75,104,255,0.15)] flex items-center justify-center transition-all duration-300 hover:scale-110 hover:border-primary/20 active:scale-95 cursor-pointer focus:outline-none z-[100] compact:hidden"
       :class="uiStore.sidebarOpen ? 'right-[-13px]' : 'right-[-32px]'"
       :title="uiStore.sidebarOpen ? 'Collapse Sidebar' : 'Expand Sidebar'"
     >
@@ -46,7 +45,7 @@
           <router-link 
             to="/new-meeting"
             aria-label="New Meeting"
-            class="relative group inline-flex items-center justify-center gap-[8px] px-[24px] py-[12px] rounded-[12px] font-header font-bold text-[11px] tracking-wider uppercase bg-white/80 text-brand-dark border border-black/8 hover:bg-white hover:border-primary/20 hover:shadow-[0_4px_15px_rgba(31,38,135,0.04)] hover:text-primary hover:-translate-y-[2px] transition-all duration-300 w-[100%] cursor-pointer focus:outline-none compact:w-12 compact:h-12 compact:p-0 compact:rounded-xl compact:gap-0 compact:hover:-translate-y-[2px]"
+            class="relative group inline-flex items-center justify-center gap-[8px] px-[24px] py-[12px] rounded-[12px] font-header font-bold text-[11px] tracking-wider uppercase bg-white/80 dark:bg-slate-800/80 text-brand-dark border border-black/8 dark:border-white/10 hover:bg-white dark:hover:bg-slate-700 hover:border-primary/20 hover:shadow-[0_4px_15px_rgba(31,38,135,0.04)] hover:text-primary hover:-translate-y-[2px] transition-all duration-300 w-[100%] cursor-pointer focus:outline-none compact:w-12 compact:h-12 compact:p-0 compact:rounded-xl compact:gap-0 compact:hover:-translate-y-[2px]"
           >
             <span class="compact:hidden">New Meeting</span>
             <PhPlus :size="14" weight="bold" class="shrink-0 compact:scale-[1.3]" />
@@ -79,7 +78,7 @@
     </div>
 
     <!-- User profile: full info on desktop, avatar-only centered in compact mode -->
-    <div class="flex items-center gap-[12px] pt-[16px] border-t border-black/5 compact:justify-center compact:gap-0 compact:pt-3">
+    <div class="flex items-center gap-[12px] pt-[16px] border-t border-black/5 dark:border-white/5 compact:justify-center compact:gap-0 compact:pt-3">
       <img
   :src="
     user?.avatar

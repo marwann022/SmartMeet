@@ -3,7 +3,14 @@
 </template>
 
 <script setup>
-// Main Application Entry
+import { onMounted } from 'vue'
+import { useUiStore } from './stores/ui'
+
+const uiStore = useUiStore()
+
+onMounted(() => {
+  uiStore.initTheme()
+})
 </script>
 
 <style>

@@ -33,10 +33,10 @@
         </div>
 
         <!-- Interactive Search Emulator (Nested Radius: rounded-xl) -->
-        <div class="w-full bg-slate-50/60 border border-black/5 rounded-xl p-5 relative mt-auto shadow-sm">
+        <div class="w-full bg-slate-50/60 dark:bg-slate-950/60 border border-black/5 dark:border-white/5 rounded-xl p-5 relative mt-auto shadow-sm">
           <div class="relative w-full mb-4">
             <!-- Inner Search Input (Nested Radius: rounded-lg) -->
-            <div class="w-full h-11 bg-white border border-black/10 rounded-lg px-10 flex items-center text-xs text-brand-dark relative transition-all duration-350 shadow-[inset_0_1px_3px_rgba(0,0,0,0.03)]"
+            <div class="w-full h-11 bg-white dark:bg-slate-900 border border-black/10 dark:border-white/10 rounded-lg px-10 flex items-center text-xs text-brand-dark relative transition-all duration-350 shadow-[inset_0_1px_3px_rgba(0,0,0,0.03)]"
                  :class="{ 'border-primary shadow-[0_0_12px_rgba(75,104,255,0.1)]': searchQuery.length > 0 || searching }">
               <PhMagnifyingGlass :size="16" weight="bold" class="absolute left-3.5 top-[14px]" :class="searching || searchQuery.length > 0 ? 'text-primary' : 'text-brand-slate'" />
               
@@ -57,8 +57,8 @@
           <div class="flex flex-wrap gap-2 mb-4">
             <button v-for="(prompt, idx) in searchPrompts" :key="idx" 
                     :aria-label="'Search for: ' + prompt.query"
-                    class="text-[10px] font-bold font-header text-brand-slate bg-white border border-black/5 px-3 py-1.5 rounded-full cursor-pointer transition-all duration-300 hover:text-primary hover:bg-primary/5 hover:border-primary/10 shadow-sm"
-                    :class="{ 'text-primary bg-primary/10 border-primary/20': selectedPromptIndex === idx }"
+                    class="text-[10px] font-bold font-header text-brand-slate bg-white dark:bg-slate-800 border border-black/5 dark:border-white/5 px-3 py-1.5 rounded-full cursor-pointer transition-all duration-300 hover:text-primary hover:bg-primary/5 hover:border-primary/10 shadow-sm"
+                    :class="{ 'text-primary bg-primary/10 dark:bg-primary/20 border-primary/20': selectedPromptIndex === idx }"
                     @click="runSearchDemo(idx)">
               "{{ prompt.text }}"
             </button>
@@ -100,7 +100,7 @@
         </div>
 
         <!-- Pulsing Orb soundwave simulation (Nested Radius: rounded-xl) -->
-        <div class="h-44 bg-slate-50 border border-black/5 rounded-xl flex items-center justify-center relative overflow-hidden mt-6 shadow-inner">
+        <div class="h-44 bg-slate-50 dark:bg-slate-950/50 border border-black/5 dark:border-white/5 rounded-xl flex items-center justify-center relative overflow-hidden mt-6 shadow-inner">
           <div class="absolute w-24 h-24 rounded-full bg-secondary/10 blur-xl animate-pulse"></div>
           <div class="relative flex items-center justify-center w-28 h-28">
             <svg class="w-full h-full" viewBox="0 0 100 100">
@@ -136,11 +136,11 @@
         </div>
 
         <!-- Self-typing Checklist Simulator (Nested Radius: rounded-xl) -->
-        <div class="h-44 bg-slate-50 border border-black/5 rounded-xl p-[18px] flex flex-col justify-center mt-6 shadow-inner">
+        <div class="h-44 bg-slate-50 dark:bg-slate-950/50 border border-black/5 dark:border-white/5 rounded-xl p-[18px] flex flex-col justify-center mt-6 shadow-inner">
           <div class="space-y-3.5 text-left">
             <div v-for="t in listDemoTasks" :key="t.id" class="flex items-center gap-3">
               <div class="w-[18px] h-[18px] rounded-full flex items-center justify-center text-xs flex-shrink-0 transition-all duration-300 shadow-sm"
-                   :class="t.done ? 'bg-green-500 text-white' : 'bg-white border border-black/10 text-transparent'">
+                   :class="t.done ? 'bg-green-500 text-white' : 'bg-white dark:bg-slate-900 border border-black/10 dark:border-white/10 text-transparent'">
                 <PhCheck :size="10" weight="bold" />
               </div>
               <span class="text-xs font-semibold font-body transition-colors duration-300" :class="t.done ? 'text-brand-slate line-through' : 'text-brand-dark'">
@@ -166,7 +166,7 @@
         </div>
 
         <!-- Glowing Network Graph Visualization (Nested Radius: rounded-xl) -->
-        <div class="h-44 bg-slate-50 border border-black/5 rounded-xl flex items-center justify-center relative overflow-hidden mt-auto shadow-inner">
+        <div class="h-44 bg-slate-50 dark:bg-slate-950/50 border border-black/5 dark:border-white/5 rounded-xl flex items-center justify-center relative overflow-hidden mt-auto shadow-inner">
           <svg class="w-full h-full" viewBox="0 0 400 160">
             <!-- Connection Lines -->
             <line x1="80" y1="80" x2="200" y2="40" stroke="rgba(75, 104, 255, 0.12)" stroke-width="1.5" />
@@ -189,19 +189,19 @@
 
             <!-- Nodes -->
             <g class="cursor-pointer">
-              <circle cx="80" cy="80" r="14" fill="#ffffff" stroke="#4b68ff" stroke-width="2" />
-              <text x="80" y="83" fill="#64748b" font-size="8" font-family="Montserrat" font-weight="bold" text-anchor="middle">VOICE</text>
+              <circle cx="80" cy="80" r="14" fill="#ffffff" class="fill-white dark:fill-slate-900" stroke="#4b68ff" stroke-width="2" />
+              <text x="80" y="83" fill="#64748b" class="fill-brand-slate font-bold" font-size="8" font-family="Montserrat" text-anchor="middle">VOICE</text>
             </g>
             <g class="cursor-pointer">
-              <circle cx="200" cy="40" r="16" fill="#ffffff" stroke="#ec4899" stroke-width="2" />
-              <text x="200" y="43" fill="#64748b" font-size="8" font-family="Montserrat" font-weight="bold" text-anchor="middle">THEMES</text>
+              <circle cx="200" cy="40" r="16" fill="#ffffff" class="fill-white dark:fill-slate-900" stroke="#ec4899" stroke-width="2" />
+              <text x="200" y="43" fill="#64748b" class="fill-brand-slate font-bold" font-size="8" font-family="Montserrat" text-anchor="middle">THEMES</text>
             </g>
             <g class="cursor-pointer">
-              <circle cx="200" cy="120" r="16" fill="#ffffff" stroke="#06b6d4" stroke-width="2" />
-              <text x="200" y="123" fill="#64748b" font-size="8" font-family="Montserrat" font-weight="bold" text-anchor="middle">DECISIONS</text>
+              <circle cx="200" cy="120" r="16" fill="#ffffff" class="fill-white dark:fill-slate-900" stroke="#06b6d4" stroke-width="2" />
+              <text x="200" y="123" fill="#64748b" class="fill-brand-slate font-bold" font-size="8" font-family="Montserrat" text-anchor="middle">DECISIONS</text>
             </g>
             <g class="cursor-pointer">
-              <circle cx="320" cy="80" r="18" fill="#ffffff" stroke="#4b68ff" stroke-width="2">
+              <circle cx="320" cy="80" r="18" fill="#ffffff" class="fill-white dark:fill-slate-900" stroke="#4b68ff" stroke-width="2">
                 <animate attributeName="stroke" values="#4b68ff;#06b6d4;#4b68ff" dur="6s" repeatCount="indefinite" />
               </circle>
               <text x="320" y="83" fill="#4b68ff" font-size="8" font-family="Montserrat" font-weight="bold" text-anchor="middle">BRAIN</text>
