@@ -16,7 +16,7 @@ const meetingSchema = new mongoose.Schema({
     duration: { type: Number, default: 0 },
     type: {
         type: String,
-        enum: ["Personal", "Team", "Client", "Standup", "Brainstorm", "Other"],
+        enum: ["Personal", "Personal Discussion", "Team", "Client", "Standup", "Brainstorm", "Other"],
         default: "Team",
     },
     status: {

@@ -47,6 +47,16 @@
               <PhGear :size="16" weight="bold" class="text-brand-slate group-hover:text-primary" />
             </router-link>
 
+            <!-- Chat History Toggle Button (Only on Knowledge AI page) -->
+            <button
+              v-if="$route.path === '/knowledge-ai'"
+              @click="uiStore.showChatHistory = !uiStore.showChatHistory"
+              class="group bg-black/5 dark:bg-white/8 border border-black/10 dark:border-white/10 rounded-full flex items-center justify-center w-9 h-9 cursor-pointer text-brand-slate hover:bg-primary/5 hover:border-primary/15 hover:text-primary hover:scale-105 focus:outline-none transition-all duration-300"
+              title="Toggle Chat History"
+            >
+              <PhClockClockwise :size="16" weight="bold" class="text-brand-slate group-hover:text-primary" />
+            </button>
+
             <!-- Theme Toggle Button -->
             <button
               @click="uiStore.toggleTheme"
@@ -143,7 +153,7 @@ import { useUiStore } from '../../stores/ui'
 import Sidebar from './Sidebar.vue'
 import BottomNav from './BottomNav.vue'
 import { useAuthStore } from '@/stores/auth'
-import { PhGear } from '@phosphor-icons/vue'
+import { PhGear, PhClockClockwise } from '@phosphor-icons/vue'
 import Modal from '@/components/ui/Modal.vue'
 import Button from '@/components/ui/Button.vue'
 

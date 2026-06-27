@@ -7,6 +7,8 @@ export const useUiStore = defineStore('ui', () => {
   const activeModal = ref(null) // e.g., 'addTask', 'meetingDetails', etc.
   const theme = ref('light')
 
+  const showChatHistory = ref(false)
+
   const toggleSidebar = () => {
     sidebarOpen.value = !sidebarOpen.value
   }
@@ -57,6 +59,7 @@ export const useUiStore = defineStore('ui', () => {
     isGlobalLoading,
     activeModal,
     theme,
+    showChatHistory,
     toggleSidebar,
     setSidebarState,
     setLoading,

@@ -1,8 +1,108 @@
 <template>
-  <div class="flex flex-col h-full text-left relative overflow-hidden bg-transparent pt-2">
+  <div class="flex h-full text-left relative overflow-hidden bg-transparent pt-2 gap-6">
     
-    <!-- Wrapper matching full navbar width -->
-    <div class="w-full flex-1 flex flex-col min-h-0 relative">
+    <!-- BACKGROUND BACKDROP (closes drawer when clicked) -->
+    <div 
+      v-if="showHistory" 
+      @click="showHistory = false" 
+      class="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 transition-opacity duration-300"
+    ></div>
+
+    <!-- LEFT DRAWER: CHAT SESSIONS HISTORY -->
+    <div 
+      class="fixed top-0 left-0 bottom-0 w-[280px] flex flex-col bg-slate-950/90 dark:bg-slate-950/98 backdrop-blur-xl p-5 gap-4 border-r border-black/10 dark:border-white/5 shadow-2xl z-50 transition-transform duration-300 ease-out"
+      :class="showHistory ? 'translate-x-0' : '-translate-x-full'"
+    >
+      <!-- Drawer Header -->
+      <div class="flex items-center justify-between pb-2 border-b border-black/5 dark:border-white/5">
+        <div class="flex items-center gap-2 text-sm font-bold text-brand-dark dark:text-white select-none">
+          <PhClockClockwise :size="16" weight="bold" class="w-4 h-4 text-primary" />
+          <span>Chat History</span>
+        </div>
+        <button 
+          type="button" 
+          @click="showHistory = false" 
+          class="p-1.5 hover:bg-black/5 dark:hover:bg-white/5 rounded-lg text-brand-slate hover:text-brand-dark dark:hover:text-white transition-colors cursor-pointer"
+        >
+          <PhX :size="16" weight="bold" class="w-4 h-4" />
+        </button>
+      </div>
+
+      <!-- New Chat Button inside drawer -->
+      <button 
+        type="button"
+        @click="startNewChat(); showHistory = false"
+        :disabled="messages.length === 0"
+        class="relative overflow-hidden group w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-primary to-[#5b72ff] hover:from-[#5b72ff] hover:to-primary disabled:from-slate-800 disabled:to-slate-900 disabled:text-slate-600 disabled:opacity-50 disabled:cursor-not-allowed text-white font-header font-bold text-xs tracking-wider uppercase flex items-center justify-center gap-2 shadow-[0_4px_18_rgba(75,104,255,0.2)] hover:shadow-[0_4px_22px_rgba(75,104,255,0.35)] transition-all duration-300 hover:scale-[1.01] active:scale-[0.99] cursor-pointer"
+      >
+        <span class="absolute inset-0 w-full h-full bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
+        <PhPlus :size="14" weight="bold" class="transition-transform group-hover:rotate-90 duration-300" />
+        <span>New Chat</span>
+      </button>
+
+      <!-- Sessions List grouped by date -->
+      <div class="flex-1 overflow-y-auto flex flex-col gap-5 no-scrollbar pr-0.5 mt-2">
+        <div 
+          v-for="group in groupedSessions" 
+          :key="group.title" 
+          class="flex flex-col gap-2"
+        >
+          <!-- Category Header -->
+          <div class="text-[10px] font-bold text-brand-slate/70 uppercase tracking-widest pl-2 mb-1 flex items-center gap-1.5 select-none">
+            <span class="w-1.5 h-1.5 rounded-full bg-primary/60"></span>
+            {{ group.title }}
+          </div>
+          
+          <!-- History Item -->
+          <div 
+            v-for="sess in group.items"
+            :key="sess._id"
+            @click="loadSession(sess._id); showHistory = false"
+            class="w-full text-left px-3.5 py-2.5 rounded-2xl text-xs font-semibold flex items-center justify-between gap-3 border transition-all duration-300 cursor-pointer group relative overflow-hidden"
+            :class="activeSessionId === sess._id 
+              ? 'bg-gradient-to-r from-primary/10 via-primary/5 to-transparent border-primary/20 text-primary shadow-[0_2px_10px_rgba(75,104,255,0.04)]'
+              : 'bg-white/[0.02] dark:bg-white/[0.01] border-transparent text-brand-slate hover:text-brand-dark dark:hover:text-white hover:bg-white/5 dark:hover:bg-white/5 hover:border-black/5 dark:hover:border-white/5'"
+          >
+            <!-- Sleek active indicator bar on left border -->
+            <div 
+              class="absolute left-0 top-0 bottom-0 w-[3px] bg-primary transition-transform duration-300 rounded-r"
+              :class="activeSessionId === sess._id ? 'scale-y-100' : 'scale-y-0 group-hover:scale-y-50 group-hover:bg-primary/50'"
+            ></div>
+
+            <div class="flex items-center gap-2.5 truncate min-w-0">
+              <PhChatTeardrop 
+                :size="15" 
+                :weight="activeSessionId === sess._id ? 'fill' : 'bold'"
+                class="flex-shrink-0"
+                :class="activeSessionId === sess._id ? 'text-primary' : 'text-brand-slate/60 group-hover:text-brand-slate'"
+              />
+              <span class="truncate pr-2 select-none">{{ sess.title }}</span>
+            </div>
+            
+            <button 
+              type="button"
+              @click.stop="deleteSession(sess._id)"
+              class="opacity-0 group-hover:opacity-100 hover:bg-red-500/10 hover:text-red-500 rounded-lg p-1.5 ml-auto flex-shrink-0 transition-all duration-200"
+              title="Delete Chat"
+            >
+              <PhTrash :size="12" />
+            </button>
+          </div>
+        </div>
+        
+        <!-- Empty State -->
+        <div v-if="sessions.length === 0" class="flex flex-col items-center justify-center py-12 px-4 text-center gap-3">
+          <div class="w-10 h-10 rounded-full bg-slate-900/10 dark:bg-white/5 flex items-center justify-center text-brand-slate/40">
+            <PhChatTeardrop :size="20" />
+          </div>
+          <p class="text-xs text-brand-slate/80 italic font-medium">No chat history yet</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- MAIN CHAT AREA wrapper -->
+    <div class="flex-1 flex flex-col min-h-0 relative">
+
 
       <!-- MAIN INTERACTIVE CANVAS -->
       <div class="flex-1 overflow-y-auto pr-[8px] scroll-container flex flex-col gap-[20px] pb-2" ref="chatContainer">
@@ -26,7 +126,7 @@
               v-for="(prompt, idx) in suggestedPrompts"
               :key="idx"
               @click="selectPrompt(prompt.query)"
-              class="backdrop-blur-[6px] bg-white/40 border border-white/70 rounded-[16px] p-[20px] cursor-pointer hover:bg-white/70 hover:border-primary/20 hover:-translate-y-[2px] transition-all duration-300 shadow-[0_4px_15px_rgba(0,0,0,0.02)] flex flex-col gap-[10px] text-left group"
+              class="backdrop-blur-[6px] bg-white/40 dark:bg-slate-900/50 border border-white/70 dark:border-white/10 rounded-[16px] p-[20px] cursor-pointer hover:bg-white/70 dark:hover:bg-slate-900/80 hover:border-primary/20 hover:-translate-y-[2px] transition-all duration-300 shadow-[0_4px_15px_rgba(0,0,0,0.02)] flex flex-col gap-[10px] text-left group"
             >
               <div class="w-[32px] h-[32px] rounded-[8px] bg-primary/6 border border-primary/10 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-white transition-colors duration-300">
                 <component :is="prompt.icon" :size="16" weight="bold" />
@@ -60,7 +160,7 @@
               class="p-[10px] px-[16px] rounded-[20px] text-[13px] leading-relaxed font-body"
               :class="msg.role === 'user'
                 ? 'bg-primary text-white rounded-tr-none shadow-[0_4px_16px_rgba(75,104,255,0.12)] text-left'
-                : 'bg-white/70 border border-white/80 text-brand-dark rounded-tl-none shadow-[0_4px_20px_rgba(0,0,0,0.02)] backdrop-blur-md text-left'"
+                : 'bg-white/70 dark:bg-slate-900/60 border border-white/80 dark:border-white/10 text-brand-dark rounded-tl-none shadow-[0_4px_20px_rgba(0,0,0,0.02)] backdrop-blur-md text-left'"
             >
               <span 
                 class="block font-bold text-[10px] uppercase tracking-wider mb-[6px] select-none"
@@ -128,7 +228,7 @@
             <div class="w-[36px] h-[36px] rounded-full bg-grad-primary flex items-center justify-center flex-shrink-0 text-white shadow-sm">
               <PhSparkle :size="16" weight="fill" />
             </div>
-            <div class="backdrop-blur-[8px] p-[20px] rounded-[20px] rounded-tl-none border border-white/80 bg-white/50 shadow-[0_4px_20px_rgba(0,0,0,0.02)] flex items-center justify-center min-w-[80px]">
+            <div class="backdrop-blur-[8px] p-[20px] rounded-[20px] rounded-tl-none border border-white/80 dark:border-white/10 bg-white/50 dark:bg-slate-900/60 shadow-[0_4px_20px_rgba(0,0,0,0.02)] flex items-center justify-center min-w-[80px]">
               <div class="flex items-center gap-[4px] py-[6px]">
                 <span class="w-[8px] h-[8px] bg-primary rounded-full animate-bounce delay-100"></span>
                 <span class="w-[8px] h-[8px] bg-primary rounded-full animate-bounce delay-200"></span>
@@ -140,12 +240,16 @@
 
       </div>
 
-      <!-- BOTTOM INPUT SECTION -->
-      <div class="flex flex-col gap-2 flex-shrink-0 w-full pb-5">
+      <!-- BOTTOM SECTION WITH BUTTONS BESIDE INPUT -->
+      <div class="flex items-end gap-3 flex-shrink-0 w-full pb-5">
+        
+
+        <!-- BOTTOM INPUT SECTION -->
+        <div class="flex-1 flex flex-col gap-2 min-w-0">
         
         <!-- Active Attachments list -->
-        <div v-if="attachments.length > 0" class="flex flex-wrap gap-2 px-4 py-2 bg-white/40 backdrop-blur-md rounded-2xl border border-black/5 animate-fade-in">
-          <div v-for="(file, idx) in attachments" :key="idx" class="flex items-center gap-2 bg-white/90 border border-black/5 rounded-xl px-2.5 py-1.5 shadow-sm hover:border-red-200 transition-colors group relative">
+        <div v-if="attachments.length > 0" class="flex flex-wrap gap-2 px-4 py-2 bg-white/40 dark:bg-slate-950/40 backdrop-blur-md rounded-2xl border border-black/5 dark:border-white/10 animate-fade-in">
+          <div v-for="(file, idx) in attachments" :key="idx" class="flex items-center gap-2 bg-white/90 dark:bg-slate-900/80 border border-black/5 dark:border-white/10 rounded-xl px-2.5 py-1.5 shadow-sm hover:border-red-200 transition-colors group relative">
             <!-- Image Thumbnail -->
             <img v-if="file.isImage" :src="file.previewUrl" class="w-8 h-8 rounded object-cover" />
             <!-- Doc Icon -->
@@ -187,8 +291,8 @@
 
         <!-- TEXT/AUDIO INPUT BAR -->
         <div 
-          class="backdrop-blur-[20px] bg-white/80 border rounded-[24px] p-[6px] shadow-[0_10px_30px_-5px_rgba(0,0,0,0.05)] flex items-center gap-[8px] transition-all duration-300 focus-within:border-primary/45 focus-within:shadow-[0_12px_36px_-5px_rgba(75,104,255,0.1)]"
-          :class="listening ? 'border-red-500/30 bg-red-50/10 shadow-[0_0_15px_rgba(239,68,68,0.1)]' : 'border-black/5'"
+          class="backdrop-blur-[20px] bg-white/80 dark:bg-slate-950/60 border rounded-[24px] p-[6px] shadow-[0_10px_30px_-5px_rgba(0,0,0,0.05)] flex items-center gap-[8px] transition-all duration-300 focus-within:border-primary/45 focus-within:shadow-[0_12px_36px_-5px_rgba(75,104,255,0.1)]"
+          :class="listening ? 'border-red-500/30 bg-red-50/10 shadow-[0_0_15px_rgba(239,68,68,0.1)]' : 'border-black/5 dark:border-white/10'"
         >
           <div class="flex-1 flex items-center gap-[8px] px-[12px] py-[8px]">
             <PhMagnifyingGlass :size="20" class="text-brand-slate/80" />
@@ -236,13 +340,30 @@
             <button
               type="button"
               @click="submitQuery"
-              class="w-[40px] h-[40px] rounded-[14px] bg-primary hover:bg-[#3850e0] text-white flex items-center justify-center transition-all duration-300 hover:shadow-md cursor-pointer focus:outline-none active:scale-95"
+              class="w-[40px] h-[40px] rounded-[99px] bg-primary hover:bg-[#3850e0] text-white flex items-center justify-center transition-all duration-300 hover:shadow-md cursor-pointer focus:outline-none active:scale-95"
               :disabled="(!inputQuery.trim() && attachments.length === 0) || aiTyping"
             >
-              <PhArrowRight :size="18" weight="bold" />
+              <PhArrowUp :size="18" weight="bold" />
             </button>
           </div>
         </div>
+        </div>
+        
+<!-- Action Buttons (beside the input section) -->
+        <div class="flex items-center flex-shrink-0 mb-[6px]">
+          <!-- New Chat Button -->
+          <button
+            type="button"
+            @click="startNewChat"
+            :disabled="messages.length === 0"
+            class="h-10 px-3 sm:px-4 rounded-xl bg-primary hover:bg-[#3850e0] disabled:bg-slate-400 dark:disabled:bg-slate-800 disabled:text-slate-200 dark:disabled:text-slate-600 disabled:opacity-50 disabled:scale-100 disabled:cursor-not-allowed text-white text-xs font-bold font-header tracking-wider uppercase flex items-center justify-center gap-2 shadow-sm transition-all duration-200 hover:scale-[1.03] active:scale-[0.97] cursor-pointer"
+            title="Start New Chat"
+          >
+            <PhPlus :size="14" weight="bold" />
+            <span class="hidden sm:inline">New Chat</span>
+          </button>
+        </div>
+
       </div>
     </div>
 
@@ -252,9 +373,10 @@
 </template>
 
 <script setup>
-import { ref, onMounted, nextTick } from 'vue'
+import { ref, onMounted, nextTick, computed } from 'vue'
 import axios from 'axios'
 import { useAuthStore } from '@/stores/auth'
+import { useUiStore } from '@/stores/ui'
 import { useTaskStore } from '@/stores/task'
 import { useNotificationStore } from '@/stores/notification'
 import Toast from '@/components/ui/Toast.vue'
@@ -263,7 +385,6 @@ import {
   PhBrain,
   PhSparkle,
   PhClockClockwise,
-  PhCurrencyDollar,
   PhMagnifyingGlass,
   PhMicrophone,
   PhPaperclip,
@@ -272,7 +393,10 @@ import {
   PhFileText,
   PhX,
   PhCheckCircle,
-  PhCheck
+  PhPlus,
+  PhTrash,
+  PhChatTeardrop,
+  PhArrowUp
 } from '@phosphor-icons/vue'
 
 const authStore = useAuthStore()
@@ -292,6 +416,53 @@ const recognition = ref(null)
 // Attachments states
 const fileInput = ref(null)
 const attachments = ref([])
+const sessions = ref([])
+const activeSessionId = ref(null)
+const uiStore = useUiStore()
+const showHistory = computed({
+  get: () => uiStore.showChatHistory,
+  set: (val) => { uiStore.showChatHistory = val }
+})
+
+// Group conversations dynamically by date category
+const groupedSessions = computed(() => {
+  const groups = {
+    today: [],
+    yesterday: [],
+    lastSevenDays: [],
+    older: []
+  }
+
+  const now = new Date()
+  const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime()
+  const yesterdayStart = todayStart - 24 * 60 * 60 * 1000
+  const sevenDaysAgoStart = todayStart - 7 * 24 * 60 * 60 * 1000
+
+  sessions.value.forEach(sess => {
+    const updatedTime = new Date(sess.updatedAt || sess.createdAt).getTime()
+    if (updatedTime >= todayStart) {
+      groups.today.push(sess)
+    } else if (updatedTime >= yesterdayStart) {
+      groups.yesterday.push(sess)
+    } else if (updatedTime >= sevenDaysAgoStart) {
+      groups.lastSevenDays.push(sess)
+    } else {
+      groups.older.push(sess)
+    }
+  })
+
+  return [
+    { title: 'Today', items: groups.today },
+    { title: 'Yesterday', items: groups.yesterday },
+    { title: 'Previous 7 Days', items: groups.lastSevenDays },
+    { title: 'Older', items: groups.older }
+  ].filter(g => g.items.length > 0)
+})
+
+const activeSessionTitle = computed(() => {
+  const current = sessions.value.find(s => s._id === activeSessionId.value)
+  return current ? current.title : ''
+})
 
 const suggestedPrompts = [
   {
@@ -312,6 +483,7 @@ const messages = ref([])
 
 onMounted(() => {
   initSpeech()
+  loadSessions()
 })
 
 const scrollToBottom = () => {
@@ -502,109 +674,11 @@ const submitQuery = async () => {
   aiTyping.value = true
   scrollToBottom()
 
-  const lowerQuery = query.toLowerCase()
-  let isTestCase = false
-  const bypassMocks = true
-  let replyText = ''
-  let suggestion = null
-
-  if (!bypassMocks && (lowerQuery.includes('redesign') || lowerQuery.includes('frontend redesign') || (lowerQuery.includes('latest') && lowerQuery.includes('meeting') && lowerQuery.includes('redesign')))) {
-    isTestCase = true
-    replyText = "Based on the latest 'Frontend Redesign' meeting transcript, there is 1 task committed to you (Marwan):\n\n- **Implement the responsive layout and voice recorder components on the Knowledge AI dashboard.**\n\nWould you like me to add this task to your Tasks page?"
-    suggestion = {
-      label: "Add Task to Page",
-      added: false,
-      adding: false,
-      tasks: [
-        {
-          title: "Implement responsive layout and voice recorder on Knowledge AI dashboard",
-          description: "Implement responsive flexbox layouts and local SpeechRecognition in KnowledgeAI.vue.",
-          source: "Frontend Redesign Meeting"
-        }
-      ]
-    }
-  } else if (lowerQuery.includes('sprint planning') || lowerQuery.includes('sprint') || lowerQuery.includes('planning') || lowerQuery.includes('multiple tasks')) {
-    isTestCase = true
-    replyText = "Based on the latest 'Sprint Planning' meeting transcript, there are 3 tasks committed to the team:\n\n1. **Set up MongoDB schemas and design core collections** (Assigned to Ahmed)\n2. **Implement JWT authentication middleware on the backend** (Assigned to Ahmed)\n3. **Integrate Pinia task store with the backend API** (Assigned to Marwan)\n\nWould you like me to add these tasks to your Tasks page?"
-    suggestion = {
-      label: "Add 3 Tasks to Page",
-      added: false,
-      adding: false,
-      tasks: [
-        {
-          title: "Set up MongoDB schemas and design core collections",
-          description: "Design MongoDB structures for users, tasks, and meetings. Assigned to Ahmed.",
-          source: "Sprint Planning"
-        },
-        {
-          title: "Implement JWT authentication middleware on the backend",
-          description: "Secure backend routes with JWT headers. Assigned to Ahmed.",
-          source: "Sprint Planning"
-        },
-        {
-          title: "Integrate Pinia task store with the backend API",
-          description: "Connect frontend stores to the backend CRUD endpoints. Assigned to Marwan.",
-          source: "Sprint Planning"
-        }
-      ]
-    }
-  } else if (lowerQuery.includes('my tasks') || lowerQuery.includes('my commitments') || lowerQuery.includes('committed with') || (lowerQuery.includes('latest') && lowerQuery.includes('task') && !lowerQuery.includes('redesign'))) {
-    isTestCase = true
-    replyText = "From the recent progress update meeting, you have 2 committed tasks:\n\n1. **Optimize dashboard layout viewport-responsiveness** (Assigned to Marwan)\n2. **Implement real-time SpeechRecognition on Knowledge AI** (Assigned to Marwan)\n\nWould you like me to add these 2 tasks to your Tasks page?"
-    suggestion = {
-      label: "Add 2 Tasks to Page",
-      added: false,
-      adding: false,
-      tasks: [
-        {
-          title: "Optimize dashboard layout viewport-responsiveness",
-          description: "Fix scroll bar overlaps and ensure fluid flex height. Assigned to Marwan.",
-          source: "Progress Update Meeting"
-        },
-        {
-          title: "Implement real-time SpeechRecognition on Knowledge AI",
-          description: "Provide native audio typing capabilities. Assigned to Marwan.",
-          source: "Progress Update Meeting"
-        }
-      ]
-    }
-  }
-
-  if (isTestCase) {
-    setTimeout(() => {
-      const replyTime = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
-      messages.value.push({
-        id: Date.now() + 1,
-        role: 'assistant',
-        text: replyText,
-        time: replyTime,
-        suggestion
-      })
-      
-      // Programmatically trigger notifications for AI-detected tasks assigned to current user
-      if (suggestion && Array.isArray(suggestion.tasks)) {
-        const myName = authStore.user?.name || 'Marwan'
-        suggestion.tasks.forEach(t => {
-          const desc = (t.description || '').toLowerCase()
-          if (!desc.includes('assigned to') || desc.includes(`assigned to ${myName.toLowerCase()}`)) {
-            notificationStore.addNotification({
-              text: `AI detected a new task for you: "${t.title}"`,
-              type: 'task'
-            })
-          }
-        })
-      }
-      
-      aiTyping.value = false
-      scrollToBottom()
-    }, 800)
-    return
-  }
-
   try {
     const response = await axios.post('/api/rag/query', {
       question: query || "What information is inside the attached transcript files?",
-      teamId: 'team1'
+      teamId: 'team1',
+      sessionId: activeSessionId.value
     }, {
       headers: {
         Authorization: `Bearer ${authStore.token}`
@@ -619,6 +693,11 @@ const submitQuery = async () => {
       text: response.data.answer,
       time: replyTime
     })
+
+    if (response.data.sessionId) {
+      activeSessionId.value = response.data.sessionId
+    }
+    await loadSessions()
   } catch (err) {
     console.error("RAG Query Error:", err)
     const replyTime = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
@@ -682,6 +761,77 @@ const addTasksToPage = async (msg) => {
 const selectPrompt = (query) => {
   inputQuery.value = query
   submitQuery()
+}
+
+const loadSessions = async () => {
+  try {
+    const response = await axios.get('/api/rag/sessions', {
+      headers: {
+        Authorization: `Bearer ${authStore.token}`
+      }
+    })
+    if (response.data && response.data.sessions) {
+      sessions.value = response.data.sessions
+      // Auto-load the most recent session on initial load if no session is active yet
+      if (sessions.value.length > 0 && !activeSessionId.value) {
+        loadSession(sessions.value[0]._id)
+      }
+    }
+  } catch (err) {
+    console.error("Failed to load chat sessions:", err)
+  }
+}
+
+const startNewChat = () => {
+  activeSessionId.value = null
+  messages.value = []
+}
+
+const loadSession = async (sessionId) => {
+  activeSessionId.value = sessionId
+  messages.value = []
+  try {
+    const response = await axios.get(`/api/rag/sessions/${sessionId}/messages`, {
+      headers: {
+        Authorization: `Bearer ${authStore.token}`
+      }
+    })
+    if (response.data && response.data.messages) {
+      messages.value = response.data.messages.map(m => {
+        const time = new Date(m.createdAt).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
+        return {
+          id: m._id,
+          role: m.role,
+          text: m.text,
+          time,
+          sources: m.sources || []
+        }
+      })
+      scrollToBottom()
+    }
+  } catch (err) {
+    console.error("Failed to load session messages:", err)
+    error("Failed to load conversation history.")
+  }
+}
+
+const deleteSession = async (sessionId) => {
+  if (!confirm("Are you sure you want to delete this conversation?")) return
+  try {
+    await axios.delete(`/api/rag/sessions/${sessionId}`, {
+      headers: {
+        Authorization: `Bearer ${authStore.token}`
+      }
+    })
+    success("Conversation deleted.")
+    if (activeSessionId.value === sessionId) {
+      startNewChat()
+    }
+    await loadSessions()
+  } catch (err) {
+    console.error("Failed to delete session:", err)
+    error("Failed to delete conversation.")
+  }
 }
 </script>
 
