@@ -95,7 +95,7 @@
                 <!-- Mockup Header -->
                 <div class="flex justify-between items-center border-b border-black/5 dark:border-white/5 pb-2.5">
                   <div class="flex items-center gap-2">
-                    <div class="w-2.5 h-2.5 rounded-full bg-slate-200 flex items-center justify-center">
+                    <div class="w-2.5 h-2.5 rounded-full bg-slate-200 dark:bg-slate-800 flex items-center justify-center">
                       <span class="w-1.5 h-1.5 rounded-full" :class="activeStep === 0 ? 'bg-red-500 animate-pulse' : 'bg-slate-400'"></span>
                     </div>
                     <span class="text-[9px] font-mono text-brand-slate select-none">{{ steps[activeStep].mockupHeader }}</span>
@@ -107,7 +107,7 @@
                 <div class="flex-grow flex flex-col justify-center py-4">
                   <!-- Step 1: Capture Widget -->
                   <div v-if="activeStep === 0" class="flex flex-col gap-3 items-center">
-                    <div class="text-xs font-bold text-brand-dark">Google Meet recording...</div>
+                    <div class="text-xs font-bold text-brand-dark">Recording meeting audio...</div>
                     <div class="flex gap-1.5 items-center">
                       <span class="w-2 h-4 bg-primary/80 rounded animate-voice-bounce" style="animation-delay: 0.1s"></span>
                       <span class="w-2 h-6 bg-primary/80 rounded animate-voice-bounce" style="animation-delay: 0.2s"></span>
@@ -191,13 +191,13 @@ const steps = [
   {
     shortTitle: 'Record & Feed',
     title: 'Continuous Capture Engine',
-    desc: 'Connect SmartMeet directly with Google Meet, Microsoft Teams, or Zoom. Audio streams are seamlessly grabbed and stored in a secure sandbox without distracting participants.',
+    desc: 'Record your live meetings, upload audio files, or connect with your favorite conferencing platform. Audio streams are seamlessly captured and stored in a secure sandbox.',
     bulletPoints: [
       'Zero-bot joining or clean link sharing',
       'Dual-channel stereo audio separation',
       'Encrypted cloud storage buffers'
     ],
-    mockupHeader: 'meet.google.com/xyz',
+    mockupHeader: 'app.smartmeet.ai/recorder',
     mockupMeta: 'audio input active'
   },
   {

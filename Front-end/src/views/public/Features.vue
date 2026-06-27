@@ -50,7 +50,7 @@
 
         <!-- Stats row -->
         <div
-          class="flex flex-wrap items-center justify-center gap-8 mt-4 pt-6 border-t border-black/6 w-full max-w-xl"
+          class="flex flex-wrap items-center justify-center gap-8 mt-4 pt-6 border-t border-black/6 dark:border-white/5 w-full max-w-xl"
         >
           <div
             v-for="stat in heroStats"
@@ -73,12 +73,12 @@
     <section id="features-list" class="flex flex-col gap-0">
       <!-- Feature 01: Live Transcription -->
       <div
-        class="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-center py-14 border-t border-black/6"
+        class="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-center py-14 border-t border-black/6 dark:border-white/5"
       >
         <div class="flex flex-col gap-5 text-left order-2 lg:order-1">
           <div class="flex items-center gap-3">
             <span
-              class="text-[56px] font-extrabold font-header text-black/5 leading-none select-none tracking-tighter"
+              class="text-[56px] font-extrabold font-header text-black/5 dark:text-white/5 leading-none select-none tracking-tighter"
               >01</span
             >
             <div
@@ -169,7 +169,7 @@
                   :class="
                     bubble.self
                       ? 'bg-primary text-white rounded-tr-none'
-                      : 'bg-white border border-black/8 text-brand-dark rounded-tl-none shadow-sm'
+                      : 'bg-white dark:bg-slate-900 border border-black/8 dark:border-white/10 text-brand-dark rounded-tl-none shadow-sm'
                   "
                 >
                   {{ bubble.text }}
@@ -177,7 +177,7 @@
               </div>
               <div class="flex items-start">
                 <div
-                  class="flex items-center gap-1 bg-white border border-black/8 rounded-2xl rounded-tl-none px-3.5 py-2 shadow-sm"
+                  class="flex items-center gap-1 bg-white dark:bg-slate-900 border border-black/8 dark:border-white/10 rounded-2xl rounded-tl-none px-3.5 py-2 shadow-sm"
                 >
                   <div
                     v-for="d in 3"
@@ -194,7 +194,7 @@
 
       <!-- Feature 02: AI Synthesis -->
       <div
-        class="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-center py-14 border-t border-black/6"
+        class="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-center py-14 border-t border-black/6 dark:border-white/5"
       >
         <!-- Left card -->
         <div class="order-1">
@@ -229,7 +229,7 @@
               <div
                 v-for="(task, i) in summaryTasks"
                 :key="i"
-                class="flex items-center gap-2.5 p-2.5 rounded-xl border border-black/5 bg-white shadow-sm"
+                class="flex items-center gap-2.5 p-2.5 rounded-xl border border-black/5 dark:border-white/10 bg-white dark:bg-slate-900 shadow-sm"
               >
                 <div
                   class="w-3.5 h-3.5 rounded-full flex items-center justify-center flex-shrink-0"
@@ -267,7 +267,7 @@
         <div class="flex flex-col gap-5 text-left order-2">
           <div class="flex items-center gap-3">
             <span
-              class="text-[56px] font-extrabold font-header text-black/5 leading-none select-none tracking-tighter"
+              class="text-[56px] font-extrabold font-header text-black/5 dark:text-white/5 leading-none select-none tracking-tighter"
               >02</span
             >
             <div
@@ -314,12 +314,12 @@
 
       <!-- Feature 03: Semantic Search -->
       <div
-        class="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-center py-14 border-t border-black/6"
+        class="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-center py-14 border-t border-black/6 dark:border-white/5"
       >
         <div class="flex flex-col gap-5 text-left order-2 lg:order-1">
           <div class="flex items-center gap-3">
             <span
-              class="text-[56px] font-extrabold font-header text-black/5 leading-none select-none tracking-tighter"
+              class="text-[56px] font-extrabold font-header text-black/5 dark:text-white/5 leading-none select-none tracking-tighter"
               >03</span
             >
             <div
@@ -368,7 +368,7 @@
           <div class="card-glass rounded-[24px] p-5 flex flex-col gap-4">
             <!-- Search bar -->
             <div
-              class="flex items-center gap-2.5 bg-white border border-black/8 rounded-2xl px-4 py-3 shadow-sm"
+              class="flex items-center gap-2.5 bg-white dark:bg-slate-900 border border-black/8 dark:border-white/10 rounded-2xl px-4 py-3 shadow-sm"
             >
               <PhMagnifyingGlass
                 :size="14"
@@ -461,7 +461,7 @@
 
       <!-- Feature 04: Automation -->
       <div
-        class="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-center py-14 border-t border-black/6"
+        class="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-center py-14 border-t border-black/6 dark:border-white/5"
       >
         <!-- Left card: integration list -->
         <div class="order-1">
@@ -504,7 +504,7 @@
                 :class="
                   intg.active
                     ? 'bg-brand-success/8 border-brand-success/25 text-brand-success'
-                    : 'bg-black/3 border-black/8 text-brand-slate/60'
+                    : 'bg-black/3 dark:bg-white/5 border-black/8 dark:border-white/10 text-brand-slate/60'
                 "
               >
                 <span
@@ -523,7 +523,7 @@
         <div class="flex flex-col gap-5 text-left order-2">
           <div class="flex items-center gap-3">
             <span
-              class="text-[56px] font-extrabold font-header text-black/5 leading-none select-none tracking-tighter"
+              class="text-[56px] font-extrabold font-header text-black/5 dark:text-white/5 leading-none select-none tracking-tighter"
               >04</span
             >
             <div
@@ -570,7 +570,7 @@
     </section>
 
     <!-- ── CAPABILITIES: Compact light grid ── -->
-    <section class="flex flex-col gap-8 border-t border-black/6 pt-16">
+    <section class="flex flex-col gap-8 border-t border-black/6 dark:border-white/5 pt-16">
       <div class="text-center flex flex-col items-center gap-2">
         <h2
           class="text-2xl sm:text-3xl font-extrabold font-header text-brand-dark tracking-tight"

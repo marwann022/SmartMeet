@@ -74,7 +74,7 @@
         </div>
 
         <!-- Social Proof/Trust Row (Fixed: Uses actual image assets now) -->
-        <div class="w-full border-t border-black/5 pt-8">
+        <div class="w-full border-t border-black/5 dark:border-white/5 pt-8">
           <p
             class="text-[10px] uppercase font-bold tracking-wider text-brand-slate mb-5 font-header"
           >
@@ -208,7 +208,7 @@
                         :class="
                           idx === 0
                             ? 'bg-primary/5 dark:bg-primary/10 border-primary/20 text-brand-dark shadow-[0_2px_12px_rgba(75,104,255,0.03)] font-semibold'
-                            : 'bg-white/30 dark:bg-slate-850/30 border-black/5 dark:border-white/5 text-brand-slate'
+                            : 'bg-white/30 dark:bg-slate-800/30 border-black/5 dark:border-white/5 text-brand-slate'
                         "
                       >
                         <div
@@ -717,5 +717,13 @@ div::-webkit-scrollbar-thumb:hover {
 .trust-logo-img:hover {
   filter: grayscale(0%) opacity(0.95) brightness(1);
   transform: scale(1.08);
+}
+
+:global(.dark) .trust-logo-img {
+  filter: grayscale(100%) opacity(0.45) brightness(2) invert(1);
+}
+
+:global(.dark) .trust-logo-img:hover {
+  filter: grayscale(0%) opacity(0.95) brightness(1.2) invert(0);
 }
 </style>

@@ -1,5 +1,5 @@
 <template>
-  <section id="integrations" class="bg-brand-bg py-10 border-t border-black/5 w-full relative overflow-hidden">
+  <section id="integrations" class="bg-brand-bg py-10 border-t border-black/5 dark:border-white/5 w-full relative overflow-hidden">
     <div class="max-w-[700px] mx-auto text-center mb-16 px-4 relative z-10">
       <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/8 border border-primary/15 text-primary text-[10px] font-bold tracking-wider uppercase mb-5 font-header">
         Ecosystem Connectivity
@@ -110,7 +110,7 @@
 }
 
 .integration-card:hover .integration-name {
-  color: #0f172a;
+  color: var(--brand-dark);
 }
 
 .coming-soon {

@@ -46,7 +46,7 @@
             </div>
 
             <!-- Company Tag (Harmonized inner radius: rounded-md) -->
-            <span class="ml-auto text-[9px] font-black uppercase tracking-wider text-brand-slate font-header border border-black/5 px-2 py-1 rounded-md bg-slate-100/50">
+            <span class="ml-auto text-[9px] font-black uppercase tracking-wider text-brand-slate font-header border border-black/5 dark:border-white/10 px-2 py-1 rounded-md bg-slate-100/50 dark:bg-slate-800/50">
               {{ t.company }}
             </span>
           </div>
