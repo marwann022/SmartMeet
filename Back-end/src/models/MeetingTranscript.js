@@ -66,7 +66,7 @@ const meetingTranscriptSchema = new mongoose.Schema({
     timestamps: true,
 });
 
-meetingTranscriptSchema.index({ transcript: "text" });
+meetingTranscriptSchema.index({ transcript: "text" }, { language_override: "none" });
 
 const MeetingTranscript = mongoose.model("MeetingTranscript", meetingTranscriptSchema);
 

@@ -34,7 +34,7 @@ export const handleQuery = async (req, res) => {
     }
 
     const contextPassages = matches.map((m) => {
-      return `[Meeting: ${m.metadata?.title || m.metadata?.meeting_id}] ${m.metadata?.text || ""}`;
+      return `[Meeting: ${m.metadata?.title || m.metadata?.meetingId || m.metadata?.meeting_id}] ${m.metadata?.text || m.text || ""}`;
     });
 
     const contextString = contextPassages.join("\n\n---\n\n");
@@ -58,9 +58,9 @@ ${contextString}`,
     const answer = completion.choices[0]?.message?.content || "I could not generate an answer.";
 
     const sources = matches.map((m) => ({
-      meetingId: m.metadata?.meeting_id || "unknown",
+      meetingId: m.metadata?.meetingId || m.metadata?.meeting_id || "unknown",
       title: m.metadata?.title || "",
-      snippet: (m.metadata?.text || "").substring(0, 300),
+      snippet: (m.metadata?.text || m.text || "").substring(0, 300),
       score: m.score || 0,
     }));
 

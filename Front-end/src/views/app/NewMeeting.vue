@@ -45,7 +45,7 @@
                 v-model="form.title"
                 type="text"
                 placeholder="e.g. Q4 Product Roadmap Alignment"
-                class="w-full px-4 py-3.5 rounded-xl bg-white border border-black/8 font-body text-sm text-brand-dark placeholder-brand-slate/40 focus:outline-none focus:border-primary/30 focus:shadow-[0_0_0_3px_rgba(75,104,255,0.08)] transition-all duration-300"
+                class="w-full px-4 py-3.5 rounded-xl bg-white dark:bg-slate-950/60 border border-black/8 dark:border-white/10 font-body text-sm text-brand-dark placeholder-brand-slate/40 focus:outline-none focus:border-primary/30 focus:shadow-[0_0_0_3px_rgba(75,104,255,0.08)] transition-all duration-300"
                 :class="{ 'border-red-400': errors.title }"
               />
               <span
@@ -65,7 +65,7 @@
                 v-model="form.description"
                 placeholder="What is the primary objective of this session?"
                 rows="4"
-                class="w-full px-4 py-3.5 rounded-xl bg-white border border-black/8 font-body text-sm text-brand-dark placeholder-brand-slate/40 focus:outline-none focus:border-primary/30 focus:shadow-[0_0_0_3px_rgba(75,104,255,0.08)] transition-all duration-300 resize-none"
+                class="w-full px-4 py-3.5 rounded-xl bg-white dark:bg-slate-950/60 border border-black/8 dark:border-white/10 font-body text-sm text-brand-dark placeholder-brand-slate/40 focus:outline-none focus:border-primary/30 focus:shadow-[0_0_0_3px_rgba(75,104,255,0.08)] transition-all duration-300 resize-none"
               ></textarea>
             </div>
 
@@ -79,11 +79,11 @@
                 <button
                   type="button"
                   @click="form.type = 'Personal Discussion'"
-                  class="flex flex-col items-center justify-center gap-2 p-3.5 rounded-xl border transition-all duration-300 cursor-pointer"
+                  class="flex flex-col items-center justify-center gap-2 p-3.5 rounded-xl border dark:border-white/10 transition-all duration-300 cursor-pointer"
                   :class="
                     form.type === 'Personal Discussion'
                       ? 'bg-primary/8 border-primary text-primary font-bold shadow-sm'
-                      : 'bg-white border-black/8 text-brand-slate hover:bg-black/5'
+                      : 'bg-white dark:bg-slate-950/60 border-black/8 dark:border-white/10 text-brand-slate hover:bg-black/5 dark:hover:bg-white/5'
                   "
                 >
                   <PhUser :size="24" class="text-primary" weight="bold" />
@@ -92,11 +92,11 @@
                 <button
                   type="button"
                   @click="form.type = 'Brainstorm'"
-                  class="flex flex-col items-center justify-center gap-2 p-3.5 rounded-xl border transition-all duration-300 cursor-pointer"
+                  class="flex flex-col items-center justify-center gap-2 p-3.5 rounded-xl border dark:border-white/10 transition-all duration-300 cursor-pointer"
                   :class="
                     form.type === 'Brainstorm'
                       ? 'bg-primary/8 border-primary text-primary font-bold shadow-sm'
-                      : 'bg-white border-black/8 text-brand-slate hover:bg-black/5'
+                      : 'bg-white dark:bg-slate-950/60 border-black/8 dark:border-white/10 text-brand-slate hover:bg-black/5 dark:hover:bg-white/5'
                   "
                 >
                   <PhBrain :size="24" class="text-primary" weight="bold" />
@@ -180,7 +180,7 @@
               <button
                 type="button"
                 @click="goToDashboard"
-                class="w-full py-3.5 rounded-xl bg-white border border-black/8 font-header font-bold text-xs tracking-wider uppercase text-brand-dark hover:bg-black/5 transition-all duration-300 cursor-pointer"
+                class="w-full py-3.5 rounded-xl bg-white dark:bg-slate-950/60 border border-black/8 dark:border-white/10 font-header font-bold text-xs tracking-wider uppercase text-brand-dark hover:bg-black/5 dark:hover:bg-white/5 transition-all duration-300 cursor-pointer"
               >
                 Cancel and Discard
               </button>
@@ -211,7 +211,7 @@
             <div class="flex flex-col gap-4 pt-2">
               <!-- Switch 1: Record Meeting -->
               <div
-                class="flex items-center justify-between p-3 bg-white/40 border border-black/[0.03] rounded-2xl"
+                class="flex items-center justify-between p-3 bg-white/40 dark:bg-slate-950/40 border border-black/[0.03] dark:border-white/10 rounded-2xl"
               >
                 <div class="flex flex-col text-left">
                   <span class="text-sm font-bold text-brand-dark leading-tight"
@@ -240,7 +240,7 @@
 
               <!-- Switch 2: Real-time Transcription -->
               <div
-                class="flex items-center justify-between p-3 bg-white/40 border border-black/[0.03] rounded-2xl"
+                class="flex items-center justify-between p-3 bg-white/40 dark:bg-slate-950/40 border border-black/[0.03] dark:border-white/10 rounded-2xl"
               >
                 <div class="flex flex-col text-left">
                   <span class="text-sm font-bold text-brand-dark leading-tight"
@@ -269,7 +269,7 @@
 
               <!-- Switch 3: Auto-extract Tasks -->
               <div
-                class="flex items-center justify-between p-3 bg-white/40 border border-black/[0.03] rounded-2xl"
+                class="flex items-center justify-between p-3 bg-white/40 dark:bg-slate-950/40 border border-black/[0.03] dark:border-white/10 rounded-2xl"
               >
                 <div class="flex flex-col text-left">
                   <span class="text-sm font-bold text-brand-dark leading-tight"
@@ -327,7 +327,7 @@
                   @keydown.enter.prevent="addParticipant"
                   type="text"
                   placeholder="Enter name or email..."
-                  class="flex-1 px-4 py-2.5 rounded-xl bg-white border border-black/8 font-body text-sm text-brand-dark placeholder-brand-slate/40 focus:outline-none focus:border-primary/30 transition-all duration-300"
+                  class="flex-1 px-4 py-2.5 rounded-xl bg-white dark:bg-slate-950/60 border border-black/8 dark:border-white/10 font-body text-sm text-brand-dark placeholder-brand-slate/40 focus:outline-none focus:border-primary/30 transition-all duration-300"
                 />
                 <button
                   type="button"
@@ -377,7 +377,7 @@
           <div class="flex flex-col gap-4">
             <!-- Sync Slack -->
             <div
-              class="flex items-center justify-between p-3.5 bg-white/40 border border-black/[0.03] rounded-2xl"
+              class="flex items-center justify-between p-3.5 bg-white/40 dark:bg-slate-950/40 border border-black/[0.03] dark:border-white/10 rounded-2xl"
             >
               <div class="flex items-center gap-3 w-[70%]">
                 <img

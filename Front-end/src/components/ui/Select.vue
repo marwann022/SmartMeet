@@ -7,8 +7,8 @@
     <button 
       ref="buttonRef" type="button" @click="isOpen = !isOpen"
       :class="[
-        'w-full h-12 flex items-center justify-between px-4 rounded-xl bg-white border font-body text-sm transition-all duration-300 cursor-pointer text-brand-dark',
-        isOpen ? (themeFocusClasses[theme] || themeFocusClasses.primary) : (themeBorderClasses[theme] || 'border-black/8')
+        'w-full h-12 flex items-center justify-between px-4 rounded-xl bg-white dark:bg-slate-950/60 border font-body text-sm transition-all duration-300 cursor-pointer text-brand-dark',
+        isOpen ? (themeFocusClasses[theme] || themeFocusClasses.primary) : (themeBorderClasses[theme] || 'border-black/8 dark:border-white/10')
       ]"
     >
       <div class="flex items-center gap-2">
@@ -22,11 +22,11 @@
       <transition name="fade-dropdown">
         <div 
           v-if="isOpen" ref="dropdownMenuRef" :style="dropdownPosition"
-          class="fixed z-[350] rounded-xl bg-white border border-black/8 shadow-[0_12px_32px_rgba(0,0,0,0.08)] py-1 flex flex-col max-h-[200px] overflow-y-auto"
+          class="fixed z-[350] rounded-xl bg-white dark:bg-slate-900 border border-black/8 dark:border-white/10 shadow-[0_12px_32px_rgba(0,0,0,0.2)] py-1 flex flex-col max-h-[200px] overflow-y-auto"
         >
           <button 
             v-for="opt in formattedOptions" :key="opt.value" type="button" @click="selectOption(opt.value)"
-            class="w-full px-4 py-2.5 flex items-center gap-2 hover:bg-black/5 text-left font-body text-sm text-brand-dark transition-colors duration-200 cursor-pointer"
+            class="w-full px-4 py-2.5 flex items-center gap-2 hover:bg-black/5 dark:hover:bg-white/5 text-left font-body text-sm text-brand-dark transition-colors duration-200 cursor-pointer"
           >
             <span v-if="opt.color" class="w-2 h-2 rounded-full" :class="opt.color"></span>
             <span>{{ opt.label }}</span>
@@ -104,7 +104,7 @@ onUnmounted(() => {
 })
 
 // كلاسات الاستايل ملمومة بشكل منسق
-const themeBorderClasses = { primary: 'border-black/8', todo: 'border-primary/20', inprogress: 'border-amber-500/20', review: 'border-red-500/20', done: 'border-emerald-500/20' }
+const themeBorderClasses = { primary: 'border-black/8 dark:border-white/10', todo: 'border-primary/20', inprogress: 'border-amber-500/20', review: 'border-red-500/20', done: 'border-emerald-500/20' }
 const themeFocusClasses = {
   primary: 'border-primary/30 shadow-[0_0_0_3px_rgba(75,104,255,0.08)]',
   todo: 'border-primary/30 shadow-[0_0_0_3px_rgba(75,104,255,0.08)]',

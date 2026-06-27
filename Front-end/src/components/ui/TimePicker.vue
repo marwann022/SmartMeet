@@ -18,8 +18,8 @@
         type="button"
         @click="toggleDropdown"
         :class="[
-          'w-full h-12 pl-11 pr-4 flex items-center rounded-xl bg-white border font-body text-sm text-brand-dark text-left transition-all duration-300 hover:border-black/15 cursor-pointer focus:outline-none',
-          hasError ? 'border-red-400 focus:border-red-500 focus:shadow-[0_0_0_3px_rgba(239,68,68,0.08)]' : 'border-black/8 focus:border-primary/30 focus:shadow-[0_0_0_3px_rgba(75,104,255,0.08)]'
+          'w-full h-12 pl-11 pr-4 flex items-center rounded-xl bg-white dark:bg-slate-950/60 border font-body text-sm text-brand-dark text-left transition-all duration-300 hover:border-black/15 dark:hover:border-white/20 cursor-pointer focus:outline-none',
+          hasError ? 'border-red-400 focus:border-red-500 focus:shadow-[0_0_0_3px_rgba(239,68,68,0.08)]' : 'border-black/8 dark:border-white/10 focus:border-primary/30 focus:shadow-[0_0_0_3px_rgba(75,104,255,0.08)]'
         ]"
       >
         {{ formattedDisplayTime }}
@@ -31,7 +31,7 @@
       <div 
         v-if="isOpen" 
         @click.stop
-        class="absolute left-0 z-[250] w-[280px] bg-white border border-black/8 shadow-[0_16px_36px_rgba(0,0,0,0.12)] rounded-[24px] p-4 flex flex-col gap-4 text-left backdrop-blur-md"
+        class="absolute left-0 z-[250] w-[280px] bg-white dark:bg-slate-900 border border-black/8 dark:border-white/10 shadow-[0_16px_36px_rgba(0,0,0,0.2)] rounded-[24px] p-4 flex flex-col gap-4 text-left backdrop-blur-md"
         style="top: calc(100% + 6px);"
       >
         <div class="grid grid-cols-3 gap-2.5 h-[190px]">
@@ -40,8 +40,8 @@
             <div class="text-[9px] font-extrabold text-brand-slate/60 text-center uppercase tracking-widest mb-1">Hr</div>
             <div class="relative overflow-hidden h-[160px]">
               <!-- Fade overlays -->
-              <div class="absolute top-0 left-0 right-0 h-6 bg-gradient-to-b from-white to-transparent pointer-events-none z-10"></div>
-              <div class="absolute bottom-0 left-0 right-0 h-6 bg-gradient-to-t from-white to-transparent pointer-events-none z-10"></div>
+              <div class="absolute top-0 left-0 right-0 h-6 bg-gradient-to-b from-white dark:from-slate-900 to-transparent pointer-events-none z-10"></div>
+              <div class="absolute bottom-0 left-0 right-0 h-6 bg-gradient-to-t from-white dark:from-slate-900 to-transparent pointer-events-none z-10"></div>
               
               <div class="h-full overflow-y-auto no-scrollbar flex flex-col gap-1 py-4 scroll-smooth">
                 <button
@@ -50,7 +50,7 @@
                   type="button"
                   @click="selectHour(h)"
                   class="py-1.5 px-2 text-xs font-semibold rounded-lg text-center transition-all cursor-pointer"
-                  :class="selectedHour === h ? 'bg-primary text-white font-bold shadow-sm' : 'text-brand-dark hover:bg-black/5'"
+                  :class="selectedHour === h ? 'bg-primary text-white font-bold shadow-sm' : 'text-brand-dark hover:bg-black/5 dark:hover:bg-white/5'"
                 >
                   {{ String(h).padStart(2, '0') }}
                 </button>
@@ -63,8 +63,8 @@
             <div class="text-[9px] font-extrabold text-brand-slate/60 text-center uppercase tracking-widest mb-1">Min</div>
             <div class="relative overflow-hidden h-[160px]">
               <!-- Fade overlays -->
-              <div class="absolute top-0 left-0 right-0 h-6 bg-gradient-to-b from-white to-transparent pointer-events-none z-10"></div>
-              <div class="absolute bottom-0 left-0 right-0 h-6 bg-gradient-to-t from-white to-transparent pointer-events-none z-10"></div>
+              <div class="absolute top-0 left-0 right-0 h-6 bg-gradient-to-b from-white dark:from-slate-900 to-transparent pointer-events-none z-10"></div>
+              <div class="absolute bottom-0 left-0 right-0 h-6 bg-gradient-to-t from-white dark:from-slate-900 to-transparent pointer-events-none z-10"></div>
               
               <div class="h-full overflow-y-auto no-scrollbar flex flex-col gap-1 py-4 scroll-smooth">
                 <button
@@ -73,7 +73,7 @@
                   type="button"
                   @click="selectMinute(m)"
                   class="py-1.5 px-2 text-xs font-semibold rounded-lg text-center transition-all cursor-pointer"
-                  :class="selectedMinute === m ? 'bg-primary text-white font-bold shadow-sm' : 'text-brand-dark hover:bg-black/5'"
+                  :class="selectedMinute === m ? 'bg-primary text-white font-bold shadow-sm' : 'text-brand-dark hover:bg-black/5 dark:hover:bg-white/5'"
                 >
                   {{ String(m).padStart(2, '0') }}
                 </button>
@@ -84,13 +84,13 @@
           <!-- AM/PM Column -->
           <div class="flex flex-col justify-center gap-2 pl-1 select-none">
             <div class="text-[9px] font-extrabold text-brand-slate/60 text-center uppercase tracking-widest">AM/PM</div>
-            <div class="flex flex-col bg-black/4 p-1 rounded-xl border border-black/[0.02] gap-1.5">
+            <div class="flex flex-col bg-black/4 dark:bg-white/5 p-1 rounded-xl border border-black/[0.02] dark:border-white/5 gap-1.5">
               <button
                 type="button"
                 @click="selectPeriod('AM')"
                 :disabled="isPeriodDisabled('AM')"
                 class="py-2.5 text-xs font-bold rounded-lg text-center transition-all cursor-pointer disabled:opacity-20 disabled:cursor-not-allowed disabled:pointer-events-none"
-                :class="selectedPeriod === 'AM' ? 'bg-primary text-white font-bold shadow-sm' : 'text-brand-dark hover:bg-black/5'"
+                :class="selectedPeriod === 'AM' ? 'bg-primary text-white font-bold shadow-sm' : 'text-brand-dark hover:bg-black/5 dark:hover:bg-white/5'"
               >
                 AM
               </button>
@@ -99,7 +99,7 @@
                 @click="selectPeriod('PM')"
                 :disabled="isPeriodDisabled('PM')"
                 class="py-2.5 text-xs font-bold rounded-lg text-center transition-all cursor-pointer disabled:opacity-20 disabled:cursor-not-allowed disabled:pointer-events-none"
-                :class="selectedPeriod === 'PM' ? 'bg-primary text-white font-bold shadow-sm' : 'text-brand-dark hover:bg-black/5'"
+                :class="selectedPeriod === 'PM' ? 'bg-primary text-white font-bold shadow-sm' : 'text-brand-dark hover:bg-black/5 dark:hover:bg-white/5'"
               >
                 PM
               </button>

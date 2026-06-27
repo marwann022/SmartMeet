@@ -504,10 +504,11 @@ const submitQuery = async () => {
 
   const lowerQuery = query.toLowerCase()
   let isTestCase = false
+  const bypassMocks = true
   let replyText = ''
   let suggestion = null
 
-  if (lowerQuery.includes('redesign') || lowerQuery.includes('frontend redesign') || (lowerQuery.includes('latest') && lowerQuery.includes('meeting') && lowerQuery.includes('redesign'))) {
+  if (!bypassMocks && (lowerQuery.includes('redesign') || lowerQuery.includes('frontend redesign') || (lowerQuery.includes('latest') && lowerQuery.includes('meeting') && lowerQuery.includes('redesign')))) {
     isTestCase = true
     replyText = "Based on the latest 'Frontend Redesign' meeting transcript, there is 1 task committed to you (Marwan):\n\n- **Implement the responsive layout and voice recorder components on the Knowledge AI dashboard.**\n\nWould you like me to add this task to your Tasks page?"
     suggestion = {

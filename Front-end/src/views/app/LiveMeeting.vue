@@ -175,27 +175,11 @@ const formatTime = (secs) => {
   return `${m}:${s}`
 }
 
-// Start audio recording via getDisplayMedia (captures all meeting audio, not just local mic)
+// Start audio recording via getUserMedia (captures local microphone audio)
 const startRecording = async () => {
   try {
-    // getDisplayMedia with audio: true captures system audio including remote participants
-    const stream = await navigator.mediaDevices.getDisplayMedia({
-      audio: true,
-      video: { displaySurface: 'browser' }
-    })
-
-    // If audio track exists, use it; otherwise fallback to mic
-    const audioTrack = stream.getAudioTracks()[0]
-    if (!audioTrack) {
-      // Fallback to microphone only
-      const micStream = await navigator.mediaDevices.getUserMedia({ audio: true })
-      mediaRecorder = new MediaRecorder(micStream, { mimeType: 'audio/webm' })
-    } else {
-      // Use screen capture stream (includes all remote participants audio)
-      const audioOnlyStream = new MediaStream([audioTrack])
-      mediaRecorder = new MediaRecorder(audioOnlyStream, { mimeType: 'audio/webm' })
-    }
-
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
+    mediaRecorder = new MediaRecorder(stream, { mimeType: 'audio/webm' })
     audioChunks = []
 
     mediaRecorder.ondataavailable = (e) => {
@@ -209,23 +193,8 @@ const startRecording = async () => {
       recordingDuration.value = formatTime(recordingSeconds)
     }, 1000)
   } catch (err) {
-    console.error('Screen/audio capture denied, falling back to microphone:', err)
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
-      mediaRecorder = new MediaRecorder(stream, { mimeType: 'audio/webm' })
-      audioChunks = []
-      mediaRecorder.ondataavailable = (e) => {
-        if (e.data.size > 0) audioChunks.push(e.data)
-      }
-      mediaRecorder.start(1000)
-      recordingTimer = setInterval(() => {
-        recordingSeconds++
-        recordingDuration.value = formatTime(recordingSeconds)
-      }, 1000)
-    } catch (micErr) {
-      console.error('Microphone access denied:', micErr)
-      isRecording.value = false
-    }
+    console.error('Microphone access denied:', err)
+    isRecording.value = false
   }
 }
 
@@ -365,6 +334,9 @@ onMounted(() => {
     }
 
     jitsiApi = new window.JitsiMeetExternalAPI(domain, options)
+    jitsiApi.addEventListener('videoConferenceLeft', () => {
+      confirmEnd()
+    })
   } else {
     document.querySelector('#meet-iframe-container').innerHTML = `
       <div class="flex flex-col items-center justify-center h-full text-white/50 p-6 text-center gap-3">

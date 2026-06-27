@@ -7,6 +7,8 @@ import {
     generateAndStoreEmbeddings,
 } from "../services/knowledgeStorageService.js";
 import crypto from "crypto";
+import fs from "fs/promises";
+import path from "path";
 
 const generateMeetingId = () => crypto.randomBytes(12).toString("hex");
 
@@ -81,14 +83,27 @@ export const uploadRecording = async (req, res) => {
     try {
         if (!req.file) return res.status(400).json({ success: false, message: "No file uploaded" });
 
-        const meeting = await Meeting.findOneAndUpdate(
-            { _id: req.params.id, host: req.user._id },
-            { $set: { recordingPath: req.file.path } },
-            { new: true }
-        );
+        const meeting = await Meeting.findOne({ _id: req.params.id, host: req.user._id });
         if (!meeting) return res.status(404).json({ success: false, message: "Meeting not found" });
 
-        res.status(200).json({ success: true, message: "Recording uploaded", path: req.file.path });
+        // Generate a clean slug from the meeting title
+        const slug = meeting.title
+            .toLowerCase()
+            .replace(/[^a-z0-9]+/g, "-")
+            .replace(/(^-|-$)+/g, "");
+
+        const ext = path.extname(req.file.path);
+        const newFilename = `${Date.now()}-${slug}${ext}`;
+        const newPath = path.join("uploads", newFilename);
+
+        // Rename the file on disk
+        await fs.rename(req.file.path, newPath);
+
+        // Update database record
+        meeting.recordingPath = newPath;
+        await meeting.save();
+
+        res.status(200).json({ success: true, message: "Recording uploaded", path: newPath });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
     }

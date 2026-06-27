@@ -1,9 +1,12 @@
 import dotenv from "dotenv";
 dotenv.config();
 
+import mongoose from "mongoose";
 import { searchMeetings } from "../services/ragService.js";
 
 const run = async () => {
+  await mongoose.connect(process.env.MONGO_URI);
+
   const question = process.argv[2] || "What was decided about authentication?";
 
   console.log(`Query: "${question}"\n`);
@@ -30,6 +33,8 @@ const run = async () => {
     console.log(`    ${matches[i].substring(0, 200)}...`);
     console.log();
   }
+
+  await mongoose.disconnect();
 };
 
 run().catch((err) => {

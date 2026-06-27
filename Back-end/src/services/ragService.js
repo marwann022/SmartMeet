@@ -1,44 +1,29 @@
 import { getEmbedding } from "./embeddingService.js";
-import { upsertVectors, queryVectors } from "./pineconeStore.js";
-
-export const chunkTranscript = (transcript, chunkSize = 500, overlap = 100) => {
-  const chunks = [];
-  let start = 0;
-
-  while (start < transcript.length) {
-    const end = start + chunkSize;
-    chunks.push(transcript.slice(start, end));
-    start += chunkSize - overlap;
-  }
-
-  return chunks;
-};
+import { queryMeetingVectors, upsertMeetingVectors } from "./vectorStoreService.js";
+import { chunkTranscript } from "./chunkingService.js";
 
 export const ingestMeeting = async (meetingId, teamId, title, transcript) => {
   const chunks = chunkTranscript(transcript);
-  const vectors = [];
+  const chunksWithEmbeddings = await Promise.all(
+    chunks.map(async (chunk) => ({
+      ...chunk,
+      embedding: await getEmbedding(chunk.text),
+    }))
+  );
 
-  for (let i = 0; i < chunks.length; i++) {
-    const embedding = await getEmbedding(chunks[i]);
-    vectors.push({
-      id: `${meetingId}_chunk_${i}`,
-      values: embedding,
-      metadata: {
-        meeting_id: meetingId,
-        team_id: teamId,
-        title,
-        chunk_index: i,
-        text: chunks[i],
-      },
-    });
-  }
+  await upsertMeetingVectors({
+    meeting: null,
+    meetingId,
+    title,
+    chunksWithEmbeddings,
+  });
 
-  await upsertVectors(vectors);
   return { chunksCount: chunks.length, meetingId };
 };
 
 export const searchMeetings = async (question, teamId, topK = 5) => {
   const queryEmbedding = await getEmbedding(question);
-  const results = await queryVectors(queryEmbedding, topK);
+  const results = await queryMeetingVectors({ queryEmbedding, topK });
   return results;
 };
+

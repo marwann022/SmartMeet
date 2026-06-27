@@ -4,7 +4,7 @@ const meetingEmbeddingSchema = new mongoose.Schema({
     meeting: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Meeting",
-        required: true,
+        required: false,
         index: true,
     },
     vectorId: {
