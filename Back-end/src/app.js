@@ -5,6 +5,8 @@ import meetingRoutes from "./routes/meetingRoutes.js";
 import taskRoutes from "./routes/taskRoutes.js";
 import ragRoutes from "./routes/ragRoutes.js";
 import notificationRoutes from "./routes/notificationRoutes.js";
+import joinRequestRoutes from "./routes/joinRequestRoutes.js";
+import communityRoutes from "./routes/communityRoutes.js";
 import cors from "cors";
 
 const app = express();
@@ -26,5 +28,7 @@ app.use("/api/meetings", meetingRoutes);
 app.use("/api/tasks", taskRoutes);
 app.use("/api/rag", ragRoutes);
 app.use("/api/notifications", notificationRoutes);
+app.use("/api/join-requests", joinRequestRoutes);
+app.use("/api/communities", communityRoutes);
 
 export default app;

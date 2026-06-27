@@ -240,20 +240,16 @@ import {
 } from "@phosphor-icons/vue";
 import Select from "../ui/Select.vue";
 
-// 🌟 استيراد مكون التوست والـ Composable الخاص به
 import Toast from "../ui/Toast.vue";
 import { useToasts } from "../../composables/useToasts";
+
+import userProfileImg from "../../assets/User Profile.png";
 
 const roleOptions = [
   { value: "Admin", label: "Administrator" },
   { value: "Manager", label: "Manager" },
   { value: "Member", label: "Regular Member" },
 ];
-
-// Import assets
-import userProfileImg from "../../assets/User Profile.png";
-import avatar1Img from "../../assets/Background+Border.png";
-import avatar2Img from "../../assets/Background+Border-1.png";
 
 const teamStats = [
   {
@@ -286,55 +282,41 @@ const teamStats = [
   },
 ];
 
-const members = ref([
-  {
-    id: 1,
-    name: "David Chen",
-    email: "david.c@smartmeet.ai",
-    role: "Admin",
-    joined: "Jun 25, 2026",
-    avatar: avatar1Img,
-  },
-  {
-    id: 2,
-    name: "Sarah Jenkins",
-    email: "s.jenkins@smartmeet.ai",
-    role: "Manager",
-    joined: "Jun 26, 2026",
-    avatar: avatar2Img,
-  },
-  {
-    id: 3,
-    name: "Marcus Wright",
-    email: "m.wright@smartmeet.ai",
-    role: "Member",
-    joined: "Jun 27, 2026",
-    avatar: userProfileImg,
-  },
-]);
-
+const members = ref([]);
 const memberSearchQuery = ref("");
 const communityCode = ref("");
 
-// 🌟 تفعيل خطاف التنبيهات (useToasts)
 const { success, warning, info } = useToasts();
 
-const loadCommunityCode = async () => {
+const loadMembers = async () => {
   try {
     const token = localStorage.getItem("token");
 
     const { data } = await axios.get(
-      "http://localhost:5000/api/users/profile",
+      "http://localhost:5000/api/communities/members",
       {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        headers: { Authorization: `Bearer ${token}` },
       },
     );
 
-    communityCode.value = data.user.communityCode;
+    members.value = data.members.map((m) => ({
+      id: m._id,
+      name: `${m.firstName} ${m.lastName}`.trim(),
+      email: m.email,
+      role: m.role === "admin" ? "Admin" : "Member",
+      avatar: m.avatar || userProfileImg,
+      joined: new Date(m.createdAt).toLocaleDateString("en-US", {
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+      }),
+    }));
+
+    if (data.communityCode) {
+      communityCode.value = data.communityCode;
+    }
   } catch (err) {
-    console.error("Failed to load community code", err);
+    console.error("Failed to load members", err);
   }
 };
 
@@ -359,7 +341,6 @@ const getRoleBadgeClass = (role) => {
   }
 };
 
-// 🌟 تعديل الـ Action Menu لاستخدام توست من نوع info
 const handleMemberAction = (id) => {
   const m = members.value.find((member) => member.id === id);
   if (m) {
@@ -370,7 +351,6 @@ const handleMemberAction = (id) => {
 const copyCommunityCode = async () => {
   try {
     await navigator.clipboard.writeText(communityCode.value);
-
     success("Community code copied successfully.");
   } catch {
     warning("Unable to copy community code.");
@@ -395,14 +375,12 @@ const activityFeed = ref([
   { text: "David Chen updated workspace billing settings", time: "Yesterday" },
 ]);
 
-// 🌟 تعديل إرسال الدعوة لاستخدام التوست (success / warning)
 const sendInvite = () => {
   if (!inviteForm.name.trim() || !inviteForm.email.trim()) {
     warning("Please enter invitee name and email.");
     return;
   }
 
-  // Add to members list mockup
   members.value.push({
     id: Date.now(),
     name: inviteForm.name,
@@ -412,7 +390,6 @@ const sendInvite = () => {
     avatar: userProfileImg,
   });
 
-  // Add activity log
   activityFeed.value.unshift({
     text: `Sent workspace invitation to ${inviteForm.name} (${inviteForm.role})`,
     time: "Just now",
@@ -426,7 +403,7 @@ const sendInvite = () => {
 };
 
 onMounted(() => {
-  loadCommunityCode();
+  loadMembers();
 });
 </script>
 

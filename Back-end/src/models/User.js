@@ -55,11 +55,15 @@ const userSchema = new mongoose.Schema(
       enum: ["user", "admin"],
       default: "user",
     },
-    communityCode: {
+    community: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Community",
+      default: null,
+    },
+    status: {
       type: String,
-      trim: true,
-      unique: true,
-      sparse: true,
+      enum: ["pending", "active"],
+      default: "pending",
     },
     phone: {
       type: String,

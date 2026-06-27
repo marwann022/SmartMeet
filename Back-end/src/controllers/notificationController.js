@@ -1,11 +1,9 @@
 import Notification from "../models/Notification.js";
 
-// @desc    Get all notifications for logged in user
-// @route   GET /api/notifications
-// @access  Private
+// GET /api/notifications
 export const getNotifications = async (req, res) => {
     try {
-        const notifications = await Notification.find({ user: req.user._id }).sort({ createdAt: -1 });
+        const notifications = await Notification.find({ recipient: req.user._id }).sort({ createdAt: -1 });
         res.status(200).json({
             success: true,
             notifications,
@@ -18,24 +16,26 @@ export const getNotifications = async (req, res) => {
     }
 };
 
-// @desc    Create a new notification manually (e.g., from frontend client)
-// @route   POST /api/notifications
-// @access  Private
+// POST /api/notifications
+// Accepts { title, message, type, community } (new) or { text, type, relatedId } (legacy)
 export const createNotification = async (req, res) => {
     try {
-        const { text, type, relatedId } = req.body;
+        const { text, title, message, type, community } = req.body;
 
-        if (!text) {
+        const resolvedTitle = title || text;
+        const resolvedMessage = message || text;
+
+        if (!resolvedTitle) {
             return res.status(400).json({
                 success: false,
-                message: "Notification text is required",
+                message: "Notification title is required.",
             });
         }
 
-        // Enforce user notification preferences
         const settings = req.user.notificationSettings;
         const summariesEnabled = !settings || settings.summaries !== false;
         const resolvedType = type || "task";
+
         if (resolvedType === "task" && !summariesEnabled) {
             return res.status(200).json({
                 success: true,
@@ -44,10 +44,11 @@ export const createNotification = async (req, res) => {
         }
 
         const notification = await Notification.create({
-            user: req.user._id,
-            text,
+            recipient: req.user._id,
+            community: community || null,
             type: resolvedType,
-            relatedId: relatedId || null,
+            title: resolvedTitle,
+            message: resolvedMessage,
         });
 
         res.status(201).json({
@@ -63,13 +64,11 @@ export const createNotification = async (req, res) => {
     }
 };
 
-// @desc    Mark a single notification as read
-// @route   PUT /api/notifications/:id/read
-// @access  Private
+// PUT /api/notifications/:id/read
 export const markAsRead = async (req, res) => {
     try {
         const notification = await Notification.findOneAndUpdate(
-            { _id: req.params.id, user: req.user._id },
+            { _id: req.params.id, recipient: req.user._id },
             { read: true },
             { new: true }
         );
@@ -94,13 +93,11 @@ export const markAsRead = async (req, res) => {
     }
 };
 
-// @desc    Mark all notifications of logged in user as read
-// @route   PUT /api/notifications/read-all
-// @access  Private
+// PUT /api/notifications/read-all
 export const markAllAsRead = async (req, res) => {
     try {
         await Notification.updateMany(
-            { user: req.user._id, read: false },
+            { recipient: req.user._id, read: false },
             { $set: { read: true } }
         );
 
@@ -116,14 +113,12 @@ export const markAllAsRead = async (req, res) => {
     }
 };
 
-// @desc    Delete a single notification
-// @route   DELETE /api/notifications/:id
-// @access  Private
+// DELETE /api/notifications/:id
 export const deleteNotification = async (req, res) => {
     try {
         const notification = await Notification.findOneAndDelete({
             _id: req.params.id,
-            user: req.user._id,
+            recipient: req.user._id,
         });
 
         if (!notification) {
@@ -145,12 +140,10 @@ export const deleteNotification = async (req, res) => {
     }
 };
 
-// @desc    Clear all notifications of logged in user
-// @route   DELETE /api/notifications
-// @access  Private
+// DELETE /api/notifications
 export const clearAllNotifications = async (req, res) => {
     try {
-        await Notification.deleteMany({ user: req.user._id });
+        await Notification.deleteMany({ recipient: req.user._id });
 
         res.status(200).json({
             success: true,

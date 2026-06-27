@@ -1,4 +1,6 @@
 import User from "../models/User.js";
+import Community from "../models/Community.js";
+import JoinRequest from "../models/JoinRequest.js";
 import generateToken from "../utils/generateToken.js";
 
 import sendEmail from "../utils/sendEmail.js";
@@ -53,14 +55,15 @@ export const register = async(req, res) => {
             });
         }
 
+        let targetCommunity = null;
+
         if (role === "user") {
 
-            const admin = await User.findOne({
-                role: "admin",
-                communityCode: communityCode.trim()
+            targetCommunity = await Community.findOne({
+                code: communityCode.trim().toUpperCase()
             });
 
-            if (!admin) {
+            if (!targetCommunity) {
                 return res.status(400).json({
                     success: false,
                     message: "Invalid Community Code."
@@ -172,8 +175,8 @@ export const register = async(req, res) => {
                 generatedCommunityCode = generateCommunityCode();
 
             } while (
-                await User.findOne({
-                    communityCode: generatedCommunityCode
+                await Community.findOne({
+                    code: generatedCommunityCode
                 })
             );
 
@@ -185,13 +188,31 @@ export const register = async(req, res) => {
             lastName,
             email,
             password,
-
             role,
-
-            communityCode: role === "admin" ?
-                generatedCommunityCode :
-                (communityCode || "").trim()
         });
+
+        if (role === "admin") {
+
+            const community = await Community.create({
+                name: `${name.trim()}'s Community`,
+                code: generatedCommunityCode,
+                owner: user._id,
+            });
+
+            user.community = community._id;
+            user.status = "active";
+            await user.save();
+
+        }
+
+        if (role === "user") {
+
+            await JoinRequest.create({
+                user: user._id,
+                community: targetCommunity._id,
+            });
+
+        }
 
         // Generate JWT
         const token = generateToken(user._id);
