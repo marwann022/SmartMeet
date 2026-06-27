@@ -176,7 +176,6 @@ select:-webkit-autofill:active {
   -webkit-box-shadow: 0 0 0 1000px #ffffff inset !important;
   -webkit-text-fill-color: #0d1227 !important; /* Matches brand-dark text color */
   box-shadow: 0 0 0 1000px #ffffff inset !important;
-  text-fill-color: #0d1227 !important;
   transition: background-color 5000s ease-in-out 0s;
 }
 

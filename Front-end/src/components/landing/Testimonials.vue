@@ -1,5 +1,5 @@
 <template>
-  <section id="results" class="testimonials-section py-20 border-t border-black/5 w-full relative overflow-hidden">
+  <section id="results" class="bg-brand-bg pt-10">
     <!-- Header -->
     <div class="max-w-[700px] mx-auto text-center mb-16 px-4 relative z-10">
       <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-accent/8 border border-accent/15 text-accent text-[10px] font-bold tracking-wider uppercase mb-5 font-header">
@@ -23,7 +23,7 @@
     >
       <div class="marquee-track flex gap-6 w-max animate-marquee">
         
-        <div v-for="t in allTestimonials" :key="t.uid" class="testimonial-card card-glass flex flex-col justify-between p-6 w-[350px] flex-shrink-0">
+        <div v-for="t in allTestimonials" :key="t.uid" class="testimonial-card rounded-2xl card-glass flex flex-col justify-between p-6 w-[350px] flex-shrink-0">
           <div>
             <!-- Star Rating -->
             <div class="flex gap-1 mb-4 text-amber-500 text-sm" aria-label="5 stars">★ ★ ★ ★ ★</div>
@@ -55,27 +55,7 @@
       </div>
     </div>
 
-    <!-- Stats Metrics Section (Harmonized Radius: rounded-2xl) -->
-    <div class="max-w-[1000px] mx-auto px-4 mt-20 relative z-10">
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-6 p-8 rounded-2xl card-glass">
-        <div class="text-left">
-          <div class="text-3xl font-extrabold font-header text-primary mb-1">40K+</div>
-          <div class="text-[10px] uppercase font-bold text-brand-slate tracking-wider font-header">Meetings Logged</div>
-        </div>
-        <div class="text-left">
-          <div class="text-3xl font-extrabold font-header text-secondary mb-1">120K+</div>
-          <div class="text-[10px] uppercase font-bold text-brand-slate tracking-wider font-header">Tasks Assigned</div>
-        </div>
-        <div class="text-left">
-          <div class="text-3xl font-extrabold font-header text-accent mb-1">92%</div>
-          <div class="text-[10px] uppercase font-bold text-brand-slate tracking-wider font-header">Alignment Score</div>
-        </div>
-        <div class="text-left">
-          <div class="text-3xl font-extrabold font-header text-brand-dark mb-1">31%</div>
-          <div class="text-[10px] uppercase font-bold text-brand-slate tracking-wider font-header">Less Meeting Time</div>
-        </div>
-      </div>
-    </div>
+    
 
   </section>
 </template>
@@ -161,7 +141,7 @@ const allTestimonials = computed(() => [
 
 .testimonial-card:hover {
   transform: translateY(-4px) scale(1.02);
-  box-shadow: 0 20px 40px 0 rgba(31, 38, 135, 0.08), 0 1px 2px 0 rgba(255, 255, 255, 0.7) inset;
+  box-shadow: 0 20px 40px 0 rgba(31, 38, 135, 0.08), 0 1px 2px 0 rgba(241, 243, 249, 0.7) inset;
 }
 
 /* Infinite Scroll Marquee Animation */

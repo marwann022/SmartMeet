@@ -10,8 +10,8 @@
       </router-view>
     </main>
     
-    <Footer />
   </div>
+  <Footer />
 </template>
 
 <script setup>

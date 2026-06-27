@@ -1,7 +1,7 @@
 <template>
-  <section id="workflow" class="workflow-section py-20 relative w-full border-t border-black/5">
+  <section id="workflow" class="bg-brand-bg py-10 relative w-full border-t border-black/5">
     <!-- Header -->
-    <div class="max-w-[700px] mx-auto text-center mb-16 px-4 relative z-10">
+    <div class="max-w-[700px] mx-auto text-center mb-4 px-4 relative z-10">
       <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/8 border border-primary/15 text-primary text-[10px] font-bold tracking-wider uppercase mb-5 font-header">
         How it Works
       </span>
@@ -16,7 +16,7 @@
     </div>
 
     <!-- Horizontal Desktop Timeline Wrapper -->
-    <div class="max-w-[1000px] mx-auto px-4 mb-16 relative z-10">
+    <div class="max-w-[1000px] mx-auto px-4 relative z-10">
       <!-- Horizontal Line & Node Grid (Desktop View) -->
       <div class="relative hidden md:flex items-center justify-between px-10 h-24 mb-12">
         <!-- Connecting Dashed SVG Line Behind Nodes -->

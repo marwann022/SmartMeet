@@ -1,5 +1,5 @@
 <template>
-  <section id="product" class="bento-section py-20 relative w-full border-t border-black/5">
+  <section id="product" class="bg-brand-bg py-10 relative w-full border-t border-black/5">
     <!-- Header -->
     <div class="max-w-[750px] mx-auto text-center mb-20 px-4 relative z-10">
       <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-secondary/8 border border-secondary/15 text-secondary text-[10px] font-bold tracking-wider uppercase mb-5 font-header">
