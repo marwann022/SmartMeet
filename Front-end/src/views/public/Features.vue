@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col gap-20 pb-20 mt-4 text-left">
+  <div class="flex flex-col gap-20 mt-4 text-left">
     <!-- ── HERO ── -->
     <section
       class="relative pt-10 pb-6 text-center flex flex-col items-center gap-6"
