@@ -41,7 +41,7 @@
             <!-- Mobile Settings Shortcut -->
             <router-link 
               to="/settings"
-              class="group bg-black/5 dark:bg-white/8 border border-black/10 dark:border-white/10 rounded-full flex items-center justify-center w-9 h-9 cursor-pointer text-brand-slate hover:bg-primary/5 hover:border-primary/15 hover:text-primary hover:scale-105 transition-all duration-300 hidden compact:flex"
+              class="group bg-black/5 dark:bg-white/8 border border-black/10 dark:border-white/10 rounded-full items-center justify-center w-9 h-9 cursor-pointer text-brand-slate hover:bg-primary/5 hover:border-primary/15 hover:text-primary hover:scale-105 transition-all duration-300 hidden compact:flex"
               title="Settings"
             >
               <PhGear :size="16" weight="bold" class="text-brand-slate group-hover:text-primary" />

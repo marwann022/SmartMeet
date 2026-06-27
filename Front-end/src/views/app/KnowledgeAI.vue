@@ -141,7 +141,7 @@
       </div>
 
       <!-- BOTTOM INPUT SECTION -->
-      <div class="flex flex-col gap-2 flex-shrink-0 w-full">
+      <div class="flex flex-col gap-2 flex-shrink-0 w-full pb-5">
         
         <!-- Active Attachments list -->
         <div v-if="attachments.length > 0" class="flex flex-wrap gap-2 px-4 py-2 bg-white/40 backdrop-blur-md rounded-2xl border border-black/5 animate-fade-in">
