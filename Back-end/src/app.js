@@ -7,6 +7,7 @@ import ragRoutes from "./routes/ragRoutes.js";
 import notificationRoutes from "./routes/notificationRoutes.js";
 import joinRequestRoutes from "./routes/joinRequestRoutes.js";
 import communityRoutes from "./routes/communityRoutes.js";
+import invitationRoutes from "./routes/invitationRoutes.js";
 import cors from "cors";
 
 const app = express();
@@ -30,5 +31,6 @@ app.use("/api/rag", ragRoutes);
 app.use("/api/notifications", notificationRoutes);
 app.use("/api/join-requests", joinRequestRoutes);
 app.use("/api/communities", communityRoutes);
+app.use("/api/invitations", invitationRoutes);
 
 export default app;

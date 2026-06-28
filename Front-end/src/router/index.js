@@ -52,6 +52,12 @@ const routes = [
         component: () =>
             import ('@/views/auth/SignUp.vue')
     },
+    {
+        path: '/register',
+        name: 'Register',
+        component: () =>
+            import ('@/views/auth/Register.vue')
+    },
 
     // ── APP ────────────────────────────────────────────────
     {

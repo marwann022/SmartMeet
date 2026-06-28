@@ -183,9 +183,10 @@
 
             <button
               @click="handleSendInvitation"
-              class="w-full py-2.5 mt-2 rounded-xl bg-grad-primary text-white font-header font-bold text-[11px] uppercase tracking-wide transition-all cursor-pointer"
+              :disabled="inviteLoading"
+              class="w-full py-2.5 mt-2 rounded-xl bg-grad-primary text-white font-header font-bold text-[11px] uppercase tracking-wide transition-all cursor-pointer disabled:opacity-50 disabled:pointer-events-none"
             >
-              Send Invitation
+              {{ inviteLoading ? 'Sending…' : 'Send Invitation' }}
             </button>
 
             <p class="text-[10px] text-brand-slate text-center leading-relaxed">
@@ -288,6 +289,7 @@ const teamStats = [
 const members = ref([]);
 const memberSearchQuery = ref("");
 const communityCode = ref("");
+const inviteLoading = ref(false);
 
 const { success, warning, info } = useToasts();
 
@@ -378,17 +380,37 @@ const activityFeed = ref([
   { text: "David Chen updated workspace billing settings", time: "Yesterday" },
 ]);
 
-const handleSendInvitation = () => {
+const handleSendInvitation = async () => {
   if (!inviteForm.fullName.trim() || !inviteForm.email.trim()) {
     warning("Please fill in the full name and email address.");
     return;
   }
 
-  console.log({
-    fullName: inviteForm.fullName,
-    email: inviteForm.email,
-    role: inviteForm.role,
-  });
+  try {
+    inviteLoading.value = true;
+    const token = localStorage.getItem("token");
+
+    await axios.post(
+      "http://localhost:5000/api/invitations",
+      {
+        fullName: inviteForm.fullName.trim(),
+        email: inviteForm.email.trim(),
+        role: inviteForm.role,
+      },
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      },
+    );
+
+    success("Invitation sent successfully.");
+    inviteForm.fullName = "";
+    inviteForm.email = "";
+    inviteForm.role = "user";
+  } catch (err) {
+    warning(err.response?.data?.message || "Failed to send invitation.");
+  } finally {
+    inviteLoading.value = false;
+  }
 };
 
 onMounted(() => {
