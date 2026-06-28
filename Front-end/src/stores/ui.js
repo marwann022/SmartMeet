@@ -37,10 +37,58 @@ export const useUiStore = defineStore('ui', () => {
     }
   }
 
-  const toggleTheme = () => {
-    theme.value = theme.value === 'light' ? 'dark' : 'light'
-    localStorage.setItem('theme', theme.value)
-    applyTheme()
+  const toggleTheme = (event) => {
+    const isAppearanceTransition = document.startViewTransition &&
+      !window.matchMedia('(prefers-reduced-motion: reduce)').matches
+
+    if (!isAppearanceTransition) {
+      theme.value = theme.value === 'light' ? 'dark' : 'light'
+      localStorage.setItem('theme', theme.value)
+      
+      // Fallback: smooth transition class
+      document.documentElement.classList.add('theme-transition')
+      applyTheme()
+      setTimeout(() => {
+        document.documentElement.classList.remove('theme-transition')
+      }, 400)
+      return
+    }
+
+    // Get click coordinates, or center of the screen
+    let x = window.innerWidth / 2
+    let y = window.innerHeight / 2
+    if (event instanceof MouseEvent) {
+      x = event.clientX
+      y = event.clientY
+    }
+
+    const endRadius = Math.hypot(
+      Math.max(x, window.innerWidth - x),
+      Math.max(y, window.innerHeight - y)
+    )
+
+    const transition = document.startViewTransition(() => {
+      theme.value = theme.value === 'light' ? 'dark' : 'light'
+      localStorage.setItem('theme', theme.value)
+      applyTheme()
+    })
+
+    transition.ready.then(() => {
+      const clipPath = [
+        `circle(0px at ${x}px ${y}px)`,
+        `circle(${endRadius}px at ${x}px ${y}px)`
+      ]
+      document.documentElement.animate(
+        {
+          clipPath: clipPath
+        },
+        {
+          duration: 400,
+          easing: 'ease-in-out',
+          pseudoElement: '::view-transition-new(root)'
+        }
+      )
+    })
   }
 
   const initTheme = () => {
