@@ -145,7 +145,7 @@
           <h3
             class="font-header font-bold text-base text-brand-dark pb-2 border-b border-black/5"
           >
-            Invite Stakeholder
+            Invite Member
           </h3>
 
           <div class="flex flex-col gap-3">
@@ -155,7 +155,7 @@
                 >Full Name</label
               >
               <input
-                v-model="inviteForm.name"
+                v-model="inviteForm.fullName"
                 type="text"
                 placeholder="Name..."
                 class="w-full px-3.5 py-2.5 rounded-xl bg-white border border-black/8 font-body text-xs text-brand-dark focus:outline-none"
@@ -177,16 +177,20 @@
               <Select
                 v-model="inviteForm.role"
                 :options="roleOptions"
-                label="Workspace Role"
+                label="Role"
               />
             </div>
 
             <button
-              @click="sendInvite"
+              @click="handleSendInvitation"
               class="w-full py-2.5 mt-2 rounded-xl bg-grad-primary text-white font-header font-bold text-[11px] uppercase tracking-wide transition-all cursor-pointer"
             >
               Send Invitation
             </button>
+
+            <p class="text-[10px] text-brand-slate text-center leading-relaxed">
+              The invited member will receive an email with a secure link to complete registration.
+            </p>
           </div>
         </div>
 
@@ -246,9 +250,8 @@ import { useToasts } from "../../composables/useToasts";
 import userProfileImg from "../../assets/User Profile.png";
 
 const roleOptions = [
-  { value: "Admin", label: "Administrator" },
-  { value: "Manager", label: "Manager" },
-  { value: "Member", label: "Regular Member" },
+  { value: "user", label: "User" },
+  { value: "admin", label: "Admin" },
 ];
 
 const teamStats = [
@@ -358,9 +361,9 @@ const copyCommunityCode = async () => {
 };
 
 const inviteForm = reactive({
-  name: "",
+  fullName: "",
   email: "",
-  role: "Member",
+  role: "user",
 });
 
 const activityFeed = ref([
@@ -375,31 +378,17 @@ const activityFeed = ref([
   { text: "David Chen updated workspace billing settings", time: "Yesterday" },
 ]);
 
-const sendInvite = () => {
-  if (!inviteForm.name.trim() || !inviteForm.email.trim()) {
-    warning("Please enter invitee name and email.");
+const handleSendInvitation = () => {
+  if (!inviteForm.fullName.trim() || !inviteForm.email.trim()) {
+    warning("Please fill in the full name and email address.");
     return;
   }
 
-  members.value.push({
-    id: Date.now(),
-    name: inviteForm.name,
+  console.log({
+    fullName: inviteForm.fullName,
     email: inviteForm.email,
     role: inviteForm.role,
-    joined: "Just now",
-    avatar: userProfileImg,
   });
-
-  activityFeed.value.unshift({
-    text: `Sent workspace invitation to ${inviteForm.name} (${inviteForm.role})`,
-    time: "Just now",
-  });
-
-  success(`Invitation successfully sent to ${inviteForm.name}!`);
-
-  inviteForm.name = "";
-  inviteForm.email = "";
-  inviteForm.role = "Member";
 };
 
 onMounted(() => {

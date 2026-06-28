@@ -52,6 +52,20 @@ const taskSchema = new mongoose.Schema({
         type: String,
         default: "Manual Entry",
     },
+    community: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Community",
+        default: null,
+    },
+    createdBy: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+        default: null,
+    },
+    isPersonal: {
+        type: Boolean,
+        default: false,
+    },
 }, {
     timestamps: true,
     toJSON: { virtuals: true },
