@@ -4,6 +4,7 @@ import { getMembers } from "../controllers/communityController.js";
 
 const router = express.Router();
 
-router.get("/members", protect, adminOnly, getMembers);
+// router.get("/members", protect, adminOnly, getMembers);
+router.get("/members", protect, getMembers);
 
 export default router;

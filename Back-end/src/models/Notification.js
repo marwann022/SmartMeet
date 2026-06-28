@@ -14,7 +14,14 @@ const notificationSchema = new mongoose.Schema(
     },
     type: {
       type: String,
-      enum: ["join-request", "task", "meeting", "document", "approval", "rejection"],
+      enum: [
+        "join-request",
+        "task",
+        "meeting",
+        "document",
+        "approval",
+        "rejection",
+      ],
       required: [true, "Notification type is required."],
     },
     title: {
@@ -27,6 +34,15 @@ const notificationSchema = new mongoose.Schema(
       required: [true, "Message is required."],
       trim: true,
     },
+    relatedId: {
+      type: mongoose.Schema.Types.ObjectId,
+      default: null,
+    },
+    status: {
+      type: String,
+      enum: ["pending", "approved", "rejected"],
+      default: "pending",
+    },
     read: {
       type: Boolean,
       default: false,
@@ -34,7 +50,7 @@ const notificationSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 notificationSchema.index({ recipient: 1, read: 1 });
