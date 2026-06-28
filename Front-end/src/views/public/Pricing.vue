@@ -145,7 +145,7 @@
             $0
           </span>
 
-          <span class="text-brand-slate text-sm mb-2"> /month </span>
+          <span class="text-brand-slate text-sm mb-2"> /{{ isAnnual ? "yr" : "mo" }} </span>
         </div>
 
         <div class="h-[1px] w-full bg-black/5 mb-6"></div>
@@ -168,8 +168,21 @@
           </li>
         </ul>
 
-        <Button variant="glass" class="w-full" @click="$router.push('/signup')">
+        <Button
+          v-if="!isOnProPlan"
+          variant="glass"
+          class="w-full"
+          @click="handlePlanClick('starter')"
+        >
           Start for Free
+        </Button>
+        <Button
+          v-else
+          variant="outline"
+          class="w-full border-red-200 !text-red-500 hover:bg-red-50"
+          @click="handlePlanClick('starter')"
+        >
+          Downgrade to Free
         </Button>
       </div>
 
@@ -206,12 +219,17 @@
 
         <!-- Badge -->
         <div
-          class="absolute -top-4 left-1/2 -translate-x-1/2 px-5 py-2 rounded-full bg-grad-primary shadow-[0_8px_25px_rgba(75,104,255,0.25)]"
+          :class="[
+            'absolute -top-4 left-1/2 -translate-x-1/2 px-5 py-2 rounded-full shadow-[0_8px_25px_rgba(75,104,255,0.25)]',
+            isCurrentPlanMatch
+              ? 'bg-emerald-500 shadow-[0_8px_25px_rgba(16,185,129,0.25)]'
+              : 'bg-grad-primary',
+          ]"
         >
           <span
             class="text-[10px] text-white font-bold tracking-[0.18em] uppercase"
           >
-            Most Popular
+            {{ isCurrentPlanMatch ? 'Your Plan' : 'Most Popular' }}
           </span>
         </div>
 
@@ -231,17 +249,23 @@
           </p>
         </div>
 
-        <div class="flex items-end gap-1 pb-2">
+        <div class="flex items-end gap-1 pb-1">
           <span class="font-header font-bold text-5xl text-brand-dark">
-            {{ isAnnual ? "$23" : "$29" }}
+            {{ isAnnual ? "$276" : "$29" }}
           </span>
 
-          <span class="text-brand-slate text-sm mb-2"> /user /mo </span>
+          <span class="text-brand-slate text-sm mb-2">
+            /user /{{ isAnnual ? "yr" : "mo" }}
+          </span>
         </div>
 
-        <div class="mb-6">
-          <span v-if="isAnnual" class="text-xs font-bold text-secondary">
-            Save 20% annually
+        <div class="flex flex-col gap-1 mb-4">
+          <span v-if="isAnnual" class="text-xs text-brand-slate">
+            <span class="line-through text-brand-slate/40">$29/mo</span>
+            &nbsp;$23/mo &mdash; Save $72/yr (20% OFF)
+          </span>
+          <span v-if="!isAnnual" class="text-xs text-brand-slate">
+            $348/year if billed monthly
           </span>
         </div>
 
@@ -268,9 +292,10 @@
         <Button
           variant="primary"
           class="w-full"
-          @click="$router.push('/signup')"
+          :disabled="isCurrentPlanMatch"
+          @click="handlePlanClick('pro')"
         >
-          Start Pro Trial
+          {{ isCurrentPlanMatch ? 'Current Plan' : isOnProPlan ? 'Switch Plan' : 'Start Pro Trial' }}
         </Button>
       </div>
 
@@ -601,13 +626,193 @@
         <Button variant="primary" @click="contactSales">Contact Sales</Button>
       </div>
     </section>
+
+    <!-- ═══════════════ CONTACT SALES MODAL ═══════════════ -->
+    <Transition name="success">
+      <div
+        v-if="showContactModal"
+        class="fixed inset-0 z-[200] flex items-center justify-center bg-black/20 backdrop-blur-sm p-4"
+        @click.self="showContactModal = false"
+      >
+        <div class="w-full max-w-[480px] rounded-[28px] card-glass p-8 relative">
+          <button
+            class="absolute top-5 right-5 w-8 h-8 rounded-full bg-black/5 flex items-center justify-center text-brand-slate hover:bg-black/10 hover:text-brand-dark transition-all cursor-pointer"
+            @click="showContactModal = false"
+          >
+            <PhX :size="16" weight="bold" />
+          </button>
+
+          <div class="flex flex-col items-center text-center mb-6">
+            <div class="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary mb-3">
+              <PhBuildings :size="24" weight="bold" />
+            </div>
+            <h3 class="font-header font-bold text-xl text-brand-dark">
+              Contact Enterprise Sales
+            </h3>
+            <p class="text-brand-slate text-sm mt-1 max-w-[320px]">
+              Tell us about your needs and our team will get back to you.
+            </p>
+          </div>
+
+          <form @submit.prevent="handleContactSubmit" class="flex flex-col gap-4">
+            <div>
+              <label class="text-[11px] font-bold font-header tracking-wide text-brand-dark mb-1.5 block">
+                Full Name
+              </label>
+              <input
+                v-model="contactForm.name"
+                placeholder="John Doe"
+                class="w-full px-4 py-3 rounded-xl border border-black/10 dark:border-white/10 bg-white/60 dark:bg-white/5 text-brand-dark text-sm outline-none focus:border-primary/40 focus:shadow-[0_0_0_3px_rgba(75,104,255,0.1)] transition-all"
+                :class="contactErrors.name ? 'border-red-300' : ''"
+              />
+              <p v-if="contactErrors.name" class="text-red-500 text-[11px] mt-1 font-body">{{ contactErrors.name }}</p>
+            </div>
+
+            <div>
+              <label class="text-[11px] font-bold font-header tracking-wide text-brand-dark mb-1.5 block">
+                Email
+              </label>
+              <input
+                v-model="contactForm.email"
+                type="email"
+                placeholder="john@company.com"
+                class="w-full px-4 py-3 rounded-xl border border-black/10 dark:border-white/10 bg-white/60 dark:bg-white/5 text-brand-dark text-sm outline-none focus:border-primary/40 focus:shadow-[0_0_0_3px_rgba(75,104,255,0.1)] transition-all"
+                :class="contactErrors.email ? 'border-red-300' : ''"
+              />
+              <p v-if="contactErrors.email" class="text-red-500 text-[11px] mt-1 font-body">{{ contactErrors.email }}</p>
+            </div>
+
+            <div>
+              <label class="text-[11px] font-bold font-header tracking-wide text-brand-dark mb-1.5 block">
+                Company
+              </label>
+              <input
+                v-model="contactForm.company"
+                placeholder="Acme Inc."
+                class="w-full px-4 py-3 rounded-xl border border-black/10 dark:border-white/10 bg-white/60 dark:bg-white/5 text-brand-dark text-sm outline-none focus:border-primary/40 focus:shadow-[0_0_0_3px_rgba(75,104,255,0.1)] transition-all"
+                :class="contactErrors.company ? 'border-red-300' : ''"
+              />
+              <p v-if="contactErrors.company" class="text-red-500 text-[11px] mt-1 font-body">{{ contactErrors.company }}</p>
+            </div>
+
+            <div>
+              <label class="text-[11px] font-bold font-header tracking-wide text-brand-dark mb-1.5 block">
+                Message
+              </label>
+              <textarea
+                v-model="contactForm.message"
+                rows="3"
+                placeholder="Tell us about your use case, team size, and requirements..."
+                class="w-full px-4 py-3 rounded-xl border border-black/10 dark:border-white/10 bg-white/60 dark:bg-white/5 text-brand-dark text-sm outline-none focus:border-primary/40 focus:shadow-[0_0_0_3px_rgba(75,104,255,0.1)] transition-all resize-none"
+                :class="contactErrors.message ? 'border-red-300' : ''"
+              ></textarea>
+              <p v-if="contactErrors.message" class="text-red-500 text-[11px] mt-1 font-body">{{ contactErrors.message }}</p>
+            </div>
+
+            <Button type="submit" variant="primary" class="w-full mt-2">
+              Send Inquiry
+            </Button>
+          </form>
+        </div>
+      </div>
+    </Transition>
+
+    <!-- ═══════════════ DOWNGRADE CONFIRMATION MODAL ═══════════════ -->
+    <Transition name="success">
+      <div
+        v-if="showDowngradeModal"
+        class="fixed inset-0 z-[200] flex items-center justify-center bg-black/20 backdrop-blur-sm p-4"
+        @click.self="showDowngradeModal = false"
+      >
+        <div class="w-full max-w-[400px] rounded-[28px] card-glass p-8 relative">
+          <div class="flex flex-col items-center text-center">
+            <div class="w-14 h-14 rounded-full bg-red-100 flex items-center justify-center mb-4">
+              <PhWarningCircle :size="28" weight="fill" class="text-red-500" />
+            </div>
+            <h3 class="font-header font-bold text-lg text-brand-dark mb-2">
+              Downgrade to Free?
+            </h3>
+            <p class="text-brand-slate text-sm mb-6 max-w-[300px]">
+              You'll lose access to all Professional features and be switched to the Free plan.
+            </p>
+            <div class="flex gap-3 w-full">
+              <Button
+                variant="outline"
+                class="flex-1"
+                @click="showDowngradeModal = false"
+              >
+                Keep Plan
+              </Button>
+              <Button
+                variant="danger"
+                class="flex-1"
+                @click="confirmDowngrade"
+              >
+                Yes, Downgrade
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </Transition>
+
+    <!-- Contact Success Toast -->
+    <Transition name="success">
+      <div
+        v-if="showContactSuccess"
+        class="fixed bottom-8 left-1/2 -translate-x-1/2 z-[200] px-6 py-4 rounded-2xl bg-white/95 dark:bg-slate-900/95 border border-emerald-200 dark:border-emerald-800 shadow-[0_10px_40px_rgba(0,0,0,0.1)] backdrop-blur-xl flex items-center gap-3"
+      >
+        <div class="w-8 h-8 rounded-full bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center shrink-0">
+          <PhCheck :size="16" weight="bold" class="text-emerald-500" />
+        </div>
+        <div class="flex flex-col">
+          <span class="text-sm font-bold text-brand-dark">Inquiry Sent!</span>
+          <span class="text-xs text-brand-slate">Our team will reach out within 24 hours.</span>
+        </div>
+      </div>
+    </Transition>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted, defineComponent, h } from "vue";
-import { PhCheck, PhMinus, PhCaretDown, PhSparkle } from "@phosphor-icons/vue";
+import { ref, computed, onMounted, defineComponent, h } from "vue";
+import { useRouter } from "vue-router";
+import { PhCheck, PhMinus, PhCaretDown, PhSparkle, PhBuildings, PhEnvelope, PhUser, PhX } from "@phosphor-icons/vue";
 import Button from "@/components/ui/Button.vue";
+import { useAuthStore } from "@/stores/auth";
+
+const router = useRouter();
+const authStore = useAuthStore();
+
+const currentPlan = computed(() => authStore.user?.plan || "Free");
+const isOnProPlan = computed(() => currentPlan.value.startsWith("Professional"));
+const userPlanBilling = computed(() => {
+  if (currentPlan.value.includes("Annual")) return "annual";
+  if (currentPlan.value.includes("Monthly")) return "monthly";
+  return null;
+});
+const isCurrentPlanMatch = computed(() =>
+  isOnProPlan.value && userPlanBilling.value === (isAnnual.value ? "annual" : "monthly")
+);
+
+const handlePlanClick = (plan) => {
+  if (plan === "starter") {
+    if (isOnProPlan.value) {
+      showDowngradeModal.value = true;
+    } else if (authStore.isAuthenticated) {
+      router.push("/");
+    } else {
+      router.push("/signup");
+    }
+  } else if (plan === "pro") {
+    if (isCurrentPlanMatch.value) return;
+    if (authStore.isAuthenticated) {
+      router.push(`/checkout/paymob?billing=${isAnnual.value ? "annual" : "monthly"}`);
+    } else {
+      router.push("/signup");
+    }
+  }
+};
 
 // Billing toggle
 const isAnnual = ref(false);
@@ -745,8 +950,54 @@ const faqs = [
   },
 ];
 
+const showDowngradeModal = ref(false);
+const showContactModal = ref(false);
+const showContactSuccess = ref(false);
+const contactForm = ref({
+  name: "",
+  email: "",
+  company: "",
+  message: "",
+});
+const contactErrors = ref({ name: "", email: "", company: "", message: "" });
+
 const contactSales = () => {
-  window.location.href = "mailto:sales@smartmeet.ai";
+  showContactModal.value = true;
+};
+
+const confirmDowngrade = () => {
+  authStore.updateUser({ plan: "Free" });
+  showDowngradeModal.value = false;
+};
+
+const handleContactSubmit = () => {
+  contactErrors.value = { name: "", email: "", company: "", message: "" };
+  let valid = true;
+
+  if (!contactForm.value.name.trim()) {
+    contactErrors.value.name = "Name is required";
+    valid = false;
+  }
+  if (!contactForm.value.email.trim()) {
+    contactErrors.value.email = "Email is required";
+    valid = false;
+  }
+  if (!contactForm.value.company.trim()) {
+    contactErrors.value.company = "Company is required";
+    valid = false;
+  }
+  if (!contactForm.value.message.trim()) {
+    contactErrors.value.message = "Message is required";
+    valid = false;
+  }
+
+  if (!valid) return;
+
+  showContactModal.value = false;
+  showContactSuccess.value = true;
+  setTimeout(() => {
+    showContactSuccess.value = false;
+  }, 4000);
 };
 
 const starterCoreFeatures = ["5 AI Meetings / month", "Live Transcription"];
