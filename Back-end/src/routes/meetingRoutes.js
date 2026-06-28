@@ -9,6 +9,7 @@ import {
     deleteMeeting,
     uploadRecording,
     processMeeting,
+    liveExtractTask,
 } from "../controllers/meetingController.js";
 import {
     getMeetingTranscript,
@@ -18,9 +19,18 @@ import {
     getMeetingDecisions,
 } from "../controllers/meetingKnowledgeController.js";
 
+import mongoose from "mongoose";
+
 const router = Router();
 
 router.use(protect);
+
+router.param("id", (req, res, next, id) => {
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+        return res.status(400).json({ success: false, message: "Invalid meeting ID format" });
+    }
+    next();
+});
 
 router.route("/")
     .post(createMeeting)
@@ -33,6 +43,7 @@ router.route("/:id")
 
 router.post("/:id/upload-recording", upload.single("recording"), uploadRecording);
 router.post("/:id/process", processMeeting);
+router.post("/live-extract-task", liveExtractTask);
 
 router.get("/:id/transcript", getMeetingTranscript);
 router.get("/:id/summary", getMeetingSummary);

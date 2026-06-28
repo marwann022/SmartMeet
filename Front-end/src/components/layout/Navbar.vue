@@ -1,6 +1,6 @@
 <template>
   <header
-    class="sticky top-5 z-[100] flex items-center justify-between px-7 py-2.5 rounded-full bg-white/65 dark:bg-slate-900/65 border border-white/70 dark:border-slate-800/80 shadow-glass backdrop-blur-[20px] mt-5 mb-8 transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] hover:border-white/85 dark:hover:border-slate-700 hover:bg-white/75 dark:hover:bg-slate-800/75 hover:shadow-[0_12px_40px_0_rgba(31,38,135,0.08),0_0_20px_rgba(75,104,255,0.05)]"
+    class="sticky top-5 z-[100] flex items-center justify-between px-7 py-2.5 rounded-full bg-white/65 dark:bg-slate-900/65 border border-black/5 dark:border-white/5 shadow-glass backdrop-blur-[20px] mt-5 mb-8 transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] hover:border-white/10 dark:hover:border-slate-700 hover:bg-white/75 dark:hover:bg-slate-800/75 hover:shadow-[0_12px_40px_0_rgba(31,38,135,0.08),0_0_20px_rgba(75,104,255,0.05)]"
   >
     <!-- Logo -->
     <router-link
@@ -21,24 +21,24 @@
       <template v-if="!authenticated">
         <router-link
           to="/"
-          class="text-xs font-semibold text-brand-slate relative py-1.5 px-3.5 rounded-full transition-all duration-300 hover:text-primary hover:bg-primary/5"
-          exact-active-class="text-primary bg-primary/5 border border-primary/10 shadow-[inset_0_1px_3px_rgba(75,104,255,0.05)]"
+          class="text-xs font-semibold relative py-1.5 px-3.5 rounded-full border border-transparent transition-all duration-300 focus:outline-none focus:ring-0 active:outline-none"
+          :class="$route.path === '/' ? 'text-primary bg-primary/8 border-transparent' : 'text-brand-slate hover:text-primary hover:bg-primary/5'"
         >
           Home
         </router-link>
 
         <router-link
           to="/features"
-          class="text-xs font-semibold text-brand-slate relative py-1.5 px-3.5 rounded-full transition-all duration-300 hover:text-primary hover:bg-primary/5"
-          active-class="text-primary bg-primary/5 border border-primary/10 shadow-[inset_0_1px_3px_rgba(75,104,255,0.05)]"
+          class="text-xs font-semibold relative py-1.5 px-3.5 rounded-full border border-transparent transition-all duration-300 focus:outline-none focus:ring-0 active:outline-none"
+          :class="$route.path === '/features' ? 'text-primary bg-primary/8 border-transparent' : 'text-brand-slate hover:text-primary hover:bg-primary/5'"
         >
           Features
         </router-link>
 
         <router-link
           to="/pricing"
-          class="text-xs font-semibold text-brand-slate relative py-1.5 px-3.5 rounded-full transition-all duration-300 hover:text-primary hover:bg-primary/5"
-          active-class="text-primary bg-primary/5 border border-primary/10 shadow-[inset_0_1px_3px_rgba(75,104,255,0.05)]"
+          class="text-xs font-semibold relative py-1.5 px-3.5 rounded-full border border-transparent transition-all duration-300 focus:outline-none focus:ring-0 active:outline-none"
+          :class="$route.path === '/pricing' ? 'text-primary bg-primary/8 border-transparent' : 'text-brand-slate hover:text-primary hover:bg-primary/5'"
         >
           Pricing
         </router-link>
@@ -46,34 +46,34 @@
 
       <!-- Authenticated Navigation -->
       <template v-else>
-          <router-link
+        <router-link
           to="/"
-          class="text-xs font-semibold text-brand-slate relative py-1.5 px-3.5 rounded-full transition-all duration-300 hover:text-primary hover:bg-primary/5"
-          exact-active-class="text-primary bg-primary/5 border border-primary/10 shadow-[inset_0_1px_3px_rgba(75,104,255,0.05)]"
+          class="text-xs font-semibold relative py-1.5 px-3.5 rounded-full border border-transparent transition-all duration-300 focus:outline-none focus:ring-0 active:outline-none"
+          :class="$route.path === '/' ? 'text-primary bg-primary/8 border-transparent' : 'text-brand-slate hover:text-primary hover:bg-primary/5'"
         >
           Home
         </router-link>
 
         <router-link
           to="/features"
-          class="text-xs font-semibold text-brand-slate relative py-1.5 px-3.5 rounded-full transition-all duration-300 hover:text-primary hover:bg-primary/5"
-          active-class="text-primary bg-primary/5 border border-primary/10 shadow-[inset_0_1px_3px_rgba(75,104,255,0.05)]"
+          class="text-xs font-semibold relative py-1.5 px-3.5 rounded-full border border-transparent transition-all duration-300 focus:outline-none focus:ring-0 active:outline-none"
+          :class="$route.path === '/features' ? 'text-primary bg-primary/8 border-transparent' : 'text-brand-slate hover:text-primary hover:bg-primary/5'"
         >
           Features
         </router-link>
 
         <router-link
           to="/pricing"
-          class="text-xs font-semibold text-brand-slate relative py-1.5 px-3.5 rounded-full transition-all duration-300 hover:text-primary hover:bg-primary/5"
-          active-class="text-primary bg-primary/5 border border-primary/10 shadow-[inset_0_1px_3px_rgba(75,104,255,0.05)]"
+          class="text-xs font-semibold relative py-1.5 px-3.5 rounded-full border border-transparent transition-all duration-300 focus:outline-none focus:ring-0 active:outline-none"
+          :class="$route.path === '/pricing' ? 'text-primary bg-primary/8 border-transparent' : 'text-brand-slate hover:text-primary hover:bg-primary/5'"
         >
           Pricing
         </router-link>
 
         <router-link
           to="/dashboard"
-          class="text-xs font-semibold text-brand-slate relative py-1.5 px-3.5 rounded-full transition-all duration-300 hover:text-primary hover:bg-primary/5"
-          active-class="text-primary bg-primary/5 border border-primary/10 shadow-[inset_0_1px_3px_rgba(75,104,255,0.05)]"
+          class="text-xs font-semibold relative py-1.5 px-3.5 rounded-full border border-transparent transition-all duration-300 focus:outline-none focus:ring-0 active:outline-none"
+          :class="$route.path === '/dashboard' ? 'text-primary bg-primary/8 border-transparent' : 'text-brand-slate hover:text-primary hover:bg-primary/5'"
         >
           Dashboard
         </router-link>

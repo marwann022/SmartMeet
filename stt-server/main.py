@@ -4,10 +4,10 @@ import tempfile
 import os
 
 app = FastAPI()
-model = WhisperModel("base", device="cpu", compute_type="int8")
+model = WhisperModel("small", device="cpu", compute_type="int8")
 
 @app.post("/transcribe")
-async def transcribe(audio: UploadFile = File(...), task: str = "translate"):
+async def transcribe(audio: UploadFile = File(...), task: str = "transcribe"):
     with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as tmp:
         tmp.write(await audio.read())
         tmp_path = tmp.name

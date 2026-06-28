@@ -64,11 +64,17 @@
             variant="glass"
             size="lg"
             class="hover:!text-primary"
-            @click="showDemoModal = true"
+            @click="$router.push('/features')"
           >
-          Explore More
-        
-        </Button>
+            Explore More
+            <template #icon-right>
+              <PhArrowUpRight
+                :size="14"
+                weight="bold"
+                class="ml-1 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
+              />
+            </template>
+          </Button>
         </div>
 
         <!-- Social Proof/Trust Row (Fixed: Uses actual image assets now) -->
@@ -117,7 +123,6 @@
       >
         <!-- Main Interface Card (Harmonized Radius: rounded-[32px]) -->
         <a href="#" class="hover-3d my-12 mx-2 cursor-pointer">
-
           <div
             class="w-[540px] bg-white/60 dark:bg-slate-900/60 border border-white/80 dark:border-slate-800/80 rounded-[32px] shadow-glass backdrop-blur-glass overflow-hidden flex flex-col min-h-[480px] lg:h-[520px] transition-all duration-500 hover:border-white dark:hover:border-slate-700 hover:shadow-card-hover group"
           >
@@ -131,14 +136,16 @@
                   <span
                     class="w-3 h-3 rounded-full bg-yellow-500/80 block"
                   ></span>
-                  <span class="w-3 h-3 rounded-full bg-green-500/80 block"></span>
+                  <span
+                    class="w-3 h-3 rounded-full bg-green-500/80 block"
+                  ></span>
                 </div>
                 <span
                   class="text-[11px] font-mono text-brand-slate select-none ml-2"
                   >SmartMeet AI Compiler v1.4</span
                 >
               </div>
-        
+
               <div class="flex items-center gap-2">
                 <span
                   class="w-2 h-2 rounded-full bg-red-500 animate-pulse"
@@ -149,7 +156,7 @@
                 >
               </div>
             </div>
-        
+
             <!-- Grid Workspace -->
             <div
               class="flex-grow grid grid-cols-1 md:grid-cols-[1.1fr_0.9fr] overflow-hidden"
@@ -166,7 +173,7 @@
                     <span>Voice input feed</span>
                     <span class="text-secondary">active</span>
                   </div>
-        
+
                   <!-- Pulsing Waveform (Harmonized Radius: rounded-xl) -->
                   <div
                     class="h-16 bg-white/40 dark:bg-slate-900/40 rounded-xl border border-black/5 dark:border-white/5 flex items-center justify-center gap-[3px] px-6 relative overflow-hidden"
@@ -181,9 +188,11 @@
                     ></div>
                   </div>
                 </div>
-        
-                <div class="border-t border-black/5 dark:border-white/5 mt-4"></div>
-        
+
+                <div
+                  class="border-t border-black/5 dark:border-white/5 mt-4"
+                ></div>
+
                 <!-- Bottom: Scrolling Live Transcript -->
                 <div
                   class="flex-grow flex flex-col justify-start mt-4 min-h-[180px]"
@@ -211,7 +220,9 @@
                       >
                         <div
                           class="flex justify-between font-bold text-[10px] uppercase tracking-wider mb-1"
-                          :class="idx === 0 ? 'text-primary' : 'text-brand-slate'"
+                          :class="
+                            idx === 0 ? 'text-primary' : 'text-brand-slate'
+                          "
                         >
                           <span>{{ line.speaker }}</span>
                           <span>{{ line.time }}</span>
@@ -224,9 +235,11 @@
                   </div>
                 </div>
               </div>
-        
+
               <!-- Right Panel: AI Compiled Action Items -->
-              <div class="p-5 flex flex-col justify-between bg-white/40 dark:bg-slate-900/40">
+              <div
+                class="p-5 flex flex-col justify-between bg-white/40 dark:bg-slate-900/40"
+              >
                 <div class="flex flex-col gap-4">
                   <div
                     class="flex justify-between items-center text-[10px] font-bold text-brand-slate uppercase tracking-wider font-header"
@@ -237,9 +250,9 @@
                       >{{ compiledTasks.length }} extracted</span
                     >
                   </div>
-        
+
                   <!-- Compiled Tasks Checklist -->
-                  <div class="space-y-3 max-h-[290px] overflow-y-auto ">
+                  <div class="space-y-3 max-h-[290px] overflow-y-auto">
                     <transition-group name="task-slide">
                       <!-- Harmonized Radius: rounded-xl (from rounded-2xl to match nested rule inside p-5) -->
                       <div
@@ -258,7 +271,7 @@
                         >
                           <PhCheck :size="10" weight="bold" />
                         </div>
-        
+
                         <div class="flex-grow">
                           <div
                             class="flex justify-between items-start gap-2 mb-1"
@@ -283,7 +296,7 @@
                               {{ task.priority }}
                             </span>
                           </div>
-        
+
                           <div
                             class="flex justify-between items-center mt-2 text-[9px] text-brand-slate font-semibold font-header"
                           >
@@ -301,7 +314,7 @@
                         </div>
                       </div>
                     </transition-group>
-        
+
                     <!-- Skeleton Placeholder when empty -->
                     <div
                       v-if="compiledTasks.length === 0"
@@ -316,7 +329,7 @@
                     </div>
                   </div>
                 </div>
-        
+
                 <!-- Bottom Tags -->
                 <div class="border-t border-black/5 dark:border-white/5 pt-4">
                   <div
@@ -338,19 +351,18 @@
               </div>
             </div>
           </div>
-  <!-- 8 empty divs needed for the 3D effect -->
-  <div></div>
-  <div></div>
-  <div></div>
-  <div></div>
-  <div></div>
-  <div></div>
-  <div></div>
-  <div></div>
-</a>
-
+          <!-- 8 empty divs needed for the 3D effect -->
+          <div></div>
+          <div></div>
+          <div></div>
+          <div></div>
+          <div></div>
+          <div></div>
+          <div></div>
+          <div></div>
+        </a>
+      </div>
     </div>
-  </div>
 
     <!-- Reusable Modal for Watch Demo (Harmonized Radius: rounded-[24px]) -->
     <Modal
@@ -411,7 +423,12 @@
 
 <script setup>
 import { ref, onMounted, onUnmounted, nextTick } from "vue";
-import { PhArrowRight, PhPlay, PhCheck, PhArrowUpRight } from "@phosphor-icons/vue";
+import {
+  PhArrowRight,
+  PhPlay,
+  PhCheck,
+  PhArrowUpRight,
+} from "@phosphor-icons/vue";
 import Button from "../ui/Button.vue";
 import Modal from "../ui/Modal.vue";
 

@@ -1,9 +1,14 @@
+import mongoose from "mongoose";
 import Meeting from "../models/Meeting.js";
 import MeetingTranscript from "../models/MeetingTranscript.js";
 import MeetingKnowledge from "../models/MeetingKnowledge.js";
 import ActionItem from "../models/ActionItem.js";
 
 const findOwnedMeeting = async (req, res) => {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+        res.status(400).json({ success: false, message: "Invalid meeting ID format" });
+        return null;
+    }
     const meeting = await Meeting.findOne({ _id: req.params.id, host: req.user._id });
     if (!meeting) {
         res.status(404).json({ success: false, message: "Meeting not found" });

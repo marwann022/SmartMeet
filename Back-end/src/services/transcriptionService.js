@@ -29,7 +29,7 @@ export const extractAudioIfNeeded = async (recordingPath) => {
     return outputPath;
 };
 
-export const transcribeAudio = async (audioPath, task = "translate") => {
+export const transcribeAudio = async (audioPath, task = "transcribe") => {
     const baseUrl = process.env.STT_SERVICE_URL || "http://localhost:8001/transcribe";
     const serviceUrl = `${baseUrl}?task=${task}`;
     const buffer = await fs.readFile(audioPath);

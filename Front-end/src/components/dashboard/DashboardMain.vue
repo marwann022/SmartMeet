@@ -293,7 +293,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { PhClock, PhSparkle, PhCheck, PhArrowLeft, PhArrowRight } from '@phosphor-icons/vue'
+import { PhClock, PhSparkle, PhCheck, PhArrowLeft, PhArrowRight, PhLightning } from '@phosphor-icons/vue'
 import { useMeetingStore } from '../../stores/meeting'
 import { useTaskStore } from '../../stores/task'
 import MeetingCard from './MeetingCard.vue'

@@ -35,6 +35,15 @@
           </div>
 
           <div class="flex flex-col gap-5">
+            <!-- Mode Selector -->
+            <div class="flex flex-col gap-2">
+              <Select
+                v-model="meetingMode"
+                :options="modeOptions"
+                label="Scheduling Mode"
+              />
+            </div>
+
             <!-- Title -->
             <div class="flex flex-col gap-2">
               <label
@@ -66,81 +75,92 @@
                 placeholder="What is the primary objective of this session?"
                 rows="4"
                 class="w-full px-4 py-3.5 rounded-xl bg-white dark:bg-slate-950/60 border border-black/8 dark:border-white/10 font-body text-sm text-brand-dark placeholder-brand-slate/40 focus:outline-none focus:border-primary/30 focus:shadow-[0_0_0_3px_rgba(75,104,255,0.08)] transition-all duration-300 resize-none"
+                :class="{ 'border-red-400': errors.description }"
               ></textarea>
-            </div>
-
-            <!-- Meeting Type Select (Personal Discussion, Brainstorm) -->
-            <div class="flex flex-col gap-2">
-              <label
-                class="font-header font-bold text-[11px] tracking-wider uppercase text-brand-slate ml-1"
-                >Meeting Type</label
+              <span
+                v-if="errors.description"
+                class="text-[11px] text-red-500 font-semibold ml-1"
+                >{{ errors.description }}</span
               >
-              <div class="grid grid-cols-2 gap-3">
-                <button
-                  type="button"
-                  @click="form.type = 'Personal Discussion'"
-                  class="flex flex-col items-center justify-center gap-2 p-3.5 rounded-xl border dark:border-white/10 transition-all duration-300 cursor-pointer"
-                  :class="
-                    form.type === 'Personal Discussion'
-                      ? 'bg-primary/8 border-primary text-primary font-bold shadow-sm'
-                      : 'bg-white dark:bg-slate-950/60 border-black/8 dark:border-white/10 text-brand-slate hover:bg-black/5 dark:hover:bg-white/5'
-                  "
-                >
-                  <PhUser :size="24" class="text-primary" weight="bold" />
-                  <span class="text-xs">Personal Discussion</span>
-                </button>
-                <button
-                  type="button"
-                  @click="form.type = 'Brainstorm'"
-                  class="flex flex-col items-center justify-center gap-2 p-3.5 rounded-xl border dark:border-white/10 transition-all duration-300 cursor-pointer"
-                  :class="
-                    form.type === 'Brainstorm'
-                      ? 'bg-primary/8 border-primary text-primary font-bold shadow-sm'
-                      : 'bg-white dark:bg-slate-950/60 border-black/8 dark:border-white/10 text-brand-slate hover:bg-black/5 dark:hover:bg-white/5'
-                  "
-                >
-                  <PhBrain :size="24" class="text-primary" weight="bold" />
-                  <span class="text-xs">Brainstorm</span>
-                </button>
-              </div>
             </div>
 
-            <!-- Date, Time & Duration row -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
-              <!-- Date & Time Pickers side-by-side -->
-              <div class="flex flex-col gap-1.5">
-                <div class="grid grid-cols-2 gap-3">
-                  <!-- Date Picker -->
-                  <DatePicker
-                    v-model="form.date"
-                    label="Date"
-                    :has-error="!!errors.datetime"
-                  />
-
-                  <!-- Time Picker -->
-                  <TimePicker
-                    v-model="form.time"
-                    label="Time"
-                    :has-error="!!errors.datetime"
-                    :is-today="isTodaySelected"
-                  />
+            <!-- Smoothly animated Scheduled Meeting settings -->
+            <transition name="expand-fade">
+              <div v-if="meetingMode === 'schedule'" class="flex flex-col gap-5 overflow-hidden">
+                <!-- Meeting Type Select -->
+                <div class="flex flex-col gap-2">
+                  <label
+                    class="font-header font-bold text-[11px] tracking-wider uppercase text-brand-slate ml-1"
+                    >Meeting Type</label
+                  >
+                  <div class="grid grid-cols-2 gap-3">
+                    <button
+                      type="button"
+                      @click="form.type = 'Personal Discussion'"
+                      class="flex flex-col items-center justify-center gap-2 p-3.5 rounded-xl border dark:border-white/10 transition-all duration-300 cursor-pointer"
+                      :class="
+                        form.type === 'Personal Discussion'
+                          ? 'bg-primary/8 border-primary text-primary font-bold shadow-sm'
+                          : 'bg-white dark:bg-slate-950/60 border-black/8 dark:border-white/10 text-brand-slate hover:bg-black/5 dark:hover:bg-white/5'
+                      "
+                    >
+                      <PhUser :size="24" class="text-primary" weight="bold" />
+                      <span class="text-xs">Personal Discussion</span>
+                    </button>
+                    <button
+                      type="button"
+                      @click="form.type = 'Brainstorm'"
+                      class="flex flex-col items-center justify-center gap-2 p-3.5 rounded-xl border dark:border-white/10 transition-all duration-300 cursor-pointer"
+                      :class="
+                        form.type === 'Brainstorm'
+                          ? 'bg-primary/8 border-primary text-primary font-bold shadow-sm'
+                          : 'bg-white dark:bg-slate-950/60 border-black/8 dark:border-white/10 text-brand-slate hover:bg-black/5 dark:hover:bg-white/5'
+                      "
+                    >
+                      <PhBrain :size="24" class="text-primary" weight="bold" />
+                      <span class="text-xs">Brainstorm</span>
+                    </button>
+                  </div>
                 </div>
-                <span
-                  v-if="errors.datetime"
-                  class="text-[11px] text-red-500 font-semibold ml-1"
-                  >{{ errors.datetime }}</span
-                >
-              </div>
 
-              <!-- Duration -->
-              <div class="flex flex-col gap-1.5">
-                <Select
-                  v-model="form.duration"
-                  :options="durationOptions"
-                  label="Duration"
-                />
+                <!-- Date, Time & Duration row -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
+                  <!-- Date & Time Pickers side-by-side -->
+                  <div class="flex flex-col gap-1.5">
+                    <div class="grid grid-cols-2 gap-3">
+                      <!-- Date Picker -->
+                      <DatePicker
+                        v-model="form.date"
+                        label="Date"
+                        :has-error="!!errors.datetime"
+                      />
+
+                      <!-- Time Picker -->
+                      <TimePicker
+                        v-model="form.time"
+                        label="Time"
+                        :has-error="!!errors.datetime"
+                        :is-today="isTodaySelected"
+                      />
+                    </div>
+                    <span
+                      v-if="errors.datetime"
+                      class="text-[11px] text-red-500 font-semibold ml-1"
+                      >{{ errors.datetime }}</span
+                    >
+                  </div>
+
+                  <!-- Duration -->
+                  <div class="flex flex-col gap-1.5">
+                    <Select
+                      v-model="form.duration"
+                      :options="durationOptions"
+                      label="Duration"
+                    />
+                  </div>
+                </div>
               </div>
-            </div>
+            </transition>
 
             <div class="flex flex-col gap-3 mt-8">
               <button
@@ -428,11 +448,7 @@ import {
   PhUsersThree,
   PhArrowsMerge,
   PhPlus,
-  PhCheck,
   PhX,
-  PhCalendar,
-  PhClock,
-  PhVideoCamera,
   PhUser,
 } from "@phosphor-icons/vue";
 import Select from "@/components/ui/Select.vue";
@@ -493,10 +509,7 @@ const form = reactive({
   record: true,
   transcribe: true,
   extractTasks: true,
-  participants: [
-    "Sarah Jenkins (s.jenkins@smartmeet.ai)",
-    "Marcus Wright (m.wright@smartmeet.ai)",
-  ],
+  participants: [],
   syncSlack: false,
 });
 
@@ -505,75 +518,19 @@ const isTodaySelected = computed(() => {
 });
 
 const participantInput = ref("");
+const meetingMode = ref("schedule");
+const modeOptions = [
+  { value: "schedule", label: "Scheduled Meeting" },
+  { value: "instant", label: "Instant Meeting" },
+];
+
 const errors = reactive({
   title: "",
+  description: "",
   datetime: "",
 });
 
-const successState = ref(false);
-const createdMeeting = ref(null);
-
 const isSubmitting = ref(false);
-const accessToken = ref(
-  sessionStorage.getItem("smartmeet_google_access_token") || "",
-);
-
-const getGoogleAccessToken = (callback, errorCallback) => {
-  if (accessToken.value) {
-    callback(accessToken.value);
-    return;
-  }
-
-  if (!window.google) {
-    alert(
-      "Google Identity services are still loading. Scheduling with Jitsi embedded call instead.",
-    );
-    errorCallback("not_loaded");
-    return;
-  }
-
-  const clientId = localStorage.getItem("smartmeet_google_client_id");
-  if (!clientId) {
-    alert(
-      "Google Client ID is not configured! Scheduling with Jitsi embedded call instead.",
-    );
-    errorCallback("no_client_id");
-    return;
-  }
-
-  try {
-    const tokenClient = window.google.accounts.oauth2.initTokenClient({
-      client_id: clientId,
-      scope: "https://www.googleapis.com/auth/calendar.events",
-      callback: (tokenResponse) => {
-        if (tokenResponse.access_token) {
-          sessionStorage.setItem(
-            "smartmeet_google_access_token",
-            tokenResponse.access_token,
-          );
-          accessToken.value = tokenResponse.access_token;
-          callback(tokenResponse.access_token);
-        } else {
-          errorCallback("no_token");
-        }
-      },
-      error_callback: (err) => {
-        console.error(err);
-        alert(
-          "Failed to authorize Google Calendar access. Scheduling with Jitsi embedded call instead.",
-        );
-        errorCallback(err);
-      },
-    });
-    tokenClient.requestAccessToken({ prompt: "" });
-  } catch (err) {
-    console.error(err);
-    alert(
-      "Failed to initialize Google Auth. Scheduling with Jitsi embedded call instead.",
-    );
-    errorCallback(err);
-  }
-};
 
 // Actions
 const addParticipant = () => {
@@ -594,6 +551,7 @@ const removeParticipant = (index) => {
 const validateForm = () => {
   let isValid = true;
   errors.title = "";
+  errors.description = "";
   errors.datetime = "";
 
   if (!form.title.trim()) {
@@ -601,16 +559,23 @@ const validateForm = () => {
     isValid = false;
   }
 
-  // Combine date and time to datetime format YYYY-MM-DDTHH:MM
-  if (form.date && form.time) {
-    form.datetime = `${form.date}T${form.time}`;
-  } else {
-    form.datetime = "";
+  if (!form.description.trim()) {
+    errors.description = "Meeting description is required.";
+    isValid = false;
   }
 
-  if (!form.datetime) {
-    errors.datetime = "Please choose a date & time.";
-    isValid = false;
+  if (meetingMode.value === 'schedule') {
+    // Combine date and time to datetime format YYYY-MM-DDTHH:MM
+    if (form.date && form.time) {
+      form.datetime = `${form.date}T${form.time}`;
+    } else {
+      form.datetime = "";
+    }
+
+    if (!form.datetime) {
+      errors.datetime = "Please choose a date & time.";
+      isValid = false;
+    }
   }
 
   return isValid;
@@ -620,57 +585,62 @@ const goToDashboard = () => {
   router.push("/dashboard");
 };
 
-const joinLiveCall = (meeting) => {
-  meetingStore.activeLiveMeeting = meeting;
-  router.push("/live-meeting");
-};
-
 const submitMeeting = async () => {
   if (!validateForm()) return;
   isSubmitting.value = true;
 
   const meetingId = Date.now();
-  const newMeeting = {
-    title: form.title,
-    description: form.description,
-    type: form.type,
-    datetime: form.datetime,
-    duration: form.duration,
-    meetLink: `https://meet.jit.si/SmartMeet_${meetingId}`,
-    participants: [...form.participants],
-  };
 
-  const created = await meetingStore.createMeeting(newMeeting);
-  meetingStore.activeLiveMeeting = created || {
-    ...newMeeting,
-    id: meetingId.toString(),
-  };
+  if (meetingMode.value === 'instant') {
+    const newMeeting = {
+      title: form.title,
+      description: form.description,
+      type: "Personal Discussion",
+      startTime: new Date().toISOString(),
+      duration: 30, // Default 30 min duration for instant
+      meetLink: `https://meet.jit.si/SmartMeet_${meetingId}`,
+      participants: [...form.participants],
+    };
 
-  isSubmitting.value = false;
-  router.push("/live-meeting");
+    const created = await meetingStore.createMeeting(newMeeting);
+    meetingStore.activeLiveMeeting = created || {
+      ...newMeeting,
+      id: meetingId.toString(),
+    };
+    isSubmitting.value = false;
+    router.push("/live-meeting");
+  } else {
+    const newMeeting = {
+      title: form.title,
+      description: form.description,
+      type: form.type,
+      datetime: form.datetime,
+      duration: form.duration,
+      meetLink: `https://meet.jit.si/SmartMeet_${meetingId}`,
+      participants: [...form.participants],
+    };
+
+    const created = await meetingStore.createMeeting(newMeeting);
+    isSubmitting.value = false;
+
+    const scheduledTime = new Date(form.datetime);
+    const now = new Date();
+
+    // If the meeting is scheduled more than 2 minutes in the future, don't start the call room immediately
+    if (scheduledTime - now > 120000) {
+      alert("Meeting successfully scheduled! You can join it from the Archive once the start time is reached.");
+      router.push("/dashboard");
+    } else {
+      meetingStore.activeLiveMeeting = created || {
+        ...newMeeting,
+        id: meetingId.toString(),
+      };
+      router.push("/live-meeting");
+    }
+  }
 };
 
-const resetForm = () => {
-  form.title = "";
-  form.description = "";
-  form.type = "Personal Discussion";
-  form.date = getTodayDateString();
-  form.time = getDefaultTimeString();
-  form.datetime = "";
-  form.duration = "30 minutes";
-  form.summaryStyle = "Action-Oriented";
-  form.record = true;
-  form.transcribe = true;
-  form.extractTasks = true;
-  form.participants = [
-    "Sarah Jenkins (s.jenkins@smartmeet.ai)",
-    "Marcus Wright (m.wright@smartmeet.ai)",
-  ];
-  form.syncSlack = false;
 
-  successState.value = false;
-  createdMeeting.value = null;
-};
 </script>
 
 <style scoped>
@@ -687,5 +657,24 @@ const resetForm = () => {
     opacity: 1;
     transform: translateY(0) scale(1);
   }
+}
+
+/* Expand-fade animation for clean dropdown section toggles */
+.expand-fade-enter-active,
+.expand-fade-leave-active {
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  max-height: 400px;
+  opacity: 1;
+}
+
+.expand-fade-enter-from,
+.expand-fade-leave-to {
+  max-height: 0;
+  opacity: 0;
+  transform: translateY(-8px);
+  margin-top: 0;
+  margin-bottom: 0;
+  padding-top: 0;
+  padding-bottom: 0;
 }
 </style>

@@ -40,10 +40,13 @@
             <!-- Action link -->
             <td class="py-[16px] px-[24px] text-right" @click.stop>
               <button 
-                @click="$emit('select', meeting)"
-                class="px-[16px] py-[6px] rounded-lg bg-primary/8 text-primary hover:bg-primary hover:text-white font-bold text-xs transition-all duration-200 cursor-pointer"
+                @click.stop="meeting.status === 'scheduled' ? $emit('join', meeting) : $emit('select', meeting)"
+                class="px-[16px] py-[6px] rounded-lg font-bold text-xs transition-all duration-200 cursor-pointer"
+                :class="meeting.status === 'scheduled' 
+                  ? 'bg-emerald-500/10 text-emerald-600 hover:bg-emerald-500 hover:text-white border border-emerald-500/15' 
+                  : 'bg-primary/8 text-primary hover:bg-primary hover:text-white'"
               >
-                Review
+                {{ meeting.status === 'scheduled' ? 'Join Call' : 'Review' }}
               </button>
             </td>
           </tr>
@@ -67,5 +70,5 @@ defineProps({
   }
 })
 
-defineEmits(['select'])
+defineEmits(['select', 'join'])
 </script>

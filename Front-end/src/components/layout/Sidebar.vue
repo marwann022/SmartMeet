@@ -102,7 +102,7 @@
 </template>
 
 <script setup>
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { 
   PhPlus, 
   PhLayout, 
@@ -110,20 +110,53 @@ import {
   PhCheckSquare, 
   PhBrain, 
   PhGear,
-  PhCaretLeft
+  PhCaretLeft,
+  PhLightning
 } from '@phosphor-icons/vue'
 import { useUiStore } from '../../stores/ui'
+import { useMeetingStore } from '../../stores/meeting'
 
 import { computed } from 'vue'
 import { useAuthStore } from '../../stores/auth'
 
 const route = useRoute()
+const router = useRouter()
 const uiStore = useUiStore()
+const meetingStore = useMeetingStore()
 
 const authStore = useAuthStore()
 
 const user = computed(() => authStore.user)
 console.log("USER DATA:", user.value)
+
+const startInstantMeeting = async () => {
+  try {
+    const now = new Date()
+    const meetingTitle = `Instant Meeting ${now.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} ${now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}`
+    const duration = 30
+    const meetingId = Date.now()
+
+    const newMeeting = {
+      title: meetingTitle,
+      description: "Quick check-in meeting created instantly.",
+      type: "Personal Discussion",
+      startTime: now.toISOString(),
+      duration: duration,
+      meetLink: `https://meet.jit.si/SmartMeet_${meetingId}`,
+      participants: []
+    }
+
+    const created = await meetingStore.createMeeting(newMeeting)
+    meetingStore.activeLiveMeeting = created || {
+      ...newMeeting,
+      id: meetingId.toString()
+    }
+    router.push('/live-meeting')
+  } catch (err) {
+    console.error('Failed to start instant meeting:', err)
+    alert('Failed to start instant meeting. Please try again.')
+  }
+}
 
 const menuTabs = [
   { id: 'dashboard', label: 'Dashboard', route: '/dashboard', icon: PhLayout },

@@ -224,7 +224,7 @@ const filteredHoursList = computed(() => {
 
 // Compute filtered list of minutes
 const filteredMinutesList = computed(() => {
-  const baseMinutes = [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55]
+  const baseMinutes = Array.from({ length: 60 }, (_, i) => i)
   if (!props.isToday) return baseMinutes
   
   const now = new Date()

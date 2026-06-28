@@ -52,7 +52,7 @@ const meetingTranscriptSchema = new mongoose.Schema({
     },
     sourceAudioPath: {
         type: String,
-        required: true,
+        default: "",
     },
     durationSeconds: {
         type: Number,

@@ -55,14 +55,33 @@
         </div>
       </div>
 
-      <!-- SmartMeet AI Live Companion Panel -->
-      <div class="card-glass rounded-[32px] p-6 flex flex-col justify-between h-full min-h-0 text-left border border-white/80 shadow-glass relative overflow-hidden">
+      <!-- SmartMeet AI Companion Panel -->
+      <div class="card-glass rounded-[32px] p-6 flex flex-col justify-between h-full min-h-0 text-left shadow-glass relative overflow-hidden">
         <div class="flex flex-col gap-5 h-[90%] min-h-0">
-          <div class="flex items-center gap-2.5 pb-4 border-b border-black/5">
-            <PhSparkle :size="20" class="text-primary animate-pulse" />
-            <div class="flex flex-col">
-              <h3 class="font-header font-bold text-base text-brand-dark leading-none">SmartMeet AI Companion</h3>
-              <span class="text-[9px] text-brand-slate font-extrabold uppercase mt-1 tracking-wider">AI Live Syncing</span>
+          <div class="flex items-center justify-between pb-4 border-b border-black/5 dark:border-white/5">
+            <div class="flex items-center gap-2.5">
+              <PhSparkle :size="20" class="text-primary animate-pulse" />
+              <div class="flex flex-col">
+                <h3 class="font-header font-bold text-base text-brand-dark leading-none">SmartMeet AI Companion</h3>
+                <span class="text-[9px] text-brand-slate font-extrabold uppercase mt-1 tracking-wider">AI Live Syncing</span>
+              </div>
+            </div>
+            <!-- Language Selector Toggle -->
+            <div class="flex items-center gap-1 bg-black/5 dark:bg-white/5 p-1 rounded-xl text-[10px]">
+              <button
+                @click="setLanguage('en-US')"
+                class="px-2.5 py-0.5 rounded-lg font-bold transition-all cursor-pointer select-none"
+                :class="selectedLanguage === 'en-US' ? 'bg-primary text-white shadow-md' : 'text-brand-slate hover:text-brand-dark dark:hover:text-white'"
+              >
+                EN
+              </button>
+              <button
+                @click="setLanguage('ar-EG')"
+                class="px-2.5 py-0.5 rounded-lg font-bold transition-all cursor-pointer select-none"
+                :class="selectedLanguage === 'ar-EG' ? 'bg-primary text-white shadow-md' : 'text-brand-slate hover:text-brand-dark dark:hover:text-white'"
+              >
+                AR
+              </button>
             </div>
           </div>
 
@@ -72,7 +91,7 @@
               <span class="text-[10px] font-extrabold text-brand-slate uppercase tracking-wide">AI Meeting Assistant Feed</span>
             </div>
 
-            <div ref="transcriptContainer" class="flex-1 overflow-y-auto pr-1 flex flex-col gap-3 scroll-container bg-black/[0.01] rounded-2xl p-3 border border-black/[0.02]">
+            <div ref="transcriptContainer" class="flex-1 overflow-y-auto pr-1 flex flex-col gap-3 scroll-container bg-black/[0.01] dark:bg-white/[0.01] rounded-2xl p-3 border border-black/[0.02] dark:border-white/[0.03]">
               <div
                 v-for="(line, index) in activeTranscript"
                 :key="index"
@@ -95,18 +114,18 @@
                   <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
                   <span class="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
                 </span>
-                <span>Recording audio for AI processing after meeting ends...</span>
+                <span>Listening — speak clearly for AI to capture your transcript...</span>
               </div>
 
               <div v-if="activeTranscript.length === 0" class="text-xs text-brand-slate/40 italic py-12 text-center flex flex-col items-center gap-2 justify-center h-full">
                 <PhMicrophone :size="24" class="text-brand-slate/30" />
-                <span>Meeting audio will be processed when you click "End Meeting".</span>
+                <span>Start speaking and your transcript will appear here live.</span>
               </div>
             </div>
           </div>
 
           <!-- Actions Box -->
-          <div class="h-[35%] min-h-[140px] flex flex-col gap-2.5 border-t border-black/5 pt-4">
+          <div class="h-[35%] min-h-[140px] flex flex-col gap-2.5 border-t border-black/5 dark:border-white/5 pt-4">
             <div class="flex justify-between items-center">
               <span class="text-[10px] font-extrabold text-brand-slate uppercase tracking-wide">Real-time Tasks Extracted</span>
               <span class="bg-primary/10 border border-primary/20 text-primary font-bold text-[9px] px-2 py-0.5 rounded-full">{{ extractedTasks.length }} detected</span>
@@ -116,7 +135,7 @@
               <div
                 v-for="task in extractedTasks"
                 :key="task.id"
-                class="bg-gradient-to-br from-white/90 to-white/50 border border-black/5 p-3 rounded-xl flex items-start justify-between gap-3 shadow-[0_2px_8px_rgba(0,0,0,0.02)] animate-slide-in-right"
+                class="bg-gradient-to-br from-white/90 to-white/50 dark:from-slate-900/60 dark:to-slate-800/40 border border-black/5 dark:border-white/5 p-3 rounded-xl flex items-start justify-between gap-3 shadow-[0_2px_8px_rgba(0,0,0,0.02)] animate-slide-in-right"
               >
                 <div class="flex flex-col gap-1">
                   <span class="text-[12px] font-bold text-brand-dark leading-snug">{{ task.title }}</span>
@@ -142,9 +161,11 @@
 </template>
 
 <script setup>
+import axios from 'axios'
 import { ref, computed, nextTick, onMounted, onUnmounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import { useMeetingStore } from '@/stores/meeting'
+import { useAuthStore } from '@/stores/auth'
 import {
   PhSparkle,
   PhMicrophone,
@@ -152,22 +173,128 @@ import {
 } from '@phosphor-icons/vue'
 
 const router = useRouter()
+const route = useRoute()
 const meetingStore = useMeetingStore()
+const authStore = useAuthStore()
 
 const meeting = computed(() => meetingStore.activeLiveMeeting)
 
+const API = import.meta.env.VITE_API_URL || 'http://localhost:5000/api'
+
 let jitsiApi = null
+let recognition = null
 const isRecording = ref(true)
 const isProcessing = ref(false)
 const activeTranscript = ref([])
 const extractedTasks = ref([])
 const transcriptContainer = ref(null)
 const recordingDuration = ref('00:00')
+const selectedLanguage = ref('en-US')
 
-let mediaRecorder = null
-let audioChunks = []
 let recordingTimer = null
 let recordingSeconds = 0
+let restartTimeout = null
+let consecutiveErrors = 0
+
+// Demo simulation speakers — lines from these are filtered out before sending to backend
+const DEMO_SPEAKERS = new Set(['Marcus Wright', 'Sarah Jenkins', 'Alex Chen'])
+
+const setLanguage = (lang) => {
+  if (selectedLanguage.value === lang) return
+  selectedLanguage.value = lang
+  if (recognition) {
+    recognition.onend = null // disable auto-restart listener during transition
+    recognition.stop()
+    setTimeout(() => {
+      startSpeechRecognition()
+    }, 300)
+  }
+}
+
+const startSpeechRecognition = () => {
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition
+  if (!SpeechRecognition) {
+    console.warn('Speech recognition not supported in this browser.')
+    return
+  }
+
+  recognition = new SpeechRecognition()
+  recognition.continuous = true
+  recognition.interimResults = false
+  recognition.lang = selectedLanguage.value
+
+  recognition.onresult = async (event) => {
+    const lastResultIndex = event.results.length - 1
+    const text = event.results[lastResultIndex][0].transcript.trim()
+    if (text) {
+      activeTranscript.value.push({
+        speaker: 'You (Live)',
+        text: text,
+        time: formatTime(recordingSeconds)
+      })
+
+      nextTick(() => {
+        if (transcriptContainer.value) {
+          transcriptContainer.value.scrollTop = transcriptContainer.value.scrollHeight
+        }
+      })
+
+      // Query AI to extract task from text snippet
+      try {
+        const res = await meetingStore.extractLiveTask(text)
+        if (res.success && res.tasks.length > 0) {
+          res.tasks.forEach(t => {
+            extractedTasks.value.unshift({
+              id: Date.now() + Math.random(),
+              title: t.title,
+              assignee: t.assignee || 'You',
+              priority: t.priority || 'MED'
+            })
+          })
+        }
+      } catch (err) {
+        console.error('Failed to extract live tasks:', err)
+      }
+    }
+  }
+
+  recognition.onstart = () => {
+    consecutiveErrors = 0
+  }
+
+  recognition.onerror = (e) => {
+    console.error('Speech recognition error:', e.error)
+    if (e.error === 'not-allowed' || e.error === 'service-not-allowed') {
+      console.warn('Microphone permission blocked or service unavailable. Disabling auto-restart.')
+      isRecording.value = false
+    }
+    consecutiveErrors++
+  }
+
+  recognition.onend = () => {
+    if (isRecording.value) {
+      const delay = consecutiveErrors > 3 ? 5000 : 1000
+      console.log(`Speech recognition ended. Restarting in ${delay}ms... (consecutive errors: ${consecutiveErrors})`)
+      
+      clearTimeout(restartTimeout)
+      restartTimeout = setTimeout(() => {
+        if (isRecording.value) {
+          try {
+            recognition.start()
+          } catch (err) {
+            console.error('Failed to restart speech recognition:', err)
+          }
+        }
+      }, delay)
+    }
+  }
+
+  try {
+    recognition.start()
+  } catch (err) {
+    console.error('Failed to start speech recognition:', err)
+  }
+}
 
 const formatTime = (secs) => {
   const m = Math.floor(secs / 60).toString().padStart(2, '0')
@@ -175,47 +302,15 @@ const formatTime = (secs) => {
   return `${m}:${s}`
 }
 
-// Start audio recording via getUserMedia (captures local microphone audio)
-const startRecording = async () => {
-  try {
-    const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
-    mediaRecorder = new MediaRecorder(stream, { mimeType: 'audio/webm' })
-    audioChunks = []
-
-    mediaRecorder.ondataavailable = (e) => {
-      if (e.data.size > 0) audioChunks.push(e.data)
-    }
-
-    mediaRecorder.start(1000)
-
-    recordingTimer = setInterval(() => {
-      recordingSeconds++
-      recordingDuration.value = formatTime(recordingSeconds)
-    }, 1000)
-  } catch (err) {
-    console.error('Microphone access denied:', err)
-    isRecording.value = false
-  }
-}
-
-const stopRecording = () => {
-  return new Promise((resolve) => {
-    if (!mediaRecorder || mediaRecorder.state === 'inactive') {
-      resolve(null)
-      return
-    }
-
-    clearInterval(recordingTimer)
-
-    mediaRecorder.onstop = () => {
-      const blob = new Blob(audioChunks, { type: 'audio/webm' })
-      // Stop all audio tracks
-      mediaRecorder.stream.getTracks().forEach(t => t.stop())
-      resolve(blob)
-    }
-
-    mediaRecorder.stop()
-  })
+const startRecording = () => {
+  // Raw mic audio is disabled to prevent conflicts between Jitsi, MediaRecorder, and SpeechRecognition.
+  // Only the timer runs to track duration displayed in the header.
+  recordingSeconds = 0
+  recordingTimer = setInterval(() => {
+    recordingSeconds++
+    recordingDuration.value = formatTime(recordingSeconds)
+  }, 1000)
+  isRecording.value = true
 }
 
 const confirmEnd = async () => {
@@ -230,45 +325,45 @@ const confirmEnd = async () => {
     return
   }
 
-  // Stop recording and get audio blob
-  const audioBlob = await stopRecording()
+  clearInterval(recordingTimer)
 
-  if (audioBlob && meetingId) {
-    try {
-      // Upload recording
-      await meetingStore.uploadRecording(meetingId, new File([audioBlob], 'meeting-recording.webm', { type: 'audio/webm' }))
-      // Process meeting (transcribe + analyze + store)
-      await meetingStore.processMeeting(meetingId)
-      // Fetch updated details
-      const details = await meetingStore.fetchMeetingDetails(meetingId)
-      if (details) {
-        const idx = meetingStore.meetings.findIndex(m => m.id === meetingId || m._id === meetingId)
-        if (idx !== -1) {
-          meetingStore.meetings[idx] = { ...meetingStore.meetings[idx], ...details }
-        }
+  // Build transcript from live speech lines only — filter out demo simulation speakers
+  const currentUserName = authStore.user?.name || 'Marwan Elgammal'
+  const liveTranscriptText = activeTranscript.value
+    .filter(line => !DEMO_SPEAKERS.has(line.speaker)) // exclude demo simulation entries
+    .map(line => {
+      const speaker = line.speaker === 'You (Live)' ? currentUserName : line.speaker
+      return `[${line.time}] ${speaker}: ${line.text}`
+    })
+    .join('\n')
+
+  try {
+    // Process meeting using the high-accuracy browser live transcript
+    await meetingStore.processMeeting(meetingId, liveTranscriptText)
+    // Fetch updated details and patch into meetings list
+    const details = await meetingStore.fetchMeetingDetails(meetingId)
+    if (details) {
+      const idx = meetingStore.meetings.findIndex(m => m.id === meetingId || m._id === meetingId)
+      if (idx !== -1) {
+        meetingStore.meetings[idx] = { ...meetingStore.meetings[idx], ...details }
       }
-      // Also refresh meetings list
-      await meetingStore.fetchMeetings()
-    } catch (err) {
-      console.error('Processing failed:', err)
     }
+    // Also refresh meetings list to get the updated status
+    await meetingStore.fetchMeetings()
+  } catch (err) {
+    console.error('Processing failed:', err)
   }
 
-  // Refresh meetings and navigate
   meetingStore.activeLiveMeeting = null
   isProcessing.value = false
-  router.push('/archive')
-}
-
-const leaveCall = () => {
-  meetingStore.activeLiveMeeting = null
   router.push('/dashboard')
 }
 
+// ─── Demo simulation (only when ?demo=true in URL) ───────────────────────────
 const dialogSteps = [
-  { seconds: 3, speaker: 'Marcus Wright', text: 'Hey Alex! Glad you could join the in-app room. Let\'s sync on the roadmap deliverables.', activeFor: 4 },
-  { seconds: 9, speaker: 'Sarah Jenkins', text: 'Perfect. Alex, can you compile the backend API contracts spreadsheet so we can unblock the frontend developers by tomorrow?', activeFor: 6, triggerTask: { id: Date.now() + 101, title: 'Compile Auth API contracts spreadsheet', assignee: 'Alex Chen', priority: 'HIGH PRIORITY' } },
-  { seconds: 17, speaker: 'Alex Chen', text: 'Yes, absolutely. I will coordinate with Marcus and compile the API sheet first thing tomorrow.', activeFor: 5 },
+  { seconds: 3,  speaker: 'Marcus Wright', text: 'Hey Alex! Glad you could join the in-app room. Let\'s sync on the roadmap deliverables.', activeFor: 4 },
+  { seconds: 9,  speaker: 'Sarah Jenkins', text: 'Perfect. Alex, can you compile the backend API contracts spreadsheet so we can unblock the frontend developers by tomorrow?', activeFor: 6, triggerTask: { id: Date.now() + 101, title: 'Compile Auth API contracts spreadsheet', assignee: 'Alex Chen', priority: 'HIGH PRIORITY' } },
+  { seconds: 17, speaker: 'Alex Chen',     text: 'Yes, absolutely. I will coordinate with Marcus and compile the API sheet first thing tomorrow.', activeFor: 5 },
   { seconds: 24, speaker: 'Marcus Wright', text: 'Great. I will handle setting up the container resources in AWS as soon as you have that document ready.', activeFor: 5, triggerTask: { id: Date.now() + 102, title: 'Setup test container resources in AWS', assignee: 'Marcus Wright', priority: 'MEDIUM PRIORITY' } }
 ]
 
@@ -321,7 +416,7 @@ onMounted(() => {
       parentNode: document.querySelector('#meet-iframe-container'),
       width: '100%',
       height: '100%',
-      userInfo: { displayName: 'Alex Chen (Pro)' },
+      userInfo: { displayName: authStore.user?.name || 'User' },
       configOverwrite: {
         startWithAudioMuted: false,
         startWithVideoMuted: false,
@@ -349,18 +444,38 @@ onMounted(() => {
       </div>`
   }
 
-  // Start recording and simulation
   startRecording()
-  startSimulation()
+  if (route.query.demo === 'true') {
+    startSimulation()
+  }
+  // Stagger mic access to avoid OS/browser hardware conflicts with Jitsi
+  setTimeout(() => {
+    startSpeechRecognition()
+  }, 1000)
 })
 
 onUnmounted(() => {
-  if (jitsiApi) jitsiApi.dispose()
-  clearInterval(simulationTimer)
-  clearInterval(recordingTimer)
-  if (mediaRecorder && mediaRecorder.state !== 'inactive') {
-    mediaRecorder.stream.getTracks().forEach(t => t.stop())
-    mediaRecorder.stop()
+  try {
+    if (jitsiApi) jitsiApi.dispose()
+  } catch (err) {
+    console.error('Error disposing Jitsi:', err)
+  }
+
+  try {
+    clearInterval(simulationTimer)
+    clearInterval(recordingTimer)
+    clearTimeout(restartTimeout)
+  } catch (err) {
+    console.error('Error clearing timers:', err)
+  }
+
+  try {
+    if (recognition) {
+      recognition.onend = null
+      recognition.stop()
+    }
+  } catch (err) {
+    console.error('Error stopping recognition:', err)
   }
 })
 </script>

@@ -13,11 +13,11 @@ export const storeTranscriptLayer = async ({ meeting, transcript, sourceAudioPat
         {
             meeting: meeting._id,
             transcript,
-            sourceAudioPath,
+            sourceAudioPath: sourceAudioPath || "",
             durationSeconds,
             chunks,
         },
-        { upsert: true, new: true, runValidators: true }
+        { upsert: true, returnDocument: "after", runValidators: true }
     );
 };
 
@@ -39,7 +39,7 @@ export const storeKnowledgeLayers = async ({ meeting, analysis }) => {
             followUpTasks: normalizeNotes(analysis.followUpTasks),
             analysisModel: process.env.GROQ_MODEL || "llama-3.3-70b-versatile",
         },
-        { upsert: true, new: true, runValidators: true }
+        { upsert: true, returnDocument: "after", runValidators: true }
     );
 
     await ActionItem.deleteMany({ meeting: meeting._id });

@@ -570,15 +570,20 @@
           </button>
 
           <!-- Answer -->
-          <Transition name="faq">
-            <div v-if="openFaq === i" class="px-7 pb-6">
-              <div
-                class="border-t border-black/5 dark:border-white/5 pt-5 text-brand-slate text-sm leading-relaxed font-body"
-              >
-                {{ faq.a }}
+          <div
+            class="grid faq-grid-transition"
+            :class="openFaq === i ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'"
+          >
+            <div class="overflow-hidden">
+              <div class="px-7 pb-6">
+                <div
+                  class="border-t border-black/5 dark:border-white/5 pt-5 text-brand-slate text-sm leading-relaxed font-body"
+                >
+                  {{ faq.a }}
+                </div>
               </div>
             </div>
-          </Transition>
+          </div>
 
           <!-- Decorative glow -->
           <div
@@ -877,22 +882,8 @@ const hoveredPlan = ref(null);
   animation: spin-slow 6s linear infinite;
 }
 
-.faq-enter-active,
-.faq-leave-active {
-  transition: all 0.35s ease;
-  overflow: hidden;
-}
-.faq-enter-from,
-.faq-leave-to {
-  opacity: 0;
-  transform: translateY(-10px);
-  max-height: 0;
-}
-.faq-enter-to,
-.faq-leave-from {
-  opacity: 1;
-  transform: translateY(0);
-  max-height: 300px;
+.faq-grid-transition {
+  transition: grid-template-rows 300ms cubic-bezier(0.4, 0, 0.2, 1), opacity 220ms ease-in-out;
 }
 
 

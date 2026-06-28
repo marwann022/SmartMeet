@@ -220,13 +220,14 @@
       <ArchiveTable
         :meetings="filteredMeetings"
         @select="selectMeeting"
+        @join="joinCallRoom"
       />
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
 import {
   PhArrowLeft,
   PhSparkle,
@@ -239,7 +240,7 @@ import {
   PhFilePdf
 } from '@phosphor-icons/vue'
 import { useMeetingStore } from '@/stores/meeting'
-import { onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import { useSearch } from '@/composables/useSearch'
 import ArchiveTable from '@/components/dashboard/ArchiveTable.vue'
 import SearchBar from '@/components/ui/SearchBar.vue'
@@ -251,6 +252,7 @@ const props = defineProps({
 })
 
 const meetingStore = useMeetingStore()
+const router = useRouter()
 
 onMounted(() => {
   meetingStore.fetchMeetings()
@@ -310,6 +312,21 @@ const selectMeeting = async (meeting) => {
     }
   }
   isLoadingDetails.value = false
+}
+
+const joinCallRoom = (meeting) => {
+  const scheduledTime = new Date(meeting.startTime)
+  const now = new Date()
+  // Enforce scheduled start time: if current time is more than 5 minutes before scheduled start time, don't allow starting it
+  if (scheduledTime - now > 300000) {
+    const formattedTime = scheduledTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
+    alert(`This meeting is scheduled for ${formattedTime}. You cannot start or join it before the scheduled start time.`)
+    return
+  }
+
+  // Join the call!
+  meetingStore.activeLiveMeeting = meeting
+  router.push('/live-meeting')
 }
 
 const goBack = () => {

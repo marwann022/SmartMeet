@@ -1,6 +1,10 @@
 import Meeting from "../models/Meeting.js";
 import { extractAudioIfNeeded, transcribeAudio } from "../services/transcriptionService.js";
-import { analyzeMeetingTranscript } from "../services/meetingAnalysisService.js";
+import {
+    analyzeMeetingTranscript,
+    diarizeTranscript,
+    liveExtractTaskFromText,
+} from "../services/meetingAnalysisService.js";
 import {
     storeTranscriptLayer,
     storeKnowledgeLayers,
@@ -11,6 +15,34 @@ import fs from "fs/promises";
 import path from "path";
 
 const generateMeetingId = () => crypto.randomBytes(12).toString("hex");
+
+const deleteFileSafe = async (filePath) => {
+    if (!filePath) return;
+    try {
+        await fs.unlink(filePath);
+        console.log(`Deleted file: ${filePath}`);
+    } catch (err) {
+        console.warn(`Could not delete file ${filePath}:`, err.message);
+    }
+};
+
+const isSilentOrHallucinated = (text) => {
+    if (!text || text.trim().length < 15) return true;
+    const cleaned = text.trim().toLowerCase();
+    const hallucinations = [
+        "thank you for watching",
+        "thanks for watching",
+        "thank you.",
+        "thank you very much",
+        "amara.org",
+        "subtitle",
+        "bye bye",
+    ];
+    if (hallucinations.some(h => cleaned.includes(h) && cleaned.length < h.length + 10)) {
+        return true;
+    }
+    return false;
+};
 
 export const createMeeting = async (req, res) => {
     try {
@@ -110,24 +142,78 @@ export const uploadRecording = async (req, res) => {
 };
 
 export const processMeeting = async (req, res) => {
+    let audioPath = null;
+    let recordingPath = null;
     try {
-        const meeting = await Meeting.findOne({ _id: req.params.id, host: req.user._id });
+        const meeting = await Meeting.findOne({ _id: req.params.id, host: req.user._id }).populate("host");
         if (!meeting) return res.status(404).json({ success: false, message: "Meeting not found" });
-        if (!meeting.recordingPath) {
-            return res.status(400).json({ success: false, message: "No recording uploaded. Call upload-recording first." });
+
+        const { liveTranscript } = req.body;
+        const hasTranscript = liveTranscript && liveTranscript.trim().length > 10;
+        recordingPath = meeting.recordingPath || null;
+        const hasRecording = !!recordingPath;
+
+        console.log(`[Backend] processMeeting: hasTranscript=${hasTranscript}, hasRecording=${hasRecording}`);
+
+        // If neither transcript nor recording, mark as completed with no AI data
+        if (!hasTranscript && !hasRecording) {
+            console.log("[Backend] No transcript or recording — completing meeting with no AI analysis.");
+            await Meeting.updateOne(
+                { _id: meeting._id },
+                { $set: { status: "completed", endTime: new Date() } }
+            );
+            return res.status(200).json({ success: true, message: "Meeting completed (no transcript captured)." });
         }
 
         await Meeting.updateOne({ _id: meeting._id }, { $set: { status: "live" } });
 
-        const audioPath = await extractAudioIfNeeded(meeting.recordingPath);
-        const { transcript, language, duration } = await transcribeAudio(audioPath);
+        if (hasRecording) {
+            audioPath = await extractAudioIfNeeded(recordingPath);
+        }
 
-        const durationSeconds = duration || meeting.duration * 60 || 0;
-        await storeTranscriptLayer({ meeting, transcript, sourceAudioPath: audioPath, durationSeconds });
+        let finalTranscript = "";
+        let durationSeconds = 0;
+        let analysis = null;
 
-        const analysis = await analyzeMeetingTranscript({ transcript, meeting });
-        await storeKnowledgeLayers({ meeting, analysis });
-        await generateAndStoreEmbeddings({ meeting, transcript });
+        if (hasTranscript) {
+            console.log("Using live transcript from client...");
+            finalTranscript = liveTranscript;
+            durationSeconds = meeting.duration * 60 || 0;
+
+            analysis = await analyzeMeetingTranscript({ transcript: finalTranscript, meeting });
+            await storeTranscriptLayer({ meeting, transcript: finalTranscript, sourceAudioPath: audioPath, durationSeconds });
+            await storeKnowledgeLayers({ meeting, analysis });
+            await generateAndStoreEmbeddings({ meeting, transcript: finalTranscript });
+        } else {
+            console.log("No live transcript — running backend Whisper STT on recording...");
+            const { transcript, duration } = await transcribeAudio(audioPath);
+            durationSeconds = duration || meeting.duration * 60 || 0;
+
+            if (isSilentOrHallucinated(transcript)) {
+                console.log("Recording is silent or hallucinated. Saving placeholder.");
+                finalTranscript = "No conversation detected. The meeting recording was silent or empty.";
+                analysis = {
+                    summary: "No summary generated because no conversation was detected in this meeting.",
+                    meetingOverview: "No conversation detected.",
+                    decisions: [], actionItems: [], deadlines: [], risks: [],
+                    openQuestions: [], topics: [], followUpTasks: [],
+                    agreements: [], disagreements: [],
+                };
+                await storeTranscriptLayer({ meeting, transcript: finalTranscript, sourceAudioPath: audioPath, durationSeconds });
+                await storeKnowledgeLayers({ meeting, analysis });
+            } else {
+                console.log("Diarizing and analyzing transcript...");
+                finalTranscript = await diarizeTranscript({ transcript, meeting });
+                await storeTranscriptLayer({ meeting, transcript: finalTranscript, sourceAudioPath: audioPath, durationSeconds });
+                analysis = await analyzeMeetingTranscript({ transcript: finalTranscript, meeting });
+                await storeKnowledgeLayers({ meeting, analysis });
+                await generateAndStoreEmbeddings({ meeting, transcript: finalTranscript });
+            }
+        }
+
+        // Clean up media files
+        await deleteFileSafe(audioPath);
+        await deleteFileSafe(recordingPath);
 
         await Meeting.updateOne(
             { _id: meeting._id },
@@ -136,13 +222,33 @@ export const processMeeting = async (req, res) => {
                     status: "completed",
                     endTime: new Date(),
                     duration: Math.ceil(durationSeconds / 60),
+                    recordingPath: "",
                 },
             }
         );
 
         res.status(200).json({ success: true, message: "Meeting processed successfully" });
     } catch (error) {
-        await Meeting.updateOne({ _id: req.params.id }, { $set: { status: "completed" } }).catch(() => {});
+        console.error("Processing failed:", error);
+        if (audioPath) await deleteFileSafe(audioPath).catch(() => {});
+        if (recordingPath) await deleteFileSafe(recordingPath).catch(() => {});
+        // Always mark as completed even on error so the meeting doesn't stay stuck
+        await Meeting.updateOne({ _id: req.params.id }, { $set: { status: "completed", endTime: new Date() } }).catch(() => {});
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+
+export const liveExtractTask = async (req, res) => {
+    try {
+        const { text } = req.body;
+        if (!text || text.trim().length < 5) {
+            return res.status(200).json({ success: true, tasks: [] });
+        }
+        const tasks = await liveExtractTaskFromText(text);
+        res.status(200).json({ success: true, tasks });
+    } catch (error) {
+        console.error("Live task extraction failed:", error);
         res.status(500).json({ success: false, message: error.message });
     }
 };
