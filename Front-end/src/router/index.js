@@ -131,15 +131,24 @@ const router = createRouter({
 })
 
 router.beforeEach((to, from, next) => {
-    const user = JSON.parse(
-        localStorage.getItem('user')
-    )
+    const user = JSON.parse(localStorage.getItem('user'))
 
     if (to.meta.requiresAuth && !user) {
         next('/signin')
-    } else {
-        next()
+        return
     }
+
+    // Pending/rejected users can only access /dashboard and /settings
+    if (user && to.meta.requiresAuth) {
+        const restricted = user.status === 'pending' || user.status === 'rejected'
+        const allowed = to.path === '/dashboard' || to.path === '/settings'
+        if (restricted && !allowed) {
+            next('/dashboard')
+            return
+        }
+    }
+
+    next()
 })
 
 export default router

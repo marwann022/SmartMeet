@@ -156,8 +156,8 @@ export const approveJoinRequest = async (req, res) => {
       recipient: joinRequest.user,
       community: joinRequest.community,
       type: "approval",
-      title: "Join Request Approved",
-      message: "Your request to join the community has been approved. Welcome!",
+      title: "Community Request Approved",
+      message: "Your request to join the community has been approved.",
     });
 
     res.status(200).json({
@@ -201,6 +201,8 @@ export const rejectJoinRequest = async (req, res) => {
     joinRequest.status = "rejected";
     await joinRequest.save();
 
+    await User.findByIdAndUpdate(joinRequest.user, { status: "rejected" });
+
     // Mark the join request notification as read and update message
     await Notification.findOneAndUpdate(
       {
@@ -210,7 +212,6 @@ export const rejectJoinRequest = async (req, res) => {
       {
         read: true,
         status: "rejected",
-        message: "✗ Request Rejected",
       },
     );
 
@@ -218,7 +219,7 @@ export const rejectJoinRequest = async (req, res) => {
       recipient: joinRequest.user,
       community: joinRequest.community,
       type: "rejection",
-      title: "Join Request Rejected",
+      title: "Community Request Rejected",
       message: "Your request to join the community has been rejected.",
     });
 
