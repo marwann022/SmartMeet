@@ -150,7 +150,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUiStore } from '../../stores/ui'
 import Sidebar from './Sidebar.vue'
@@ -166,6 +166,10 @@ const uiStore = useUiStore()
 const authStore = useAuthStore()
 
 const showLogoutModal = ref(false)
+
+onMounted(async () => {
+  await authStore.fetchProfile()
+})
 
 const logout = () => {
   showLogoutModal.value = true

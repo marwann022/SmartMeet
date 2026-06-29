@@ -7,16 +7,11 @@
       to="/"
       class="flex items-center transition-all duration-300 hover:scale-[1.02] cursor-pointer"
     >
-      <img
-        src="@/assets/new logo.png"
-        alt="SmartMeet"
-        class="h-10 block"
-      />
+      <img src="@/assets/new logo.png" alt="SmartMeet" class="h-10 block" />
     </router-link>
 
     <!-- Navigation Links -->
     <nav class="flex items-center gap-6">
-
       <!-- Guest Navigation -->
       <template v-if="!authenticated">
         <router-link
@@ -46,7 +41,7 @@
 
       <!-- Authenticated Navigation -->
       <template v-else>
-        <router-link
+          <router-link
           to="/"
           class="text-xs font-semibold relative py-1.5 px-3.5 rounded-full border border-transparent transition-all duration-300 focus:outline-none focus:ring-0 active:outline-none"
           :class="$route.path === '/' ? 'text-primary bg-primary/8 border-transparent' : 'text-brand-slate hover:text-primary hover:bg-primary/5'"
@@ -125,7 +120,7 @@
       <template v-if="!authenticated">
         <router-link
           to="/signin"
-          class=" text-xs font-semibold text-brand-slate hover:text-primary transition-colors"
+          class="text-xs font-semibold text-brand-slate hover:text-primary transition-colors"
         >
           Sign in
         </router-link>
@@ -140,7 +135,6 @@
 
       <!-- Authenticated Actions -->
       <template v-if="authenticated">
-
         <!-- Notifications Container -->
         <div ref="notificationsRef" class="relative">
           <button
@@ -167,20 +161,28 @@
               v-if="isNotificationsOpen"
               class="absolute right-0 mt-3.5 w-80 bg-white/90 dark:bg-slate-900/95 border border-white/80 dark:border-slate-800 rounded-2xl shadow-glass backdrop-blur-[20px] p-4 text-left z-50 transform origin-top-right transition-all duration-300"
             >
-              <div class="flex items-center justify-between border-b border-black/5 pb-2.5 mb-2.5">
-                <span class="text-xs font-bold text-brand-dark">Notifications</span>
+              <div
+                class="flex items-center justify-between border-b border-black/5 pb-2.5 mb-2.5"
+              >
+                <span class="text-xs font-bold text-brand-dark"
+                  >Notifications</span
+                >
                 <div class="flex gap-2">
-                  <button 
+                  <button
                     v-if="unreadCount > 0"
-                    @click="markAllAsRead" 
+                    @click="markAllAsRead"
                     class="text-[10px] font-semibold text-primary hover:underline cursor-pointer"
                   >
                     Mark all read
                   </button>
-                  <span v-if="unreadCount > 0 && notifications.length > 0" class="text-black/20 text-[10px]">|</span>
-                  <button 
+                  <span
+                    v-if="unreadCount > 0 && notifications.length > 0"
+                    class="text-black/20 text-[10px]"
+                    >|</span
+                  >
+                  <button
                     v-if="notifications.length > 0"
-                    @click="clearAll" 
+                    @click="clearAll"
                     class="text-[10px] font-semibold text-red-500 hover:underline cursor-pointer flex items-center gap-1"
                   >
                     <PhTrash :size="10" /> Clear all
@@ -196,27 +198,86 @@
                     :key="notification.id"
                     @click="handleNotificationClick(notification)"
                     class="p-2.5 rounded-xl transition-all duration-200 cursor-pointer border flex flex-col gap-1 text-[11px] leading-relaxed relative"
-                    :class="notification.read 
-                      ? 'bg-transparent border-transparent hover:bg-black/5' 
-                      : 'bg-primary/[0.03] border-primary/10 hover:bg-primary/[0.06] shadow-sm'"
+                    :class="
+                      notification.read
+                        ? 'bg-transparent border-transparent hover:bg-black/5'
+                        : 'bg-primary/[0.03] border-primary/10 hover:bg-primary/[0.06] shadow-sm'
+                    "
                   >
-                    <span 
-                      v-if="!notification.read" 
+                    <span
+                      v-if="!notification.read"
                       class="absolute top-3 right-3 w-1.5 h-1.5 bg-primary rounded-full"
                     ></span>
 
-                    <p 
-                      class="text-brand-dark font-medium pr-3"
-                      :class="{ 'font-semibold': !notification.read }"
-                    >
-                      {{ notification.text }}
-                    </p>
-                    <span class="text-[9px] text-brand-slate font-semibold">{{ notification.time }}</span>
+                    <div class="pr-3">
+                      <p
+                        class="text-brand-dark font-semibold"
+                        :class="{ 'font-bold': !notification.read }"
+                      >
+                        {{ notification.title }}
+                      </p>
+
+                      <p class="text-brand-slate text-[10px] mt-1">
+                        {{ notification.message }}
+                      </p>
+
+                      <!-- Approve/Reject buttons - show only when unread join-request -->
+                      <div
+                        v-if="notification.type === 'join-request'"
+                        class="mt-3"
+                      >
+                        <!-- Pending Request -->
+                        <div
+                          v-if="notification.status === 'pending'"
+                          class="flex gap-2"
+                        >
+                          <button
+                            @click.stop="approveJoinRequest(notification)"
+                            class="px-2.5 py-1 rounded-full bg-primary text-white text-[10px] font-bold transition-all duration-200 hover:scale-105"
+                          >
+                            Approve
+                          </button>
+                          <button
+                            @click.stop="rejectJoinRequest(notification)"
+                            class="px-2.5 py-1 rounded-full bg-red-500 text-white text-[10px] font-bold transition-all duration-200 hover:scale-105"
+                          >
+                            Reject
+                          </button>
+                        </div>
+
+                        <!-- Approved -->
+                        <p
+                          v-else-if="notification.status === 'approved'"
+                          class="text-[10px] font-semibold text-green-600 mt-2"
+                        >
+                          ✓ Request Approved
+                        </p>
+
+                        <!-- Rejected -->
+                        <p
+                          v-else-if="notification.status === 'rejected'"
+                          class="text-[10px] font-semibold text-red-600 mt-2"
+                        >
+                          ✗ Request Rejected
+                        </p>
+                      </div>
+                    </div>
+                    <span class="text-[9px] text-brand-slate font-semibold">{{
+                      notification.time
+                    }}</span>
                   </div>
                 </template>
-                <div v-else class="py-6 flex flex-col items-center justify-center text-center">
-                  <PhBell :size="24" class="text-brand-slate mb-1.5 opacity-40" />
-                  <p class="text-xs text-brand-slate font-medium">All caught up!</p>
+                <div
+                  v-else
+                  class="py-6 flex flex-col items-center justify-center text-center"
+                >
+                  <PhBell
+                    :size="24"
+                    class="text-brand-slate mb-1.5 opacity-40"
+                  />
+                  <p class="text-xs text-brand-slate font-medium">
+                    All caught up!
+                  </p>
                 </div>
               </div>
             </div>
@@ -230,16 +291,14 @@
             class="flex items-center gap-2.5 cursor-pointer focus:outline-none bg-transparent border-0"
           >
             <img
-  :src="profileImage"
-  alt="Profile"
-  class="w-9 h-9 rounded-full object-cover border border-white/80 shadow-sm transition-all duration-300 hover:scale-105"
-/>
+              :src="profileImage"
+              alt="Profile"
+              class="w-9 h-9 rounded-full object-cover border border-white/80 shadow-sm transition-all duration-300 hover:scale-105"
+            />
 
             <div class="flex flex-col text-left">
-              <span
-                class="text-[11px] font-bold text-brand-dark leading-tight"
-              >
-                {{ user?.name || 'User' }}
+              <span class="text-[11px] font-bold text-brand-dark leading-tight">
+                {{ user?.name || "User" }}
               </span>
 
               <span
@@ -257,8 +316,12 @@
               class="absolute right-0 mt-3.5 w-52 bg-white/90 dark:bg-slate-900/95 border border-white/80 dark:border-slate-800 rounded-2xl shadow-glass backdrop-blur-[20px] p-2 text-left z-50 transform origin-top-right transition-all duration-300"
             >
               <div class="px-3 py-2 border-b border-black/5 mb-1.5">
-                <p class="text-[11px] font-bold text-brand-dark truncate">{{ user?.name || 'User' }}</p>
-                <p class="text-[9px] text-brand-slate truncate">{{ user?.email || 'user@smartmeet.ai' }}</p>
+                <p class="text-[11px] font-bold text-brand-dark truncate">
+                  {{ user?.name || "User" }}
+                </p>
+                <p class="text-[9px] text-brand-slate truncate">
+                  {{ user?.email || "user@smartmeet.ai" }}
+                </p>
               </div>
 
               <div class="space-y-0.5">
@@ -283,9 +346,9 @@
                 <div class="border-t border-black/5 my-1"></div>
 
                 <button
-  @click.stop="handleLogout"
-  class="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-semibold text-red-500 hover:bg-red-500/20 transition-all duration-200 cursor-pointer text-left focus:outline-none"
->
+                  @click.stop="handleLogout"
+                  class="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-semibold text-red-500 hover:bg-red-500/20 transition-all duration-200 cursor-pointer text-left focus:outline-none"
+                >
                   <PhSignOut :size="14" weight="bold" />
                   <span>Log Out</span>
                 </button>
@@ -296,17 +359,27 @@
       </template>
     </div>
     <!-- Reusable Modal for Logout Confirmation -->
-    <Modal :show="showLogoutModal" title="Confirm Log Out" @close="showLogoutModal = false" maxWidth="sm">
+    <Modal
+      :show="showLogoutModal"
+      title="Confirm Log Out"
+      @close="showLogoutModal = false"
+      maxWidth="sm"
+    >
       <div class="flex flex-col gap-4 text-left">
         <p class="text-brand-slate text-sm font-body">
-          Are you sure you want to log out of your SmartMeet account? Any unsaved changes may be lost.
+          Are you sure you want to log out of your SmartMeet account? Any
+          unsaved changes may be lost.
         </p>
-        
+
         <div class="flex gap-3 pt-2">
           <Button variant="danger" class="flex-1" @click="confirmLogout">
             Log Out
           </Button>
-          <Button variant="outline" class="flex-1" @click="showLogoutModal = false">
+          <Button
+            variant="outline"
+            class="flex-1"
+            @click="showLogoutModal = false"
+          >
             Cancel
           </Button>
         </div>
@@ -324,111 +397,156 @@ import { useNotificationStore } from '@/stores/notification'
 import { useUiStore } from '@/stores/ui'
 import Modal from '@/components/ui/Modal.vue'
 import Button from '@/components/ui/Button.vue'
-
-const router = useRouter()
-const authStore = useAuthStore()
-const notificationStore = useNotificationStore()
+import axios from "axios";
 const uiStore = useUiStore()
+const router = useRouter();
+const authStore = useAuthStore();
+const notificationStore = useNotificationStore();
 
-const authenticated = computed(() =>
-  authStore.isAuthenticated
-)
+const authenticated = computed(() => authStore.isAuthenticated);
 
-const user = computed(() =>
-  authStore.user
-)
+const user = computed(() => authStore.user);
 
-const showLogoutModal = ref(false)
+const showLogoutModal = ref(false);
 
 // UI Open/Close States
-const isNotificationsOpen = ref(false)
-const isProfileOpen = ref(false)
+const isNotificationsOpen = ref(false);
+const isProfileOpen = ref(false);
 
 // DOM Element References for click-outside
-const notificationsRef = ref(null)
-const profileRef = ref(null)
+const notificationsRef = ref(null);
+const profileRef = ref(null);
 
 // Bind Notifications state and computed count to Pinia store
-const notifications = computed(() => notificationStore.notifications)
-const unreadCount = computed(() => notificationStore.unreadCount)
+const notifications = computed(() => notificationStore.notifications);
+const unreadCount = computed(() => notificationStore.unreadCount);
 
 // Actions mapped to store actions
 const markAsRead = (id) => {
-  notificationStore.markAsRead(id)
-}
+  notificationStore.markAsRead(id);
+};
 
 const handleNotificationClick = (notification) => {
-  markAsRead(notification.id)
-  isNotificationsOpen.value = false
-  
-  if (notification.type === 'task') {
-    router.push('/tasks')
-  } else if (notification.type === 'meeting') {
-    router.push('/archive')
+  markAsRead(notification.id);
+  isNotificationsOpen.value = false;
+
+  if (notification.type === "task") {
+    router.push("/tasks");
+  } else if (notification.type === "meeting") {
+    router.push("/archive");
   } else {
-    router.push('/dashboard')
+    router.push("/dashboard");
   }
-}
+};
+
+const approveJoinRequest = async (notification) => {
+  try {
+    await axios.patch(
+      `http://localhost:5000/api/join-requests/${notification.relatedId}/approve`,
+      {},
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      },
+    );
+
+    // Refresh notifications
+    await notificationStore.fetchNotifications();
+
+    // Refresh authenticated user
+    await authStore.fetchProfile?.();
+
+    // Optional
+    isNotificationsOpen.value = true;
+  } catch (error) {
+    console.error("Failed to approve request:", error);
+  }
+};
+
+const rejectJoinRequest = async (notification) => {
+  try {
+    await axios.patch(
+      `http://localhost:5000/api/join-requests/${notification.relatedId}/reject`,
+      {},
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      },
+    );
+
+    await notificationStore.fetchNotifications();
+  } catch (error) {
+    console.error("Failed to reject request:", error);
+  }
+};
 
 const markAllAsRead = () => {
-  notificationStore.markAllAsRead()
-}
+  notificationStore.markAllAsRead();
+};
 
 const clearAll = () => {
-  notificationStore.clearAll()
-}
+  notificationStore.clearAll();
+};
 
 const handleLogout = () => {
-  showLogoutModal.value = true
-}
+  showLogoutModal.value = true;
+};
 
 const confirmLogout = () => {
-  authStore.logout()
-  showLogoutModal.value = false
-  isProfileOpen.value = false
-  router.replace("/")
-  window.location.reload()
-}
+  authStore.logout();
+  showLogoutModal.value = false;
+  isProfileOpen.value = false;
+  router.replace("/");
+  window.location.reload();
+};
 
 // Click Outside Handler
 const handleClickOutside = (event) => {
-  if (isNotificationsOpen.value && notificationsRef.value && !notificationsRef.value.contains(event.target)) {
-    isNotificationsOpen.value = false
+  if (
+    isNotificationsOpen.value &&
+    notificationsRef.value &&
+    !notificationsRef.value.contains(event.target)
+  ) {
+    isNotificationsOpen.value = false;
   }
-  if (isProfileOpen.value && profileRef.value && !profileRef.value.contains(event.target)) {
-    isProfileOpen.value = false
+  if (
+    isProfileOpen.value &&
+    profileRef.value &&
+    !profileRef.value.contains(event.target)
+  ) {
+    isProfileOpen.value = false;
   }
-}
+};
 
 onMounted(() => {
-  document.addEventListener('click', handleClickOutside)
+  document.addEventListener("click", handleClickOutside);
   if (authenticated.value) {
-    notificationStore.fetchNotifications()
+    notificationStore.fetchNotifications();
   }
-})
+});
 
 onUnmounted(() => {
-  document.removeEventListener('click', handleClickOutside)
-})
+  document.removeEventListener("click", handleClickOutside);
+});
 
 // Fetch notifications as soon as authentication state becomes true (e.g. login)
 watch(authenticated, (newVal) => {
   if (newVal) {
-    notificationStore.fetchNotifications()
+    notificationStore.fetchNotifications();
   }
-})
+});
 
 const profileImage = computed(() => {
   if (user.value?.avatar) {
-    return `http://localhost:5000/uploads/${user.value.avatar}`
+    return `http://localhost:5000/uploads/${user.value.avatar}`;
   }
 
-  return `https://ui-avatars.com/api/?name=${
-    encodeURIComponent(user.value?.name || "User")
-  }&background=4B68FF&color=fff`
-})
-
-
+  return `https://ui-avatars.com/api/?name=${encodeURIComponent(
+    user.value?.name || "User",
+  )}&background=4B68FF&color=fff`;
+});
 </script>
 
 <style scoped>
