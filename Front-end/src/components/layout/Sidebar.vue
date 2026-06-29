@@ -94,7 +94,7 @@
   </span>
 
   <span class="text-[9px] font-extrabold text-primary tracking-wider uppercase">
-    {{ user?.plan || "Free" }}
+    {{ user?.plan?.replace(/ \((Monthly|Annual)\)/, '') || "Free" }}
   </span>
 </div>
     </div>

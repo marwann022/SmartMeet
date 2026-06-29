@@ -27,6 +27,7 @@
       <General v-else-if="activeSubtab === 'general'" />
       <TeamManagement v-else-if="activeSubtab === 'team'" />
       <Notifications v-else-if="activeSubtab === 'notifications'" />
+      <Subscription v-else-if="activeSubtab === 'subscription'" />
     </div>
   </div>
 </template>
@@ -38,13 +39,15 @@ import {
   PhGauge, 
   PhUserCircle, 
   PhUsersThree, 
-  PhBell 
+  PhBell,
+  PhCreditCard
 } from '@phosphor-icons/vue'
 
 import General from '@/components/settings/General.vue'
 import Profile from '@/components/settings/Profile.vue'
 import TeamManagement from '@/components/settings/TeamManagement.vue'
 import Notifications from '@/components/settings/Notifications.vue'
+import Subscription from '@/components/settings/Subscription.vue'
 
 const route = useRoute()
 
@@ -52,7 +55,8 @@ const subtabs = [
   { id: 'profile', label: 'Profile Settings', icon: PhUserCircle },
   { id: 'general', label: 'General Settings', icon: PhGauge },
   { id: 'team', label: 'Team Management', icon: PhUsersThree },
-  { id: 'notifications', label: 'Notifications', icon: PhBell }
+  { id: 'notifications', label: 'Notifications', icon: PhBell },
+  { id: 'subscription', label: 'Subscription', icon: PhCreditCard }
 ]
 
 const activeSubtab = ref(route.query.tab || 'profile')
