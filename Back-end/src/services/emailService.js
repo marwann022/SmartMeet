@@ -162,12 +162,13 @@ export const sendInvitationEmail = async ({
     expiresAt,
   });
 
-  console.log("RESEND SEND STARTED: from=SmartMeet <onboarding@resend.dev>, to=" + to);
+  const fromAddress = process.env.EMAIL_FROM || "SmartMeet <onboarding@resend.dev>";
+  console.log("RESEND SEND STARTED: from=" + fromAddress + ", to=" + to);
 
   let result;
   try {
     result = await resend.emails.send({
-      from: "SmartMeet <onboarding@resend.dev>",
+      from: fromAddress,
       to,
       subject: `You've been invited to join ${communityName} on SmartMeet`,
       html,
