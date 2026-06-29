@@ -152,7 +152,8 @@ export const sendInvitationEmail = async ({
   invitationLink,
   expiresAt,
 }) => {
-  console.log("EMAIL SERVICE CALLED");
+  console.log("EMAIL SERVICE CALLED: to=" + to + ", community=" + communityName);
+
   const html = buildInvitationEmail({
     fullName,
     communityName,
@@ -161,14 +162,35 @@ export const sendInvitationEmail = async ({
     expiresAt,
   });
 
-  const { error } = await resend.emails.send({
-    from: "SmartMeet <onboarding@resend.dev>",
-    to,
-    subject: `You've been invited to join ${communityName} on SmartMeet`,
-    html,
-  });
+  console.log("RESEND SEND STARTED: from=SmartMeet <onboarding@resend.dev>, to=" + to);
+
+  let result;
+  try {
+    result = await resend.emails.send({
+      from: "SmartMeet <onboarding@resend.dev>",
+      to,
+      subject: `You've been invited to join ${communityName} on SmartMeet`,
+      html,
+    });
+  } catch (sendError) {
+    console.error("RESEND SDK THREW AN EXCEPTION:");
+    console.error("  name:", sendError.name);
+    console.error("  message:", sendError.message);
+    console.error("  stack:", sendError.stack);
+    throw new Error("Resend API call failed: " + sendError.message);
+  }
+
+  const { data, error, headers } = result;
 
   if (error) {
-    throw new Error(error.message);
+    console.error("RESEND RETURNED AN ERROR:");
+    console.error("  error:", JSON.stringify(error, null, 2));
+    console.error("  error.name:", error.name);
+    console.error("  error.message:", error.message);
+    throw new Error("Resend email send failed: " + error.message);
   }
+
+  console.log("RESEND SEND SUCCESS: id=" + (data?.id || "unknown") + ", to=" + to);
+  console.log("RESEND FULL RESPONSE: " + JSON.stringify(result));
+  console.log("RESEND RESPONSE HEADERS: " + JSON.stringify(headers));
 };

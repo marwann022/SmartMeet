@@ -390,7 +390,7 @@ const handleSendInvitation = async () => {
     inviteLoading.value = true;
     const token = localStorage.getItem("token");
 
-    await axios.post(
+    const { data } = await axios.post(
       "http://localhost:5000/api/invitations",
       {
         fullName: inviteForm.fullName.trim(),
@@ -402,7 +402,12 @@ const handleSendInvitation = async () => {
       },
     );
 
-    success("Invitation sent successfully.");
+    if (data.success) {
+      success("Invitation sent successfully.");
+    } else {
+      warning(data.message || "Invitation created but email delivery failed.");
+    }
+
     inviteForm.fullName = "";
     inviteForm.email = "";
     inviteForm.role = "user";
