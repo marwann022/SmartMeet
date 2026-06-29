@@ -121,18 +121,65 @@ export const updateTask = async (req, res) => {
             if (updateData[k] === undefined) delete updateData[k];
         });
 
-        const task = await Task.findOneAndUpdate(
-            { _id: req.params.id, user: req.user._id },
-            updateData,
-            { new: true, runValidators: true }
-        );
+        const task = await Task.findById(req.params.id);
 
         if (!task) {
             return res.status(404).json({
                 success: false,
-                message: "Task not found or unauthorized",
+                message: "Task not found",
             });
         }
+
+        // Authorize access: personal tasks only by owner, community tasks by same community members
+        let hasAccess = false;
+        if (task.isPersonal) {
+            hasAccess = task.user.toString() === req.user._id.toString();
+        } else {
+            hasAccess = req.user.community && task.community && task.community.toString() === req.user.community.toString();
+        }
+
+        if (!hasAccess) {
+            return res.status(403).json({
+                success: false,
+                message: "Unauthorized to update this task",
+            });
+        }
+
+        // Determine if user is admin or task creator
+        const isAdmin = req.user.role === "admin";
+        const isCreator = task.createdBy && task.createdBy.toString() === req.user._id.toString();
+        const isAuthorized = isAdmin || isCreator;
+
+        // Restriction: Only admin/creator can mark meeting-extracted tasks as done
+        const isExtracted = task.source && task.source.startsWith("Meeting:");
+        const settingToDone = (status === "done" && task.status !== "done") || (done === true && task.done !== true);
+
+        if (settingToDone && isExtracted && !isAuthorized) {
+            return res.status(403).json({
+                success: false,
+                message: "Only the admin or task creator can mark meeting-extracted tasks as done.",
+            });
+        }
+
+        // Action: When non-admin/non-creator team member switches task to 'review', notify the admin
+        const settingToReview = status === "review" && task.status !== "review";
+        if (settingToReview && !isAuthorized) {
+            const adminUser = await User.findOne({ community: task.community, role: "admin" });
+            if (adminUser) {
+                await Notification.create({
+                    recipient: adminUser._id,
+                    community: task.community,
+                    type: "task",
+                    title: "Task Review Required",
+                    message: `Task "${task.title || title || task.title}" has been submitted for review by ${req.user.firstName} ${req.user.lastName || ""}.`,
+                    relatedId: task._id,
+                });
+            }
+        }
+
+        // Perform the update
+        Object.assign(task, updateData);
+        await task.save();
 
         res.status(200).json({
             success: true,
@@ -152,14 +199,36 @@ export const updateTask = async (req, res) => {
 // @access  Private
 export const deleteTask = async (req, res) => {
     try {
-        const task = await Task.findOneAndDelete({ _id: req.params.id, user: req.user._id });
+        const task = await Task.findById(req.params.id);
 
         if (!task) {
             return res.status(404).json({
                 success: false,
-                message: "Task not found or unauthorized",
+                message: "Task not found",
             });
         }
+
+        let hasDeleteAccess = false;
+        if (task.isPersonal) {
+            hasDeleteAccess = task.user.toString() === req.user._id.toString();
+        } else {
+            // Community task: must belong to the same community
+            const sameCommunity = req.user.community && task.community && task.community.toString() === req.user.community.toString();
+            // Delete access: must be admin, or the creator of the task, or the assignee (task.user)
+            const isAdmin = req.user.role === "admin";
+            const isCreator = task.createdBy && task.createdBy.toString() === req.user._id.toString();
+            const isAssignee = task.user && task.user.toString() === req.user._id.toString();
+            hasDeleteAccess = sameCommunity && (isAdmin || isCreator || isAssignee);
+        }
+
+        if (!hasDeleteAccess) {
+            return res.status(403).json({
+                success: false,
+                message: "Unauthorized to delete this task",
+            });
+        }
+
+        await task.deleteOne();
 
         res.status(200).json({
             success: true,

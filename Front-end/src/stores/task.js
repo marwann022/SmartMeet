@@ -1,16 +1,29 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import axios from 'axios'
+import { useAuthStore } from './auth'
 
 export const useTaskStore = defineStore('task', () => {
   const tasks = ref([])
   const statusOrder = ['todo', 'inprogress', 'review', 'done']
+  const authStore = useAuthStore()
 
   const getHeaders = () => ({
     headers: {
       Authorization: `Bearer ${localStorage.getItem('token')}`
     }
   })
+
+  const isAuthorized = (task) => {
+    const userId = authStore.user?._id
+    const isAdmin = authStore.user?.role === 'admin'
+    const isCreator = task.createdBy === userId || (task.createdBy && task.createdBy._id === userId)
+    return isAdmin || isCreator
+  }
+
+  const isExtracted = (task) => {
+    return task.source && task.source.startsWith('Meeting:')
+  }
 
   const fetchTasks = async () => {
     try {
@@ -91,6 +104,18 @@ export const useTaskStore = defineStore('task', () => {
       newPreviousStatus = task.previousStatus
     }
 
+    if (newDone && isExtracted(task) && !isAuthorized(task)) {
+      alert('Only the admin or task creator can mark meeting-extracted tasks as done.')
+      return false
+    }
+
+    if (newStatus === 'review' && originalStatus !== 'review' && !isAuthorized(task)) {
+      const confirmed = window.confirm(
+        'Are you sure you want to request a review? This action will notify the admin that this task needs to be reviewed to be done.'
+      )
+      if (!confirmed) return false
+    }
+
     // Optimistic UI update
     task.done = newDone
     task.status = newStatus
@@ -102,12 +127,14 @@ export const useTaskStore = defineStore('task', () => {
         status: newStatus,
         previousStatus: newPreviousStatus
       }, getHeaders())
+      return true
     } catch (error) {
       console.error('Failed to toggle task:', error)
       // Rollback on error
       task.done = originalDone
       task.status = originalStatus
       task.previousStatus = originalPreviousStatus
+      return false
     }
   }
 
@@ -123,6 +150,18 @@ export const useTaskStore = defineStore('task', () => {
       const newDone = newStatus === 'done'
       const newPreviousStatus = task.status !== 'done' ? task.status : task.previousStatus
 
+      if (newStatus === 'done' && isExtracted(task) && !isAuthorized(task)) {
+        alert('Only the admin or task creator can mark meeting-extracted tasks as done.')
+        return false
+      }
+
+      if (newStatus === 'review' && originalStatus !== 'review' && !isAuthorized(task)) {
+        const confirmed = window.confirm(
+          'Are you sure you want to request a review? This action will notify the admin that this task needs to be reviewed to be done.'
+        )
+        if (!confirmed) return false
+      }
+
       // Optimistic update
       task.status = newStatus
       task.done = newDone
@@ -136,18 +175,21 @@ export const useTaskStore = defineStore('task', () => {
           done: newDone,
           previousStatus: task.previousStatus
         }, getHeaders())
+        return true
       } catch (error) {
         console.error('Failed to move task:', error)
         // Rollback on error
         task.status = originalStatus
         task.previousStatus = originalPreviousStatus
         task.done = originalDone
+        return false
       }
     }
+    return false
   }
 
   const setTaskStatus = async (id, newStatus) => {
-    const task = tasks.value.find(t => String(t.id) === String(id))
+    const task = tasks.value.find(t => String(t.id) === String(id) || String(t._id) === String(id))
     if (task) {
       const originalStatus = task.status
       const originalPreviousStatus = task.previousStatus
@@ -155,6 +197,18 @@ export const useTaskStore = defineStore('task', () => {
 
       const newDone = newStatus === 'done'
       const newPreviousStatus = task.status !== 'done' ? task.status : task.previousStatus
+
+      if (newStatus === 'done' && isExtracted(task) && !isAuthorized(task)) {
+        alert('Only the admin or task creator can mark meeting-extracted tasks as done.')
+        return false
+      }
+
+      if (newStatus === 'review' && originalStatus !== 'review' && !isAuthorized(task)) {
+        const confirmed = window.confirm(
+          'Are you sure you want to request a review? This action will notify the admin that this task needs to be reviewed to be done.'
+        )
+        if (!confirmed) return false
+      }
 
       // Optimistic update
       task.status = newStatus
@@ -169,14 +223,17 @@ export const useTaskStore = defineStore('task', () => {
           done: newDone,
           previousStatus: task.previousStatus
         }, getHeaders())
+        return true
       } catch (error) {
         console.error('Failed to set task status:', error)
         // Rollback
         task.status = originalStatus
         task.previousStatus = originalPreviousStatus
         task.done = originalDone
+        return false
       }
     }
+    return false
   }
 
   return {

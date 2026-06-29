@@ -96,6 +96,154 @@
               </svg>
             </button>
 
+             <div ref="notificationsRef" class="relative">
+          <button
+            @click="isNotificationsOpen = !isNotificationsOpen"
+            class="group bg-black/5 border border-white/10 rounded-full flex items-center justify-center w-9 h-9 cursor-pointer relative text-brand-slate transition-all duration-300 hover:bg-primary/5 hover:border-primary/15 hover:text-primary hover:scale-105 focus:outline-none"
+            aria-label="Notifications"
+          >
+            <PhBell
+              :size="18"
+              weight="bold"
+              class="transition-colors duration-300 text-brand-slate group-hover:text-primary"
+            />
+
+            <!-- Unread badge indicator -->
+            <span
+              v-if="unreadCount > 0"
+              class="absolute top-2.5 right-2.5 w-1.5 h-1.5 bg-primary rounded-full shadow-[0_0_8px_rgba(75,104,255,1)]"
+            ></span>
+          </button>
+
+          <!-- Notifications Dropdown -->
+          <transition name="fade-slide">
+            <div
+              v-if="isNotificationsOpen"
+              class="absolute right-0 mt-3.5 w-80 bg-white/90 dark:bg-slate-900/95 border border-white/80 dark:border-slate-800 rounded-2xl shadow-glass backdrop-blur-[20px] p-4 text-left z-50 transform origin-top-right transition-all duration-300"
+            >
+              <div
+                class="flex items-center justify-between border-b border-black/5 pb-2.5 mb-2.5"
+              >
+                <span class="text-xs font-bold text-brand-dark"
+                  >Notifications</span
+                >
+                <div class="flex gap-2">
+                  <button
+                    v-if="unreadCount > 0"
+                    @click="markAllAsRead"
+                    class="text-[10px] font-semibold text-primary hover:underline cursor-pointer"
+                  >
+                    Mark all read
+                  </button>
+                  <span
+                    v-if="unreadCount > 0 && notifications.length > 0"
+                    class="text-black/20 text-[10px]"
+                    >|</span
+                  >
+                  <button
+                    v-if="notifications.length > 0"
+                    @click="clearAll"
+                    class="text-[10px] font-semibold text-red-500 hover:underline cursor-pointer flex items-center gap-1"
+                  >
+                    <PhTrash :size="10" /> Clear all
+                  </button>
+                </div>
+              </div>
+
+              <!-- Notifications List -->
+              <div class="max-h-60 overflow-y-auto space-y-2 pr-1">
+                <template v-if="notifications.length > 0">
+                  <div
+                    v-for="notification in notifications"
+                    :key="notification.id"
+                    @click="handleNotificationClick(notification)"
+                    class="p-2.5 rounded-xl transition-all duration-200 cursor-pointer border flex flex-col gap-1 text-[11px] leading-relaxed relative"
+                    :class="
+                      notification.read
+                        ? 'bg-transparent border-transparent hover:bg-black/5'
+                        : 'bg-primary/[0.03] border-primary/10 hover:bg-primary/[0.06] shadow-sm'
+                    "
+                  >
+                    <span
+                      v-if="!notification.read"
+                      class="absolute top-3 right-3 w-1.5 h-1.5 bg-primary rounded-full"
+                    ></span>
+
+                    <div class="pr-3">
+                      <p
+                        class="text-brand-dark font-semibold"
+                        :class="{ 'font-bold': !notification.read }"
+                      >
+                        {{ notification.title }}
+                      </p>
+
+                      <p class="text-brand-slate text-[10px] mt-1">
+                        {{ notification.message }}
+                      </p>
+
+                      <!-- Approve/Reject buttons - show only when unread join-request -->
+                      <div
+                        v-if="notification.type === 'join-request'"
+                        class="mt-3"
+                      >
+                        <!-- Pending Request -->
+                        <div
+                          v-if="notification.status === 'pending'"
+                          class="flex gap-2"
+                        >
+                          <button
+                            @click.stop="approveJoinRequest(notification)"
+                            class="px-2.5 py-1 rounded-full bg-primary text-white text-[10px] font-bold transition-all duration-200 hover:scale-105"
+                          >
+                            Approve
+                          </button>
+                          <button
+                            @click.stop="rejectJoinRequest(notification)"
+                            class="px-2.5 py-1 rounded-full bg-red-500 text-white text-[10px] font-bold transition-all duration-200 hover:scale-105"
+                          >
+                            Reject
+                          </button>
+                        </div>
+
+                        <!-- Approved -->
+                        <p
+                          v-else-if="notification.status === 'approved'"
+                          class="text-[10px] font-semibold text-green-600 mt-2"
+                        >
+                          ✓ Request Approved
+                        </p>
+
+                        <!-- Rejected -->
+                        <p
+                          v-else-if="notification.status === 'rejected'"
+                          class="text-[10px] font-semibold text-red-600 mt-2"
+                        >
+                          ✗ Request Rejected
+                        </p>
+                      </div>
+                    </div>
+                    <span class="text-[9px] text-brand-slate font-semibold">{{
+                      notification.time
+                    }}</span>
+                  </div>
+                </template>
+                <div
+                  v-else
+                  class="py-6 flex flex-col items-center justify-center text-center"
+                >
+                  <PhBell
+                    :size="24"
+                    class="text-brand-slate mb-1.5 opacity-40"
+                  />
+                  <p class="text-xs text-brand-slate font-medium">
+                    All caught up!
+                  </p>
+                </div>
+              </div>
+            </div>
+          </transition>
+        </div>
+
             <!-- Profile Container -->
             <div ref="profileRef" class="relative">
               <button
@@ -208,14 +356,17 @@ import { useUiStore } from '../../stores/ui'
 import Sidebar from './Sidebar.vue'
 import BottomNav from './BottomNav.vue'
 import { useAuthStore } from '@/stores/auth'
-import { PhGear, PhClockClockwise, PhUser, PhSignOut } from '@phosphor-icons/vue'
+import { PhGear, PhClockClockwise, PhUser, PhSignOut, PhBell, PhTrash } from '@phosphor-icons/vue'
 import Modal from '@/components/ui/Modal.vue'
 import Button from '@/components/ui/Button.vue'
+import { useNotificationStore } from '../../stores/notification'
+import axios from 'axios'
 
 const router = useRouter()
 const searchQuery = ref('')
 const uiStore = useUiStore()
 const authStore = useAuthStore()
+const notificationStore = useNotificationStore()
 
 const user = computed(() => authStore.user)
 
@@ -228,7 +379,69 @@ const profileImage = computed(() => {
 
 const isProfileOpen = ref(false)
 const profileRef = ref(null)
+const isNotificationsOpen = ref(false)
+const notificationsRef = ref(null)
 const showLogoutModal = ref(false)
+
+const notifications = computed(() => notificationStore.notifications)
+const unreadCount = computed(() => notificationStore.unreadCount)
+
+const handleNotificationClick = (notification) => {
+  notificationStore.markAsRead(notification.id)
+  isNotificationsOpen.value = false
+
+  if (notification.type === 'task') {
+    router.push('/tasks')
+  } else if (notification.type === 'meeting') {
+    router.push('/archive')
+  } else {
+    router.push('/dashboard')
+  }
+}
+
+const approveJoinRequest = async (notification) => {
+  try {
+    await axios.patch(
+      `http://localhost:5000/api/join-requests/${notification.relatedId}/approve`,
+      {},
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+      }
+    )
+    await notificationStore.fetchNotifications()
+    await authStore.fetchProfile?.()
+    isNotificationsOpen.value = true
+  } catch (error) {
+    console.error('Failed to approve request:', error)
+  }
+}
+
+const rejectJoinRequest = async (notification) => {
+  try {
+    await axios.patch(
+      `http://localhost:5000/api/join-requests/${notification.relatedId}/reject`,
+      {},
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+      }
+    )
+    await notificationStore.fetchNotifications()
+  } catch (error) {
+    console.error('Failed to reject request:', error)
+  }
+}
+
+const markAllAsRead = () => {
+  notificationStore.markAllAsRead()
+}
+
+const clearAll = () => {
+  notificationStore.clearAll()
+}
 
 const handleLogout = () => {
   isProfileOpen.value = false
@@ -246,15 +459,28 @@ const handleClickOutside = (event) => {
   if (isProfileOpen.value && profileRef.value && !profileRef.value.contains(event.target)) {
     isProfileOpen.value = false
   }
+  if (isNotificationsOpen.value && notificationsRef.value && !notificationsRef.value.contains(event.target)) {
+    isNotificationsOpen.value = false
+  }
 }
+
+let pollInterval = null
 
 onMounted(async () => {
   await authStore.fetchProfile()
+  await notificationStore.fetchNotifications()
   document.addEventListener('click', handleClickOutside)
+
+  pollInterval = setInterval(() => {
+    notificationStore.fetchNotifications()
+  }, 15000)
 })
 
 onUnmounted(() => {
   document.removeEventListener('click', handleClickOutside)
+  if (pollInterval) {
+    clearInterval(pollInterval)
+  }
 })
 
 const onAfterLeave = () => {

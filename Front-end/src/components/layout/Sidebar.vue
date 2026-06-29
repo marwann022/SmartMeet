@@ -26,13 +26,13 @@
 
     <div class="flex flex-col gap-[32px] compact:gap-4">
       <!-- Logo: full wordmark on desktop, cropped icon-only in compact mode -->
-      <div class="flex items-center justify-between w-full compact:justify-center">
-        <router-link to="/" class="flex items-center transition-all duration-300 hover:scale-[1.02] cursor-pointer self-start compact:self-center">
+      <div class="flex items-center justify-center w-full">
+        <router-link to="/" class="flex items-center justify-center transition-all duration-300 hover:scale-[1.02] cursor-pointer self-center">
           <div class="compact:w-10 compact:h-10 compact:overflow-hidden compact:rounded-lg compact:flex compact:items-center compact:justify-center">
             <img 
-              src="../../assets/new logo.png" 
+              src="../../assets/logo_clean.png" 
               alt="SmartMeet" 
-              class="h-[64px] w-auto block compact:h-10 compact:w-10 compact:object-cover compact:object-left" 
+              class="h-9 w-36 block compact:h-9 compact:w-9 compact:object-cover compact:object-left" 
             />
           </div>
         </router-link>

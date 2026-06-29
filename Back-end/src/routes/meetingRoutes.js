@@ -10,6 +10,7 @@ import {
     uploadRecording,
     processMeeting,
     liveExtractTask,
+    liveExtractDecision,
 } from "../controllers/meetingController.js";
 import {
     getMeetingTranscript,
@@ -44,6 +45,7 @@ router.route("/:id")
 router.post("/:id/upload-recording", upload.single("recording"), uploadRecording);
 router.post("/:id/process", processMeeting);
 router.post("/live-extract-task", liveExtractTask);
+router.post("/live-extract-decision", liveExtractDecision);
 
 router.get("/:id/transcript", getMeetingTranscript);
 router.get("/:id/summary", getMeetingSummary);

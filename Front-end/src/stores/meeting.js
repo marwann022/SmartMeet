@@ -228,6 +228,11 @@ export const useMeetingStore = defineStore('meeting', () => {
     return data
   }
 
+  const extractLiveDecision = async (text) => {
+    const { data } = await axios.post(`${API}/meetings/live-extract-decision`, { text }, getHeaders())
+    return data
+  }
+
   return {
     meetings,
     upcomingMeetings,
@@ -238,6 +243,7 @@ export const useMeetingStore = defineStore('meeting', () => {
     createMeeting,
     deleteMeeting,
     updateMeeting,
+    extractLiveDecision,
     processMeeting,
     extractLiveTask
   }

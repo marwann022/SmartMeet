@@ -436,11 +436,8 @@ const handleRegister = async () => {
     )
 
     const userData = {
+      ...data.user,
       name: `${data.user.firstName} ${data.user.lastName}`.trim(),
-      email: data.user.email,
-      plan: 'Free',
-      avatar: data.user.avatar || '',
-      status: data.user.status,
     }
 
     authStore.login(userData, data.token)

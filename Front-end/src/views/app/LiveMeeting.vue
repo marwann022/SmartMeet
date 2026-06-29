@@ -136,33 +136,63 @@
             </div>
           </div>
 
-          <!-- Actions Box -->
-          <div class="h-[35%] min-h-[140px] flex flex-col gap-2.5 border-t border-black/5 dark:border-white/5 pt-4">
-            <div class="flex justify-between items-center">
-              <span class="text-[10px] font-extrabold text-brand-slate uppercase tracking-wide">Real-time Tasks Extracted</span>
-              <span class="bg-primary/10 border border-primary/20 text-primary font-bold text-[9px] px-2 py-0.5 rounded-full">{{ extractedTasks.length }} detected</span>
-            </div>
-
-            <div class="flex-1 overflow-y-auto pr-1 flex flex-col gap-2 scroll-container">
-              <div
-                v-for="task in extractedTasks"
-                :key="task.id"
-                class="bg-gradient-to-br from-white/90 to-white/50 dark:from-slate-900/60 dark:to-slate-800/40 border border-black/5 dark:border-white/5 p-3 rounded-xl flex items-start justify-between gap-3 shadow-[0_2px_8px_rgba(0,0,0,0.02)] animate-slide-in-right"
-              >
-                <div class="flex flex-col gap-1">
-                  <span class="text-[12px] font-bold text-brand-dark leading-snug">{{ task.title }}</span>
-                  <div class="flex items-center gap-2 mt-0.5 text-[9px] text-brand-slate font-medium">
-                    <span>Assignee: {{ task.assignee }}</span>
-                    <span>•</span>
-                    <span class="font-bold text-primary">{{ task.priority }}</span>
+          <!-- Actions Box (Tasks & Decisions side-by-side) -->
+          <div class="h-[35%] min-h-[140px] grid grid-cols-2 gap-4 border-t border-black/5 dark:border-white/5 pt-4">
+            <!-- Left Pane: Tasks -->
+            <div class="flex flex-col gap-2.5 h-full overflow-hidden">
+              <div class="flex justify-between items-center">
+                <span class="text-[10px] font-extrabold text-brand-slate uppercase tracking-wide">Real-time Tasks</span>
+                <span class="bg-primary/10 border border-primary/20 text-primary font-bold text-[9px] px-2 py-0.5 rounded-full">{{ extractedTasks.length }}</span>
+              </div>
+              <div class="flex-1 overflow-y-auto pr-1 flex flex-col gap-2 scroll-container">
+                <div
+                  v-for="task in extractedTasks"
+                  :key="task.id"
+                  class="bg-gradient-to-br from-white/90 to-white/50 dark:from-slate-900/60 dark:to-slate-800/40 border border-black/5 dark:border-white/5 p-3 rounded-xl flex items-start justify-between gap-3 shadow-[0_2px_8px_rgba(0,0,0,0.02)] animate-slide-in-right"
+                >
+                  <div class="flex flex-col gap-1 text-left">
+                    <span class="text-[12px] font-bold text-brand-dark leading-snug">{{ task.title }}</span>
+                    <div class="flex items-center gap-2 mt-0.5 text-[9px] text-brand-slate font-medium">
+                      <span>Assignee: {{ task.assignee }}</span>
+                      <span>•</span>
+                      <span class="font-bold text-primary">{{ task.priority }}</span>
+                    </div>
+                  </div>
+                  <div class="w-5 h-5 rounded-full bg-green-500/10 border border-green-500/20 text-green-600 flex items-center justify-center flex-shrink-0">
+                    <PhCheck :size="10" weight="bold" />
                   </div>
                 </div>
-                <div class="w-5 h-5 rounded-full bg-green-500/10 border border-green-500/20 text-green-600 flex items-center justify-center">
-                  <PhCheck :size="10" weight="bold" />
+                <div v-if="extractedTasks.length === 0" class="text-[10px] text-brand-slate/40 italic py-6 text-center flex items-center justify-center h-full">
+                  Tasks will be extracted by AI after processing.
                 </div>
               </div>
-              <div v-if="extractedTasks.length === 0" class="text-[11px] text-brand-slate/40 italic py-6 text-center flex items-center justify-center h-full">
-                Tasks will be extracted by AI after processing.
+            </div>
+
+            <!-- Right Pane: Decisions -->
+            <div class="flex flex-col gap-2.5 h-full overflow-hidden border-l border-black/5 dark:border-white/5 pl-4">
+              <div class="flex justify-between items-center">
+                <span class="text-[10px] font-extrabold text-brand-slate uppercase tracking-wide">Real-time Decisions</span>
+                <span class="bg-green-500/10 border border-green-500/20 text-green-600 font-bold text-[9px] px-2 py-0.5 rounded-full">{{ extractedDecisions.length }}</span>
+              </div>
+              <div class="flex-1 overflow-y-auto pr-1 flex flex-col gap-2 scroll-container">
+                <div
+                  v-for="dec in extractedDecisions"
+                  :key="dec.id"
+                  class="bg-gradient-to-br from-white/90 to-white/50 dark:from-slate-900/60 dark:to-slate-800/40 border border-black/5 dark:border-white/5 p-3 rounded-xl flex items-start justify-between gap-3 shadow-[0_2px_8px_rgba(0,0,0,0.02)] animate-slide-in-right"
+                >
+                  <div class="flex flex-col gap-1 text-left">
+                    <span class="text-[12px] font-bold text-brand-dark leading-snug">{{ dec.text }}</span>
+                    <div class="flex items-center gap-2 mt-0.5 text-[9px] text-brand-slate font-medium">
+                      <span>Confidence: {{ Math.round(dec.confidence * 100) }}%</span>
+                    </div>
+                  </div>
+                  <div class="w-5 h-5 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-600 flex items-center justify-center flex-shrink-0">
+                    <PhSparkle :size="10" />
+                  </div>
+                </div>
+                <div v-if="extractedDecisions.length === 0" class="text-[10px] text-brand-slate/40 italic py-6 text-center flex items-center justify-center h-full">
+                  Decisions will be tracked in real-time.
+                </div>
               </div>
             </div>
           </div>
@@ -199,6 +229,7 @@ const isRecording = ref(true)
 const isProcessing = ref(false)
 const activeTranscript = ref([])
 const extractedTasks = ref([])
+const extractedDecisions = ref([])
 const transcriptContainer = ref(null)
 const recordingDuration = ref('00:00')
 const selectedLanguage = ref('en-US')
@@ -216,7 +247,7 @@ const resetInactivityTimer = () => {
   clearTimeout(inactivityTimer)
   if (isRecording.value) {
     inactivityTimer = setTimeout(() => {
-      console.log('No speech recognition activity for 25 seconds. Forcing restart to prevent zombie state...')
+      console.log('No speech recognition activity for 8 seconds. Forcing restart to prevent zombie state...')
       if (recognition) {
         try {
           recognition.stop()
@@ -224,7 +255,7 @@ const resetInactivityTimer = () => {
           console.error('Failed to stop recognition on inactivity timeout:', err)
         }
       }
-    }, 25000)
+    }, 8000)
   }
 }
 
@@ -241,6 +272,50 @@ const setLanguage = (lang) => {
       startSpeechRecognition()
     }, 300)
   }
+}
+
+let interimCommitTimer = null
+let softRestartTimer = null
+
+const triggerLiveExtractions = (text) => {
+  if (!text || text.trim().length < 5) return
+
+  // Query AI to extract task from text snippet
+  meetingStore.extractLiveTask(text).then(res => {
+    if (res.success && res.tasks.length > 0) {
+      res.tasks.forEach(t => {
+        const exists = extractedTasks.value.some(et => et.title === t.title)
+        if (!exists) {
+          extractedTasks.value.unshift({
+            id: Date.now() + Math.random(),
+            title: t.title,
+            assignee: t.assignee || 'You',
+            priority: t.priority || 'MED'
+          })
+        }
+      })
+    }
+  }).catch(err => {
+    console.error('Failed to extract live tasks:', err)
+  })
+
+  // Query AI to extract decision from text snippet
+  meetingStore.extractLiveDecision(text).then(res => {
+    if (res.success && res.decisions.length > 0) {
+      res.decisions.forEach(d => {
+        const exists = extractedDecisions.value.some(ed => ed.text === d.text)
+        if (!exists) {
+          extractedDecisions.value.unshift({
+            id: Date.now() + Math.random(),
+            text: d.text,
+            confidence: d.confidence || 0.95
+          })
+        }
+      })
+    }
+  }).catch(err => {
+    console.error('Failed to extract live decisions:', err)
+  })
 }
 
 const startSpeechRecognition = () => {
@@ -272,6 +347,19 @@ const startSpeechRecognition = () => {
   recognition.interimResults = true
   recognition.lang = selectedLanguage.value
 
+  // Set up periodic soft restart timer to prevent SpeechRecognition going stale
+  clearInterval(softRestartTimer)
+  softRestartTimer = setInterval(() => {
+    if (isRecording.value && !interimText.value) {
+      console.log('[SpeechRecognition] Soft-restarting engine to prevent Chrome connection decay...')
+      if (recognition) {
+        try {
+          recognition.stop()
+        } catch (err) {}
+      }
+    }
+  }, 45000)
+
   recognition.onresult = async (event) => {
     resetInactivityTimer()
     let interim = ''
@@ -297,26 +385,48 @@ const startSpeechRecognition = () => {
               }
             })
 
-            // Query AI to extract task from text snippet
-            try {
-              const res = await meetingStore.extractLiveTask(text)
-              if (res.success && res.tasks.length > 0) {
-                res.tasks.forEach(t => {
-                  extractedTasks.value.unshift({
-                    id: Date.now() + Math.random(),
-                    title: t.title,
-                    assignee: t.assignee || 'You',
-                    priority: t.priority || 'MED'
-                  })
-                })
-              }
-            } catch (err) {
-              console.error('Failed to extract live tasks:', err)
-            }
+            // Cancel any pending interim commits
+            clearTimeout(interimCommitTimer)
+
+            // Trigger AI extractions
+            triggerLiveExtractions(text)
           }
         }
       } else {
         interim += result[0].transcript
+        
+        // Auto-commit stable interim text if the user pauses speaking for 2.2 seconds
+        clearTimeout(interimCommitTimer)
+        interimCommitTimer = setTimeout(() => {
+          const stableText = interimText.value.trim()
+          if (stableText && isRecording.value) {
+            console.log('[SpeechRecognition] Interim text stable for 2.2s. Force-committing:', stableText)
+            
+            activeTranscript.value.push({
+              speaker: 'You (Live)',
+              text: stableText,
+              time: formatTime(recordingSeconds)
+            })
+            
+            nextTick(() => {
+              if (transcriptContainer.value) {
+                transcriptContainer.value.scrollTop = transcriptContainer.value.scrollHeight
+              }
+            })
+
+            triggerLiveExtractions(stableText)
+            
+            interimText.value = ''
+            processedResultIndices.clear()
+            
+            // Soft-restart recognition session to clear buffers and force final state
+            if (recognition) {
+              try {
+                recognition.stop()
+              } catch (e) {}
+            }
+          }
+        }, 2200)
       }
     }
 
@@ -341,6 +451,8 @@ const startSpeechRecognition = () => {
 
   recognition.onend = () => {
     clearTimeout(inactivityTimer)
+    clearTimeout(interimCommitTimer)
+    clearInterval(softRestartTimer)
     interimText.value = ''
     if (isRecording.value) {
       // Re-create the recognition instance rather than calling start() on the same instance

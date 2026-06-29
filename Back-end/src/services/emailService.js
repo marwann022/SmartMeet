@@ -195,3 +195,114 @@ export const sendInvitationEmail = async ({
   console.log("RESEND FULL RESPONSE: " + JSON.stringify(result));
   console.log("RESEND RESPONSE HEADERS: " + JSON.stringify(headers));
 };
+
+export const sendMeetingSummaryEmail = async ({
+  to,
+  recipientName,
+  meetingTitle,
+  summaryText,
+  decisions = [],
+  tasks = []
+}) => {
+  const fromAddress = process.env.EMAIL_FROM || "SmartMeet <onboarding@resend.dev>";
+  
+  const decisionsHtml = decisions.length > 0 
+    ? `<ul style="padding-left:20px;margin:10px 0;color:#334155;">` + 
+      decisions.map(d => `<li style="margin-bottom:8px;line-height:1.5;">${d.text || d}</li>`).join("") + 
+      `</ul>`
+    : `<p style="color:#64748b;font-style:italic;margin:10px 0;">No key decisions were recorded during this session.</p>`;
+
+  const tasksHtml = tasks.length > 0
+    ? `<ul style="padding-left:20px;margin:10px 0;color:#334155;">` +
+      tasks.map(t => `<li style="margin-bottom:8px;line-height:1.5;"><strong>${t.title}</strong> - Assigned to: <em>${t.assignee}</em></li>`).join("") +
+      `</ul>`
+    : `<p style="color:#64748b;font-style:italic;margin:10px 0;">No action items were assigned.</p>`;
+
+  const html = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Meeting Summary: ${meetingTitle}</title>
+</head>
+<body style="margin:0;padding:0;background-color:#f4f6fb;font-family:'Segoe UI',Helvetica,Arial,sans-serif;">
+
+  <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#f4f6fb;padding:40px 16px;">
+    <tr>
+      <td align="center">
+
+        <table width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:600px;background-color:#ffffff;border-radius:24px;overflow:hidden;box-shadow:0 10px 30px rgba(0,0,0,0.06);border:1px border-black/5;">
+          
+          <!-- Header -->
+          <tr>
+            <td style="background:linear-gradient(135deg,#4b68ff 0%,#7c3aed 100%);padding:40px;text-align:left;color:#ffffff;">
+              <p style="margin:0 0 6px 0;font-size:11px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.7);">Meeting Recap</p>
+              <h1 style="margin:0;font-size:28px;font-weight:800;line-height:1.2;color:#ffffff;">${meetingTitle}</h1>
+            </td>
+          </tr>
+
+          <!-- Body -->
+          <tr>
+            <td style="padding:40px;text-align:left;">
+              <p style="margin:0 0 20px 0;font-size:16px;color:#1e293b;line-height:1.5;">
+                Hello <strong>${recipientName}</strong>,
+              </p>
+              <p style="margin:0 0 24px 0;font-size:14px;color:#334155;line-height:1.6;">
+                The meeting has ended and the AI summary report is ready. Below is a recap of the discussion, decisions, and action items:
+              </p>
+
+              <!-- Summary Card -->
+              <div style="background-color:#f8fafc;border-left:4px solid #4b68ff;padding:20px;border-radius:0 12px 12px 0;margin-bottom:28px;">
+                <h3 style="margin:0 0 10px 0;font-size:14px;font-weight:800;color:#1e293b;text-transform:uppercase;letter-spacing:1px;">Executive Summary</h3>
+                <p style="margin:0;font-size:14px;color:#334155;line-height:1.6;">${summaryText}</p>
+              </div>
+
+              <!-- Decisions Section -->
+              <h3 style="margin:0 0 8px 0;font-size:15px;font-weight:800;color:#1e293b;border-bottom:1px solid #e2e8f0;padding-bottom:6px;">Key Decisions</h3>
+              ${decisionsHtml}
+              <div style="height:20px;"></div>
+
+              <!-- Tasks Section -->
+              <h3 style="margin:0 0 8px 0;font-size:15px;font-weight:800;color:#1e293b;border-bottom:1px solid #e2e8f0;padding-bottom:6px;">Action Items</h3>
+              ${tasksHtml}
+              
+              <div style="height:32px;"></div>
+
+              <!-- CTA Button -->
+              <div style="text-align:center;">
+                <a href="${process.env.FRONTEND_URL || 'http://localhost:5173'}/archive" style="display:inline-block;background-color:#4b68ff;color:#ffffff;font-size:14px;font-weight:700;text-decoration:none;padding:14px 30px;border-radius:12px;box-shadow:0 4px 12px rgba(75,104,255,0.25);transition:background-color 0.2s;">
+                  View Meeting Archive
+                </a>
+              </div>
+
+            </td>
+          </tr>
+
+          <!-- Footer -->
+          <tr>
+            <td style="background-color:#f8fafc;padding:24px 40px;text-align:center;font-size:12px;color:#64748b;border-top:1px solid #f1f5f9;">
+              This is an automated notification from SmartMeet AI Companion.
+            </td>
+          </tr>
+
+        </table>
+
+      </td>
+    </tr>
+  </table>
+
+</body>
+</html>`;
+
+  try {
+    await resend.emails.send({
+      from: fromAddress,
+      to,
+      subject: `Summary Report: ${meetingTitle}`,
+      html,
+    });
+    console.log(`[Resend] Successfully sent meeting summary email to ${to}`);
+  } catch (err) {
+    console.error(`[Resend] Failed to send meeting summary email to ${to}:`, err.message);
+  }
+};

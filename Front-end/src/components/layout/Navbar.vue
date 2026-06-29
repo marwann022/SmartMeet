@@ -7,7 +7,7 @@
       to="/"
       class="flex items-center transition-all duration-300 hover:scale-[1.02] cursor-pointer"
     >
-      <img src="@/assets/new logo.png" alt="SmartMeet" class="h-10 block" />
+      <img src="@/assets/logo_clean.png" alt="SmartMeet" class="h-10 block" />
     </router-link>
 
     <!-- Navigation Links -->

@@ -154,7 +154,7 @@
             <button 
               v-for="opt in statusOptions"
               :key="opt.value"
-              @click="taskStore.setTaskStatus(selectedTask.id, opt.value); selectedTask.status = opt.value"
+              @click="selectStatus(opt.value)"
               class="py-2 px-2 rounded-xl border font-bold text-xs transition-all duration-300 text-center cursor-pointer font-header"
               :class="selectedTask.status === opt.value
                 ? 'bg-primary text-white border-transparent shadow-[0_4px_12px_rgba(75,104,255,0.25)]'
@@ -169,7 +169,7 @@
           <Button 
             class="flex-1"
             :variant="selectedTask.status === 'done' || selectedTask.done ? 'outline' : 'primary'"
-            @click="taskStore.toggleTask(selectedTask); selectedTask = null"
+            @click="handleToggleTask"
           >
             {{ selectedTask.status === 'done' || selectedTask.done ? 'Mark Incomplete' : 'Mark Complete ✓' }}
           </Button>
@@ -448,6 +448,22 @@ const addTask = () => {
     source: 'Manual Entry'
   })
   showAddModal.value = false
+}
+
+const selectStatus = async (status) => {
+  if (!selectedTask.value) return
+  const success = await taskStore.setTaskStatus(selectedTask.value.id, status)
+  if (success) {
+    selectedTask.value.status = status
+  }
+}
+
+const handleToggleTask = async () => {
+  if (!selectedTask.value) return
+  const success = await taskStore.toggleTask(selectedTask.value)
+  if (success) {
+    selectedTask.value = null
+  }
 }
 </script>
 

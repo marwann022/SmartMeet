@@ -606,10 +606,8 @@ onMounted(async () => {
     })
 
     const userData = {
+      ...data.user,
       name: `${data.user.firstName} ${data.user.lastName}`,
-      email: data.user.email,
-      plan: 'Free',
-      avatar: data.user.avatar
     }
 
     authStore.login(userData, data.token)

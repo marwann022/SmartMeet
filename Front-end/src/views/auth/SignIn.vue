@@ -208,10 +208,8 @@ onMounted(async () => {
         });
 
         const userData = {
+          ...data.user,
           name: `${data.user.firstName} ${data.user.lastName}`,
-          email: data.user.email,
-          plan: "Free",
-          avatar: data.user.avatar,
         };
 
         localStorage.setItem("sessionId", data.sessionId);
@@ -253,10 +251,8 @@ const handleSignIn = async () => {
     });
 
     const userData = {
+      ...data.user,
       name: `${data.user.firstName} ${data.user.lastName}`,
-      email: data.user.email,
-      plan: "Free",
-      avatar: data.user.avatar,
     };
 
     // Save the current session id

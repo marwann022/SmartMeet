@@ -383,14 +383,16 @@ const lowPriorityCount = computed(() => {
   return taskStore.tasks.filter(t => t.priority.toLowerCase().includes('low')).length
 })
 
-const markDone = (task) => {
+const markDone = async (task) => {
   if (task.status === 'done' || task.done) return
-  taskStore.setTaskStatus(task.id || task._id, 'done')
-  task.status = 'done'
-  task.done = true
+  const success = await taskStore.setTaskStatus(task.id || task._id, 'done')
+  if (success) {
+    task.status = 'done'
+    task.done = true
+  }
 }
 
-const moveStage = (task, direction) => {
+const moveStage = async (task, direction) => {
   if (task.status === 'done' || task.done) return
   
   const statusOrder = ['todo', 'inprogress', 'review', 'done']
@@ -399,9 +401,11 @@ const moveStage = (task, direction) => {
   
   if (nextIndex >= 0 && nextIndex < statusOrder.length) {
     const nextStatus = statusOrder[nextIndex]
-    taskStore.setTaskStatus(task.id || task._id, nextStatus)
-    task.status = nextStatus
-    task.done = nextStatus === 'done'
+    const success = await taskStore.setTaskStatus(task.id || task._id, nextStatus)
+    if (success) {
+      task.status = nextStatus
+      task.done = nextStatus === 'done'
+    }
   }
 }
 

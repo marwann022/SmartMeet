@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import Meeting from "../models/Meeting.js";
+import User from "../models/User.js";
 import MeetingTranscript from "../models/MeetingTranscript.js";
 import MeetingKnowledge from "../models/MeetingKnowledge.js";
 import ActionItem from "../models/ActionItem.js";
@@ -9,7 +10,42 @@ const findOwnedMeeting = async (req, res) => {
         res.status(400).json({ success: false, message: "Invalid meeting ID format" });
         return null;
     }
-    const meeting = await Meeting.findOne({ _id: req.params.id, host: req.user._id });
+
+    const communityId = req.user.community?._id || req.user.community;
+    let sameCommunityAdminIds = [];
+    if (communityId) {
+        const admins = await User.find({ community: communityId, role: 'admin' }).select('_id');
+        sameCommunityAdminIds = admins.map(a => a._id);
+    }
+
+    const isReqUserAdmin = req.user.role === 'admin';
+    const orClauses = [];
+
+    if (isReqUserAdmin) {
+        orClauses.push({ host: req.user._id });
+        orClauses.push({
+            $or: [
+                { "participants.email": req.user.email },
+                { "participants.name": req.user.name },
+                { "participants.name": `${req.user.firstName} ${req.user.lastName}`.trim() }
+            ],
+            type: { $ne: "Team" }
+        });
+    } else {
+        orClauses.push({ host: req.user._id });
+        orClauses.push({ "participants.email": req.user.email });
+        orClauses.push({ "participants.name": req.user.name });
+        orClauses.push({ "participants.name": `${req.user.firstName} ${req.user.lastName}`.trim() });
+
+        if (sameCommunityAdminIds.length > 0) {
+            orClauses.push({
+                host: { $in: sameCommunityAdminIds },
+                type: "Team"
+            });
+        }
+    }
+
+    const meeting = await Meeting.findOne({ _id: req.params.id, $or: orClauses });
     if (!meeting) {
         res.status(404).json({ success: false, message: "Meeting not found" });
         return null;

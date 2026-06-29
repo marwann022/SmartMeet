@@ -1,9 +1,11 @@
 import Meeting from "../models/Meeting.js";
+import User from "../models/User.js";
 import { extractAudioIfNeeded, transcribeAudio } from "../services/transcriptionService.js";
 import {
     analyzeMeetingTranscript,
     diarizeTranscript,
     liveExtractTaskFromText,
+    liveExtractDecisionFromText,
     translateTranscriptToEnglish,
 } from "../services/meetingAnalysisService.js";
 import {
@@ -11,6 +13,7 @@ import {
     storeKnowledgeLayers,
     generateAndStoreEmbeddings,
 } from "../services/knowledgeStorageService.js";
+import { syncMeetingTasksAndNotifications } from "../services/postMeetingService.js";
 import crypto from "crypto";
 import fs from "fs/promises";
 import path from "path";
@@ -70,8 +73,51 @@ export const createMeeting = async (req, res) => {
 
 export const getMeetings = async (req, res) => {
     try {
-        const meetings = await Meeting.find({ host: req.user._id })
+        const communityId = req.user.community?._id || req.user.community;
+        let sameCommunityAdminIds = [];
+        if (communityId) {
+            const admins = await User.find({ community: communityId, role: 'admin' }).select('_id');
+            sameCommunityAdminIds = admins.map(a => a._id);
+        }
+
+        const isReqUserAdmin = req.user.role === 'admin';
+        const orClauses = [];
+
+        if (isReqUserAdmin) {
+            // Admin can see:
+            // 1. Meetings they hosted
+            // 2. Meetings hosted by anyone where the admin is a participant AND meeting type is NOT "Team"
+            orClauses.push({ host: req.user._id });
+            orClauses.push({
+                $or: [
+                    { "participants.email": req.user.email },
+                    { "participants.name": req.user.name },
+                    { "participants.name": `${req.user.firstName} ${req.user.lastName}`.trim() }
+                ],
+                type: { $ne: "Team" }
+            });
+        } else {
+            // Member can see:
+            // 1. Meetings they hosted
+            // 2. Meetings where they are a participant (Personal or Team)
+            // 3. Team meetings hosted by admins of their community
+            orClauses.push({ host: req.user._id });
+            orClauses.push({ "participants.email": req.user.email });
+            orClauses.push({ "participants.name": req.user.name });
+            orClauses.push({ "participants.name": `${req.user.firstName} ${req.user.lastName}`.trim() });
+
+            if (sameCommunityAdminIds.length > 0) {
+                orClauses.push({
+                    host: { $in: sameCommunityAdminIds },
+                    type: "Team"
+                });
+            }
+        }
+
+        const meetings = await Meeting.find({ $or: orClauses })
+            .populate("host", "firstName lastName name email role")
             .sort({ startTime: -1, createdAt: -1 });
+
         res.status(200).json({ success: true, meetings });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
@@ -80,7 +126,50 @@ export const getMeetings = async (req, res) => {
 
 export const getMeeting = async (req, res) => {
     try {
-        const meeting = await Meeting.findOne({ _id: req.params.id, host: req.user._id });
+        const communityId = req.user.community?._id || req.user.community;
+        let sameCommunityAdminIds = [];
+        if (communityId) {
+            const admins = await User.find({ community: communityId, role: 'admin' }).select('_id');
+            sameCommunityAdminIds = admins.map(a => a._id);
+        }
+
+        const isReqUserAdmin = req.user.role === 'admin';
+        const orClauses = [];
+
+        if (isReqUserAdmin) {
+            // Admin can see:
+            // 1. Meetings they hosted
+            // 2. Meetings hosted by anyone where the admin is a participant AND meeting type is NOT "Team"
+            orClauses.push({ host: req.user._id });
+            orClauses.push({
+                $or: [
+                    { "participants.email": req.user.email },
+                    { "participants.name": req.user.name },
+                    { "participants.name": `${req.user.firstName} ${req.user.lastName}`.trim() }
+                ],
+                type: { $ne: "Team" }
+            });
+        } else {
+            // Member can see:
+            // 1. Meetings they hosted
+            // 2. Meetings where they are a participant (Personal or Team)
+            // 3. Team meetings hosted by admins of their community
+            orClauses.push({ host: req.user._id });
+            orClauses.push({ "participants.email": req.user.email });
+            orClauses.push({ "participants.name": req.user.name });
+            orClauses.push({ "participants.name": `${req.user.firstName} ${req.user.lastName}`.trim() });
+
+            if (sameCommunityAdminIds.length > 0) {
+                orClauses.push({
+                    host: { $in: sameCommunityAdminIds },
+                    type: "Team"
+                });
+            }
+        }
+
+        const meeting = await Meeting.findOne({ _id: req.params.id, $or: orClauses })
+            .populate("host", "firstName lastName name email role");
+
         if (!meeting) return res.status(404).json({ success: false, message: "Meeting not found" });
         res.status(200).json({ success: true, meeting });
     } catch (error) {
@@ -146,7 +235,41 @@ export const processMeeting = async (req, res) => {
     let audioPath = null;
     let recordingPath = null;
     try {
-        const meeting = await Meeting.findOne({ _id: req.params.id, host: req.user._id }).populate("host");
+        const communityId = req.user.community?._id || req.user.community;
+        let sameCommunityAdminIds = [];
+        if (communityId) {
+            const admins = await User.find({ community: communityId, role: 'admin' }).select('_id');
+            sameCommunityAdminIds = admins.map(a => a._id);
+        }
+
+        const isReqUserAdmin = req.user.role === 'admin';
+        const orClauses = [];
+
+        if (isReqUserAdmin) {
+            orClauses.push({ host: req.user._id });
+            orClauses.push({
+                $or: [
+                    { "participants.email": req.user.email },
+                    { "participants.name": req.user.name },
+                    { "participants.name": `${req.user.firstName} ${req.user.lastName}`.trim() }
+                ],
+                type: { $ne: "Team" }
+            });
+        } else {
+            orClauses.push({ host: req.user._id });
+            orClauses.push({ "participants.email": req.user.email });
+            orClauses.push({ "participants.name": req.user.name });
+            orClauses.push({ "participants.name": `${req.user.firstName} ${req.user.lastName}`.trim() });
+
+            if (sameCommunityAdminIds.length > 0) {
+                orClauses.push({
+                    host: { $in: sameCommunityAdminIds },
+                    type: "Team"
+                });
+            }
+        }
+
+        const meeting = await Meeting.findOne({ _id: req.params.id, $or: orClauses }).populate("host");
         if (!meeting) return res.status(404).json({ success: false, message: "Meeting not found" });
 
         const { liveTranscript } = req.body;
@@ -229,6 +352,13 @@ export const processMeeting = async (req, res) => {
             }
         );
 
+        // Trigger post-meeting notifications, task synchronization, and email digests in the background
+        if (analysis) {
+            syncMeetingTasksAndNotifications({ meeting, analysis }).catch((err) => {
+                console.error("[PostMeetingPipeline] Error in background execution:", err);
+            });
+        }
+
         res.status(200).json({ success: true, message: "Meeting processed successfully" });
     } catch (error) {
         console.error("Processing failed:", error);
@@ -251,6 +381,20 @@ export const liveExtractTask = async (req, res) => {
         res.status(200).json({ success: true, tasks });
     } catch (error) {
         console.error("Live task extraction failed:", error);
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+export const liveExtractDecision = async (req, res) => {
+    try {
+        const { text } = req.body;
+        if (!text || text.trim().length < 5) {
+            return res.status(200).json({ success: true, decisions: [] });
+        }
+        const decisions = await liveExtractDecisionFromText(text);
+        res.status(200).json({ success: true, decisions });
+    } catch (error) {
+        console.error("Live decision extraction failed:", error);
         res.status(500).json({ success: false, message: error.message });
     }
 };
