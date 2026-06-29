@@ -39,15 +39,24 @@
             </td>
             <!-- Action link -->
             <td class="py-[16px] px-[24px] text-right" @click.stop>
-              <button 
-                @click.stop="meeting.status === 'scheduled' ? $emit('join', meeting) : $emit('select', meeting)"
-                class="px-[16px] py-[6px] rounded-lg font-bold text-xs transition-all duration-200 cursor-pointer"
-                :class="meeting.status === 'scheduled' 
-                  ? 'bg-emerald-500/10 text-emerald-600 hover:bg-emerald-500 hover:text-white border border-emerald-500/15' 
-                  : 'bg-primary/8 text-primary hover:bg-primary hover:text-white'"
-              >
-                {{ meeting.status === 'scheduled' ? 'Join Call' : 'Review' }}
-              </button>
+              <div class="flex items-center justify-end gap-2.5">
+                <button 
+                  @click.stop="meeting.status === 'scheduled' ? $emit('join', meeting) : $emit('select', meeting)"
+                  class="px-[16px] py-[6px] rounded-lg font-bold text-xs transition-all duration-200 cursor-pointer"
+                  :class="meeting.status === 'scheduled' 
+                    ? 'bg-emerald-500/10 text-emerald-600 hover:bg-emerald-500 hover:text-white border border-emerald-500/15' 
+                    : 'bg-primary/8 text-primary hover:bg-primary hover:text-white'"
+                >
+                  {{ meeting.status === 'scheduled' ? 'Join Call' : 'Review' }}
+                </button>
+                <button
+                  @click.stop="$emit('delete', meeting)"
+                  class="p-2 border border-red-500/10 rounded-lg bg-red-500/5 hover:bg-red-500 text-red-500 hover:text-white transition-all cursor-pointer"
+                  title="Delete Meeting"
+                >
+                  <PhTrash :size="13" weight="bold" />
+                </button>
+              </div>
             </td>
           </tr>
 
@@ -63,6 +72,8 @@
 </template>
 
 <script setup>
+import { PhTrash } from '@phosphor-icons/vue'
+
 defineProps({
   meetings: {
     type: Array,
@@ -70,5 +81,5 @@ defineProps({
   }
 })
 
-defineEmits(['select', 'join'])
+defineEmits(['select', 'join', 'delete'])
 </script>

@@ -46,7 +46,7 @@ export const getMeetingTasks = async (req, res) => {
     const meeting = await findOwnedMeeting(req, res);
     if (!meeting) return;
 
-    const tasks = await ActionItem.find({ meeting: meeting._id }).sort({ deadline: 1, createdAt: 1 });
+    const tasks = await ActionItem.find({ meeting: meeting._id }).sort({ createdAt: 1 });
     return res.status(200).json({ success: true, tasks });
 };
 

@@ -26,7 +26,7 @@
               v-model="memberSearchQuery" 
               type="text" 
               placeholder="Search members..." 
-              class="w-full pl-8 pr-3 py-1.5 rounded-xl bg-white border border-black/8 font-body text-xs text-brand-dark focus:outline-none"
+              class="w-full pl-8 pr-3 py-1.5 rounded-xl bg-white dark:bg-slate-900/50 border border-black/8 dark:border-white/10 font-body text-xs text-brand-dark dark:text-slate-200 focus:outline-none"
             />
             <PhMagnifyingGlass :size="12" class="absolute left-3 top-1/2 -translate-y-1/2 text-brand-slate" />
           </div>
@@ -85,11 +85,11 @@
           <div class="flex flex-col gap-3">
             <div class="flex flex-col gap-1">
               <label class="text-[10px] font-extrabold text-brand-slate uppercase">Full Name</label>
-              <input v-model="inviteForm.name" type="text" placeholder="Name..." class="w-full px-3.5 py-2.5 rounded-xl bg-white border border-black/8 font-body text-xs text-brand-dark focus:outline-none" />
+              <input v-model="inviteForm.name" type="text" placeholder="Name..." class="w-full px-3.5 py-2.5 rounded-xl bg-white dark:bg-slate-900/50 border border-black/8 dark:border-white/10 font-body text-xs text-brand-dark dark:text-slate-200 focus:outline-none" />
             </div>
             <div class="flex flex-col gap-1">
               <label class="text-[10px] font-extrabold text-brand-slate uppercase">Email Address</label>
-              <input v-model="inviteForm.email" type="email" placeholder="Email..." class="w-full px-3.5 py-2.5 rounded-xl bg-white border border-black/8 font-body text-xs text-brand-dark focus:outline-none" />
+              <input v-model="inviteForm.email" type="email" placeholder="Email..." class="w-full px-3.5 py-2.5 rounded-xl bg-white dark:bg-slate-900/50 border border-black/8 dark:border-white/10 font-body text-xs text-brand-dark dark:text-slate-200 focus:outline-none" />
             </div>
             <div class="flex flex-col gap-1">
               <Select 

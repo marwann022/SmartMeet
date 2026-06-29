@@ -59,7 +59,7 @@
               <input
                 v-model="profileForm.fullName"
                 type="text"
-                class="w-full px-4 py-3 rounded-xl bg-white border border-black/8 font-body text-sm text-brand-dark focus:outline-none focus:border-primary/30 transition-all"
+                class="w-full px-4 py-3 rounded-xl bg-white dark:bg-slate-900/50 border border-black/8 dark:border-white/10 font-body text-sm text-brand-dark dark:text-slate-200 focus:outline-none focus:border-primary/30 transition-all"
               />
             </div>
             <div class="flex flex-col gap-2">
@@ -70,7 +70,7 @@
               <input
                 v-model="profileForm.jobTitle"
                 type="text"
-                class="w-full px-4 py-3 rounded-xl bg-white border border-black/8 font-body text-sm text-brand-dark focus:outline-none focus:border-primary/30 transition-all"
+                class="w-full px-4 py-3 rounded-xl bg-white dark:bg-slate-900/50 border border-black/8 dark:border-white/10 font-body text-sm text-brand-dark dark:text-slate-200 focus:outline-none focus:border-primary/30 transition-all"
               />
             </div>
             <div class="flex flex-col gap-2">
@@ -81,7 +81,7 @@
               <input
                 v-model="profileForm.email"
                 type="email"
-                class="w-full px-4 py-3 rounded-xl bg-white border border-black/8 font-body text-sm text-brand-dark focus:outline-none focus:border-primary/30 transition-all"
+                class="w-full px-4 py-3 rounded-xl bg-white dark:bg-slate-900/50 border border-black/8 dark:border-white/10 font-body text-sm text-brand-dark dark:text-slate-200 focus:outline-none focus:border-primary/30 transition-all"
               />
             </div>
             <div class="flex flex-col gap-2">
@@ -92,7 +92,7 @@
               <input
                 v-model="profileForm.phone"
                 type="text"
-                class="w-full px-4 py-3 rounded-xl bg-white border border-black/8 font-body text-sm text-brand-dark focus:outline-none focus:border-primary/30 transition-all text-left"
+                class="w-full px-4 py-3 rounded-xl bg-white dark:bg-slate-900/50 border border-black/8 dark:border-white/10 font-body text-sm text-brand-dark dark:text-slate-200 focus:outline-none focus:border-primary/30 transition-all text-left"
               />
             </div>
             <div class="flex flex-col gap-2 md:col-span-2">
@@ -103,7 +103,7 @@
               <input
                 v-model="profileForm.company"
                 type="text"
-                class="w-full px-4 py-3 rounded-xl bg-white border border-black/8 font-body text-sm text-brand-dark focus:outline-none focus:border-primary/30 transition-all"
+                class="w-full px-4 py-3 rounded-xl bg-white dark:bg-slate-900/50 border border-black/8 dark:border-white/10 font-body text-sm text-brand-dark dark:text-slate-200 focus:outline-none focus:border-primary/30 transition-all"
               />
             </div>
           </div>
@@ -134,7 +134,7 @@
         <div class="flex flex-col gap-5">
           <!-- 2FA Toggle -->
           <div
-            class="flex items-center justify-between p-4 bg-white/40 border border-black/[0.03] rounded-2xl"
+            class="flex items-center justify-between p-4 bg-white/40 dark:bg-slate-900/40 border border-black/[0.03] dark:border-white/5 rounded-2xl"
           >
             <div class="flex flex-col w-[80%] text-left">
               <span class="text-sm font-bold text-brand-dark leading-tight"
@@ -147,7 +147,7 @@
             <button
               type="button"
               @click="setupTwoFactor"
-              class="w-[44px] h-[24px] rounded-full transition-colors duration-300 focus:outline-none relative flex items-center cursor-pointer border border-black/5"
+              class="w-[44px] h-[24px] rounded-full transition-colors duration-300 focus:outline-none relative flex items-center cursor-pointer border border-white/25"
               :class="
                 profileForm.twoFactor ? 'bg-primary' : 'bg-brand-slate/30'
               "
@@ -165,7 +165,7 @@
 
           <!-- Change Password Button -->
           <div
-            class="flex items-center justify-between p-4 bg-white/40 border border-black/[0.03] rounded-2xl"
+            class="flex items-center justify-between p-4 bg-white/40 dark:bg-slate-900/40 border border-black/[0.03] dark:border-white/5 rounded-2xl"
           >
             <div class="flex flex-col text-left">
               <span class="text-sm font-bold text-brand-dark leading-tight"
@@ -180,14 +180,14 @@
             <button
               v-if="!authStore.user?.googleId"
               @click="handleChangePassword"
-              class="px-5 py-2.5 rounded-xl bg-white border border-black/8 hover:bg-black/5 text-xs font-bold font-header text-brand-dark transition-all cursor-pointer"
+              class="px-5 py-2.5 rounded-xl bg-white dark:bg-slate-900 border border-black/8 dark:border-white/10 hover:bg-black/5 dark:hover:bg-white/5 text-xs font-bold font-header text-brand-dark dark:text-slate-200 transition-all cursor-pointer"
             >
               Update Password
             </button>
             <button
               v-else
               disabled
-              class="px-5 py-2.5 rounded-xl bg-black/5 border border-black/5 text-xs font-bold font-header text-brand-slate transition-all cursor-not-allowed opacity-60"
+              class="px-5 py-2.5 rounded-xl bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/5 text-xs font-bold font-header text-brand-slate transition-all cursor-not-allowed opacity-60"
             >
               Google Auth
             </button>
@@ -201,10 +201,10 @@
             >
 
             <div
-  v-for="session in sessions"
-  :key="session._id"
-  class="flex justify-between items-center p-3.5 bg-white/40 border border-black/[0.03] rounded-2xl"
->
+              v-for="session in sessions"
+              :key="session._id"
+              class="flex justify-between items-center p-3.5 bg-white/40 dark:bg-slate-900/40 border border-black/[0.03] dark:border-white/5 rounded-2xl"
+            >
 
   <div class="flex items-center gap-3">
 

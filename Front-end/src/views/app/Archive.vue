@@ -11,12 +11,21 @@
             </template>
             Back to Archive
           </Button>
-          <Button variant="glass" @click="downloadPDF" class="no-print">
-            <template #icon-left>
-              <PhFilePdf :size="14" weight="bold" />
-            </template>
-            Download PDF
-          </Button>
+          <div class="flex gap-3">
+            <Button variant="glass" @click="downloadPDF" class="no-print">
+              <template #icon-left>
+                <PhFilePdf :size="14" weight="bold" />
+              </template>
+              Download PDF
+            </Button>
+            <button 
+              @click="confirmDeleteMeeting(meetingStore.selectedMeeting)" 
+              class="px-[16px] py-[8px] border border-red-500/20 rounded-xl bg-red-500/5 hover:bg-red-500 text-red-500 hover:text-white transition-all font-bold text-xs flex items-center gap-2 cursor-pointer no-print"
+            >
+              <PhTrash :size="14" weight="bold" />
+              Delete Meeting
+            </button>
+          </div>
         </div>
 
         <div class="flex flex-col gap-3">
@@ -110,7 +119,7 @@
                 v-for="task in selectedTasks"
                 :key="task.id"
                 @click="toggleTask(task)"
-                class="flex items-center gap-4 p-4 rounded-2xl bg-white/40 border border-black/[0.03] cursor-pointer hover:bg-white/70 hover:border-black/5 hover:translate-x-0.5 transition-all duration-200 select-none"
+                class="flex items-center gap-4 p-4 rounded-2xl bg-white/40 dark:bg-slate-900/40 border border-black/[0.03] dark:border-white/5 cursor-pointer hover:bg-white/70 dark:hover:bg-slate-900/60 hover:border-black/5 dark:hover:border-white/10 hover:translate-x-0.5 transition-all duration-200 select-none"
               >
                 <div
                   class="w-[22px] h-[22px] rounded-lg border-2 border-brand-slate/40 flex items-center justify-center flex-shrink-0 transition-all"
@@ -221,13 +230,52 @@
         :meetings="filteredMeetings"
         @select="selectMeeting"
         @join="joinCallRoom"
+        @delete="confirmDeleteMeeting"
       />
     </div>
+
+    <!-- Delete Confirmation Modal -->
+    <Modal
+      :show="showDeleteConfirm"
+      title="Delete Meeting"
+      max-width="sm"
+      theme="review"
+      @close="showDeleteConfirm = false"
+    >
+      <div class="flex flex-col gap-4 text-left">
+        <div class="flex items-center gap-3 text-red-500 font-semibold">
+          <PhWarningCircle :size="24" weight="bold" />
+          <span>Warning: This action is permanent!</span>
+        </div>
+        <p class="text-sm text-brand-slate leading-relaxed">
+          Are you sure you want to permanently delete the meeting
+          <span class="font-bold text-brand-dark">"{{ meetingToDelete?.title }}"</span>? 
+          All transcript data, task tracking, and summary details will be deleted from the database.
+        </p>
+        <div class="flex justify-end gap-3 mt-4">
+          <Button
+            variant="glass"
+            @click="showDeleteConfirm = false"
+            :disabled="isDeleting"
+          >
+            Cancel
+          </Button>
+          <button
+            @click="performDeleteMeeting"
+            :disabled="isDeleting"
+            class="px-4 py-2 border border-red-500 rounded-xl bg-red-500 text-white font-bold text-xs flex items-center justify-center gap-2 cursor-pointer hover:bg-red-600 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <span v-if="isDeleting" class="w-3.5 h-3.5 border-2 border-current border-t-transparent rounded-full animate-spin"></span>
+            <span>{{ isDeleting ? 'Deleting...' : 'Confirm Delete' }}</span>
+          </button>
+        </div>
+      </div>
+    </Modal>
   </div>
 </template>
 
 <script setup>
-import { ref, computed, watch, onMounted } from 'vue'
+import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import {
   PhArrowLeft,
   PhSparkle,
@@ -237,7 +285,9 @@ import {
   PhFolderUser,
   PhChatCenteredText,
   PhCheck,
-  PhFilePdf
+  PhFilePdf,
+  PhTrash,
+  PhWarningCircle
 } from '@phosphor-icons/vue'
 import { useMeetingStore } from '@/stores/meeting'
 import { useRouter } from 'vue-router'
@@ -246,6 +296,7 @@ import ArchiveTable from '@/components/dashboard/ArchiveTable.vue'
 import SearchBar from '@/components/ui/SearchBar.vue'
 import Button from '@/components/ui/Button.vue'
 import Badge from '@/components/ui/Badge.vue'
+import Modal from '@/components/ui/Modal.vue'
 
 const props = defineProps({
   searchQuery: { type: String, default: '' }
@@ -254,8 +305,15 @@ const props = defineProps({
 const meetingStore = useMeetingStore()
 const router = useRouter()
 
-onMounted(() => {
+onMounted(async () => {
   meetingStore.fetchMeetings()
+  if (meetingStore.selectedMeeting) {
+    selectMeeting(meetingStore.selectedMeeting)
+  }
+})
+
+onUnmounted(() => {
+  meetingStore.selectedMeeting = null
 })
 
 const meetingsRef = computed(() => meetingStore.meetings)
@@ -327,6 +385,33 @@ const joinCallRoom = (meeting) => {
   // Join the call!
   meetingStore.activeLiveMeeting = meeting
   router.push('/live-meeting')
+}
+
+const showDeleteConfirm = ref(false)
+const meetingToDelete = ref(null)
+const isDeleting = ref(false)
+
+const confirmDeleteMeeting = (meeting) => {
+  meetingToDelete.value = meeting
+  showDeleteConfirm.value = true
+}
+
+const performDeleteMeeting = async () => {
+  if (!meetingToDelete.value) return
+  isDeleting.value = true
+  const meetingId = meetingToDelete.value._id || meetingToDelete.value.id
+  try {
+    await meetingStore.deleteMeeting(meetingId)
+    if (meetingStore.selectedMeeting && (meetingStore.selectedMeeting._id === meetingId || meetingStore.selectedMeeting.id === meetingId)) {
+      meetingStore.selectedMeeting = null
+    }
+    showDeleteConfirm.value = false
+    meetingToDelete.value = null
+  } catch (err) {
+    console.error(err)
+  } finally {
+    isDeleting.value = false
+  }
 }
 
 const goBack = () => {

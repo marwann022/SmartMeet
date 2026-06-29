@@ -451,6 +451,9 @@ const confirmSelection = () => {
 
 // Click away listener
 const handleClickOutside = (e) => {
+  if (e.target && !document.body.contains(e.target)) {
+    return
+  }
   if (datePickerRef.value && !datePickerRef.value.contains(e.target)) {
     // Treat click outside as cancel
     cancelSelection()

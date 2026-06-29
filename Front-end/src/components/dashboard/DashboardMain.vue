@@ -139,7 +139,7 @@
 
         <div class="flex flex-col gap-4 flex-grow justify-center mb-4">
           <!-- Peak 1 -->
-          <div class="p-[16px] rounded-2xl bg-white/40 border border-black/[0.03] flex flex-col gap-[6px] transition-all duration-300 hover:bg-white/60 hover:border-black/5">
+          <div class="p-[16px] rounded-2xl bg-white/40 dark:bg-slate-900/40 border border-black/[0.03] dark:border-white/5 flex flex-col gap-[6px] transition-all duration-300 hover:bg-white/60 dark:hover:bg-slate-900/60 hover:border-black/5 dark:hover:border-white/10">
             <div class="text-[8px] font-extrabold tracking-wider uppercase text-primary bg-primary/8 px-[8px] py-[2px] rounded border border-primary/10 self-start">CONCENTRATION PEAK</div>
             <p class="text-[12px] leading-relaxed text-brand-dark font-medium">
               Your deep work sessions are most effective between <span class="text-primary font-bold">9:00 AM - 11:30 AM</span>.
@@ -147,7 +147,7 @@
           </div>
 
           <!-- Peak 2 -->
-          <div class="p-[16px] rounded-2xl bg-white/40 border border-black/[0.03] flex flex-col gap-[6px] transition-all duration-300 hover:bg-white/60 hover:border-black/5">
+          <div class="p-[16px] rounded-2xl bg-white/40 dark:bg-slate-900/40 border border-black/[0.03] dark:border-white/5 flex flex-col gap-[6px] transition-all duration-300 hover:bg-white/60 dark:hover:bg-slate-900/60 hover:border-black/5 dark:hover:border-white/10">
             <div class="text-[8px] font-extrabold tracking-wider uppercase text-secondary bg-secondary/8 px-[8px] py-[2px] rounded border border-secondary/10 self-start">MEETING BURNOUT RISK</div>
             <p class="text-[12px] leading-relaxed text-brand-dark font-medium">
               Scheduled back-to-back meetings tomorrow. AI suggests a <span class="text-secondary font-bold">15-minute gap</span> at 2 PM.
@@ -169,7 +169,7 @@
         <h3 class="text-[18px] sm:text-[20px] font-bold font-header text-brand-dark mb-[20px]">Upcoming</h3>
         
         <div class="flex flex-col gap-[12px]">
-          <div v-for="item in filteredUpcomingMeetings" :key="item.id" class="flex gap-[16px] items-center p-[12px] rounded-2xl bg-white/40 border border-black/[0.03] transition-all duration-300 hover:bg-white/60 hover:border-black/5">
+          <div v-for="item in filteredUpcomingMeetings" :key="item.id" class="flex gap-[16px] items-center p-[12px] rounded-2xl bg-white/40 dark:bg-slate-900/40 border border-black/[0.03] dark:border-white/5 transition-all duration-300 hover:bg-white/60 dark:hover:bg-slate-900/60 hover:border-black/5 dark:hover:border-white/10">
             <div 
               class="w-[44px] h-[44px] rounded-xl flex flex-col items-center justify-center flex-shrink-0 select-none"
               :class="item.featured ? 'bg-grad-primary text-white shadow-[0_2px_8px_rgba(75,104,255,0.15)]' : 'bg-brand-slate/10 border border-brand-slate/20 text-brand-dark shadow-none'"
@@ -192,19 +192,19 @@
         </div>
 
         <!-- Overall Priority Stats Capsule Widget -->
-        <div class="flex items-center justify-between bg-white/70 backdrop-blur-md border border-black/5 rounded-[24px] p-4 shadow-sm mb-6 w-full text-center">
-          <div class="flex flex-col items-center flex-1 border-r border-black/5">
+        <div class="flex items-center justify-between bg-white/70 dark:bg-slate-900/50 backdrop-blur-md border border-black/5 dark:border-white/10 rounded-[24px] p-4 shadow-sm mb-6 w-full text-center">
+          <div class="flex flex-col items-center flex-1 border-r border-black/5 dark:border-white/10">
             <span class="text-[9px] uppercase font-extrabold tracking-wider text-brand-slate font-header">Total Tasks</span>
             <span class="text-[20px] font-header font-bold text-brand-dark leading-none mt-1.5">{{ taskStore.tasks.length }}</span>
           </div>
-          <div class="flex flex-col items-center flex-1 border-r border-black/5">
+          <div class="flex flex-col items-center flex-1 border-r border-black/5 dark:border-white/10">
             <div class="flex items-center gap-1">
               <span class="w-2 h-2 rounded-full bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.3)] animate-pulse"></span>
               <span class="text-[9px] uppercase font-extrabold tracking-wider text-brand-slate font-header">High</span>
             </div>
             <span class="text-[20px] font-header font-bold text-brand-dark leading-none mt-1.5">{{ highPriorityCount }}</span>
           </div>
-          <div class="flex flex-col items-center flex-1 border-r border-black/5">
+          <div class="flex flex-col items-center flex-1 border-r border-black/5 dark:border-white/10">
             <div class="flex items-center gap-1">
               <span class="w-2 h-2 rounded-full bg-primary shadow-[0_0_8px_rgba(75,104,255,0.3)] animate-pulse"></span>
               <span class="text-[9px] uppercase font-extrabold tracking-wider text-brand-slate font-header">Medium</span>
@@ -225,8 +225,8 @@
           <div 
             v-for="task in filteredTasks.slice(0, 5)" 
             :key="task.id"
-            class="flex items-center justify-between p-[14px] gap-3 rounded-2xl bg-white/40 border border-black/[0.03] transition-all duration-300 hover:bg-white/75 hover:border-black/8 hover:translate-x-[4px] select-none"
-            :class="{ 'bg-white/20 border-black/3 opacity-80': task.status === 'done' || task.done }"
+            class="flex items-center justify-between p-[14px] gap-3 rounded-2xl bg-white/40 dark:bg-slate-900/40 border border-black/[0.03] dark:border-white/5 transition-all duration-300 hover:bg-white/75 dark:hover:bg-slate-900/60 hover:border-black/8 dark:hover:border-white/10 select-none"
+            :class="{ 'bg-white/20 dark:bg-slate-900/20 border-black/3 dark:border-white/[0.03] opacity-80': task.status === 'done' || task.done }"
           >
             <div class="flex items-center gap-[14px]">
               <!-- Checkbox on the left -->
@@ -329,9 +329,9 @@ onMounted(() => {
   taskStore.fetchTasks()
 })
 
-// Filtered Standard meetings list (excluding Standup)
+// Filtered Standard meetings list (synchronized with archive)
 const filteredStandardMeetings = computed(() => {
-  const list = meetingStore.meetings.filter(m => m.title !== 'Daily Standup: Engineering')
+  const list = meetingStore.meetings
   if (!localSearchQuery.value) return list
   const q = localSearchQuery.value.toLowerCase()
   return list.filter(m => m.title.toLowerCase().includes(q) || (m.description && m.description.toLowerCase().includes(q)))

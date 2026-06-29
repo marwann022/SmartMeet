@@ -400,6 +400,9 @@ const confirmSelection = () => {
 }
 
 const handleClickOutside = (e) => {
+  if (e.target && !document.body.contains(e.target)) {
+    return
+  }
   if (timePickerRef.value && !timePickerRef.value.contains(e.target)) {
     cancelSelection()
   }

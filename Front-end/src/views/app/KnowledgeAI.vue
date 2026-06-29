@@ -10,7 +10,7 @@
 
     <!-- LEFT DRAWER: CHAT SESSIONS HISTORY -->
     <div 
-      class="fixed top-0 left-0 bottom-0 w-[280px] flex flex-col bg-slate-950/90 dark:bg-slate-950/98 backdrop-blur-xl p-5 gap-4 border-r border-black/10 dark:border-white/5 shadow-2xl z-50 transition-transform duration-300 ease-out"
+      class="fixed top-0 left-0 bottom-0 w-[280px] flex flex-col bg-white/95 dark:bg-slate-950 backdrop-blur-xl p-5 gap-4 border-r border-black/5 dark:border-white/5 shadow-2xl z-50 transition-transform duration-300 ease-out"
       :class="showHistory ? 'translate-x-0' : '-translate-x-full'"
     >
       <!-- Drawer Header -->
@@ -33,7 +33,7 @@
         type="button"
         @click="startNewChat(); showHistory = false"
         :disabled="messages.length === 0"
-        class="relative overflow-hidden group w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-primary to-[#5b72ff] hover:from-[#5b72ff] hover:to-primary disabled:from-slate-800 disabled:to-slate-900 disabled:text-slate-600 disabled:opacity-50 disabled:cursor-not-allowed text-white font-header font-bold text-xs tracking-wider uppercase flex items-center justify-center gap-2 shadow-[0_4px_18_rgba(75,104,255,0.2)] hover:shadow-[0_4px_22px_rgba(75,104,255,0.35)] transition-all duration-300 hover:scale-[1.01] active:scale-[0.99] cursor-pointer"
+        class="relative overflow-hidden group w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-primary to-[#5b72ff] hover:from-[#5b72ff] hover:to-primary disabled:from-slate-100 disabled:to-slate-200 dark:disabled:from-slate-800 dark:disabled:to-slate-900 disabled:text-slate-400 dark:disabled:text-slate-600 disabled:opacity-50 disabled:cursor-not-allowed text-white font-header font-bold text-xs tracking-wider uppercase flex items-center justify-center gap-2 shadow-[0_4px_18_rgba(75,104,255,0.2)] hover:shadow-[0_4px_22px_rgba(75,104,255,0.35)] transition-all duration-300 hover:scale-[1.01] active:scale-[0.99] cursor-pointer"
       >
         <span class="absolute inset-0 w-full h-full bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
         <PhPlus :size="14" weight="bold" class="transition-transform group-hover:rotate-90 duration-300" />
@@ -61,7 +61,7 @@
             class="w-full text-left px-3.5 py-2.5 rounded-2xl text-xs font-semibold flex items-center justify-between gap-3 border transition-all duration-300 cursor-pointer group relative overflow-hidden"
             :class="activeSessionId === sess._id 
               ? 'bg-gradient-to-r from-primary/10 via-primary/5 to-transparent border-primary/20 text-primary shadow-[0_2px_10px_rgba(75,104,255,0.04)]'
-              : 'bg-white/[0.02] dark:bg-white/[0.01] border-transparent text-brand-slate hover:text-brand-dark dark:hover:text-white hover:bg-white/5 dark:hover:bg-white/5 hover:border-black/5 dark:hover:border-white/5'"
+              : 'bg-black/[0.02] dark:bg-white/[0.01] border-transparent text-brand-slate hover:text-brand-dark dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5 hover:border-black/5 dark:hover:border-white/5'"
           >
             <!-- Sleek active indicator bar on left border -->
             <div 
@@ -101,7 +101,7 @@
     </div>
 
     <!-- MAIN CHAT AREA wrapper -->
-    <div class="flex-1 flex flex-col min-h-0 relative">
+    <div class="flex-1 flex flex-col min-h-0 relative mt-3">
 
 
       <!-- MAIN INTERACTIVE CANVAS -->
@@ -121,7 +121,7 @@
             </p>
           </div>
 
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-[16px] w-full mt-[8px]">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-[16px] px-[80px] w-full mt-[8px]">
             <div
               v-for="(prompt, idx) in suggestedPrompts"
               :key="idx"
@@ -132,8 +132,8 @@
                 <component :is="prompt.icon" :size="16" weight="bold" />
               </div>
               <div class="flex flex-col gap-[2px]">
-                <span class="text-[14px] font-bold font-header text-brand-dark leading-snug group-hover:text-primary transition-colors">"{{ prompt.text }}"</span>
-                <span class="text-[11px] text-brand-slate leading-normal">{{ prompt.desc }}</span>
+                <span class="text-[14px] font-bold font-header text-brand-dark dark:text-slate-100 leading-snug group-hover:text-primary transition-colors">"{{ prompt.text }}"</span>
+                <span class="text-[11px] text-brand-slate dark:text-slate-400 leading-normal">{{ prompt.desc }}</span>
               </div>
             </div>
           </div>
@@ -241,7 +241,7 @@
       </div>
 
       <!-- BOTTOM SECTION WITH BUTTONS BESIDE INPUT -->
-      <div class="flex items-end gap-3 flex-shrink-0 w-full pb-5">
+      <div class="flex items-end gap-3 flex-shrink-0 w-full pt-5 pb-5">
         
 
         <!-- BOTTOM INPUT SECTION -->
@@ -301,7 +301,7 @@
               @keydown.enter.prevent="submitQuery"
               type="text"
               :placeholder="listening ? 'Listening to your voice... Speak now' : 'Ask your organizational brain...'"
-              class="w-full bg-transparent border-0 font-body text-[15px] text-brand-dark placeholder-brand-slate/40 focus:outline-none"
+              class="w-full bg-transparent border-0 font-body text-[15px] text-brand-dark dark:text-slate-200 placeholder-brand-slate/40 dark:placeholder-slate-500 focus:outline-none"
               :disabled="aiTyping"
             />
           </div>
@@ -310,7 +310,7 @@
             <button
               type="button"
               @click="toggleMicrophone"
-              class="w-[38px] h-[38px] rounded-full hover:bg-black/5 flex items-center justify-center text-brand-slate hover:text-brand-dark transition-colors cursor-pointer focus:outline-none relative"
+              class="w-[38px] h-[38px] rounded-full hover:bg-black/5 dark:hover:bg-white/5 flex items-center justify-center text-brand-slate hover:text-brand-dark dark:hover:text-white transition-colors cursor-pointer focus:outline-none relative"
               :title="listening ? 'Stop Recording' : 'Voice Command'"
             >
               <span v-if="listening" class="absolute inset-0 rounded-full bg-red-500/20 animate-ping"></span>
@@ -321,7 +321,7 @@
             <button
               type="button"
               @click="attachFile"
-              class="w-[38px] h-[38px] rounded-full hover:bg-black/5 flex items-center justify-center text-brand-slate hover:text-brand-dark rotate-[45deg] transition-colors cursor-pointer focus:outline-none"
+              class="w-[38px] h-[38px] rounded-full hover:bg-black/5 dark:hover:bg-white/5 flex items-center justify-center text-brand-slate hover:text-brand-dark dark:hover:text-white rotate-[45deg] transition-colors cursor-pointer focus:outline-none"
               title="Attach Document or Image"
             >
               <PhPaperclip :size="20" weight="bold" />
@@ -466,15 +466,27 @@ const activeSessionTitle = computed(() => {
 
 const suggestedPrompts = [
   {
-    text: "What decisions were made about authentication?",
-    query: "What decisions were made about authentication?",
-    desc: "Based on team discussions",
+    text: "What were the key decisions in the last meeting?",
+    query: "What were the key decisions made in the last meeting?",
+    desc: "Review final agreements",
     icon: PhClockClockwise
   },
   {
-    text: "Why was MongoDB chosen over PostgreSQL?",
-    query: "Why was MongoDB chosen over PostgreSQL?",
-    desc: "Database selection rationale",
+    text: "Show my action items and deadlines",
+    query: "What are my action items and deadlines from the recent discussions?",
+    desc: "See assigned tasks",
+    icon: PhCheckCircle
+  },
+  {
+    text: "Summarize the latest project status updates",
+    query: "Summarize the latest project status updates and progress discussed.",
+    desc: "Get a quick recap",
+    icon: PhFileText
+  },
+  {
+    text: "Were there any critical blockers discussed?",
+    query: "Were there any critical blockers or risks mentioned in the meetings?",
+    desc: "Identify project risks",
     icon: PhBrain
   },
 ]
@@ -772,10 +784,6 @@ const loadSessions = async () => {
     })
     if (response.data && response.data.sessions) {
       sessions.value = response.data.sessions
-      // Auto-load the most recent session on initial load if no session is active yet
-      if (sessions.value.length > 0 && !activeSessionId.value) {
-        loadSession(sessions.value[0]._id)
-      }
     }
   } catch (err) {
     console.error("Failed to load chat sessions:", err)
@@ -837,11 +845,22 @@ const deleteSession = async (sessionId) => {
 
 <style scoped>
 .scroll-container {
-  scrollbar-width: none; /* Firefox */
-  -ms-overflow-style: none; /* IE/Edge */
+  scrollbar-width: thin;
+  scrollbar-color: rgba(100, 116, 139, 0.2) transparent;
 }
 .scroll-container::-webkit-scrollbar {
-  display: none; /* Chrome, Safari, Opera */
+  width: 6px;
+  display: block;
+}
+.scroll-container::-webkit-scrollbar-track {
+  background: transparent;
+}
+.scroll-container::-webkit-scrollbar-thumb {
+  background: rgba(100, 116, 139, 0.2);
+  border-radius: 99px;
+}
+.scroll-container::-webkit-scrollbar-thumb:hover {
+  background: rgba(100, 116, 139, 0.4);
 }
 
 .animate-fade-in {

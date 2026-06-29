@@ -4,6 +4,7 @@ import {
     analyzeMeetingTranscript,
     diarizeTranscript,
     liveExtractTaskFromText,
+    translateTranscriptToEnglish,
 } from "../services/meetingAnalysisService.js";
 import {
     storeTranscriptLayer,
@@ -177,7 +178,7 @@ export const processMeeting = async (req, res) => {
 
         if (hasTranscript) {
             console.log("Using live transcript from client...");
-            finalTranscript = liveTranscript;
+            finalTranscript = await translateTranscriptToEnglish(liveTranscript);
             durationSeconds = meeting.duration * 60 || 0;
 
             analysis = await analyzeMeetingTranscript({ transcript: finalTranscript, meeting });
@@ -203,7 +204,8 @@ export const processMeeting = async (req, res) => {
                 await storeKnowledgeLayers({ meeting, analysis });
             } else {
                 console.log("Diarizing and analyzing transcript...");
-                finalTranscript = await diarizeTranscript({ transcript, meeting });
+                const diarized = await diarizeTranscript({ transcript, meeting });
+                finalTranscript = await translateTranscriptToEnglish(diarized);
                 await storeTranscriptLayer({ meeting, transcript: finalTranscript, sourceAudioPath: audioPath, durationSeconds });
                 analysis = await analyzeMeetingTranscript({ transcript: finalTranscript, meeting });
                 await storeKnowledgeLayers({ meeting, analysis });

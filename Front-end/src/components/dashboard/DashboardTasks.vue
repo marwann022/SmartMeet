@@ -25,19 +25,19 @@
     </div>
 
     <!-- Overall Priority Stats Widget -->
-    <div class="flex items-center bg-white/70 backdrop-blur-md border border-black/5 rounded-[28px] p-5 py-4 shadow-sm w-fit mr-auto -mt-6">
-      <div class="flex flex-col items-center px-6 border-r border-black/5">
+    <div class="flex items-center bg-white/70 dark:bg-slate-900/50 backdrop-blur-md border border-black/5 dark:border-white/10 rounded-[28px] p-5 py-4 shadow-sm w-fit mr-auto -mt-6">
+      <div class="flex flex-col items-center px-6 border-r border-black/5 dark:border-white/10">
         <span class="text-[10px] uppercase font-extrabold tracking-wider text-brand-slate font-header">Total Tasks</span>
         <span class="text-[26px] font-header font-bold text-brand-dark leading-none mt-2">{{ taskStore.tasks.length }}</span>
       </div>
-      <div class="flex flex-col items-center px-6 border-r border-black/5">
+      <div class="flex flex-col items-center px-6 border-r border-black/5 dark:border-white/10">
         <div class="flex items-center gap-1.5">
           <span class="w-2 h-2 rounded-full bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.4)]"></span>
           <span class="text-[10px] uppercase font-extrabold tracking-wider text-brand-slate font-header">High</span>
         </div>
         <span class="text-[26px] font-header font-bold text-brand-dark leading-none mt-2">{{ highTasksCount }}</span>
       </div>
-      <div class="flex flex-col items-center px-6 border-r border-black/5">
+      <div class="flex flex-col items-center px-6 border-r border-black/5 dark:border-white/10">
         <div class="flex items-center gap-1.5">
           <span class="w-2 h-2 rounded-full bg-primary shadow-[0_0_8px_rgba(75,104,255,0.4)]"></span>
           <span class="text-[10px] uppercase font-extrabold tracking-wider text-brand-slate font-header">Medium</span>
@@ -103,7 +103,7 @@
             <div 
               v-if="tasksByStatus(col.id).length === 0"
               :key="'empty-' + col.id"
-              class="border border-dashed rounded-2xl flex flex-col items-center justify-center py-10 gap-2 w-full min-h-[150px] transition-all duration-300 bg-white/20"
+              class="border border-dashed rounded-2xl flex flex-col items-center justify-center py-10 gap-2 w-full min-h-[150px] transition-all duration-300 bg-white/20 dark:bg-white/[0.01]"
               :class="columnThemes[col.id].emptyBorder"
             >
               <component :is="col.icon" :size="26" weight="light" class="transition-transform duration-300 group-hover:scale-110" />
@@ -129,26 +129,26 @@
           <Badge :type="badgeType(selectedTask)">
             {{ formatPriority(selectedTask.priority) }}
           </Badge>
-          <span class="text-[10px] text-brand-slate font-body">· {{ selectedTask.source }}</span>
+          <span class="text-[10px] text-brand-slate dark:text-slate-400 font-body">· {{ selectedTask.source }}</span>
         </div>
         
-        <p class="text-brand-slate text-sm leading-relaxed font-body">
+        <p class="text-brand-slate dark:text-slate-300 text-sm leading-relaxed font-body">
           {{ selectedTask.description }}
         </p>
         
-        <div class="flex items-center gap-4 text-sm border-t border-black/5 pt-4">
+        <div class="flex items-center gap-4 text-sm border-t border-black/5 dark:border-white/10 pt-4">
           <div class="flex items-center gap-2">
             <img src="../../assets/User Profile.png" class="w-7 h-7 rounded-full object-cover border-2 border-white/85 shadow-sm" alt="assignee" />
             <span class="font-header font-bold text-xs text-brand-dark">{{ selectedTask.assignee }}</span>
           </div>
-          <div class="flex items-center gap-1.5 text-[#5c5e65] font-header font-bold text-xs">
+          <div class="flex items-center gap-1.5 text-[#5c5e65] dark:text-slate-400 font-header font-bold text-xs">
             <PhCalendarBlank :size="14" weight="bold" />
             {{ selectedTask.due }}
           </div>
         </div>
 
         <!-- Interactive Stage Switcher in Modal -->
-        <div class="flex flex-col gap-2 border-t border-black/5 pt-4">
+        <div class="flex flex-col gap-2 border-t border-black/5 dark:border-white/10 pt-4">
           <label class="text-[10px] font-extrabold uppercase tracking-wider text-brand-slate pl-1 font-header">Move Stage</label>
           <div class="grid grid-cols-4 gap-2">
             <button 
@@ -158,14 +158,14 @@
               class="py-2 px-2 rounded-xl border font-bold text-xs transition-all duration-300 text-center cursor-pointer font-header"
               :class="selectedTask.status === opt.value
                 ? 'bg-primary text-white border-transparent shadow-[0_4px_12px_rgba(75,104,255,0.25)]'
-                : 'bg-white/50 border-black/5 hover:bg-white hover:border-black/10 text-brand-dark'"
+                : 'bg-white/50 dark:bg-slate-900/50 border-black/5 dark:border-white/10 hover:bg-white dark:hover:bg-slate-900/85 text-brand-dark dark:text-slate-200 hover:border-black/10'"
             >
               {{ opt.label }}
             </button>
           </div>
         </div>
         
-        <div class="flex gap-3 pt-4 border-t border-black/5">
+        <div class="flex gap-3 pt-4 border-t border-black/5 dark:border-white/10">
           <Button 
             class="flex-1"
             :variant="selectedTask.status === 'done' || selectedTask.done ? 'outline' : 'primary'"
@@ -191,7 +191,7 @@
             v-model="newTask.description" 
             placeholder="Provide details..." 
             rows="3"
-            class="w-full px-4 py-3 rounded-xl bg-white border font-body text-sm text-brand-dark placeholder-brand-slate/50 focus:outline-none transition-all duration-300 resize-none border-primary/20 focus:border-primary/30 focus:shadow-[0_0_0_3px_rgba(75,104,255,0.08)]"
+            class="w-full px-4 py-3 rounded-xl bg-white dark:bg-slate-900/50 border font-body text-sm text-brand-dark dark:text-slate-200 placeholder-brand-slate/50 dark:placeholder-brand-slate/40 focus:outline-none transition-all duration-300 resize-none border-primary/20 dark:border-white/10 focus:border-primary/30 focus:shadow-[0_0_0_3px_rgba(75,104,255,0.08)]"
           />
         </div>
 
@@ -322,8 +322,8 @@ const localSearchQuery = ref('')
 
 const columnThemes = {
   todo: {
-    bg: 'bg-white/20 hover:bg-white/30',
-    border: 'border-black/5 hover:border-black/10',
+    bg: 'bg-white/20 dark:bg-slate-900/30 hover:bg-white/30 dark:hover:bg-slate-900/50',
+    border: 'border-black/5 dark:border-white/5 hover:border-black/10 dark:hover:border-white/10',
     glowBorder: 'border-primary',
     glowBg: 'bg-primary/[0.03]',
     badge: 'bg-primary/8 text-primary border border-primary/10',
@@ -334,8 +334,8 @@ const columnThemes = {
     emptyBorder: 'border-primary/15 text-primary/40'
   },
   inprogress: {
-    bg: 'bg-white/20 hover:bg-white/30',
-    border: 'border-black/5 hover:border-black/10',
+    bg: 'bg-white/20 dark:bg-slate-900/30 hover:bg-white/30 dark:hover:bg-slate-900/50',
+    border: 'border-black/5 dark:border-white/5 hover:border-black/10 dark:hover:border-white/10',
     glowBorder: 'border-amber-500',
     glowBg: 'bg-amber-500/[0.03]',
     badge: 'bg-amber-500/8 text-amber-600 border border-amber-500/10',
@@ -346,8 +346,8 @@ const columnThemes = {
     emptyBorder: 'border-amber-500/15 text-amber-600/40'
   },
   review: {
-    bg: 'bg-white/20 hover:bg-white/30',
-    border: 'border-black/5 hover:border-black/10',
+    bg: 'bg-white/20 dark:bg-slate-900/30 hover:bg-white/30 dark:hover:bg-slate-900/50',
+    border: 'border-black/5 dark:border-white/5 hover:border-black/10 dark:hover:border-white/10',
     glowBorder: 'border-red-500',
     glowBg: 'bg-red-500/[0.03]',
     badge: 'bg-red-500/8 text-red-500 border border-red-500/10',
@@ -358,8 +358,8 @@ const columnThemes = {
     emptyBorder: 'border-red-500/15 text-red-500/40'
   },
   done: {
-    bg: 'bg-white/20 hover:bg-white/30',
-    border: 'border-black/5 hover:border-black/10',
+    bg: 'bg-white/20 dark:bg-slate-900/30 hover:bg-white/30 dark:hover:bg-slate-900/50',
+    border: 'border-black/5 dark:border-white/5 hover:border-black/10 dark:hover:border-white/10',
     glowBorder: 'border-emerald-500',
     glowBg: 'bg-emerald-500/[0.03]',
     badge: 'bg-emerald-500/8 text-emerald-600 border border-emerald-500/10',

@@ -24,16 +24,16 @@
           'compact:left-[0px]'
         ]"
       >
-        <header class="flex items-center justify-between px-[28px] py-[10px] rounded-full bg-white/65 dark:bg-slate-900/65 border border-white/70 dark:border-slate-800/80 shadow-glass backdrop-blur-[20px] transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] hover:border-white/85 dark:hover:border-slate-700 hover:bg-white/75 dark:hover:bg-slate-800/75 hover:shadow-[0_12px_40px_0_rgba(31,38,135,0.08),0_0_20px_rgba(75,104,255,0.05)] w-full">
+        <header class="flex items-center justify-between px-[28px] pt-[10px] pb-[16px] rounded-full bg-white/65 dark:bg-slate-900/65 border border-white/70 dark:border-slate-800/80 shadow-glass backdrop-blur-[20px] transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] hover:border-white/85 dark:hover:border-slate-700 hover:bg-white/75 dark:hover:bg-slate-800/75 hover:shadow-[0_12px_40px_0_rgba(31,38,135,0.08),0_0_20px_rgba(75,104,255,0.05)] w-full">
           <!-- Mobile Brand Title -->
           <div class="hidden compact:flex items-center gap-2">
             <span class="font-header font-extrabold text-sm tracking-tight text-primary">SmartMeet</span>
           </div>
 
           <nav class="flex items-center gap-[24px] compact:hidden">
-            <router-link to="/" class="text-[12px] font-semibold text-brand-slate hover:text-primary transition-colors py-[6px] px-[14px] rounded-full hover:bg-primary/5">Home</router-link>
-            <router-link to="/features" class="text-[12px] font-semibold text-brand-slate hover:text-primary transition-colors py-[6px] px-[14px] rounded-full hover:bg-primary/5">Features</router-link>
-            <router-link to="/pricing" class="text-[12px] font-semibold text-brand-slate hover:text-primary transition-colors py-[6px] px-[14px] rounded-full hover:bg-primary/5">Pricing</router-link>
+            <router-link to="/" class="text-[12px] font-semibold text-brand-slate dark:text-slate-400 hover:text-primary dark:hover:text-primary transition-colors py-[6px] px-[14px] rounded-full hover:bg-primary/5">Home</router-link>
+            <router-link to="/features" class="text-[12px] font-semibold text-brand-slate dark:text-slate-400 hover:text-primary dark:hover:text-primary transition-colors py-[6px] px-[14px] rounded-full hover:bg-primary/5">Features</router-link>
+            <router-link to="/pricing" class="text-[12px] font-semibold text-brand-slate dark:text-slate-400 hover:text-primary dark:hover:text-primary transition-colors py-[6px] px-[14px] rounded-full hover:bg-primary/5">Pricing</router-link>
             <router-link to="/dashboard" class="text-[12px] font-semibold py-[6px] px-[14px] rounded-full text-primary bg-primary/5 border border-primary/10">Dashboard</router-link>
           </nav>
           
@@ -97,7 +97,7 @@
             </button>
 
             <button 
-              class="px-[20px] py-[10px] rounded-full bg-white dark:bg-slate-900 border border-black/8 dark:border-white/10 text-brand-dark font-header font-bold text-[12px] tracking-wider uppercase hover:bg-black/5 dark:hover:bg-white/5 hover:border-black/15 active:scale-[0.98] transition-all duration-300 cursor-pointer focus:outline-none flex-shrink-0"
+              class="px-[20px] py-[10px] rounded-full bg-white dark:bg-slate-900 border border-black/8 dark:border-white/10 text-brand-dark dark:text-slate-200 font-header font-bold text-[12px] tracking-wider uppercase hover:bg-black/5 dark:hover:bg-white/5 hover:border-black/15 active:scale-[0.98] transition-all duration-300 cursor-pointer focus:outline-none flex-shrink-0"
               @click="logout"
             >
               Log Out
@@ -106,7 +106,10 @@
         </header>
       </div>
 
-      <div class="flex-1 flex flex-col">
+      <div 
+        class="flex-1 flex flex-col"
+        :class="{ 'h-full min-h-0': $route.path === '/knowledge-ai' }"
+      >
         <!-- Inner Route Page Outlet with transition -->
         <router-view v-slot="{ Component }">
           <transition name="fade" mode="out-in" @after-leave="onAfterLeave">

@@ -56,7 +56,7 @@
     <div class="min-h-[44px] flex items-center py-1">
       <p 
         class="font-header font-normal text-lg leading-snug"
-        :class="task.status === 'done' || task.done ? 'line-through text-brand-slate opacity-70' : task.priority.toLowerCase().includes('high') ? 'text-[#0b0f19]' : 'text-[#3c3f47]'"
+        :class="task.status === 'done' || task.done ? 'line-through text-brand-slate opacity-70' : task.priority.toLowerCase().includes('high') ? 'text-[#0b0f19] dark:text-slate-100' : 'text-[#3c3f47] dark:text-slate-200'"
       >
         {{ task.title }}
       </p>
@@ -73,7 +73,7 @@
       <!-- Date -->
       <div 
         class="flex items-center gap-1.5 font-header font-bold text-[13px] transition-colors duration-300"
-        :class="isOverdue ? 'text-red-500' : 'text-[#5c5e65]'"
+        :class="isOverdue ? 'text-red-500' : 'text-[#5c5e65] dark:text-slate-400'"
       >
         <PhWarningCircle v-if="isOverdue" :size="14" weight="fill" class="text-red-500 animate-pulse" />
         <PhCalendarBlank v-else :size="14" weight="bold" />
@@ -146,16 +146,16 @@ const badgeType = computed(() => {
 const cardStyle = computed(() => {
   const status = props.task.status
   if (status === 'todo') {
-    return 'bg-gradient-to-br from-primary/5 via-white/50 to-white/80 border-primary/30 backdrop-blur-md hover:from-primary/10 hover:border-primary/50'
+    return 'bg-gradient-to-br from-primary/5 via-white/50 dark:via-slate-900/40 to-white/80 dark:to-slate-900/60 border-primary/30 dark:border-primary/20 backdrop-blur-md hover:from-primary/10 hover:border-primary/50'
   }
   if (status === 'inprogress') {
-    return 'bg-gradient-to-br from-amber-500/5 via-white/50 to-white/80 border-amber-500/30 backdrop-blur-md hover:from-amber-500/10 hover:border-amber-500/50'
+    return 'bg-gradient-to-br from-amber-500/5 via-white/50 dark:via-slate-900/40 to-white/80 dark:to-slate-900/60 border-amber-500/30 dark:border-amber-500/20 backdrop-blur-md hover:from-amber-500/10 hover:border-amber-500/50'
   }
   if (status === 'review') {
-    return 'bg-gradient-to-br from-red-500/5 via-white/50 to-white/80 border-red-500/30 backdrop-blur-md hover:from-red-500/10 hover:border-red-500/50'
+    return 'bg-gradient-to-br from-red-500/5 via-white/50 dark:via-slate-900/40 to-white/80 dark:to-slate-900/60 border-red-500/30 dark:border-red-500/20 backdrop-blur-md hover:from-red-500/10 hover:border-red-500/50'
   }
   if (status === 'done') {
-    return 'bg-gradient-to-br from-emerald-500/5 via-white/30 to-white/50 border-emerald-500/20 opacity-75 blur-[0.2px] hover:from-emerald-500/10 hover:border-emerald-500/40'
+    return 'bg-gradient-to-br from-emerald-500/5 via-white/30 dark:via-slate-900/30 to-white/50 dark:to-slate-900/50 border-emerald-500/20 dark:border-emerald-500/10 opacity-75 blur-[0.2px] hover:from-emerald-500/10 hover:border-emerald-500/40'
   }
   return 'bg-gradient-to-br from-white/80 to-white/40 border-black/10'
 })

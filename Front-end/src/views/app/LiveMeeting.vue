@@ -109,7 +109,19 @@
                 </p>
               </div>
 
-              <div v-if="isRecording" class="flex items-center gap-2 text-xs text-primary font-bold animate-pulse p-2">
+              <!-- Interim (real-time) spoken text -->
+              <div v-if="interimText" class="flex flex-col gap-1 border-l-2 pl-3 py-0.5 border-brand-slate/40 opacity-70 animate-pulse">
+                <div class="flex justify-between items-baseline">
+                  <span class="text-[11px] font-extrabold text-brand-slate">
+                    You (Live - speaking...)
+                  </span>
+                </div>
+                <p class="text-[12px] text-brand-slate leading-relaxed font-body font-medium italic">
+                  {{ interimText }}
+                </p>
+              </div>
+
+              <div v-if="isRecording && !interimText" class="flex items-center gap-2 text-xs text-primary font-bold animate-pulse p-2">
                 <span class="relative flex h-2 w-2">
                   <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
                   <span class="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
@@ -196,6 +208,26 @@ let recordingSeconds = 0
 let restartTimeout = null
 let consecutiveErrors = 0
 
+const interimText = ref('')
+const processedResultIndices = new Set()
+let inactivityTimer = null
+
+const resetInactivityTimer = () => {
+  clearTimeout(inactivityTimer)
+  if (isRecording.value) {
+    inactivityTimer = setTimeout(() => {
+      console.log('No speech recognition activity for 25 seconds. Forcing restart to prevent zombie state...')
+      if (recognition) {
+        try {
+          recognition.stop()
+        } catch (err) {
+          console.error('Failed to stop recognition on inactivity timeout:', err)
+        }
+      }
+    }, 25000)
+  }
+}
+
 // Demo simulation speakers — lines from these are filtered out before sending to backend
 const DEMO_SPEAKERS = new Set(['Marcus Wright', 'Sarah Jenkins', 'Alex Chen'])
 
@@ -218,72 +250,108 @@ const startSpeechRecognition = () => {
     return
   }
 
+  // Properly abort and clean up previous instance
+  if (recognition) {
+    try {
+      recognition.onstart = null
+      recognition.onerror = null
+      recognition.onend = null
+      recognition.onresult = null
+      recognition.abort()
+    } catch (err) {
+      console.warn('Failed to clean up previous speech recognition instance:', err)
+    }
+  }
+
+  processedResultIndices.clear()
+  interimText.value = ''
+  resetInactivityTimer()
+
   recognition = new SpeechRecognition()
   recognition.continuous = true
-  recognition.interimResults = false
+  recognition.interimResults = true
   recognition.lang = selectedLanguage.value
 
   recognition.onresult = async (event) => {
-    const lastResultIndex = event.results.length - 1
-    const text = event.results[lastResultIndex][0].transcript.trim()
-    if (text) {
-      activeTranscript.value.push({
-        speaker: 'You (Live)',
-        text: text,
-        time: formatTime(recordingSeconds)
-      })
+    resetInactivityTimer()
+    let interim = ''
 
-      nextTick(() => {
-        if (transcriptContainer.value) {
-          transcriptContainer.value.scrollTop = transcriptContainer.value.scrollHeight
-        }
-      })
+    for (let i = event.resultIndex; i < event.results.length; ++i) {
+      const result = event.results[i]
+      const text = result[0].transcript.trim()
 
-      // Query AI to extract task from text snippet
-      try {
-        const res = await meetingStore.extractLiveTask(text)
-        if (res.success && res.tasks.length > 0) {
-          res.tasks.forEach(t => {
-            extractedTasks.value.unshift({
-              id: Date.now() + Math.random(),
-              title: t.title,
-              assignee: t.assignee || 'You',
-              priority: t.priority || 'MED'
+      if (result.isFinal) {
+        if (text) {
+          if (!processedResultIndices.has(i)) {
+            processedResultIndices.add(i)
+
+            activeTranscript.value.push({
+              speaker: 'You (Live)',
+              text: text,
+              time: formatTime(recordingSeconds)
             })
-          })
+
+            nextTick(() => {
+              if (transcriptContainer.value) {
+                transcriptContainer.value.scrollTop = transcriptContainer.value.scrollHeight
+              }
+            })
+
+            // Query AI to extract task from text snippet
+            try {
+              const res = await meetingStore.extractLiveTask(text)
+              if (res.success && res.tasks.length > 0) {
+                res.tasks.forEach(t => {
+                  extractedTasks.value.unshift({
+                    id: Date.now() + Math.random(),
+                    title: t.title,
+                    assignee: t.assignee || 'You',
+                    priority: t.priority || 'MED'
+                  })
+                })
+              }
+            } catch (err) {
+              console.error('Failed to extract live tasks:', err)
+            }
+          }
         }
-      } catch (err) {
-        console.error('Failed to extract live tasks:', err)
+      } else {
+        interim += result[0].transcript
       }
     }
+
+    interimText.value = interim.trim()
   }
 
   recognition.onstart = () => {
     consecutiveErrors = 0
+    resetInactivityTimer()
   }
 
   recognition.onerror = (e) => {
     console.error('Speech recognition error:', e.error)
     if (e.error === 'not-allowed' || e.error === 'service-not-allowed') {
-      console.warn('Microphone permission blocked or service unavailable. Disabling auto-restart.')
-      isRecording.value = false
+      console.warn('Microphone permission blocked or service unavailable. Will retry automatically shortly...')
     }
-    consecutiveErrors++
+    // Do not count silence timeouts (no-speech) or manual/automatic aborts as consecutive errors
+    if (e.error !== 'no-speech' && e.error !== 'aborted') {
+      consecutiveErrors++
+    }
   }
 
   recognition.onend = () => {
+    clearTimeout(inactivityTimer)
+    interimText.value = ''
     if (isRecording.value) {
-      const delay = consecutiveErrors > 3 ? 5000 : 1000
-      console.log(`Speech recognition ended. Restarting in ${delay}ms... (consecutive errors: ${consecutiveErrors})`)
+      // Re-create the recognition instance rather than calling start() on the same instance
+      // to bypass Chrome internal/server state lockouts (very common in Arabic/non-English)
+      const delay = consecutiveErrors > 3 ? 5000 : 100
+      console.log(`Speech recognition ended. Recreating and restarting in ${delay}ms... (consecutive errors: ${consecutiveErrors})`)
       
       clearTimeout(restartTimeout)
       restartTimeout = setTimeout(() => {
         if (isRecording.value) {
-          try {
-            recognition.start()
-          } catch (err) {
-            console.error('Failed to restart speech recognition:', err)
-          }
+          startSpeechRecognition()
         }
       }, delay)
     }
@@ -465,6 +533,7 @@ onUnmounted(() => {
     clearInterval(simulationTimer)
     clearInterval(recordingTimer)
     clearTimeout(restartTimeout)
+    clearTimeout(inactivityTimer)
   } catch (err) {
     console.error('Error clearing timers:', err)
   }

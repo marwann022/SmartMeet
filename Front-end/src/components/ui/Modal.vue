@@ -15,7 +15,7 @@
           aria-modal="true"
           tabindex="-1"
           :class="[
-            'modal-panel relative w-full bg-white/95 border border-white/80 backdrop-blur-[24px] rounded-[24px] shadow-[0_32px_80px_rgba(31,38,135,0.12)] p-8 flex flex-col gap-5 z-10 transition-all duration-300',
+            'modal-panel relative w-full bg-white/95 dark:bg-slate-900/95 border border-black/5 dark:border-white/10 backdrop-blur-[24px] rounded-[24px] shadow-[0_32px_80px_rgba(31,38,135,0.12)] p-8 flex flex-col gap-5 z-10 transition-all duration-300',
             maxWidthClass[maxWidth],
             themeAccentBorder[theme] || ''
           ]"
@@ -23,7 +23,7 @@
           <!-- Close button -->
           <button 
             @click="$emit('close')" 
-            class="absolute top-5 right-5 w-[32px] h-[32px] rounded-full bg-black/5 hover:bg-black/10 flex items-center justify-center transition-colors cursor-pointer"
+            class="absolute top-5 right-5 w-[32px] h-[32px] rounded-full bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 flex items-center justify-center transition-colors cursor-pointer"
             aria-label="Close"
           >
             <PhX :size="14" weight="bold" class="text-brand-slate" />

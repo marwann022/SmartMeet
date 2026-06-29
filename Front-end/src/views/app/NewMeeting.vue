@@ -85,8 +85,14 @@
             </div>
 
             <!-- Smoothly animated Scheduled Meeting settings -->
-            <transition name="expand-fade">
-              <div v-if="meetingMode === 'schedule'" class="flex flex-col gap-5 overflow-hidden">
+            <transition
+              name="expand-fade"
+              @before-enter="el => el.style.overflow = 'hidden'"
+              @after-enter="el => el.style.overflow = 'visible'"
+              @before-leave="el => el.style.overflow = 'hidden'"
+              @after-leave="el => el.style.overflow = 'visible'"
+            >
+              <div v-if="meetingMode === 'schedule'" class="flex flex-col gap-5">
                 <!-- Meeting Type Select -->
                 <div class="flex flex-col gap-2">
                   <label

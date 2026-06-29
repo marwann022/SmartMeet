@@ -26,7 +26,7 @@
         <div class="flex flex-col gap-4">
           <!-- Meeting Summaries -->
           <div
-            class="flex items-center justify-between p-3.5 bg-white/40 border border-black/[0.03] rounded-2xl"
+            class="flex items-center justify-between p-3.5 bg-white/40 dark:bg-slate-900/40 border border-black/[0.03] dark:border-white/5 rounded-2xl"
           >
             <div class="flex flex-col w-[80%] text-left">
               <span class="text-sm font-bold text-brand-dark leading-tight"
@@ -55,7 +55,7 @@
 
           <!-- Performance Reports -->
           <div
-            class="flex items-center justify-between p-3.5 bg-white/40 border border-black/[0.03] rounded-2xl"
+            class="flex items-center justify-between p-3.5 bg-white/40 dark:bg-slate-900/40 border border-black/[0.03] dark:border-white/5 rounded-2xl"
           >
             <div class="flex flex-col w-[80%] text-left">
               <span class="text-sm font-bold text-brand-dark leading-tight"
@@ -124,7 +124,7 @@
 
           <div class="flex flex-col gap-2 md:col-span-2 pt-2">
             <div
-              class="flex items-center justify-between p-3 bg-white/40 border border-black/[0.03] rounded-2xl"
+              class="flex items-center justify-between p-3 bg-white/40 dark:bg-slate-900/40 border border-black/[0.03] dark:border-white/5 rounded-2xl"
             >
               <div class="flex flex-col">
                 <span class="text-xs font-bold text-brand-dark leading-tight"
