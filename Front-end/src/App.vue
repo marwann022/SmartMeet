@@ -10,6 +10,9 @@ const uiStore = useUiStore()
 
 onMounted(() => {
   uiStore.initTheme()
+  setTimeout(() => {
+    document.documentElement.classList.remove('preload')
+  }, 100)
 })
 </script>
 

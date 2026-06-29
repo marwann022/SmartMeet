@@ -562,7 +562,7 @@
           :class="[
             openFaq === i
               ? 'bg-white/90 dark:bg-slate-900/90 border-primary/20 shadow-[0_20px_50px_rgba(75,104,255,0.12)]'
-              : 'bg-white/5 dark:bg-slate-900/50 border-white/70 dark:border-white/10 hover:bg-white/75 dark:hover:bg-slate-900/75 hover:border-primary/10',
+              : 'bg-primary/5 dark:bg-slate-900/50 border-white/70 dark:border-white/10 hover:bg-white/75 dark:hover:bg-slate-900/75 hover:border-primary/10',
             faqVisible
               ? 'opacity-100 translate-y-0'
               : 'opacity-0 translate-y-4',
@@ -577,7 +577,7 @@
             :aria-expanded="openFaq === i"
           >
             <span
-              class="text-base font-semibold transition-all duration-300"
+              class="text-primary font-semibold transition-all duration-300"
               :class="openFaq === i ? 'text-primary' : 'text-brand-dark'"
             >
               {{ faq.q }}
@@ -616,19 +616,6 @@
             class="absolute top-0 right-0 w-[200px] h-[200px] bg-primary/10 blur-[80px] pointer-events-none"
           ></div>
         </div>
-      </div>
-
-      <!-- Still have questions CTA -->
-      <div
-        class="text-center rounded-[28px] bg-primary/5 border border-primary/10 p-8"
-      >
-        <h3 class="text-xl font-bold text-brand-dark mb-3">
-          Still have questions?
-        </h3>
-        <p class="text-brand-slate mb-5">
-          Our team is here to help you find the right plan.
-        </p>
-        <Button variant="primary" @click="contactSales">Contact Sales</Button>
       </div>
     </section>
 

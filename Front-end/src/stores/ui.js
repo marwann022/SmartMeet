@@ -68,6 +68,7 @@ export const useUiStore = defineStore('ui', () => {
     )
 
     const transition = document.startViewTransition(() => {
+      document.documentElement.classList.add('no-transitions')
       theme.value = theme.value === 'light' ? 'dark' : 'light'
       localStorage.setItem('theme', theme.value)
       applyTheme()
@@ -88,6 +89,10 @@ export const useUiStore = defineStore('ui', () => {
           pseudoElement: '::view-transition-new(root)'
         }
       )
+    })
+
+    transition.finished.then(() => {
+      document.documentElement.classList.remove('no-transitions')
     })
   }
 

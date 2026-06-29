@@ -3,6 +3,12 @@
 @tailwind utilities;
 
 @layer base {
+  .preload,
+  .preload * {
+    transition: none !important;
+    animation: none !important;
+  }
+
   :root {
     --brand-bg: #f1f3f9;
     --brand-dark: #0f172a;
@@ -225,6 +231,15 @@ select:-webkit-autofill:active {
               box-shadow 0.4s ease,
               backdrop-filter 0.4s ease !important;
   transition-delay: 0s !important;
+}
+
+/* Disable transitions during view-transition to make dark-mode toggle smooth */
+.no-transitions,
+.no-transitions *,
+.no-transitions *::before,
+.no-transitions *::after {
+  transition: none !important;
+  animation-duration: 0s !important;
 }
 
 /* Premium circular reveal for browsers supporting View Transitions API */

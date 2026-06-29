@@ -10,8 +10,8 @@
 
     <!-- LEFT DRAWER: CHAT SESSIONS HISTORY -->
     <div 
-      class="fixed top-0 left-0 bottom-0 w-[280px] flex flex-col bg-white/95 dark:bg-slate-950 backdrop-blur-xl p-5 gap-4 border-r border-black/5 dark:border-white/5 shadow-2xl z-50 transition-transform duration-300 ease-out"
-      :class="showHistory ? 'translate-x-0' : '-translate-x-full'"
+      class="fixed top-0 left-0 bottom-0 w-[280px] flex flex-col bg-white/95 dark:bg-slate-950 backdrop-blur-xl p-5 gap-4 border-r border-black/5 dark:border-white/5 z-50 transition-all duration-300 ease-out"
+      :class="showHistory ? 'translate-x-0 shadow-2xl' : '-translate-x-full shadow-none pointer-events-none'"
     >
       <!-- Drawer Header -->
       <div class="flex items-center justify-between pb-2 border-b border-black/5 dark:border-white/5">
