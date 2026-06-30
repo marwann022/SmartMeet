@@ -62,6 +62,11 @@ const taskSchema = new mongoose.Schema({
         ref: "User",
         default: null,
     },
+    meeting: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Meeting",
+        default: null,
+    },
     isPersonal: {
         type: Boolean,
         default: false,

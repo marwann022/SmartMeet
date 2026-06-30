@@ -64,41 +64,21 @@
 
       <div class="flex flex-col gap-4">
         <!-- Checkbox 1: Privacy-First Learning -->
-        <div 
-          @click="generalForm.privacyFirst = !generalForm.privacyFirst"
-          class="flex items-start gap-4 p-4 rounded-2xl bg-white/40 border border-black/[0.03] cursor-pointer hover:bg-white/70 transition-all duration-200"
-        >
-          <div 
-            class="w-[22px] h-[22px] rounded-lg border-2 border-brand-slate/40 flex items-center justify-center flex-shrink-0 mt-0.5"
-            :class="generalForm.privacyFirst ? 'border-primary bg-primary text-white' : ''"
-          >
-            <PhCheck v-if="generalForm.privacyFirst" :size="12" weight="bold" />
-          </div>
-          <div class="flex-1">
-            <span class="text-sm font-bold text-brand-dark block">Privacy-First Learning</span>
-            <span class="text-xs text-brand-slate leading-relaxed mt-1 block">
-              Allow SmartMeet to use anonymized transcripts to improve custom terminology recognition for your workspace. Your raw data is never shared.
-            </span>
-          </div>
+        <div class="p-4 rounded-2xl bg-white/40 border border-black/[0.03] hover:bg-white/70 transition-all duration-200">
+          <Checkbox 
+            v-model="generalForm.privacyFirst"
+            label="Privacy-First Learning"
+            description="Allow SmartMeet to use anonymized transcripts to improve custom terminology recognition for your workspace. Your raw data is never shared."
+          />
         </div>
 
         <!-- Checkbox 2: Auto-Delete Transcripts -->
-        <div 
-          @click="generalForm.autoDelete = !generalForm.autoDelete"
-          class="flex items-start gap-4 p-4 rounded-2xl bg-white/40 border border-black/[0.03] cursor-pointer hover:bg-white/70 transition-all duration-200"
-        >
-          <div 
-            class="w-[22px] h-[22px] rounded-lg border-2 border-brand-slate/40 flex items-center justify-center flex-shrink-0 mt-0.5"
-            :class="generalForm.autoDelete ? 'border-primary bg-primary text-white' : ''"
-          >
-            <PhCheck v-if="generalForm.autoDelete" :size="12" weight="bold" />
-          </div>
-          <div class="flex-1">
-            <span class="text-sm font-bold text-brand-dark block">Auto-Delete Transcripts</span>
-            <span class="text-xs text-brand-slate leading-relaxed mt-1 block">
-              Permanently delete transcript raw data from our servers 30 days after the meeting summary is generated.
-            </span>
-          </div>
+        <div class="p-4 rounded-2xl bg-white/40 border border-black/[0.03] hover:bg-white/70 transition-all duration-200">
+          <Checkbox 
+            v-model="generalForm.autoDelete"
+            label="Auto-Delete Transcripts"
+            description="Permanently delete transcript raw data from our servers 30 days after the meeting summary is generated."
+          />
         </div>
       </div>
     </div>
@@ -164,6 +144,10 @@ import {
   PhCheck 
 } from '@phosphor-icons/vue'
 import Select from '../ui/Select.vue'
+import Checkbox from '../ui/Checkbox.vue'
+import { useAlertStore } from '@/stores/alert'
+
+const alertStore = useAlertStore()
 
 const detailLevelOptions = [
   { value: 'standard', label: 'Standard (Executive summary & key milestones)' },
@@ -188,24 +172,24 @@ const generalForm = reactive({
   autoDelete: false
 })
 
-const resetGeneral = () => {
+const resetGeneral = async () => {
   generalForm.autoSummarize = true
   generalForm.detailLevel = 'standard'
   generalForm.focusType = 'tasks'
   generalForm.privacyFirst = true
   generalForm.autoDelete = false
-  alert('Discarded unsaved AI changes.')
+  await alertStore.showAlert('Discarded unsaved AI changes.', 'Discarded', 'primary')
 }
 
-const saveGeneral = () => {
-  alert('Successfully saved AI engine preferences!')
+const saveGeneral = async () => {
+  await alertStore.showAlert('Successfully saved AI engine preferences!', 'Success', 'primary')
 }
 
-const handleSyncNow = () => {
-  alert('Knowledge database sync initialized. Fetching Notion databases & Slack threads...')
+const handleSyncNow = async () => {
+  await alertStore.showAlert('Knowledge database sync initialized. Fetching Notion databases & Slack threads...', 'Sync Initialized', 'primary')
 }
 
-const handleManageSync = () => {
-  alert('Google Calendar sync connection details settings open.')
+const handleManageSync = async () => {
+  await alertStore.showAlert('Google Calendar sync connection details settings open.', 'Calendar Settings', 'primary')
 }
 </script>

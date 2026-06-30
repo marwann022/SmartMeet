@@ -528,6 +528,7 @@ import { useRouter } from "vue-router";
 import { useMeetingStore } from "@/stores/meeting";
 import { useAuthStore } from "@/stores/auth";
 import axios from "axios";
+import { useAlertStore } from "@/stores/alert";
 import {
   PhSparkle,
   PhInfo,
@@ -567,6 +568,7 @@ import slackIcon from "@/assets/slack.png";
 const router = useRouter();
 const meetingStore = useMeetingStore();
 const authStore = useAuthStore();
+const alertStore = useAlertStore();
 
 // Fetch community members
 const membersList = ref([]);
@@ -768,9 +770,8 @@ const submitMeeting = async () => {
     const scheduledTime = new Date(form.datetime);
     const now = new Date();
 
-    // If the meeting is scheduled more than 2 minutes in the future, don't start the call room immediately
     if (scheduledTime - now > 120000) {
-      alert("Meeting successfully scheduled! You can join it from the Archive once the start time is reached.");
+      await alertStore.showAlert("Meeting successfully scheduled! You can join it from the Archive once the start time is reached.", "Meeting Scheduled", "primary");
       router.push("/dashboard");
     } else {
       meetingStore.activeLiveMeeting = created || {

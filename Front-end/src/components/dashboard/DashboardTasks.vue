@@ -94,8 +94,8 @@
               v-for="task in tasksByStatus(col.id)" 
               :key="task.id" 
               :task="task"
-              @move="(dir) => taskStore.moveTask(task, dir)" 
-              @delete="taskStore.removeTask(task.id)" 
+              @move="(dir) => handleMoveTask(task, dir)" 
+              @delete="taskStore.removeTask(task.id || task._id)" 
               @toggle="taskStore.toggleTask(task)" 
               @click="selectedTask = task" 
             />
@@ -115,68 +115,126 @@
     </div>
 
     <!-- Reusable Modal for Task Detail -->
-    <Modal :show="!!selectedTask" title="" :theme="selectedTask?.status" @close="selectedTask = null" maxWidth="lg">
+    <Modal :show="!!selectedTask" title="" :theme="selectedTask?.status" @close="selectedTask = null; isEditingTask = false" maxWidth="lg">
       <div v-if="selectedTask" class="flex flex-col gap-4 text-left">
-        <!-- Title -->
-        <h3 
-          class="font-header font-bold text-xl text-brand-dark leading-snug"
-          :class="selectedTask.status === 'done' || selectedTask.done ? 'line-through text-brand-slate opacity-70' : ''"
-        >
-          {{ selectedTask.title }}
-        </h3>
+        <template v-if="isEditingTask">
+          <h3 class="font-header font-bold text-lg text-brand-dark mb-2">Edit Task Details</h3>
+          <Input v-model="editTaskForm.title" label="Task Title" theme="primary" />
+          
+          <div class="flex flex-col gap-1.5 w-full">
+            <label class="text-[10px] font-extrabold uppercase tracking-wider text-brand-slate pl-1 font-header">Description</label>
+            <textarea 
+              v-model="editTaskForm.description" 
+              rows="3"
+              class="w-full px-4 py-3 rounded-xl bg-white dark:bg-slate-900/50 border font-body text-sm text-brand-dark dark:text-slate-200 focus:outline-none transition-all duration-300 resize-none border-primary/20 dark:border-white/10 focus:border-primary/30"
+            />
+          </div>
 
-        <div class="flex items-center gap-2.5">
-          <Badge :type="badgeType(selectedTask)">
-            {{ formatPriority(selectedTask.priority) }}
-          </Badge>
-          <span class="text-[10px] text-brand-slate dark:text-slate-400 font-body">· {{ selectedTask.source }}</span>
-        </div>
-        
-        <p class="text-brand-slate dark:text-slate-300 text-sm leading-relaxed font-body">
-          {{ selectedTask.description }}
-        </p>
-        
-        <div class="flex items-center gap-4 text-sm border-t border-black/5 dark:border-white/10 pt-4">
-          <div class="flex items-center gap-2">
-            <img src="../../assets/User Profile.png" class="w-7 h-7 rounded-full object-cover border-2 border-white/85 shadow-sm" alt="assignee" />
-            <span class="font-header font-bold text-xs text-brand-dark">{{ selectedTask.assignee }}</span>
-          </div>
-          <div class="flex items-center gap-1.5 text-[#5c5e65] dark:text-slate-400 font-header font-bold text-xs">
-            <PhCalendarBlank :size="14" weight="bold" />
-            {{ selectedTask.due }}
-          </div>
-        </div>
+          <div class="grid grid-cols-2 gap-4">
+            <!-- Custom Assignee Dropdown -->
+            <Select 
+              v-model="editTaskForm.assigneeId" 
+              :options="members.map(m => ({ value: m.id, label: m.name }))" 
+              label="Assignee"
+              theme="primary"
+            />
 
-        <!-- Interactive Stage Switcher in Modal -->
-        <div class="flex flex-col gap-2 border-t border-black/5 dark:border-white/10 pt-4">
-          <label class="text-[10px] font-extrabold uppercase tracking-wider text-brand-slate pl-1 font-header">Move Stage</label>
-          <div class="grid grid-cols-4 gap-2">
-            <button 
-              v-for="opt in statusOptions"
-              :key="opt.value"
-              @click="selectStatus(opt.value)"
-              class="py-2 px-2 rounded-xl border font-bold text-xs transition-all duration-300 text-center cursor-pointer font-header"
-              :class="selectedTask.status === opt.value
-                ? 'bg-primary text-white border-transparent shadow-[0_4px_12px_rgba(75,104,255,0.25)]'
-                : 'bg-white/50 dark:bg-slate-900/50 border-black/5 dark:border-white/10 hover:bg-white dark:hover:bg-slate-900/85 text-brand-dark dark:text-slate-200 hover:border-black/10'"
-            >
-              {{ opt.label }}
-            </button>
+            <!-- Custom Priority Dropdown -->
+            <Select 
+              v-model="editTaskForm.priority" 
+              :options="priorityOptions" 
+              label="Priority"
+              theme="primary"
+            />
           </div>
-        </div>
-        
-        <div class="flex gap-3 pt-4 border-t border-black/5 dark:border-white/10">
-          <Button 
-            class="flex-1"
-            :variant="selectedTask.status === 'done' || selectedTask.done ? 'outline' : 'primary'"
-            @click="handleToggleTask"
+
+          <!-- Modern Date Picker Selector -->
+          <DatePicker 
+            v-model="editTaskForm.dueDate" 
+            label="Due Date" 
+            direction="up"
+            theme="primary"
+          />
+
+          <div class="flex gap-3 mt-4 border-t border-black/5 dark:border-white/10 pt-4">
+            <Button variant="primary" class="flex-1" @click="saveTaskDetails">
+              Save Details
+            </Button>
+            <Button variant="outline" class="flex-1" @click="cancelEditing">
+              Cancel
+            </Button>
+          </div>
+        </template>
+        <template v-else>
+          <!-- Title -->
+          <h3 
+            class="font-header font-bold text-xl text-brand-dark leading-snug"
+            :class="selectedTask.status === 'done' || selectedTask.done ? 'line-through text-brand-slate opacity-70' : ''"
           >
-            {{ selectedTask.status === 'done' || selectedTask.done ? 'Mark Incomplete' : 'Mark Complete ✓' }}
-          </Button>
-          <Button variant="danger" @click="taskStore.removeTask(selectedTask.id); selectedTask = null">
-            Delete
-          </Button>
-        </div>
+            {{ selectedTask.title }}
+          </h3>
+
+          <div class="flex items-center gap-2.5">
+            <Badge :type="badgeType(selectedTask)">
+              {{ formatPriority(selectedTask.priority) }}
+            </Badge>
+            <span class="text-[10px] text-brand-slate dark:text-slate-400 font-body">· {{ selectedTask.source }}</span>
+          </div>
+          
+          <p class="text-brand-slate dark:text-slate-300 text-sm leading-relaxed font-body">
+            {{ selectedTask.description }}
+          </p>
+          
+          <div class="flex items-center gap-4 text-sm border-t border-black/5 dark:border-white/10 pt-4">
+            <div class="flex items-center gap-2">
+              <img src="../../assets/User Profile.png" class="w-7 h-7 rounded-full object-cover border-2 border-white/85 shadow-sm" alt="assignee" />
+              <span class="font-header font-bold text-xs text-brand-dark">{{ selectedTask.assignee }}</span>
+            </div>
+            <div class="flex items-center gap-1.5 text-[#5c5e65] dark:text-slate-400 font-header font-bold text-xs">
+              <PhCalendarBlank :size="14" weight="bold" />
+              {{ selectedTask.due }}
+            </div>
+          </div>
+
+          <!-- Interactive Stage Switcher in Modal -->
+          <div class="flex flex-col gap-2 border-t border-black/5 dark:border-white/10 pt-4">
+            <label class="text-[10px] font-extrabold uppercase tracking-wider text-brand-slate pl-1 font-header">Move Stage</label>
+            <div class="grid grid-cols-4 gap-2">
+              <button 
+                v-for="opt in statusOptions"
+                :key="opt.value"
+                @click="selectStatus(opt.value)"
+                :disabled="isLocked"
+                class="py-2 px-2 rounded-xl border font-bold text-xs transition-all duration-300 text-center cursor-pointer font-header"
+                :class="[
+                  selectedTask.status === opt.value
+                    ? 'bg-primary text-white border-transparent shadow-[0_4px_12px_rgba(75,104,255,0.25)]'
+                    : 'bg-white/50 dark:bg-slate-900/50 border-black/5 dark:border-white/10 hover:bg-white dark:hover:bg-slate-900/85 text-brand-dark dark:text-slate-200 hover:border-black/10',
+                  isLocked ? 'cursor-not-allowed opacity-50' : ''
+                ]"
+              >
+                {{ opt.label }}
+              </button>
+            </div>
+          </div>
+          
+          <div class="flex gap-3 pt-4 border-t border-black/5 dark:border-white/10">
+            <Button 
+              class="flex-1"
+              :variant="selectedTask.status === 'done' || selectedTask.done ? 'outline' : 'primary'"
+              @click="handleToggleTask"
+              :disabled="isLocked"
+            >
+              {{ selectedTask.status === 'done' || selectedTask.done ? 'Mark Incomplete' : 'Mark Complete ✓' }}
+            </Button>
+            <Button v-if="authStore.user?.role === 'admin'" variant="outline" @click="startEditing">
+              Edit Details
+            </Button>
+            <Button variant="danger" :disabled="isLocked" @click="taskStore.removeTask(selectedTask.id || selectedTask._id); selectedTask = null">
+              Delete
+            </Button>
+          </div>
+        </template>
       </div>
     </Modal>
 
@@ -193,6 +251,37 @@
             rows="3"
             class="w-full px-4 py-3 rounded-xl bg-white dark:bg-slate-900/50 border font-body text-sm text-brand-dark dark:text-slate-200 placeholder-brand-slate/50 dark:placeholder-brand-slate/40 focus:outline-none transition-all duration-300 resize-none border-primary/20 dark:border-white/10 focus:border-primary/30 focus:shadow-[0_0_0_3px_rgba(75,104,255,0.08)]"
           />
+        </div>
+
+        <!-- Assignment Selection for Admin -->
+        <div v-if="authStore.user?.role === 'admin'" class="flex flex-col gap-3 border-t border-black/5 dark:border-white/10 pt-3">
+          <Select 
+            v-model="selectedAssignmentType"
+            :options="assignmentTypeOptions"
+            label="Assignee Configuration"
+            theme="primary"
+          />
+
+          <!-- Single member assignment selection -->
+          <div v-if="selectedAssignmentType === 'one'" class="mt-1">
+            <Select 
+              v-model="selectedAssigneeId"
+              :options="members.map(m => ({ value: m.id, label: m.name }))"
+              label="Select Assignee"
+              theme="primary"
+            />
+          </div>
+
+          <!-- Custom member selection checklist -->
+          <div v-if="selectedAssignmentType === 'custom'" class="mt-1 flex flex-col gap-2.5 max-h-[140px] overflow-y-auto border border-black/5 dark:border-white/10 rounded-xl p-3 bg-white/20 dark:bg-slate-900/20">
+            <label class="text-[10px] font-extrabold uppercase tracking-wider text-brand-slate font-header mb-1 block">Select Custom Assignees</label>
+            <div v-for="m in members" :key="m.id" class="py-0.5">
+              <Checkbox 
+                v-model="customAssignmentMap[m.id]"
+                :label="m.name"
+              />
+            </div>
+          </div>
         </div>
 
         <div class="grid grid-cols-2 gap-4">
@@ -229,6 +318,42 @@
         </Button>
       </div>
     </Modal>
+
+    <!-- Review Confirmation Modal -->
+    <Modal
+      :show="showReviewConfirmModal"
+      title="Request Task Review"
+      max-width="sm"
+      theme="review"
+      @close="cancelReviewAction"
+    >
+      <div class="flex flex-col gap-4 text-left">
+        <div class="flex items-center gap-3 text-red-500 font-bold font-header">
+          <PhWarningCircle :size="24" weight="bold" />
+          <span>Warning: Irreversible Action</span>
+        </div>
+        <p class="text-sm text-brand-slate leading-relaxed font-body">
+          Are you sure you want to request a review? This action will notify the admin that this task needs to be reviewed to be done.
+        </p>
+        <p class="text-xs text-brand-slate/80 font-bold font-body">
+          Once submitted, you will no longer be able to undo or change the task back to its previous state.
+        </p>
+        <div class="flex justify-end gap-3 mt-4">
+          <Button
+            variant="glass"
+            @click="cancelReviewAction"
+          >
+            Cancel
+          </Button>
+          <button
+            @click="confirmReviewAction"
+            class="px-4 py-2 border border-red-500 rounded-xl bg-red-500 hover:bg-red-600 text-white font-bold text-xs flex items-center justify-center cursor-pointer"
+          >
+            Confirm Review
+          </button>
+        </div>
+      </div>
+    </Modal>
   </div>
 </template>
 
@@ -236,7 +361,7 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import {
   PhPlus, PhClock, PhArrowsClockwise, PhEye, PhCheckCircle,
-  PhCalendarBlank, PhX, PhCheck
+  PhCalendarBlank, PhX, PhCheck, PhWarningCircle
 } from '@phosphor-icons/vue'
 import { useTaskStore } from '../../stores/task'
 import TaskCard from './TaskCard.vue'
@@ -247,6 +372,9 @@ import Badge from '../ui/Badge.vue'
 import Select from '../ui/Select.vue'
 import DatePicker from '../ui/DatePicker.vue'
 import SearchBar from '../ui/SearchBar.vue'
+import Checkbox from '../ui/Checkbox.vue'
+import { useAuthStore } from '../../stores/auth'
+import axios from 'axios'
 
 const props = defineProps({
   searchQuery: {
@@ -373,12 +501,56 @@ const columnThemes = {
 
 const activeDragColumn = ref(null)
 
+const showReviewConfirmModal = ref(false)
+let pendingReviewConfirmAction = null
+
+const triggerReviewConfirmModal = (action) => {
+  pendingReviewConfirmAction = action
+  showReviewConfirmModal.value = true
+}
+
+const confirmReviewAction = () => {
+  if (pendingReviewConfirmAction) {
+    pendingReviewConfirmAction()
+    pendingReviewConfirmAction = null
+  }
+  showReviewConfirmModal.value = false
+}
+
+const cancelReviewAction = () => {
+  pendingReviewConfirmAction = null
+  showReviewConfirmModal.value = false
+}
+
 const onDrop = (event, status) => {
   event.preventDefault()
   activeDragColumn.value = null
   const taskId = event.dataTransfer.getData('text/plain')
   if (taskId) {
-    taskStore.setTaskStatus(taskId, status)
+    const task = taskStore.tasks.find(t => String(t.id) === String(taskId) || String(t._id) === String(taskId))
+    if (task && status === 'review' && authStore.user?.role !== 'admin') {
+      triggerReviewConfirmModal(() => {
+        taskStore.setTaskStatus(taskId, status)
+      })
+    } else {
+      taskStore.setTaskStatus(taskId, status)
+    }
+  }
+}
+
+const handleMoveTask = (task, direction) => {
+  const statusOrder = ['todo', 'inprogress', 'review', 'done']
+  const currentIndex = statusOrder.indexOf(task.status)
+  const nextIndex = currentIndex + direction
+  if (nextIndex >= 0 && nextIndex < statusOrder.length) {
+    const nextStatus = statusOrder[nextIndex]
+    if (nextStatus === 'review' && authStore.user?.role !== 'admin') {
+      triggerReviewConfirmModal(() => {
+        taskStore.moveTask(task, direction)
+      })
+    } else {
+      taskStore.moveTask(task, direction)
+    }
   }
 }
 
@@ -389,6 +561,7 @@ const onDragEndGlobal = () => {
 onMounted(() => {
   window.addEventListener('dragend', onDragEndGlobal)
   taskStore.fetchTasks()
+  loadMembers()
 })
 
 onUnmounted(() => {
@@ -424,6 +597,94 @@ const newTask = ref({
   status: 'todo' 
 })
 
+const authStore = useAuthStore()
+const members = ref([])
+const selectedAssignmentType = ref('one')
+const selectedAssigneeId = ref('')
+const customAssignmentMap = ref({})
+
+const assignmentTypeOptions = [
+  { value: 'all', label: 'Assign to All Members' },
+  { value: 'one', label: 'Assign to One Member' },
+  { value: 'custom', label: 'Assign to Custom Selected Members' }
+]
+
+const isEditingTask = ref(false)
+const editTaskForm = ref({
+  title: '',
+  description: '',
+  priority: 'Medium',
+  assigneeId: '',
+  dueDate: ''
+})
+
+const loadMembers = async () => {
+  if (authStore.user?.role === 'admin') {
+    try {
+      const token = localStorage.getItem('token')
+      if (!token) return
+      const { data } = await axios.get('http://localhost:5000/api/communities/members', {
+        headers: { Authorization: `Bearer ${token}` }
+      })
+      if (data.success) {
+        members.value = data.members.map(m => ({
+          id: m._id || m.id,
+          name: `${m.firstName} ${m.lastName}`.trim(),
+          email: m.email
+        }))
+        if (members.value.length > 0 && !selectedAssigneeId.value) {
+          selectedAssigneeId.value = members.value[0].id
+        }
+      }
+    } catch (err) {
+      console.error('Failed to load community members:', err)
+    }
+  }
+}
+
+const isLocked = computed(() => {
+  if (!selectedTask.value) return false
+  const isAdmin = authStore.user?.role === 'admin'
+  return !isAdmin && (selectedTask.value.status === 'review' || selectedTask.value.status === 'done')
+})
+
+const startEditing = () => {
+  if (!selectedTask.value) return
+  editTaskForm.value = {
+    title: selectedTask.value.title,
+    description: selectedTask.value.description || '',
+    priority: formatPriority(selectedTask.value.priority),
+    assigneeId: selectedTask.value.user?._id || selectedTask.value.user || '',
+    dueDate: selectedTask.value.dueDate || ''
+  }
+  isEditingTask.value = true
+}
+
+const saveTaskDetails = async () => {
+  if (!selectedTask.value) return
+  const payload = {
+    id: selectedTask.value.id || selectedTask.value._id,
+    title: editTaskForm.value.title,
+    description: editTaskForm.value.description,
+    priority: editTaskForm.value.priority,
+    assigneeId: editTaskForm.value.assigneeId,
+    dueDate: editTaskForm.value.dueDate,
+    due: formatDateString(editTaskForm.value.dueDate)
+  }
+  
+  await taskStore.updateTask(payload)
+  
+  const updated = taskStore.tasks.find(t => t.id === payload.id || t._id === payload.id)
+  if (updated) {
+    selectedTask.value = updated
+  }
+  isEditingTask.value = false
+}
+
+const cancelEditing = () => {
+  isEditingTask.value = false
+}
+
 const openAddModal = (status = 'todo') => {
   newTask.value = { 
     title: '', 
@@ -433,11 +694,34 @@ const openAddModal = (status = 'todo') => {
     dueDate: getTodayDateString(), 
     status 
   }
+  selectedAssignmentType.value = 'one'
+  selectedAssigneeId.value = authStore.user?._id || ''
+  customAssignmentMap.value = {}
   showAddModal.value = true
 }
 
 const addTask = () => {
   if (!newTask.value.title.trim()) return
+  
+  let assigneeIds = []
+  if (authStore.user?.role === 'admin') {
+    if (selectedAssignmentType.value === 'all') {
+      assigneeIds = members.value.map(m => m.id)
+    } else if (selectedAssignmentType.value === 'one') {
+      assigneeIds = [selectedAssigneeId.value]
+    } else if (selectedAssignmentType.value === 'custom') {
+      assigneeIds = Object.keys(customAssignmentMap.value).filter(id => customAssignmentMap.value[id])
+    }
+  } else {
+    assigneeIds = [authStore.user?._id]
+  }
+
+  let assigneeName = 'Alex Chen'
+  if (assigneeIds.length === 1) {
+    const matched = members.value.find(m => m.id === assigneeIds[0])
+    if (matched) assigneeName = matched.name
+  }
+
   taskStore.addTask({
     title: newTask.value.title,
     description: newTask.value.description,
@@ -445,16 +729,28 @@ const addTask = () => {
     status: newTask.value.status,
     due: formatDateString(newTask.value.dueDate),
     dueDate: newTask.value.dueDate,
-    source: 'Manual Entry'
+    source: 'Manual Entry',
+    assigneeIds,
+    assignee: assigneeName
   })
   showAddModal.value = false
 }
 
 const selectStatus = async (status) => {
   if (!selectedTask.value) return
-  const success = await taskStore.setTaskStatus(selectedTask.value.id, status)
-  if (success) {
-    selectedTask.value.status = status
+  const id = selectedTask.value.id || selectedTask.value._id
+  if (status === 'review' && authStore.user?.role !== 'admin') {
+    triggerReviewConfirmModal(async () => {
+      const success = await taskStore.setTaskStatus(id, status)
+      if (success) {
+        selectedTask.value.status = status
+      }
+    })
+  } else {
+    const success = await taskStore.setTaskStatus(id, status)
+    if (success) {
+      selectedTask.value.status = status
+    }
   }
 }
 

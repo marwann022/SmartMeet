@@ -79,6 +79,7 @@ export const syncMeetingTasksAndNotifications = async ({ meeting, analysis }) =>
                 status: "todo",
                 assignee: matchedUser ? `${matchedUser.firstName} ${matchedUser.lastName}` : assigneeName,
                 source: `Meeting: ${meeting.title}`,
+                meeting: meeting._id || meeting,
             });
 
             syncedTasks.push(createdTask);

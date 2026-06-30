@@ -179,13 +179,30 @@ export const getMeeting = async (req, res) => {
 
 export const updateMeeting = async (req, res) => {
     try {
-        const meeting = await Meeting.findOneAndUpdate(
-            { _id: req.params.id, host: req.user._id },
-            { $set: req.body },
-            { new: true, runValidators: true }
-        );
-        if (!meeting) return res.status(404).json({ success: false, message: "Meeting not found" });
-        res.status(200).json({ success: true, meeting });
+        const meeting = await Meeting.findById(req.params.id);
+        if (!meeting) {
+            return res.status(404).json({ success: false, message: "Meeting not found" });
+        }
+
+        // Authorize: user must be the host, OR user must be community admin and the meeting host must belong to their community
+        let isAuthorized = meeting.host.toString() === req.user._id.toString();
+
+        if (!isAuthorized && req.user.role === "admin") {
+            const hostUser = await User.findById(meeting.host);
+            if (hostUser && hostUser.community && hostUser.community.toString() === req.user.community.toString()) {
+                isAuthorized = true;
+            }
+        }
+
+        if (!isAuthorized) {
+            return res.status(403).json({ success: false, message: "Unauthorized to update this meeting" });
+        }
+
+        // Perform the update
+        Object.assign(meeting, req.body);
+        const updatedMeeting = await meeting.save();
+
+        res.status(200).json({ success: true, meeting: updatedMeeting });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
     }

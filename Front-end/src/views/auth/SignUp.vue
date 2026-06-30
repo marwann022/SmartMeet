@@ -270,26 +270,13 @@
                 <span class="text-xs font-bold text-brand-dark">
                   Terms &amp; Conditions
                 </span>
-                <label class="flex items-start gap-3 cursor-pointer select-none rounded-2xl border border-transparent p-1 transition-colors duration-200 focus-within:border-primary/30 focus-within:bg-primary/5">
-                  <input
-                    v-model="agreeTerms"
-                    type="checkbox"
-                    class="mt-0.5 checkbox checkbox-xs checkbox-primary border-black/10 rounded cursor-pointer disabled:cursor-not-allowed disabled:opacity-60"
-                    :disabled="loading"
-                    :aria-invalid="Boolean(visibleErrors.agreeTerms)"
-                    @change="touchField('agreeTerms')"
-                  />
-                  <span class="text-xs text-brand-slate font-medium leading-normal">
-                    I agree to SmartMeet's terms and privacy policies.
-                  </span>
-                </label>
-                <span
-                  v-if="visibleErrors.agreeTerms"
-                  class="text-[11px] text-red-500 font-semibold pl-1 animate-fadeIn"
-                  role="alert"
-                >
-                  {{ visibleErrors.agreeTerms }}
-                </span>
+                <Checkbox
+                  v-model="agreeTerms"
+                  :disabled="loading"
+                  :error="visibleErrors.agreeTerms"
+                  @change="touchField('agreeTerms')"
+                  label="I agree to SmartMeet's terms and privacy policies."
+                />
               </div>
             </div>
 
@@ -363,6 +350,7 @@ import axios from 'axios'
 import Navbar from '@/components/layout/Navbar.vue'
 import Button from '@/components/ui/Button.vue'
 import Input from '@/components/ui/Input.vue'
+import Checkbox from '@/components/ui/Checkbox.vue'
 import googleIcon from '@/assets/Google.png'
 import { useAuthStore } from '@/stores/auth'
 

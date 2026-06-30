@@ -230,25 +230,27 @@
           >
             <div class="flex items-center gap-[14px]">
               <!-- Checkbox on the left -->
-              <button 
-                type="button"
-                class="w-5 h-5 flex items-center justify-center flex-shrink-0 rounded-full border-2 transition-all duration-300 focus:outline-none cursor-pointer"
-                :class="task.status === 'done' || task.done 
-                  ? 'border-emerald-500 bg-emerald-500 text-white cursor-not-allowed' 
-                  : 'border-brand-slate/40 hover:border-primary bg-transparent'"
-                @click.stop="markDone(task)"
-                :disabled="task.status === 'done' || task.done"
+              <Checkbox 
+                :model-value="task.status === 'done' || task.done"
+                :disabled="task.status === 'done' || task.done || isTaskLocked(task)"
+                shape="circle"
+                @update:model-value="markDone(task)"
                 :title="task.status === 'done' || task.done ? 'Task completed' : 'Mark as Done'"
-              >
-                <PhCheck v-if="task.status === 'done' || task.done" :size="12" weight="bold" />
-              </button>
+              />
               
-              <span 
-                class="text-[12px] font-semibold text-brand-dark transition-all duration-300 text-left"
-                :class="{ 'line-through text-brand-slate': task.status === 'done' || task.done }"
-              >
-                {{ task.title }}
-              </span>
+              <div class="flex flex-col text-left">
+                <span 
+                  class="text-[12px] font-semibold text-brand-dark transition-all duration-300"
+                  :class="{ 'line-through text-brand-slate': task.status === 'done' || task.done }"
+                >
+                  {{ task.title }}
+                </span>
+                <span class="text-[9px] text-brand-slate font-medium mt-0.5 flex items-center gap-1">
+                  <PhSparkle v-if="task.source && task.source.startsWith('Meeting:')" :size="10" weight="fill" class="text-purple-500" />
+                  <PhUser v-else :size="10" weight="bold" class="text-slate-400" />
+                  {{ task.source }}
+                </span>
+              </div>
             </div>
 
             <!-- Status Tag + 2 arrows under it on the right -->
@@ -261,8 +263,8 @@
                 {{ formatStatusLabel(task.status) }}
               </span>
 
-              <!-- Left and Right Arrows under it (hidden if task is done) -->
-              <div v-if="task.status !== 'done' && !task.done" class="flex items-center gap-2">
+              <!-- Left and Right Arrows under it (hidden if task is done or locked) -->
+              <div v-if="task.status !== 'done' && !task.done && !isTaskLocked(task)" class="flex items-center gap-2">
                 <button 
                   type="button"
                   @click.stop="moveStage(task, -1)"
@@ -287,14 +289,51 @@
       </div>
     </div>
 
+    <!-- Review Confirmation Modal -->
+    <Modal
+      :show="showReviewConfirmModal"
+      title="Request Task Review"
+      max-width="sm"
+      theme="review"
+      @close="cancelReviewAction"
+    >
+      <div class="flex flex-col gap-4 text-left">
+        <div class="flex items-center gap-3 text-red-500 font-bold font-header">
+          <PhWarningCircle :size="24" weight="bold" />
+          <span>Warning: Irreversible Action</span>
+        </div>
+        <p class="text-sm text-brand-slate leading-relaxed font-body">
+          Are you sure you want to request a review? This action will notify the admin that this task needs to be reviewed to be done.
+        </p>
+        <p class="text-xs text-brand-slate/80 font-bold font-body">
+          Once submitted, you will no longer be able to undo or change the task back to its previous state.
+        </p>
+        <div class="flex justify-end gap-3 mt-4">
+          <Button
+            variant="glass"
+            @click="cancelReviewAction"
+          >
+            Cancel
+          </Button>
+          <button
+            @click="confirmReviewAction"
+            class="px-4 py-2 border border-red-500 rounded-xl bg-red-500 hover:bg-red-600 text-white font-bold text-xs flex items-center justify-center cursor-pointer"
+          >
+            Confirm Review
+          </button>
+        </div>
+      </div>
+    </Modal>
   </div>
 </template>
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { PhClock, PhSparkle, PhCheck, PhArrowLeft, PhArrowRight, PhLightning } from '@phosphor-icons/vue'
+import { PhClock, PhSparkle, PhCheck, PhArrowLeft, PhArrowRight, PhLightning, PhUser, PhWarningCircle } from '@phosphor-icons/vue'
 import { useMeetingStore } from '../../stores/meeting'
+import Checkbox from '../ui/Checkbox.vue'
+import Modal from '../ui/Modal.vue'
 import { useTaskStore } from '../../stores/task'
 import MeetingCard from './MeetingCard.vue'
 import Button from '../ui/Button.vue'
@@ -302,6 +341,32 @@ import SearchBar from '../ui/SearchBar.vue'
 import { useAuthStore } from "@/stores/auth"
 
 const authStore = useAuthStore()
+
+const showReviewConfirmModal = ref(false)
+let pendingReviewConfirmAction = null
+
+const triggerReviewConfirmModal = (action) => {
+  pendingReviewConfirmAction = action
+  showReviewConfirmModal.value = true
+}
+
+const confirmReviewAction = () => {
+  if (pendingReviewConfirmAction) {
+    pendingReviewConfirmAction()
+    pendingReviewConfirmAction = null
+  }
+  showReviewConfirmModal.value = false
+}
+
+const cancelReviewAction = () => {
+  pendingReviewConfirmAction = null
+  showReviewConfirmModal.value = false
+}
+
+const isTaskLocked = (task) => {
+  const isAdmin = authStore.user?.role === 'admin'
+  return !isAdmin && (task.status === 'review' || task.status === 'done')
+}
 
 const firstName = computed(() => {
   return authStore.user?.name?.split(" ")[0] || "User"
@@ -401,10 +466,20 @@ const moveStage = async (task, direction) => {
   
   if (nextIndex >= 0 && nextIndex < statusOrder.length) {
     const nextStatus = statusOrder[nextIndex]
-    const success = await taskStore.setTaskStatus(task.id || task._id, nextStatus)
-    if (success) {
-      task.status = nextStatus
-      task.done = nextStatus === 'done'
+    if (nextStatus === 'review' && authStore.user?.role !== 'admin') {
+      triggerReviewConfirmModal(async () => {
+        const success = await taskStore.setTaskStatus(task.id || task._id, nextStatus)
+        if (success) {
+          task.status = nextStatus
+          task.done = nextStatus === 'done'
+        }
+      })
+    } else {
+      const success = await taskStore.setTaskStatus(task.id || task._id, nextStatus)
+      if (success) {
+        task.status = nextStatus
+        task.done = nextStatus === 'done'
+      }
     }
   }
 }
@@ -442,8 +517,8 @@ const openMeetingDetails = (meeting) => {
   router.push('/archive')
 }
 
-const exploreTrends = () => {
-  alert('Simulating direct link to full-scale team productivity trends & metrics reports page.')
+const exploreTrends = async () => {
+  await alertStore.showAlert('Simulating direct link to full-scale team productivity trends & metrics reports page.', 'Simulation Mode', 'primary')
 }
 </script>
 

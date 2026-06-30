@@ -19,6 +19,14 @@
               Download PDF
             </Button>
             <button 
+              v-if="authStore.user?.role === 'admin'"
+              @click="openEditMeetingModal" 
+              class="px-[16px] py-[8px] border border-primary/20 rounded-xl bg-primary/5 hover:bg-primary text-primary hover:text-white transition-all font-bold text-xs flex items-center gap-2 cursor-pointer no-print"
+            >
+              <PhPencilSimple :size="14" weight="bold" />
+              Edit Details
+            </button>
+            <button 
               @click="confirmDeleteMeeting(meetingStore.selectedMeeting)" 
               class="px-[16px] py-[8px] border border-red-500/20 rounded-xl bg-red-500/5 hover:bg-red-500 text-red-500 hover:text-white transition-all font-bold text-xs flex items-center gap-2 cursor-pointer no-print"
             >
@@ -271,6 +279,66 @@
         </div>
       </div>
     </Modal>
+
+    <!-- Edit Meeting Details Modal -->
+    <Modal
+      :show="showEditMeetingModal"
+      title="Edit Meeting Details"
+      max-width="md"
+      theme="primary"
+      @close="showEditMeetingModal = false"
+    >
+      <div class="flex flex-col gap-4 text-left">
+        <Input v-model="editMeetingForm.title" label="Meeting Title" theme="primary" />
+
+        <div class="flex flex-col gap-1.5 w-full">
+          <label class="text-[10px] font-extrabold uppercase tracking-wider text-brand-slate pl-1 font-header">Description</label>
+          <textarea 
+            v-model="editMeetingForm.description" 
+            placeholder="Meeting description..." 
+            rows="3"
+            class="w-full px-4 py-3 rounded-xl bg-white dark:bg-slate-900/50 border font-body text-sm text-brand-dark dark:text-slate-200 focus:outline-none transition-all duration-300 resize-none border-primary/20 dark:border-white/10 focus:border-primary/30"
+          />
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+          <!-- Custom Type Selection -->
+          <Select 
+            v-model="editMeetingForm.type" 
+            :options="meetingTypeOptions" 
+            label="Meeting Type"
+            theme="primary"
+          />
+
+          <!-- Duration Input -->
+          <div class="flex flex-col gap-1.5 w-full text-left">
+            <label class="text-[11px] font-semibold text-brand-slate tracking-wide font-header pl-1">Duration (minutes)</label>
+            <input 
+              v-model.number="editMeetingForm.duration" 
+              type="number" 
+              class="w-full h-12 px-4 rounded-xl bg-white dark:bg-slate-950/60 border border-black/8 dark:border-white/10 font-body text-sm text-brand-dark focus:outline-none focus:border-primary/30 focus:shadow-[0_0_0_3px_rgba(75,104,255,0.08)]"
+            />
+          </div>
+        </div>
+
+        <!-- Date Picker for start date -->
+        <DatePicker 
+          v-model="editMeetingForm.datetime" 
+          label="Meeting Date" 
+          direction="up"
+          theme="primary"
+        />
+
+        <div class="flex justify-end gap-3 mt-4 border-t border-black/5 dark:border-white/10 pt-4">
+          <Button variant="outline" @click="showEditMeetingModal = false">
+            Cancel
+          </Button>
+          <Button variant="primary" @click="saveMeetingDetails">
+            Save Changes
+          </Button>
+        </div>
+      </div>
+    </Modal>
   </div>
 </template>
 
@@ -287,7 +355,8 @@ import {
   PhCheck,
   PhFilePdf,
   PhTrash,
-  PhWarningCircle
+  PhWarningCircle,
+  PhPencilSimple
 } from '@phosphor-icons/vue'
 import { useMeetingStore } from '@/stores/meeting'
 import { useRouter } from 'vue-router'
@@ -297,6 +366,11 @@ import SearchBar from '@/components/ui/SearchBar.vue'
 import Button from '@/components/ui/Button.vue'
 import Badge from '@/components/ui/Badge.vue'
 import Modal from '@/components/ui/Modal.vue'
+import { useAlertStore } from '@/stores/alert'
+import Input from '@/components/ui/Input.vue'
+import Select from '@/components/ui/Select.vue'
+import DatePicker from '@/components/ui/DatePicker.vue'
+import { useAuthStore } from '@/stores/auth'
 
 const props = defineProps({
   searchQuery: { type: String, default: '' }
@@ -304,6 +378,75 @@ const props = defineProps({
 
 const meetingStore = useMeetingStore()
 const router = useRouter()
+const authStore = useAuthStore()
+const alertStore = useAlertStore()
+
+const showEditMeetingModal = ref(false)
+const editMeetingForm = ref({
+  title: '',
+  description: '',
+  type: 'Team',
+  datetime: '',
+  duration: 30
+})
+
+const meetingTypeOptions = [
+  { value: 'Personal', label: 'Personal' },
+  { value: 'Personal Discussion', label: 'Personal Discussion' },
+  { value: 'Team', label: 'Team' },
+  { value: 'Client', label: 'Client' },
+  { value: 'Standup', label: 'Standup' },
+  { value: 'Brainstorm', label: 'Brainstorm' },
+  { value: 'Other', label: 'Other' }
+]
+
+const openEditMeetingModal = () => {
+  if (!meetingStore.selectedMeeting) return
+  const m = meetingStore.selectedMeeting
+  
+  let dateStr = ''
+  if (m.startTime) {
+    const d = new Date(m.startTime)
+    const yyyy = d.getFullYear()
+    const mm = String(d.getMonth() + 1).padStart(2, '0')
+    const dd = String(d.getDate()).padStart(2, '0')
+    dateStr = `${yyyy}-${mm}-${dd}`
+  }
+
+  editMeetingForm.value = {
+    title: m.title,
+    description: m.description || '',
+    type: m.type || 'Team',
+    datetime: dateStr,
+    duration: m.duration ? parseInt(m.duration) : 30
+  }
+  showEditMeetingModal.value = true
+}
+
+const saveMeetingDetails = async () => {
+  if (!meetingStore.selectedMeeting) return
+  const id = meetingStore.selectedMeeting._id || meetingStore.selectedMeeting.id
+  
+  const payload = {
+    _id: id,
+    title: editMeetingForm.value.title,
+    description: editMeetingForm.value.description,
+    type: editMeetingForm.value.type,
+    startTime: editMeetingForm.value.datetime ? new Date(editMeetingForm.value.datetime).toISOString() : meetingStore.selectedMeeting.startTime,
+    duration: parseInt(editMeetingForm.value.duration)
+  }
+
+  await meetingStore.updateMeeting(payload)
+  
+  const updated = meetingStore.meetings.find(m => m.id === id || m._id === id)
+  if (updated) {
+    meetingStore.selectedMeeting = {
+      ...meetingStore.selectedMeeting,
+      ...updated
+    }
+  }
+  showEditMeetingModal.value = false
+}
 
 onMounted(async () => {
   meetingStore.fetchMeetings()
@@ -372,13 +515,13 @@ const selectMeeting = async (meeting) => {
   isLoadingDetails.value = false
 }
 
-const joinCallRoom = (meeting) => {
+const joinCallRoom = async (meeting) => {
   const scheduledTime = new Date(meeting.startTime)
   const now = new Date()
   // Enforce scheduled start time: if current time is more than 5 minutes before scheduled start time, don't allow starting it
   if (scheduledTime - now > 300000) {
     const formattedTime = scheduledTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
-    alert(`This meeting is scheduled for ${formattedTime}. You cannot start or join it before the scheduled start time.`)
+    await alertStore.showAlert(`This meeting is scheduled for ${formattedTime}. You cannot start or join it before the scheduled start time.`, "Meeting Not Started", "primary")
     return
   }
 

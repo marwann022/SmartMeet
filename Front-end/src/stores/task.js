@@ -2,11 +2,13 @@ import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import axios from 'axios'
 import { useAuthStore } from './auth'
+import { useAlertStore } from './alert'
 
 export const useTaskStore = defineStore('task', () => {
   const tasks = ref([])
   const statusOrder = ['todo', 'inprogress', 'review', 'done']
   const authStore = useAuthStore()
+  const alertStore = useAlertStore()
 
   const getHeaders = () => ({
     headers: {
@@ -58,7 +60,7 @@ export const useTaskStore = defineStore('task', () => {
       }
     } catch (error) {
       console.error('Failed to add task:', error)
-      alert(error.response?.data?.message || 'Failed to add task')
+      alertStore.showAlert(error.response?.data?.message || 'Failed to add task', 'Error', 'danger')
     }
   }
 
@@ -84,7 +86,7 @@ export const useTaskStore = defineStore('task', () => {
       }
     } catch (error) {
       console.error('Failed to delete task:', error)
-      alert(error.response?.data?.message || 'Failed to delete task')
+      alertStore.showAlert(error.response?.data?.message || 'Failed to delete task', 'Error', 'danger')
     }
   }
 
@@ -105,16 +107,11 @@ export const useTaskStore = defineStore('task', () => {
     }
 
     if (newDone && isExtracted(task) && !isAuthorized(task)) {
-      alert('Only the admin or task creator can mark meeting-extracted tasks as done.')
+      alertStore.showAlert('Only the admin or task creator can mark meeting-extracted tasks as done.', 'Access Denied', 'review')
       return false
     }
 
-    if (newStatus === 'review' && originalStatus !== 'review' && !isAuthorized(task)) {
-      const confirmed = window.confirm(
-        'Are you sure you want to request a review? This action will notify the admin that this task needs to be reviewed to be done.'
-      )
-      if (!confirmed) return false
-    }
+
 
     // Optimistic UI update
     task.done = newDone
@@ -151,16 +148,11 @@ export const useTaskStore = defineStore('task', () => {
       const newPreviousStatus = task.status !== 'done' ? task.status : task.previousStatus
 
       if (newStatus === 'done' && isExtracted(task) && !isAuthorized(task)) {
-        alert('Only the admin or task creator can mark meeting-extracted tasks as done.')
+        alertStore.showAlert('Only the admin or task creator can mark meeting-extracted tasks as done.', 'Access Denied', 'review')
         return false
       }
 
-      if (newStatus === 'review' && originalStatus !== 'review' && !isAuthorized(task)) {
-        const confirmed = window.confirm(
-          'Are you sure you want to request a review? This action will notify the admin that this task needs to be reviewed to be done.'
-        )
-        if (!confirmed) return false
-      }
+
 
       // Optimistic update
       task.status = newStatus
@@ -199,16 +191,11 @@ export const useTaskStore = defineStore('task', () => {
       const newPreviousStatus = task.status !== 'done' ? task.status : task.previousStatus
 
       if (newStatus === 'done' && isExtracted(task) && !isAuthorized(task)) {
-        alert('Only the admin or task creator can mark meeting-extracted tasks as done.')
+        alertStore.showAlert('Only the admin or task creator can mark meeting-extracted tasks as done.', 'Access Denied', 'review')
         return false
       }
 
-      if (newStatus === 'review' && originalStatus !== 'review' && !isAuthorized(task)) {
-        const confirmed = window.confirm(
-          'Are you sure you want to request a review? This action will notify the admin that this task needs to be reviewed to be done.'
-        )
-        if (!confirmed) return false
-      }
+
 
       // Optimistic update
       task.status = newStatus

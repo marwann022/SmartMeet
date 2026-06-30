@@ -123,6 +123,7 @@ import { useMeetingStore } from '../../stores/meeting'
 
 import { computed } from 'vue'
 import { useAuthStore } from '../../stores/auth'
+import { useAlertStore } from '../../stores/alert'
 
 const route = useRoute()
 const router = useRouter()
@@ -130,6 +131,7 @@ const uiStore = useUiStore()
 const meetingStore = useMeetingStore()
 
 const authStore = useAuthStore()
+const alertStore = useAlertStore()
 
 const user = computed(() => authStore.user)
 console.log("USER DATA:", user.value)
@@ -159,7 +161,7 @@ const startInstantMeeting = async () => {
     router.push('/live-meeting')
   } catch (err) {
     console.error('Failed to start instant meeting:', err)
-    alert('Failed to start instant meeting. Please try again.')
+    await alertStore.showAlert('Failed to start instant meeting. Please try again.', 'Error', 'danger')
   }
 }
 

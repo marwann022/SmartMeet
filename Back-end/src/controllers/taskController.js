@@ -1,23 +1,44 @@
 import Task from "../models/Task.js";
 import User from "../models/User.js";
 import Notification from "../models/Notification.js";
+import Meeting from "../models/Meeting.js";
 
 // @desc    Get all tasks visible to the logged-in user
 // @route   GET /api/tasks
 // @access  Private
 export const getTasks = async (req, res) => {
     try {
-        // Always include tasks the user personally created (covers old + new personal + own community tasks)
-        const orClauses = [{ user: req.user._id }];
+        let query;
 
-        // Add community task clause only when the user belongs to a community.
-        // Guard: if community is null the $or clause would match any task where community
-        // is null, which would expose old unscoped tasks belonging to others.
-        if (req.user.community) {
-            orClauses.push({ community: req.user.community, isPersonal: false });
+        if (req.user.role === "admin") {
+            const orClauses = [{ user: req.user._id }];
+            if (req.user.community) {
+                orClauses.push({ community: req.user.community, isPersonal: false });
+            }
+            query = { $or: orClauses };
+
+            // Privacy Rule: Admin should not view private tasks belonging to meetings conducted exclusively between two other members.
+            if (req.user.community) {
+                const communityUsers = await User.find({ community: req.user.community }).select("_id");
+                const communityUserIds = communityUsers.map((u) => u._id);
+
+                const privateMeetings = await Meeting.find({
+                    host: { $in: communityUserIds, $ne: req.user._id },
+                    participants: { $size: 1 },
+                    "participants.email": { $ne: req.user.email },
+                }).select("_id");
+
+                if (privateMeetings.length > 0) {
+                    const privateMeetingIds = privateMeetings.map((m) => m._id);
+                    query.meeting = { $nin: privateMeetingIds };
+                }
+            }
+        } else {
+            // Non-admin members should only see their own assigned tasks
+            query = { user: req.user._id };
         }
 
-        const tasks = await Task.find({ $or: orClauses }).sort({ createdAt: -1 });
+        const tasks = await Task.find(query).sort({ createdAt: -1 });
 
         res.status(200).json({
             success: true,
@@ -40,6 +61,7 @@ export const createTask = async (req, res) => {
         const {
             title, description, priority, status,
             assignee, avatarColor, due, dueDate, source,
+            assigneeIds,
         } = req.body;
 
         if (!title) {
@@ -51,46 +73,54 @@ export const createTask = async (req, res) => {
 
         const isAdmin = req.user.role === "admin";
 
-        const task = await Task.create({
-            user: req.user._id,
-            community: req.user.community || null,
-            createdBy: req.user._id,
-            isPersonal: !isAdmin,
-            title,
-            description,
-            priority,
-            status,
-            assignee,
-            avatarColor,
-            due,
-            dueDate,
-            source,
-        });
+        let targetUserIds = [];
+        if (isAdmin && assigneeIds && Array.isArray(assigneeIds) && assigneeIds.length > 0) {
+            targetUserIds = assigneeIds;
+        } else {
+            targetUserIds = [req.user._id];
+        }
 
-        // Admin community task: notify every active member in the community (including the admin)
-        if (isAdmin && req.user.community) {
-            const members = await User.find({
+        const createdTasks = [];
+        for (const targetUserId of targetUserIds) {
+            const targetUser = await User.findById(targetUserId);
+            const assigneeName = targetUser ? `${targetUser.firstName} ${targetUser.lastName}` : (assignee || "Alex Chen");
+
+            const task = await Task.create({
+                user: targetUserId,
+                community: req.user.community || null,
+                createdBy: req.user._id,
+                isPersonal: !isAdmin,
+                title,
+                description: description || "No description provided.",
+                priority: priority || "MEDIUM PRIORITY",
+                status: status || "todo",
+                assignee: assigneeName,
+                avatarColor: avatarColor || "bg-primary",
+                due: due || "TBD",
+                dueDate: dueDate || "",
+                source: source || "Manual Entry",
+            });
+            createdTasks.push(task);
+        }
+
+        // Admin community task: notify each assigned member
+        if (isAdmin && req.user.community && createdTasks.length > 0) {
+            const notifications = createdTasks.map((t) => ({
+                recipient: t.user,
                 community: req.user.community,
-                status: "active",
-            }).select("_id");
-
-            if (members.length > 0) {
-                const notifications = members.map((m) => ({
-                    recipient: m._id,
-                    community: req.user.community,
-                    type: "task",
-                    title: "New Community Task",
-                    message: "A new task has been added by the administrator.",
-                    relatedId: task._id,
-                }));
-                await Notification.insertMany(notifications);
-            }
+                type: "task",
+                title: "New Task Assigned",
+                message: `A new task "${t.title}" has been assigned to you by the administrator.`,
+                relatedId: t._id,
+            }));
+            await Notification.insertMany(notifications);
         }
 
         res.status(201).json({
             success: true,
             message: "Task created successfully",
-            task,
+            task: createdTasks[0],
+            tasks: createdTasks,
         });
     } catch (error) {
         res.status(500).json({
@@ -130,9 +160,35 @@ export const updateTask = async (req, res) => {
             });
         }
 
-        // Authorize access: personal tasks only by owner, community tasks by same community members
+        const isAdmin = req.user.role === "admin";
+
+        // Privacy check: Admin cannot view/modify tasks belonging to private meetings between other members
+        if (isAdmin && task.meeting) {
+            const meeting = await Meeting.findById(task.meeting);
+            if (meeting && meeting.participants.length === 1 && meeting.host.toString() !== req.user._id.toString() && meeting.participants[0].email !== req.user.email) {
+                return res.status(403).json({
+                    success: false,
+                    message: "Unauthorized to access tasks of this private meeting.",
+                });
+            }
+        }
+
+        // Locking rule: Prevent member from changing status once set to 'review' or 'done'
+        if (!isAdmin && (task.status === "review" || task.status === "done")) {
+            const changingStatus = (status !== undefined && status !== task.status) || (done !== undefined && done !== task.done);
+            if (changingStatus) {
+                return res.status(403).json({
+                    success: false,
+                    message: "Task is locked after review submission or completion and cannot be modified by a member.",
+                });
+            }
+        }
+
+        // Authorize access: admin can update any community task, otherwise normal personal/community rules
         let hasAccess = false;
-        if (task.isPersonal) {
+        if (isAdmin) {
+            hasAccess = req.user.community && task.community && task.community.toString() === req.user.community.toString();
+        } else if (task.isPersonal) {
             hasAccess = task.user.toString() === req.user._id.toString();
         } else {
             hasAccess = req.user.community && task.community && task.community.toString() === req.user.community.toString();
@@ -145,8 +201,7 @@ export const updateTask = async (req, res) => {
             });
         }
 
-        // Determine if user is admin or task creator
-        const isAdmin = req.user.role === "admin";
+        // Determine if user is task creator
         const isCreator = task.createdBy && task.createdBy.toString() === req.user._id.toString();
         const isAuthorized = isAdmin || isCreator;
 
@@ -174,6 +229,15 @@ export const updateTask = async (req, res) => {
                     message: `Task "${task.title || title || task.title}" has been submitted for review by ${req.user.firstName} ${req.user.lastName || ""}.`,
                     relatedId: task._id,
                 });
+            }
+        }
+
+        // Admin re-assignment update logic
+        if (isAdmin && req.body.assigneeId) {
+            updateData.user = req.body.assigneeId;
+            const targetUser = await User.findById(req.body.assigneeId);
+            if (targetUser) {
+                updateData.assignee = `${targetUser.firstName} ${targetUser.lastName}`;
             }
         }
 
@@ -208,17 +272,30 @@ export const deleteTask = async (req, res) => {
             });
         }
 
+        const isAdmin = req.user.role === "admin";
+
+        // Privacy check: Admin cannot delete tasks belonging to private meetings between other members
+        if (isAdmin && task.meeting) {
+            const meeting = await Meeting.findById(task.meeting);
+            if (meeting && meeting.participants.length === 1 && meeting.host.toString() !== req.user._id.toString() && meeting.participants[0].email !== req.user.email) {
+                return res.status(403).json({
+                    success: false,
+                    message: "Unauthorized to access tasks of this private meeting.",
+                });
+            }
+        }
+
         let hasDeleteAccess = false;
-        if (task.isPersonal) {
+        if (isAdmin) {
+            hasDeleteAccess = req.user.community && task.community && task.community.toString() === req.user.community.toString();
+        } else if (task.isPersonal) {
             hasDeleteAccess = task.user.toString() === req.user._id.toString();
         } else {
             // Community task: must belong to the same community
             const sameCommunity = req.user.community && task.community && task.community.toString() === req.user.community.toString();
-            // Delete access: must be admin, or the creator of the task, or the assignee (task.user)
-            const isAdmin = req.user.role === "admin";
             const isCreator = task.createdBy && task.createdBy.toString() === req.user._id.toString();
             const isAssignee = task.user && task.user.toString() === req.user._id.toString();
-            hasDeleteAccess = sameCommunity && (isAdmin || isCreator || isAssignee);
+            hasDeleteAccess = sameCommunity && (isCreator || isAssignee);
         }
 
         if (!hasDeleteAccess) {
