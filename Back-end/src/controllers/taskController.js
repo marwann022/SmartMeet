@@ -2,6 +2,7 @@ import Task from "../models/Task.js";
 import User from "../models/User.js";
 import Notification from "../models/Notification.js";
 import Meeting from "../models/Meeting.js";
+import { getIO, getUserSockets } from "../socket/index.js";
 
 // @desc    Get all tasks visible to the logged-in user
 // @route   GET /api/tasks
@@ -38,7 +39,7 @@ export const getTasks = async (req, res) => {
             query = { user: req.user._id };
         }
 
-        const tasks = await Task.find(query).sort({ createdAt: -1 });
+        const tasks = await Task.find(query).sort({ createdAt: -1 }).populate('user', 'name avatar role');
 
         res.status(200).json({
             success: true,
@@ -140,11 +141,13 @@ export const updateTask = async (req, res) => {
         const {
             title, description, priority, status, done,
             previousStatus, assignee, avatarColor, due, dueDate, dueTime, source,
+            reviewComment,
         } = req.body;
 
         const updateData = {
             title, description, priority, status, done,
             previousStatus, assignee, avatarColor, due, dueDate, dueTime, source,
+            reviewComment,
         };
 
         // Strip undefined values so partial updates don't overwrite fields with undefined
@@ -217,20 +220,142 @@ export const updateTask = async (req, res) => {
             });
         }
 
-        // Action: When non-admin/non-creator team member switches task to 'review', notify the admin
+        // Action: When non-admin/non-creator team member switches task to 'review', notify ALL admins
         const settingToReview = status === "review" && task.status !== "review";
         if (settingToReview && !isAuthorized) {
-            const adminUser = await User.findOne({ community: task.community, role: "admin" });
-            if (adminUser) {
+            if (!task.reviewHistory) task.reviewHistory = [];
+            task.reviewHistory.push({
+                action: "submitted",
+                user: req.user._id,
+                comment: "",
+                timestamp: new Date(),
+            });
+
+            const adminUsers = await User.find({ community: task.community, role: "admin" }).select("_id firstName lastName name");
+            const senderName = req.user.name || `${req.user.firstName || ""} ${req.user.lastName || ""}`.trim() || "A member";
+            const taskTitle = task.title || title;
+
+            for (const admin of adminUsers) {
                 await Notification.create({
-                    recipient: adminUser._id,
+                    recipient: admin._id,
                     community: task.community,
-                    type: "task",
-                    title: "Task Review Required",
-                    message: `Task "${task.title || title || task.title}" has been submitted for review by ${req.user.firstName} ${req.user.lastName || ""}.`,
+                    type: "approval",
+                    title: "Task Ready For Review",
+                    message: `${senderName} marked "${taskTitle}" as ready for review.`,
                     relatedId: task._id,
                 });
             }
+
+            // Emit socket to all admins
+            try {
+                const io = getIO();
+                const userSocketsMap = getUserSockets();
+                const payload = {
+                    type: "approval",
+                    title: "Task Ready For Review",
+                    message: `${senderName} marked "${taskTitle}" as ready for review.`,
+                    relatedId: task._id,
+                };
+                for (const admin of adminUsers) {
+                    const adminId = admin._id.toString();
+                    const sockets = userSocketsMap.get(adminId);
+                    if (sockets) {
+                        for (const sid of sockets) {
+                            io.to(sid).emit("task:notification", payload);
+                        }
+                    }
+                }
+            } catch (_err) {
+                // Socket not available
+            }
+        }
+
+        // Admin approves: review → done
+        const adminApproving = isAdmin && status === "done" && task.status === "review";
+        if (adminApproving) {
+            if (!task.reviewHistory) task.reviewHistory = [];
+            task.reviewHistory.push({
+                action: "approved",
+                user: req.user._id,
+                comment: reviewComment || "",
+                timestamp: new Date(),
+            });
+
+            const adminName = req.user.name || `${req.user.firstName || ""} ${req.user.lastName || ""}`.trim() || "An admin";
+            const taskTitle = task.title || title;
+
+            await Notification.create({
+                recipient: task.user,
+                community: task.community,
+                type: "approval",
+                title: "Task Approved",
+                message: `Your task "${taskTitle}" has been approved.`,
+                relatedId: task._id,
+            });
+
+            try {
+                const io = getIO();
+                const userSocketsMap = getUserSockets();
+                const assigneeId = task.user.toString();
+                const sockets = userSocketsMap.get(assigneeId);
+                if (sockets) {
+                    const payload = {
+                        type: "approval",
+                        title: "Task Approved",
+                        message: `Your task "${taskTitle}" has been approved.`,
+                        relatedId: task._id,
+                    };
+                    for (const sid of sockets) {
+                        io.to(sid).emit("task:notification", payload);
+                    }
+                }
+            } catch (_err) {}
+        }
+
+        // Admin rejects: review → inprogress
+        const adminRejecting = isAdmin && status === "inprogress" && task.status === "review";
+        if (adminRejecting) {
+            if (!task.reviewHistory) task.reviewHistory = [];
+            task.reviewHistory.push({
+                action: "rejected",
+                user: req.user._id,
+                comment: reviewComment || "",
+                timestamp: new Date(),
+            });
+
+            const adminName = req.user.name || `${req.user.firstName || ""} ${req.user.lastName || ""}`.trim() || "An admin";
+            const taskTitle = task.title || title;
+
+            const notifMessage = reviewComment
+                ? `Your task "${taskTitle}" requires changes. Comment: ${reviewComment}`
+                : `Your task "${taskTitle}" requires changes.`;
+
+            await Notification.create({
+                recipient: task.user,
+                community: task.community,
+                type: "rejection",
+                title: "Task Needs Changes",
+                message: notifMessage,
+                relatedId: task._id,
+            });
+
+            try {
+                const io = getIO();
+                const userSocketsMap = getUserSockets();
+                const assigneeId = task.user.toString();
+                const sockets = userSocketsMap.get(assigneeId);
+                if (sockets) {
+                    const payload = {
+                        type: "rejection",
+                        title: "Task Needs Changes",
+                        message: `Your task "${taskTitle}" requires changes.`,
+                        relatedId: task._id,
+                    };
+                    for (const sid of sockets) {
+                        io.to(sid).emit("task:notification", payload);
+                    }
+                }
+            } catch (_err) {}
         }
 
         // Admin re-assignment update logic
@@ -256,6 +381,151 @@ export const updateTask = async (req, res) => {
             success: false,
             message: error.message,
         });
+    }
+};
+
+// @desc    Admin approves a task in review
+// @route   PUT /api/tasks/:id/approve
+// @access  Private/Admin
+export const approveTask = async (req, res) => {
+    try {
+        const task = await Task.findById(req.params.id);
+        if (!task) {
+            return res.status(404).json({ success: false, message: "Task not found." });
+        }
+
+        if (req.user.role !== "admin") {
+            return res.status(403).json({ success: false, message: "Only admins can approve tasks." });
+        }
+
+        if (!req.user.community || !task.community || task.community.toString() !== req.user.community.toString()) {
+            return res.status(403).json({ success: false, message: "Unauthorized to approve this task." });
+        }
+
+        if (task.status !== "review") {
+            return res.status(400).json({ success: false, message: "Task is not in review status." });
+        }
+
+        if (!task.reviewHistory) task.reviewHistory = [];
+        task.reviewHistory.push({
+            action: "approved",
+            user: req.user._id,
+            comment: "",
+            timestamp: new Date(),
+        });
+
+        task.status = "done";
+        task.done = true;
+        task.previousStatus = "review";
+        await task.save();
+
+        const adminName = req.user.name || `${req.user.firstName || ""} ${req.user.lastName || ""}`.trim() || "An admin";
+        await Notification.create({
+            recipient: task.user,
+            community: task.community,
+            type: "approval",
+            title: "Task Approved",
+            message: `Your task "${task.title}" has been approved.`,
+            relatedId: task._id,
+        });
+
+        try {
+            const io = getIO();
+            const userSocketsMap = getUserSockets();
+            const assigneeId = task.user.toString();
+            const sockets = userSocketsMap.get(assigneeId);
+            if (sockets) {
+                const payload = {
+                    type: "approval",
+                    title: "Task Approved",
+                    message: `Your task "${task.title}" has been approved.`,
+                    relatedId: task._id,
+                };
+                for (const sid of sockets) {
+                    io.to(sid).emit("task:notification", payload);
+                }
+            }
+        } catch (_err) {}
+
+        res.status(200).json({ success: true, message: "Task approved.", task });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+// @desc    Admin rejects a task in review, moves back to inprogress
+// @route   PUT /api/tasks/:id/reject
+// @access  Private/Admin
+export const rejectTask = async (req, res) => {
+    try {
+        const task = await Task.findById(req.params.id);
+        if (!task) {
+            return res.status(404).json({ success: false, message: "Task not found." });
+        }
+
+        if (req.user.role !== "admin") {
+            return res.status(403).json({ success: false, message: "Only admins can reject tasks." });
+        }
+
+        if (!req.user.community || !task.community || task.community.toString() !== req.user.community.toString()) {
+            return res.status(403).json({ success: false, message: "Unauthorized to reject this task." });
+        }
+
+        if (task.status !== "review") {
+            return res.status(400).json({ success: false, message: "Task is not in review status." });
+        }
+
+        const comment = req.body.comment || "";
+
+        if (!task.reviewHistory) task.reviewHistory = [];
+        task.reviewHistory.push({
+            action: "rejected",
+            user: req.user._id,
+            comment,
+            timestamp: new Date(),
+        });
+
+        task.status = "inprogress";
+        task.done = false;
+        task.previousStatus = "review";
+        task.reviewComment = comment;
+        await task.save();
+
+        const adminName = req.user.name || `${req.user.firstName || ""} ${req.user.lastName || ""}`.trim() || "An admin";
+        const notifMessage = comment
+            ? `Your task "${task.title}" requires changes. Comment: ${comment}`
+            : `Your task "${task.title}" requires changes.`;
+
+        await Notification.create({
+            recipient: task.user,
+            community: task.community,
+            type: "rejection",
+            title: "Task Needs Changes",
+            message: notifMessage,
+            relatedId: task._id,
+        });
+
+        try {
+            const io = getIO();
+            const userSocketsMap = getUserSockets();
+            const assigneeId = task.user.toString();
+            const sockets = userSocketsMap.get(assigneeId);
+            if (sockets) {
+                const payload = {
+                    type: "rejection",
+                    title: "Task Needs Changes",
+                    message: `Your task "${task.title}" requires changes.`,
+                    relatedId: task._id,
+                };
+                for (const sid of sockets) {
+                    io.to(sid).emit("task:notification", payload);
+                }
+            }
+        } catch (_err) {}
+
+        res.status(200).json({ success: true, message: "Task rejected and moved back to In Progress.", task });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
     }
 };
 

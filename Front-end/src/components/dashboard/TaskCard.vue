@@ -92,7 +92,7 @@
     <div class="border-t border-black/5 dark:border-white/5 pt-2.5 mt-0.5 flex flex-col gap-2">
       <!-- Assignee -->
       <div class="flex items-center gap-1.5">
-        <PhUser :size="13" weight="bold" class="text-slate-400" />
+        <UserAvatar :user="task.user" :name="task.assignee" size="xs" />
         <span class="text-xs font-semibold text-brand-dark/90 dark:text-slate-300">
           {{ task.assignee || 'Unassigned' }}
         </span>
@@ -149,6 +149,7 @@ import {
   PhFileText,
 } from '@phosphor-icons/vue'
 import Badge from '../ui/Badge.vue'
+import UserAvatar from '../common/UserAvatar.vue'
 import { useAuthStore } from '../../stores/auth'
 import { useNow } from '../../composables/useNow'
 import { getCountdownInfo, getDeadlineColors, getProgressPercent } from '../../utils/taskDeadline'

@@ -21,6 +21,7 @@ const notificationSchema = new mongoose.Schema(
         "document",
         "approval",
         "rejection",
+        "chat",
       ],
       required: [true, "Notification type is required."],
     },

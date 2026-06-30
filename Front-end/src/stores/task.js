@@ -224,6 +224,40 @@ export const useTaskStore = defineStore('task', () => {
     return false
   }
 
+  const approveTask = async (id) => {
+    try {
+      const { data } = await axios.put(`http://localhost:5000/api/tasks/${id}/approve`, {}, getHeaders())
+      if (data.success) {
+        const idx = tasks.value.findIndex(t => String(t.id || t._id) === String(id))
+        if (idx !== -1) {
+          tasks.value[idx] = { ...tasks.value[idx], ...data.task }
+        }
+        return true
+      }
+    } catch (error) {
+      console.error('Failed to approve task:', error)
+      alertStore.showAlert(error.response?.data?.message || 'Failed to approve task', 'Error', 'danger')
+      return false
+    }
+  }
+
+  const rejectTask = async (id, comment = '') => {
+    try {
+      const { data } = await axios.put(`http://localhost:5000/api/tasks/${id}/reject`, { comment }, getHeaders())
+      if (data.success) {
+        const idx = tasks.value.findIndex(t => String(t.id || t._id) === String(id))
+        if (idx !== -1) {
+          tasks.value[idx] = { ...tasks.value[idx], ...data.task }
+        }
+        return true
+      }
+    } catch (error) {
+      console.error('Failed to reject task:', error)
+      alertStore.showAlert(error.response?.data?.message || 'Failed to reject task', 'Error', 'danger')
+      return false
+    }
+  }
+
   return {
     tasks,
     fetchTasks,
@@ -232,6 +266,8 @@ export const useTaskStore = defineStore('task', () => {
     removeTask,
     toggleTask,
     moveTask,
-    setTaskStatus
+    setTaskStatus,
+    approveTask,
+    rejectTask,
   }
 })

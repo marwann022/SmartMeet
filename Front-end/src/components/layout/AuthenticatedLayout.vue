@@ -248,24 +248,9 @@
             <div ref="profileRef" class="relative">
               <button
                 @click="isProfileOpen = !isProfileOpen"
-                class="flex items-center gap-2.5 cursor-pointer focus:outline-none bg-transparent border-0"
+                class="cursor-pointer focus:outline-none bg-transparent border-0"
               >
-                <img
-                  :src="profileImage"
-                  alt="Profile"
-                  class="w-9 h-9 rounded-full object-cover border border-white/80 shadow-sm transition-all duration-300 hover:scale-105"
-                />
-                <div class="flex flex-col text-left compact:hidden">
-                  <span class="text-[11px] font-bold text-brand-dark dark:text-slate-200 leading-tight">
-                    {{ user?.name || 'User' }}
-                  </span>
-                  <span class="text-[9px] font-extrabold text-brand-slate dark:text-slate-400 tracking-wider uppercase leading-tight">
-                    {{ (user?.role || 'member').toUpperCase() }}
-                  </span>
-                  <span class="text-[9px] font-extrabold text-primary tracking-wider uppercase leading-tight">
-                    {{ user?.plan?.replace(/ \((Monthly|Annual)\)/, '') || 'Free' }}
-                  </span>
-                </div>
+                <NavbarUserPanel />
               </button>
 
               <!-- Profile Dropdown -->
@@ -374,6 +359,8 @@ import Button from '@/components/ui/Button.vue'
 import { useNotificationStore } from '../../stores/notification'
 import axios from 'axios'
 import { useAlertStore } from '@/stores/alert'
+import NavbarUserPanel from '@/components/common/NavbarUserPanel.vue'
+import { connectChatSocket, getChatSocket, disconnectChatSocket } from '@/services/chatSocket'
 
 const router = useRouter()
 const searchQuery = ref('')
@@ -383,13 +370,6 @@ const notificationStore = useNotificationStore()
 const alertStore = useAlertStore()
 
 const user = computed(() => authStore.user)
-
-const profileImage = computed(() => {
-  if (user.value?.avatar) {
-    return `http://localhost:5000/uploads/${user.value.avatar}`
-  }
-  return `https://ui-avatars.com/api/?name=${encodeURIComponent(user.value?.name || 'User')}&background=4B68FF&color=fff`
-})
 
 const isProfileOpen = ref(false)
 const profileRef = ref(null)
@@ -408,6 +388,8 @@ const handleNotificationClick = (notification) => {
     router.push('/tasks')
   } else if (notification.type === 'meeting') {
     router.push('/archive')
+  } else if (notification.type === 'chat') {
+    router.push('/community-chat')
   } else {
     router.push('/dashboard')
   }
@@ -480,10 +462,27 @@ const handleClickOutside = (event) => {
 
 let pollInterval = null
 
+const setupChatSocket = () => {
+  const token = localStorage.getItem('token')
+  if (!token) return
+
+  const socket = connectChatSocket(token)
+
+  socket.on('chat:notification', () => {
+    notificationStore.fetchNotifications()
+  })
+
+  socket.on('task:notification', () => {
+    notificationStore.fetchNotifications()
+  })
+}
+
 onMounted(async () => {
   await authStore.fetchProfile()
   await notificationStore.fetchNotifications()
   document.addEventListener('click', handleClickOutside)
+
+  setupChatSocket()
 
   pollInterval = setInterval(() => {
     notificationStore.fetchNotifications()
@@ -495,6 +494,7 @@ onUnmounted(() => {
   if (pollInterval) {
     clearInterval(pollInterval)
   }
+  disconnectChatSocket()
 })
 
 const onAfterLeave = () => {

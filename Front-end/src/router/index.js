@@ -96,6 +96,12 @@ const routes = [
                     import ('@/views/app/KnowledgeAI.vue')
             },
             {
+                path: 'community-chat',
+                name: 'CommunityChat',
+                component: () =>
+                    import ('@/views/app/CommunityChat.vue')
+            },
+            {
                 path: 'team-management',
                 name: 'TeamManagement',
                 component: () =>

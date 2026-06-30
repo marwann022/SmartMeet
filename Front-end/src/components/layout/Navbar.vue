@@ -288,25 +288,9 @@
         <div ref="profileRef" class="relative">
           <button
             @click="isProfileOpen = !isProfileOpen"
-            class="flex items-center gap-2.5 cursor-pointer focus:outline-none bg-transparent border-0"
+            class="cursor-pointer focus:outline-none bg-transparent border-0"
           >
-            <img
-              :src="profileImage"
-              alt="Profile"
-              class="w-9 h-9 rounded-full object-cover border border-white/80 shadow-sm transition-all duration-300 hover:scale-105"
-            />
-
-            <div class="flex flex-col text-left">
-              <span class="text-[11px] font-bold text-brand-dark leading-tight">
-                {{ user?.name || "User" }}
-              </span>
-
-              <span
-                class="text-[9px] font-extrabold text-primary tracking-wider uppercase"
-              >
-                {{ user?.plan?.replace(/ \((Monthly|Annual)\)/, '') || 'Free' }}
-              </span>
-            </div>
+            <NavbarUserPanel />
           </button>
 
           <!-- Profile Dropdown -->
@@ -397,6 +381,7 @@ import { useNotificationStore } from '@/stores/notification'
 import { useUiStore } from '@/stores/ui'
 import Modal from '@/components/ui/Modal.vue'
 import Button from '@/components/ui/Button.vue'
+import NavbarUserPanel from '@/components/common/NavbarUserPanel.vue'
 import axios from "axios";
 const uiStore = useUiStore()
 const router = useRouter();
@@ -538,15 +523,6 @@ watch(authenticated, (newVal) => {
   }
 });
 
-const profileImage = computed(() => {
-  if (user.value?.avatar) {
-    return `http://localhost:5000/uploads/${user.value.avatar}`;
-  }
-
-  return `https://ui-avatars.com/api/?name=${encodeURIComponent(
-    user.value?.name || "User",
-  )}&background=4B68FF&color=fff`;
-});
 </script>
 
 <style scoped>

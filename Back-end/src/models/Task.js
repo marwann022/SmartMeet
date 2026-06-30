@@ -75,6 +75,28 @@ const taskSchema = new mongoose.Schema({
         type: Boolean,
         default: false,
     },
+    reviewComment: {
+        type: String,
+        default: "",
+    },
+    reviewHistory: [{
+        action: {
+            type: String,
+            enum: ["submitted", "approved", "rejected"],
+        },
+        user: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "User",
+        },
+        comment: {
+            type: String,
+            default: "",
+        },
+        timestamp: {
+            type: Date,
+            default: Date.now,
+        },
+    }],
 }, {
     timestamps: true,
     toJSON: { virtuals: true },

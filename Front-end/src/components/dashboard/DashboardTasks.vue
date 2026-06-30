@@ -193,12 +193,32 @@
           
           <div class="flex items-center gap-4 text-sm border-t border-black/5 dark:border-white/10 pt-4">
             <div class="flex items-center gap-2">
-              <img src="../../assets/User Profile.png" class="w-7 h-7 rounded-full object-cover border-2 border-white/85 shadow-sm" alt="assignee" />
-              <span class="font-header font-bold text-xs text-brand-dark">{{ selectedTask.assignee }}</span>
+              <UserAvatar :user="selectedTask.user" :name="selectedTask.assignee" size="sm" />
+              <div class="flex flex-col">
+                <span class="font-header font-bold text-xs text-brand-dark">{{ selectedTask.assignee }}</span>
+                <span class="text-[11px] font-medium leading-tight" style="color: #4F7CFF">
+                  {{ selectedTask.user?.role === 'admin' ? 'Community Admin' : 'Community Member' }}
+                </span>
+              </div>
             </div>
             <div class="flex items-center gap-1.5 text-[#5c5e65] dark:text-slate-400 font-header font-bold text-xs">
               <PhCalendarBlank :size="14" weight="bold" />
               {{ selectedTask.due }}
+            </div>
+          </div>
+
+          <!-- Review History -->
+          <div v-if="selectedTask.reviewHistory && selectedTask.reviewHistory.length > 0" class="flex flex-col gap-2 border-t border-black/5 dark:border-white/10 pt-4">
+            <label class="text-[10px] font-extrabold uppercase tracking-wider text-brand-slate pl-1 font-header">Review History</label>
+            <div class="flex flex-col gap-1.5">
+              <div v-for="entry in selectedTask.reviewHistory" :key="entry._id || entry.timestamp" class="flex items-center gap-2 text-xs">
+                <span class="w-2 h-2 rounded-full flex-shrink-0" :class="entry.action === 'approved' ? 'bg-emerald-500' : entry.action === 'rejected' ? 'bg-red-500' : 'bg-amber-500'"></span>
+                <span class="font-semibold text-brand-dark">
+                  {{ entry.action === 'submitted' ? 'Submitted for review' : entry.action === 'approved' ? 'Approved' : 'Rejected' }}
+                </span>
+                <span v-if="entry.comment" class="text-brand-slate truncate max-w-[200px]" :title="entry.comment">— "{{ entry.comment }}"</span>
+                <span class="text-brand-slate/60 ml-auto flex-shrink-0">{{ formatReviewTime(entry.timestamp) }}</span>
+              </div>
             </div>
           </div>
 
@@ -224,6 +244,30 @@
             </div>
           </div>
           
+          <!-- Admin Review Actions: Approve / Reject -->
+          <div v-if="selectedTask.status === 'review' && authStore.user?.role === 'admin'" class="flex flex-col gap-3 pt-4 border-t border-black/5 dark:border-white/10">
+            <div v-if="!showRejectField" class="flex gap-3">
+              <Button variant="primary" class="flex-1" @click="handleApprove">
+                <template #icon-left><PhCheck :size="14" weight="bold" /></template>
+                Approve
+              </Button>
+              <Button variant="danger" class="flex-1" @click="showRejectField = true">
+                <template #icon-left><PhX :size="14" weight="bold" /></template>
+                Reject
+              </Button>
+            </div>
+            <div v-else class="flex flex-col gap-3">
+              <div class="flex flex-col gap-1.5">
+                <label class="text-[10px] font-extrabold uppercase tracking-wider text-brand-slate pl-1 font-header">Rejection Comment (optional)</label>
+                <textarea v-model="rejectComment" rows="2" placeholder="Please attach the meeting notes..." class="w-full px-4 py-3 rounded-xl bg-white dark:bg-slate-900/50 border font-body text-sm text-brand-dark dark:text-slate-200 focus:outline-none transition-all duration-300 resize-none border-red-500/20 dark:border-white/10 focus:border-red-500/30" />
+              </div>
+              <div class="flex gap-3">
+                <Button variant="danger" class="flex-1" @click="handleReject">Confirm Reject</Button>
+                <Button variant="outline" class="flex-1" @click="cancelReject">Cancel</Button>
+              </div>
+            </div>
+          </div>
+
           <div class="flex gap-3 pt-4 border-t border-black/5 dark:border-white/10">
             <Button 
               class="flex-1"
@@ -387,8 +431,10 @@ import TimePicker from '../ui/TimePicker.vue'
 import SearchBar from '../ui/SearchBar.vue'
 import Checkbox from '../ui/Checkbox.vue'
 import { useAuthStore } from '../../stores/auth'
+import UserAvatar from '../common/UserAvatar.vue'
 import axios from 'axios'
 import { sortByUrgency, formatDateDisplay, getTodayString } from '../../utils/taskDeadline'
+import { getChatSocket } from '@/services/chatSocket'
 
 const props = defineProps({
   searchQuery: {
@@ -568,10 +614,22 @@ onMounted(() => {
   window.addEventListener('dragend', onDragEndGlobal)
   taskStore.fetchTasks()
   loadMembers()
+
+  const socket = getChatSocket()
+  if (socket) {
+    socket.on('task:notification', () => {
+      taskStore.fetchTasks()
+    })
+  }
 })
 
 onUnmounted(() => {
   window.removeEventListener('dragend', onDragEndGlobal)
+
+  const socket = getChatSocket()
+  if (socket) {
+    socket.off('task:notification')
+  }
 })
 
 const newTask = ref({
@@ -635,6 +693,43 @@ const isLocked = computed(() => {
   const isAdmin = authStore.user?.role === 'admin'
   return !isAdmin && (selectedTask.value.status === 'review' || selectedTask.value.status === 'done')
 })
+
+const rejectComment = ref('')
+const showRejectField = ref(false)
+const showRejectConfirmModal = ref(false)
+
+const handleApprove = async () => {
+  if (!selectedTask.value) return
+  const id = selectedTask.value.id || selectedTask.value._id
+  const success = await taskStore.approveTask(id)
+  if (success) {
+    selectedTask.value = null
+    taskStore.fetchTasks()
+  }
+}
+
+const handleReject = async () => {
+  if (!selectedTask.value) return
+  const id = selectedTask.value.id || selectedTask.value._id
+  const success = await taskStore.rejectTask(id, rejectComment.value)
+  if (success) {
+    selectedTask.value = null
+    taskStore.fetchTasks()
+  }
+  showRejectField.value = false
+  rejectComment.value = ''
+}
+
+const cancelReject = () => {
+  showRejectField.value = false
+  rejectComment.value = ''
+}
+
+const formatReviewTime = (ts) => {
+  if (!ts) return ''
+  const d = new Date(ts)
+  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+}
 
 const startEditing = () => {
   if (!selectedTask.value) return
