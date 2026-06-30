@@ -96,12 +96,69 @@
               </svg>
             </button>
 
-            <button 
-              class="px-[20px] py-[10px] rounded-full bg-white dark:bg-slate-900 border border-black/8 dark:border-white/10 text-brand-dark dark:text-slate-200 font-header font-bold text-[12px] tracking-wider uppercase hover:bg-black/5 dark:hover:bg-white/5 hover:border-black/15 active:scale-[0.98] transition-all duration-300 cursor-pointer focus:outline-none flex-shrink-0"
-              @click="logout"
-            >
-              Log Out
-            </button>
+            <!-- Profile Container -->
+            <div ref="profileRef" class="relative">
+              <button
+                @click="isProfileOpen = !isProfileOpen"
+                class="flex items-center gap-2.5 cursor-pointer focus:outline-none bg-transparent border-0"
+              >
+                <img
+                  :src="profileImage"
+                  alt="Profile"
+                  class="w-9 h-9 rounded-full object-cover border border-white/80 shadow-sm transition-all duration-300 hover:scale-105"
+                />
+                <div class="flex flex-col text-left compact:hidden">
+                  <span class="text-[11px] font-bold text-brand-dark dark:text-slate-200 leading-tight">
+                    {{ user?.name || 'User' }}
+                  </span>
+                  <span class="text-[9px] font-extrabold text-brand-slate dark:text-slate-400 tracking-wider uppercase leading-tight">
+                    {{ (user?.role || 'member').toUpperCase() }}
+                  </span>
+                  <span class="text-[9px] font-extrabold text-primary tracking-wider uppercase leading-tight">
+                    {{ user?.plan?.replace(/ \((Monthly|Annual)\)/, '') || 'Free' }}
+                  </span>
+                </div>
+              </button>
+
+              <!-- Profile Dropdown -->
+              <transition name="fade-slide">
+                <div
+                  v-if="isProfileOpen"
+                  class="absolute right-0 mt-3.5 w-52 bg-white/90 dark:bg-slate-900/95 border border-white/80 dark:border-slate-800 rounded-2xl shadow-glass backdrop-blur-[20px] p-2 text-left z-50 transform origin-top-right transition-all duration-300"
+                >
+                  <div class="px-3 py-2 border-b border-black/5 mb-1.5">
+                    <p class="text-[11px] font-bold text-brand-dark truncate">{{ user?.name || 'User' }}</p>
+                    <p class="text-[9px] text-brand-slate truncate">{{ user?.email || 'user@smartmeet.ai' }}</p>
+                  </div>
+                  <div class="space-y-0.5">
+                    <router-link
+                      to="/settings?tab=profile"
+                      @click="isProfileOpen = false"
+                      class="flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-semibold text-brand-slate hover:text-brand-dark hover:bg-black/5 transition-all duration-200"
+                    >
+                      <PhUser :size="14" weight="bold" class="text-brand-slate" />
+                      <span>View Profile</span>
+                    </router-link>
+                    <router-link
+                      to="/settings"
+                      @click="isProfileOpen = false"
+                      class="flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-semibold text-brand-slate hover:text-brand-dark hover:bg-black/5 transition-all duration-200"
+                    >
+                      <PhGear :size="14" weight="bold" class="text-brand-slate" />
+                      <span>Settings</span>
+                    </router-link>
+                    <div class="border-t border-black/5 my-1"></div>
+                    <button
+                      @click.stop="handleLogout"
+                      class="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-semibold text-red-500 hover:bg-red-500/20 transition-all duration-200 cursor-pointer text-left focus:outline-none"
+                    >
+                      <PhSignOut :size="14" weight="bold" />
+                      <span>Log Out</span>
+                    </button>
+                  </div>
+                </div>
+              </transition>
+            </div>
           </div>
         </header>
       </div>
@@ -128,21 +185,16 @@
         </div>
       </footer>
     </main>
-    
-    <!-- Reusable Modal for Logout Confirmation -->
+
+    <!-- Logout Confirmation Modal -->
     <Modal :show="showLogoutModal" title="Confirm Log Out" @close="showLogoutModal = false" maxWidth="sm">
       <div class="flex flex-col gap-4 text-left">
         <p class="text-brand-slate text-sm font-body">
           Are you sure you want to log out of your SmartMeet account? Any unsaved changes may be lost.
         </p>
-        
         <div class="flex gap-3 pt-2">
-          <Button variant="danger" class="flex-1" @click="confirmLogout">
-            Log Out
-          </Button>
-          <Button variant="outline" class="flex-1" @click="showLogoutModal = false">
-            Cancel
-          </Button>
+          <Button variant="danger" class="flex-1" @click="confirmLogout">Log Out</Button>
+          <Button variant="outline" class="flex-1" @click="showLogoutModal = false">Cancel</Button>
         </div>
       </div>
     </Modal>
@@ -150,13 +202,13 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUiStore } from '../../stores/ui'
 import Sidebar from './Sidebar.vue'
 import BottomNav from './BottomNav.vue'
 import { useAuthStore } from '@/stores/auth'
-import { PhGear, PhClockClockwise } from '@phosphor-icons/vue'
+import { PhGear, PhClockClockwise, PhUser, PhSignOut } from '@phosphor-icons/vue'
 import Modal from '@/components/ui/Modal.vue'
 import Button from '@/components/ui/Button.vue'
 
@@ -165,13 +217,21 @@ const searchQuery = ref('')
 const uiStore = useUiStore()
 const authStore = useAuthStore()
 
-const showLogoutModal = ref(false)
+const user = computed(() => authStore.user)
 
-onMounted(async () => {
-  await authStore.fetchProfile()
+const profileImage = computed(() => {
+  if (user.value?.avatar) {
+    return `http://localhost:5000/uploads/${user.value.avatar}`
+  }
+  return `https://ui-avatars.com/api/?name=${encodeURIComponent(user.value?.name || 'User')}&background=4B68FF&color=fff`
 })
 
-const logout = () => {
+const isProfileOpen = ref(false)
+const profileRef = ref(null)
+const showLogoutModal = ref(false)
+
+const handleLogout = () => {
+  isProfileOpen.value = false
   showLogoutModal.value = true
 }
 
@@ -182,25 +242,46 @@ const confirmLogout = () => {
   window.location.reload()
 }
 
+const handleClickOutside = (event) => {
+  if (isProfileOpen.value && profileRef.value && !profileRef.value.contains(event.target)) {
+    isProfileOpen.value = false
+  }
+}
+
+onMounted(async () => {
+  await authStore.fetchProfile()
+  document.addEventListener('click', handleClickOutside)
+})
+
+onUnmounted(() => {
+  document.removeEventListener('click', handleClickOutside)
+})
+
 const onAfterLeave = () => {
   window.scrollTo(0, 0)
 }
 </script>
 
 <style scoped>
-/* Page transition effects */
 .fade-enter-active,
 .fade-leave-active {
   transition: opacity 0.22s cubic-bezier(0.4, 0, 0.2, 1), transform 0.22s cubic-bezier(0.4, 0, 0.2, 1);
 }
-
 .fade-enter-from {
   opacity: 0;
   transform: translateY(12px);
 }
-
 .fade-leave-to {
   opacity: 0;
   transform: translateY(-12px);
+}
+.fade-slide-enter-active,
+.fade-slide-leave-active {
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.fade-slide-enter-from,
+.fade-slide-leave-to {
+  opacity: 0;
+  transform: translateY(-8px) scale(0.95);
 }
 </style>

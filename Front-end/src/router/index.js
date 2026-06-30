@@ -96,6 +96,12 @@ const routes = [
                     import ('@/views/app/KnowledgeAI.vue')
             },
             {
+                path: 'team-management',
+                name: 'TeamManagement',
+                component: () =>
+                    import ('@/views/app/TeamManagement.vue')
+            },
+            {
                 path: 'settings',
                 name: 'Settings',
                 component: () =>

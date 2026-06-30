@@ -78,40 +78,45 @@
     </div>
 
     <!-- User profile: full info on desktop, avatar-only centered in compact mode -->
-    <div class="flex items-center gap-[12px] pt-[16px] border-t border-black/5 dark:border-white/5 compact:justify-center compact:gap-0 compact:pt-3">
+    <router-link
+      to="/settings?tab=profile"
+      class="flex items-center gap-[12px] pt-[16px] border-t border-black/5 dark:border-white/5 compact:justify-center compact:gap-0 compact:pt-3 cursor-pointer group transition-opacity duration-300 hover:opacity-80"
+    >
       <img
-  :src="
-    user?.avatar
-      ? `http://localhost:5000/uploads/${user.avatar}`
-      : `https://ui-avatars.com/api/?name=${encodeURIComponent(user?.name || 'User')}&background=4B68FF&color=ffffff`
-  "
-  alt="Profile"
-  class="w-[44px] h-[44px] rounded-full object-cover border border-white/85 shadow-sm compact:w-10 compact:h-10"
-/>
+        :src="
+          user?.avatar
+            ? `http://localhost:5000/uploads/${user.avatar}`
+            : `https://ui-avatars.com/api/?name=${encodeURIComponent(user?.name || 'User')}&background=4B68FF&color=ffffff`
+        "
+        alt="Profile"
+        class="w-[44px] h-[44px] rounded-full object-cover border border-white/85 shadow-sm compact:w-10 compact:h-10 transition-transform duration-300 group-hover:scale-105"
+      />
       <div class="flex flex-col compact:hidden">
-  <span class="text-[11px] font-bold text-brand-dark leading-tight">
-    {{ user?.name || "Guest User" }}
-  </span>
-
-  <span class="text-[9px] font-extrabold text-primary tracking-wider uppercase">
-    {{ user?.plan?.replace(/ \((Monthly|Annual)\)/, '') || "Free" }}
-  </span>
-</div>
-    </div>
+        <span class="text-[11px] font-bold text-brand-dark leading-tight">
+          {{ user?.name || "Guest User" }}
+        </span>
+        <span class="text-[9px] font-extrabold text-brand-slate tracking-wider uppercase leading-tight">
+          {{ (user?.role || 'member').toUpperCase() }}
+        </span>
+        <span class="text-[9px] font-extrabold text-primary tracking-wider uppercase">
+          {{ user?.plan?.replace(/ \((Monthly|Annual)\)/, '') || "Free" }}
+        </span>
+      </div>
+    </router-link>
   </aside>
 </template>
 
 <script setup>
 import { useRoute, useRouter } from 'vue-router'
-import { 
-  PhPlus, 
-  PhLayout, 
-  PhArchive, 
-  PhCheckSquare, 
-  PhBrain, 
+import {
+  PhPlus,
+  PhLayout,
+  PhArchive,
+  PhCheckSquare,
+  PhBrain,
   PhGear,
   PhCaretLeft,
-  PhLightning
+  PhUsersThree
 } from '@phosphor-icons/vue'
 import { useUiStore } from '../../stores/ui'
 import { useMeetingStore } from '../../stores/meeting'
@@ -160,6 +165,7 @@ const startInstantMeeting = async () => {
 
 const menuTabs = [
   { id: 'dashboard', label: 'Dashboard', route: '/dashboard', icon: PhLayout },
+  { id: 'team-management', label: 'Team Management', route: '/team-management', icon: PhUsersThree },
   { id: 'archive', label: 'Archive', route: '/archive', icon: PhArchive },
   { id: 'tasks', label: 'Tasks', route: '/tasks', icon: PhCheckSquare },
   { id: 'knowledge', label: 'Knowledge AI', route: '/knowledge-ai', icon: PhBrain },
