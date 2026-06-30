@@ -48,6 +48,10 @@ const taskSchema = new mongoose.Schema({
         type: String,
         default: "",
     },
+    dueTime: {
+        type: String,
+        default: "23:59",
+    },
     source: {
         type: String,
         default: "Manual Entry",

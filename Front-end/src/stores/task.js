@@ -52,6 +52,7 @@ export const useTaskStore = defineStore('task', () => {
         avatarColor: task.avatarColor || 'bg-primary',
         due: task.due || 'TBD',
         dueDate: task.dueDate || '',
+        dueTime: task.dueTime || '23:59',
         source: task.source || 'Manual Entry'
       }
       const { data } = await axios.post('http://localhost:5000/api/tasks', newTaskData, getHeaders())

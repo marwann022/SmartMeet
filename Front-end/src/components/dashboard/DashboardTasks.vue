@@ -148,13 +148,19 @@
             />
           </div>
 
-          <!-- Modern Date Picker Selector -->
-          <DatePicker 
-            v-model="editTaskForm.dueDate" 
-            label="Due Date" 
-            direction="up"
-            theme="primary"
-          />
+          <!-- Due Date + optional Due Time -->
+          <div class="grid grid-cols-2 gap-4">
+            <DatePicker
+              v-model="editTaskForm.dueDate"
+              label="Due Date"
+              direction="up"
+              theme="primary"
+            />
+            <TimePicker
+              v-model="editTaskForm.dueTime"
+              label="Due Time (optional)"
+            />
+          </div>
 
           <div class="flex gap-3 mt-4 border-t border-black/5 dark:border-white/10 pt-4">
             <Button variant="primary" class="flex-1" @click="saveTaskDetails">
@@ -302,13 +308,19 @@
           />
         </div>
 
-        <!-- Modern Date Picker Selector -->
-        <DatePicker 
-          v-model="newTask.dueDate" 
-          label="Due Date" 
-          direction="up"
-          theme="primary"
-        />
+        <!-- Due Date + optional Due Time -->
+        <div class="grid grid-cols-2 gap-4">
+          <DatePicker
+            v-model="newTask.dueDate"
+            label="Due Date"
+            direction="up"
+            theme="primary"
+          />
+          <TimePicker
+            v-model="newTask.dueTime"
+            label="Due Time (optional)"
+          />
+        </div>
 
         <Button variant="primary" class="w-full mt-4" @click="addTask" theme="primary">
           <template #icon-left>
@@ -371,10 +383,12 @@ import Modal from '../ui/Modal.vue'
 import Badge from '../ui/Badge.vue'
 import Select from '../ui/Select.vue'
 import DatePicker from '../ui/DatePicker.vue'
+import TimePicker from '../ui/TimePicker.vue'
 import SearchBar from '../ui/SearchBar.vue'
 import Checkbox from '../ui/Checkbox.vue'
 import { useAuthStore } from '../../stores/auth'
 import axios from 'axios'
+import { sortByUrgency, formatDateDisplay, getTodayString } from '../../utils/taskDeadline'
 
 const props = defineProps({
   searchQuery: {
@@ -392,21 +406,13 @@ const columns = [
   { id: 'done', label: 'Done', icon: PhCheckCircle }
 ]
 
-const getPriorityWeight = (priority) => {
-  const p = (priority || '').toLowerCase()
-  if (p.includes('high')) return 3
-  if (p.includes('medium') || p.includes('med')) return 2
-  if (p.includes('low')) return 1
-  return 0
-}
-
 const tasksByStatus = (status) => {
   let list = taskStore.tasks.filter(t => t.status === status)
   if (localSearchQuery.value) {
     const q = localSearchQuery.value.toLowerCase()
     list = list.filter(t => t.title.toLowerCase().includes(q) || (t.description && t.description.toLowerCase().includes(q)))
   }
-  return [...list].sort((a, b) => getPriorityWeight(b.priority) - getPriorityWeight(a.priority))
+  return sortByUrgency(list)
 }
 
 const highTasksCount = computed(() => taskStore.tasks.filter(t => (t.priority || '').toLowerCase().includes('high')).length)
@@ -568,33 +574,14 @@ onUnmounted(() => {
   window.removeEventListener('dragend', onDragEndGlobal)
 })
 
-// Neutral layout theme for task creation modal
-
-// Date picker utility functions
-const getTodayDateString = () => {
-  const today = new Date()
-  const yyyy = today.getFullYear()
-  const mm = String(today.getMonth() + 1).padStart(2, '0')
-  const dd = String(today.getDate()).padStart(2, '0')
-  return `${yyyy}-${mm}-${dd}`
-}
-
-const formatDateString = (dateStr) => {
-  if (!dateStr) return 'TBD'
-  const parts = dateStr.split('-')
-  if (parts.length !== 3) return dateStr
-  const date = new Date(parts[0], parts[1] - 1, parts[2])
-  if (isNaN(date.getTime())) return dateStr
-  return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
-}
-
-const newTask = ref({ 
-  title: '', 
-  description: '', 
-  priority: 'Medium', 
-  due: '', 
-  dueDate: getTodayDateString(), 
-  status: 'todo' 
+const newTask = ref({
+  title: '',
+  description: '',
+  priority: 'Medium',
+  due: '',
+  dueDate: getTodayString(),
+  dueTime: '23:59',
+  status: 'todo',
 })
 
 const authStore = useAuthStore()
@@ -615,7 +602,8 @@ const editTaskForm = ref({
   description: '',
   priority: 'Medium',
   assigneeId: '',
-  dueDate: ''
+  dueDate: '',
+  dueTime: '23:59',
 })
 
 const loadMembers = async () => {
@@ -655,7 +643,8 @@ const startEditing = () => {
     description: selectedTask.value.description || '',
     priority: formatPriority(selectedTask.value.priority),
     assigneeId: selectedTask.value.user?._id || selectedTask.value.user || '',
-    dueDate: selectedTask.value.dueDate || ''
+    dueDate: selectedTask.value.dueDate || '',
+    dueTime: selectedTask.value.dueTime || '23:59',
   }
   isEditingTask.value = true
 }
@@ -669,7 +658,8 @@ const saveTaskDetails = async () => {
     priority: editTaskForm.value.priority,
     assigneeId: editTaskForm.value.assigneeId,
     dueDate: editTaskForm.value.dueDate,
-    due: formatDateString(editTaskForm.value.dueDate)
+    dueTime: editTaskForm.value.dueTime || '23:59',
+    due: formatDateDisplay(editTaskForm.value.dueDate),
   }
   
   await taskStore.updateTask(payload)
@@ -686,13 +676,14 @@ const cancelEditing = () => {
 }
 
 const openAddModal = (status = 'todo') => {
-  newTask.value = { 
-    title: '', 
-    description: '', 
-    priority: 'Medium', 
-    due: '', 
-    dueDate: getTodayDateString(), 
-    status 
+  newTask.value = {
+    title: '',
+    description: '',
+    priority: 'Medium',
+    due: '',
+    dueDate: getTodayString(),
+    dueTime: '23:59',
+    status,
   }
   selectedAssignmentType.value = 'one'
   selectedAssigneeId.value = authStore.user?._id || ''
@@ -727,11 +718,12 @@ const addTask = () => {
     description: newTask.value.description,
     priority: newTask.value.priority,
     status: newTask.value.status,
-    due: formatDateString(newTask.value.dueDate),
+    due: formatDateDisplay(newTask.value.dueDate),
     dueDate: newTask.value.dueDate,
+    dueTime: newTask.value.dueTime || '23:59',
     source: 'Manual Entry',
     assigneeIds,
-    assignee: assigneeName
+    assignee: assigneeName,
   })
   showAddModal.value = false
 }

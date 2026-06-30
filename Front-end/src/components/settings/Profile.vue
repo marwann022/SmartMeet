@@ -322,37 +322,6 @@
         </div>
       </div>
 
-      <!-- Preferences Card -->
-      <div
-        class="card-glass rounded-[28px] p-6 flex flex-col gap-5 border border-white/80 shadow-glass"
-      >
-        <div class="flex items-center gap-2.5 pb-3 border-b border-black/5">
-          <PhGear :size="20" class="text-primary" />
-          <h3 class="font-header font-bold text-lg text-brand-dark">
-            Workspace Preferences
-          </h3>
-        </div>
-
-        <div class="flex flex-col gap-4 text-left">
-          <!-- Interface Theme -->
-          <div class="flex flex-col gap-1.5">
-            <Select
-              v-model="profileForm.theme"
-              :options="themeOptions"
-              label="Interface Theme"
-            />
-          </div>
-
-          <!-- Language -->
-          <div class="flex flex-col gap-1.5">
-            <Select
-              v-model="profileForm.language"
-              :options="languageOptions"
-              label="Language"
-            />
-          </div>
-        </div>
-      </div>
     </div>
   </div>
 
@@ -401,9 +370,7 @@ import { ref, reactive, onMounted, watch } from "vue";import {
   PhLaptop,
   PhDeviceMobile,
   PhCalendar,
-  PhGear,
 } from "@phosphor-icons/vue";
-import Select from "../ui/Select.vue";
 import PasswordChangeModal from "./PasswordChangeModal.vue";
 import Toast from "../ui/Toast.vue";
 import { useToasts } from "../../composables/useToasts";
@@ -458,19 +425,6 @@ const verifyTwoFactor = async () => {
 
 const authStore = useAuthStore();
 
-const themeOptions = [
-  { value: "light", label: "Light Mode (Glassmorphism)" },
-  { value: "dark", label: "Dark Mode (Default)" },
-  { value: "system", label: "System Synchronized" },
-];
-
-const languageOptions = [
-  { value: "en-US", label: "English (US)" },
-  { value: "en-GB", label: "English (UK)" },
-  { value: "es-ES", label: "Spanish (ES)" },
-];
-
-
 // Master factory default values configuration
 const DEFAULT_PROFILE = {
   avatar: "",
@@ -480,8 +434,6 @@ const DEFAULT_PROFILE = {
   phone: "+1 (555) 892-4410",
   company: "Quantum Dynamics Global",
   twoFactor: false,
-  theme: "light",
-  language: "en-US",
 };
 
 // Core states matching layout structures

@@ -1,5 +1,35 @@
 <template>
   <div class="flex flex-col gap-6 animate-fade-in text-left">
+    <!-- Workspace Preferences Card -->
+    <div class="card-glass rounded-[28px] p-6 sm:p-8 flex flex-col gap-6 border border-white/80 shadow-glass">
+      <div class="flex items-center gap-3 pb-4 border-b border-black/5">
+        <div class="w-10 h-10 rounded-xl bg-primary/8 border border-primary/15 flex items-center justify-center text-primary">
+          <PhGear :size="20" weight="bold" />
+        </div>
+        <div class="flex flex-col">
+          <h3 class="font-header font-bold text-lg text-brand-dark">Workspace Preferences</h3>
+          <p class="text-xs text-brand-slate">Customize your interface theme and display language.</p>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="flex flex-col gap-2">
+          <Select
+            v-model="generalForm.theme"
+            :options="themeOptions"
+            label="Interface Theme"
+          />
+        </div>
+        <div class="flex flex-col gap-2">
+          <Select
+            v-model="generalForm.language"
+            :options="languageOptions"
+            label="Language"
+          />
+        </div>
+      </div>
+    </div>
+
     <!-- AI Insights Engine Card -->
     <div class="card-glass rounded-[28px] p-6 sm:p-8 flex flex-col gap-6 border border-white/80 shadow-glass">
       <div class="flex items-center gap-3 pb-4 border-b border-black/5">
@@ -137,17 +167,29 @@
 </template>
 
 <script setup>
-import { ref, reactive } from 'vue'
-import { 
-  PhGauge, 
-  PhShieldCheck, 
-  PhCheck 
+import { reactive } from 'vue'
+import {
+  PhGauge,
+  PhShieldCheck,
+  PhGear
 } from '@phosphor-icons/vue'
 import Select from '../ui/Select.vue'
 import Checkbox from '../ui/Checkbox.vue'
 import { useAlertStore } from '@/stores/alert'
 
 const alertStore = useAlertStore()
+
+const themeOptions = [
+  { value: 'light', label: 'Light Mode (Glassmorphism)' },
+  { value: 'dark', label: 'Dark Mode (Default)' },
+  { value: 'system', label: 'System Synchronized' },
+]
+
+const languageOptions = [
+  { value: 'en-US', label: 'English (US)' },
+  { value: 'en-GB', label: 'English (UK)' },
+  { value: 'es-ES', label: 'Spanish (ES)' },
+]
 
 const detailLevelOptions = [
   { value: 'standard', label: 'Standard (Executive summary & key milestones)' },
@@ -165,6 +207,8 @@ import notionIcon from '../../assets/Notion-logo.svg.png'
 import slackIcon from '../../assets/slack.png'
 
 const generalForm = reactive({
+  theme: 'light',
+  language: 'en-US',
   autoSummarize: true,
   detailLevel: 'standard',
   focusType: 'tasks',
@@ -173,6 +217,8 @@ const generalForm = reactive({
 })
 
 const resetGeneral = async () => {
+  generalForm.theme = 'light'
+  generalForm.language = 'en-US'
   generalForm.autoSummarize = true
   generalForm.detailLevel = 'standard'
   generalForm.focusType = 'tasks'

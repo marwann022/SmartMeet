@@ -60,7 +60,7 @@ export const createTask = async (req, res) => {
         // Never trust the frontend for ownership fields — always derive from req.user
         const {
             title, description, priority, status,
-            assignee, avatarColor, due, dueDate, source,
+            assignee, avatarColor, due, dueDate, dueTime, source,
             assigneeIds,
         } = req.body;
 
@@ -98,6 +98,7 @@ export const createTask = async (req, res) => {
                 avatarColor: avatarColor || "bg-primary",
                 due: due || "TBD",
                 dueDate: dueDate || "",
+                dueTime: dueTime || "23:59",
                 source: source || "Manual Entry",
             });
             createdTasks.push(task);
@@ -138,12 +139,12 @@ export const updateTask = async (req, res) => {
         // Whitelist safe fields — never accept community, createdBy, user, or isPersonal from the client
         const {
             title, description, priority, status, done,
-            previousStatus, assignee, avatarColor, due, dueDate, source,
+            previousStatus, assignee, avatarColor, due, dueDate, dueTime, source,
         } = req.body;
 
         const updateData = {
             title, description, priority, status, done,
-            previousStatus, assignee, avatarColor, due, dueDate, source,
+            previousStatus, assignee, avatarColor, due, dueDate, dueTime, source,
         };
 
         // Strip undefined values so partial updates don't overwrite fields with undefined

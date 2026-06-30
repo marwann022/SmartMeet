@@ -191,32 +191,32 @@
           <h3 class="text-[18px] sm:text-[20px] font-bold font-header text-brand-dark">Pending Tasks</h3>
         </div>
 
-        <!-- Overall Priority Stats Capsule Widget -->
+        <!-- Deadline Summary Stats Widget -->
         <div class="flex items-center justify-between bg-white/70 dark:bg-slate-900/50 backdrop-blur-md border border-black/5 dark:border-white/10 rounded-[24px] p-4 shadow-sm mb-6 w-full text-center">
           <div class="flex flex-col items-center flex-1 border-r border-black/5 dark:border-white/10">
-            <span class="text-[9px] uppercase font-extrabold tracking-wider text-brand-slate font-header">Total Tasks</span>
+            <span class="text-[9px] uppercase font-extrabold tracking-wider text-brand-slate font-header">📋 Total</span>
             <span class="text-[20px] font-header font-bold text-brand-dark leading-none mt-1.5">{{ taskStore.tasks.length }}</span>
           </div>
           <div class="flex flex-col items-center flex-1 border-r border-black/5 dark:border-white/10">
             <div class="flex items-center gap-1">
-              <span class="w-2 h-2 rounded-full bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.3)] animate-pulse"></span>
-              <span class="text-[9px] uppercase font-extrabold tracking-wider text-brand-slate font-header">High</span>
+              <span class="w-2 h-2 rounded-full bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.3)] animate-pulse"></span>
+              <span class="text-[9px] uppercase font-extrabold tracking-wider text-brand-slate font-header">Due Today</span>
             </div>
-            <span class="text-[20px] font-header font-bold text-brand-dark leading-none mt-1.5">{{ highPriorityCount }}</span>
+            <span class="text-[20px] font-header font-bold text-amber-600 leading-none mt-1.5">{{ dueTodayCount }}</span>
           </div>
           <div class="flex flex-col items-center flex-1 border-r border-black/5 dark:border-white/10">
             <div class="flex items-center gap-1">
-              <span class="w-2 h-2 rounded-full bg-primary shadow-[0_0_8px_rgba(75,104,255,0.3)] animate-pulse"></span>
-              <span class="text-[9px] uppercase font-extrabold tracking-wider text-brand-slate font-header">Medium</span>
+              <span class="w-2 h-2 rounded-full bg-red-600 shadow-[0_0_8px_rgba(220,38,38,0.3)] animate-pulse"></span>
+              <span class="text-[9px] uppercase font-extrabold tracking-wider text-brand-slate font-header">Overdue</span>
             </div>
-            <span class="text-[20px] font-header font-bold text-brand-dark leading-none mt-1.5">{{ mediumPriorityCount }}</span>
+            <span class="text-[20px] font-header font-bold text-red-600 leading-none mt-1.5">{{ overdueCount }}</span>
           </div>
           <div class="flex flex-col items-center flex-1">
             <div class="flex items-center gap-1">
-              <span class="w-2 h-2 rounded-full bg-purple-500 shadow-[0_0_8px_rgba(168,85,247,0.3)] animate-pulse"></span>
-              <span class="text-[9px] uppercase font-extrabold tracking-wider text-brand-slate font-header">Low</span>
+              <span class="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.3)]"></span>
+              <span class="text-[9px] uppercase font-extrabold tracking-wider text-brand-slate font-header">Completed</span>
             </div>
-            <span class="text-[20px] font-header font-bold text-brand-dark leading-none mt-1.5">{{ lowPriorityCount }}</span>
+            <span class="text-[20px] font-header font-bold text-emerald-600 leading-none mt-1.5">{{ completedCount }}</span>
           </div>
         </div>
 
@@ -330,7 +330,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { PhClock, PhSparkle, PhCheck, PhArrowLeft, PhArrowRight, PhLightning, PhUser, PhWarningCircle } from '@phosphor-icons/vue'
+import { PhClock, PhSparkle, PhArrowLeft, PhArrowRight, PhUser, PhWarningCircle } from '@phosphor-icons/vue'
 import { useMeetingStore } from '../../stores/meeting'
 import Checkbox from '../ui/Checkbox.vue'
 import Modal from '../ui/Modal.vue'
@@ -339,6 +339,7 @@ import MeetingCard from './MeetingCard.vue'
 import Button from '../ui/Button.vue'
 import SearchBar from '../ui/SearchBar.vue'
 import { useAuthStore } from "@/stores/auth"
+import { getCountdownInfo } from '../../utils/taskDeadline'
 
 const authStore = useAuthStore()
 
@@ -436,17 +437,17 @@ const filteredTasks = computed(() => {
   return [...list].sort((a, b) => getPriorityWeight(b.priority) - getPriorityWeight(a.priority))
 })
 
-const highPriorityCount = computed(() => {
-  return taskStore.tasks.filter(t => t.priority.toLowerCase().includes('high')).length
-})
+const dueTodayCount = computed(() =>
+  taskStore.tasks.filter(t => getCountdownInfo(t).urgency === 'today').length
+)
 
-const mediumPriorityCount = computed(() => {
-  return taskStore.tasks.filter(t => t.priority.toLowerCase().includes('medium') || t.priority.toLowerCase().includes('med')).length
-})
+const overdueCount = computed(() =>
+  taskStore.tasks.filter(t => getCountdownInfo(t).urgency === 'overdue').length
+)
 
-const lowPriorityCount = computed(() => {
-  return taskStore.tasks.filter(t => t.priority.toLowerCase().includes('low')).length
-})
+const completedCount = computed(() =>
+  taskStore.tasks.filter(t => t.status === 'done' || t.done).length
+)
 
 const markDone = async (task) => {
   if (task.status === 'done' || task.done) return

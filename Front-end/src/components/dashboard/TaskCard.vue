@@ -1,28 +1,28 @@
 <template>
-  <div 
+  <div
     :draggable="!isLocked"
     @dragstart="onDragStart"
     @click="$emit('click')"
-    class="group relative border border-solid rounded-xl p-[17px] flex flex-col gap-3 cursor-pointer transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(0,0,0,0.07)] select-none"
+    class="group relative border border-solid rounded-xl p-[17px] flex flex-col gap-3 cursor-pointer transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(0,0,0,0.07)] select-none overflow-hidden"
     :class="[
       cardStyle,
       isLocked ? 'hover:cursor-default' : 'hover:cursor-grab active:cursor-grabbing'
     ]"
   >
-    <!-- Top row: priority badge + action buttons / done check icon -->
+    <!-- Top row: priority badge + AI/Manual tag + action buttons -->
     <div class="flex items-start justify-between">
       <div class="flex items-center gap-1.5 flex-wrap">
         <Badge :type="badgeType">
           {{ formattedPriority }}
         </Badge>
-        <span 
+        <span
           v-if="isAiGenerated"
           class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20 shadow-[0_0_6px_rgba(168,85,247,0.1)]"
         >
           <PhSparkle :size="10" weight="fill" />
           AI
         </span>
-        <span 
+        <span
           v-else
           class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-slate-500/10 text-slate-600 dark:text-slate-400 border border-slate-500/20"
         >
@@ -30,10 +30,10 @@
           Manual
         </span>
       </div>
-      
+
       <!-- Right side actions container -->
       <div class="relative flex items-center justify-end h-6 min-w-[64px]">
-        <!-- Default State (when not hovered): show check icon only if task is done or review -->
+        <!-- Default state: completion icon when done/review -->
         <div class="group-hover:opacity-0 group-hover:pointer-events-none transition-opacity duration-200 flex items-center justify-end w-full">
           <div v-if="task.status === 'done' || task.done" class="overflow-clip relative shrink-0 w-6 h-6 flex items-center justify-center">
             <PhCheckCircle :size="20" weight="fill" class="text-green-500" />
@@ -42,29 +42,29 @@
             <PhCheckCircle :size="20" weight="fill" class="text-red-500" />
           </div>
         </div>
-        
-        <!-- Hover State (when hovered): show full action controls -->
+
+        <!-- Hover state: move left / right / delete -->
         <div class="absolute right-0 opacity-0 group-hover:opacity-100 pointer-events-none group-hover:pointer-events-auto flex items-center gap-1 transition-opacity duration-200">
-          <button 
+          <button
             v-if="task.status !== 'todo' && !isLocked"
-            @click.stop="$emit('move', -1)" 
+            @click.stop="$emit('move', -1)"
             class="w-6 h-6 rounded-lg bg-black/5 hover:bg-primary/10 hover:text-primary flex items-center justify-center transition-all duration-200 cursor-pointer"
             title="Move Left"
           >
             <PhArrowLeft :size="11" weight="bold" />
           </button>
-          
-          <button 
+
+          <button
             v-if="task.status !== 'done' && !task.done && !isLocked"
-            @click.stop="$emit('move', 1)" 
+            @click.stop="$emit('move', 1)"
             class="w-6 h-6 rounded-lg bg-black/5 hover:bg-primary/10 hover:text-primary flex items-center justify-center transition-all duration-200 cursor-pointer"
             title="Move Right"
           >
             <PhArrowRight :size="11" weight="bold" />
           </button>
-          
-          <button 
-            @click.stop="$emit('delete')" 
+
+          <button
+            @click.stop="$emit('delete')"
             class="w-6 h-6 rounded-lg bg-black/5 hover:bg-red-500/10 hover:text-red-500 flex items-center justify-center transition-all duration-200 cursor-pointer"
             title="Delete Task"
           >
@@ -76,17 +76,21 @@
 
     <!-- Title -->
     <div class="min-h-[40px] flex items-center py-0.5">
-      <p 
+      <p
         class="font-header font-bold text-base leading-snug"
-        :class="task.status === 'done' || task.done ? 'line-through text-brand-slate opacity-70' : task.priority.toLowerCase().includes('high') ? 'text-[#0b0f19] dark:text-slate-100' : 'text-[#3c3f47] dark:text-slate-200'"
+        :class="task.status === 'done' || task.done
+          ? 'line-through text-brand-slate opacity-70'
+          : task.priority.toLowerCase().includes('high')
+            ? 'text-[#0b0f19] dark:text-slate-100'
+            : 'text-[#3c3f47] dark:text-slate-200'"
       >
         {{ task.title }}
       </p>
     </div>
 
-    <!-- Metadata Details Section with clear hierarchy -->
+    <!-- Metadata -->
     <div class="border-t border-black/5 dark:border-white/5 pt-2.5 mt-0.5 flex flex-col gap-2">
-      <!-- Assigned To (Member Name) -->
+      <!-- Assignee -->
       <div class="flex items-center gap-1.5">
         <PhUser :size="13" weight="bold" class="text-slate-400" />
         <span class="text-xs font-semibold text-brand-dark/90 dark:text-slate-300">
@@ -94,24 +98,38 @@
         </span>
       </div>
 
-      <!-- Meeting Name (Source) -->
+      <!-- Source -->
       <div class="flex items-center gap-1.5 text-xs text-brand-slate dark:text-slate-400">
         <PhVideoCamera v-if="isAiGenerated" :size="13" weight="bold" class="text-primary/70" />
         <PhFileText v-else :size="13" weight="bold" class="text-slate-400" />
         <span class="truncate font-semibold max-w-[180px]">{{ task.source }}</span>
       </div>
 
-      <!-- Due Date -->
-      <div class="flex items-center justify-between text-xs mt-0.5">
-        <div 
-          class="flex items-center gap-1.5 font-bold transition-colors duration-300"
-          :class="isOverdue ? 'text-red-500' : 'text-[#5c5e65] dark:text-slate-400'"
+      <!-- Due Date (colour-coded by urgency) -->
+      <div class="flex items-center gap-1.5 font-bold text-xs transition-colors duration-300" :class="deadlineColors.text">
+        <PhCalendarBlank :size="13" weight="bold" />
+        <span class="font-semibold">📅 {{ task.due || 'TBD' }}</span>
+      </div>
+
+      <!-- Live Countdown Badge -->
+      <div v-if="countdown.label && !(task.status === 'done' || task.done)" class="flex">
+        <span
+          class="inline-flex items-center self-start px-2 py-0.5 rounded-full text-[10px] font-extrabold border transition-colors duration-300"
+          :class="deadlineColors.badge"
         >
-          <PhWarningCircle v-if="isOverdue" :size="13" weight="fill" class="text-red-500 animate-pulse" />
-          <PhCalendarBlank v-else :size="13" weight="bold" />
-          <span class="font-semibold">{{ task.due }}</span>
-          <span v-if="isOverdue" class="text-[8px] font-extrabold uppercase tracking-wider bg-red-500/8 border border-red-500/15 px-1 rounded ml-1">Overdue</span>
-        </div>
+          {{ countdown.label }}
+        </span>
+      </div>
+    </div>
+
+    <!-- Progress Bar (time elapsed from creation → deadline) -->
+    <div v-if="task.dueDate && !(task.status === 'done' || task.done)" class="mt-auto pt-1">
+      <div class="w-full h-[3px] rounded-full bg-black/5 dark:bg-white/5 overflow-hidden">
+        <div
+          class="h-full rounded-full transition-all duration-700"
+          :class="deadlineColors.bg"
+          :style="{ width: progressPercent + '%' }"
+        />
       </div>
     </div>
   </div>
@@ -119,41 +137,42 @@
 
 <script setup>
 import { computed } from 'vue'
-import { 
-  PhCheckCircle, 
-  PhArrowLeft, 
-  PhArrowRight, 
-  PhTrash, 
-  PhCalendarBlank, 
-  PhCheck,
-  PhWarningCircle,
+import {
+  PhCheckCircle,
+  PhArrowLeft,
+  PhArrowRight,
+  PhTrash,
+  PhCalendarBlank,
   PhSparkle,
   PhUser,
   PhVideoCamera,
-  PhFileText
+  PhFileText,
 } from '@phosphor-icons/vue'
 import Badge from '../ui/Badge.vue'
 import { useAuthStore } from '../../stores/auth'
+import { useNow } from '../../composables/useNow'
+import { getCountdownInfo, getDeadlineColors, getProgressPercent } from '../../utils/taskDeadline'
 
 const props = defineProps({
   task: {
     type: Object,
-    required: true
-  }
+    required: true,
+  },
 })
 
 defineEmits(['move', 'delete', 'toggle', 'click'])
 
 const authStore = useAuthStore()
+const { now } = useNow()
 
 const isLocked = computed(() => {
   const isAdmin = authStore.user?.role === 'admin'
   return !isAdmin && (props.task.status === 'review' || props.task.status === 'done')
 })
 
-const isAiGenerated = computed(() => {
-  return props.task.source && props.task.source.startsWith('Meeting:')
-})
+const isAiGenerated = computed(() =>
+  props.task.source && props.task.source.startsWith('Meeting:')
+)
 
 const onDragStart = (e) => {
   if (isLocked.value) {
@@ -164,18 +183,10 @@ const onDragStart = (e) => {
   e.dataTransfer.setData('text/plain', String(props.task.id || props.task._id))
 }
 
-const isOverdue = computed(() => {
-  if (props.task.status === 'done' || props.task.done) return false
-  if (!props.task.dueDate) return false
-  
-  const today = new Date()
-  const yyyy = today.getFullYear()
-  const mm = String(today.getMonth() + 1).padStart(2, '0')
-  const dd = String(today.getDate()).padStart(2, '0')
-  const todayStr = `${yyyy}-${mm}-${dd}`
-  
-  return props.task.dueDate < todayStr
-})
+// Reactive every minute via shared useNow singleton
+const countdown = computed(() => getCountdownInfo(props.task, now.value))
+const deadlineColors = computed(() => getDeadlineColors(props.task, now.value))
+const progressPercent = computed(() => getProgressPercent(props.task, now.value))
 
 const formattedPriority = computed(() => {
   const p = props.task.priority || ''
@@ -197,9 +208,10 @@ const badgeType = computed(() => {
 
 const cardStyle = computed(() => {
   const status = props.task.status
-  const isAi = isAiGenerated.value
-  const borderAccent = isAi ? 'border-l-[4px] border-l-purple-500 shadow-[0_0_8px_rgba(168,85,247,0.05)]' : 'border-l-[4px] border-l-slate-400/40'
-  
+  const borderAccent = isAiGenerated.value
+    ? 'border-l-[4px] border-l-purple-500 shadow-[0_0_8px_rgba(168,85,247,0.05)]'
+    : 'border-l-[4px] border-l-slate-400/40'
+
   let baseStyle = ''
   if (status === 'todo') {
     baseStyle = 'bg-gradient-to-br from-primary/5 via-white/50 dark:via-slate-900/40 to-white/80 dark:to-slate-900/60 border-primary/30 dark:border-primary/20 backdrop-blur-md hover:from-primary/10 hover:border-primary/50'
@@ -212,7 +224,7 @@ const cardStyle = computed(() => {
   } else {
     baseStyle = 'bg-gradient-to-br from-white/80 to-white/40 border-black/10'
   }
-  
+
   return `${baseStyle} ${borderAccent}`
 })
 </script>
