@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-slate-50/50 to-primary/[0.02]">
+  <div class="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-slate-50/50 to-primary/[0.02] dark:from-slate-950 dark:to-slate-900">
     <div
       class="w-full max-w-[560px] rounded-[32px] bg-white/85 dark:bg-slate-900/85 border border-white/80 dark:border-slate-800/80 backdrop-blur-[20px] shadow-glass p-6 sm:p-8 transition-all duration-500 relative"
     >
@@ -11,7 +11,7 @@
           </svg>
         </div>
         <div class="flex flex-col">
-          <h2 class="font-header font-bold text-lg text-brand-dark">Checkout</h2>
+          <h2 class="font-header font-bold text-lg text-brand-dark dark:text-slate-200">Checkout</h2>
           <p class="text-xs text-brand-slate">Complete your payment to activate the plan</p>
         </div>
         <div class="ml-auto flex items-center gap-1.5 text-[11px] text-brand-slate font-body bg-black/[0.03] dark:bg-white/[0.03] px-3 py-1.5 rounded-full">
@@ -26,16 +26,16 @@
       <div class="rounded-[20px] bg-gradient-to-br from-primary/[0.04] to-primary/[0.01] border border-primary/10 p-5 mb-6">
         <div class="flex items-center justify-between mb-3">
           <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-xl bg-white dark:bg-slate-800 border border-black/5 dark:border-white/5 flex items-center justify-center text-brand-dark font-header font-bold text-xs shadow-sm">
+            <div class="w-10 h-10 rounded-xl bg-white dark:bg-slate-800 border border-black/5 dark:border-white/5 flex items-center justify-center text-brand-dark dark:text-slate-200 font-header font-bold text-xs shadow-sm">
               SM
             </div>
             <div>
-              <p class="font-semibold text-brand-dark text-sm">Professional Plan</p>
+              <p class="font-semibold text-brand-dark dark:text-slate-200 text-sm">Professional Plan</p>
               <p class="text-[11px] text-brand-slate">{{ isAnnual ? 'Billed annually' : 'Billed monthly' }}</p>
             </div>
           </div>
           <div class="text-right">
-            <p class="font-header font-bold text-xl text-brand-dark">{{ isAnnual ? '$276' : '$29' }}</p>
+            <p class="font-header font-bold text-xl text-brand-dark dark:text-slate-200">{{ isAnnual ? '$276' : '$29' }}</p>
             <p v-if="isAnnual" class="text-[10px] text-secondary font-semibold">Save $72/yr</p>
           </div>
         </div>
@@ -49,7 +49,7 @@
         <button
           @click="selectedMethod = 'card'"
           class="flex-1 flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl text-[11px] font-bold font-header tracking-wide transition-all duration-300 cursor-pointer"
-          :class="selectedMethod === 'card' ? 'bg-white dark:bg-slate-800 text-brand-dark shadow-sm' : 'text-brand-slate hover:text-brand-dark'"
+          :class="selectedMethod === 'card' ? 'bg-white dark:bg-slate-800 text-brand-dark dark:text-slate-200 shadow-sm' : 'text-brand-slate hover:text-brand-dark dark:hover:text-slate-200'"
         >
           <PhCreditCard :size="15" />
           Card
@@ -57,7 +57,7 @@
         <button
           @click="selectedMethod = 'applepay'"
           class="flex-1 flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl text-[11px] font-bold font-header tracking-wide transition-all duration-300 cursor-pointer"
-          :class="selectedMethod === 'applepay' ? 'bg-white dark:bg-slate-800 text-brand-dark shadow-sm' : 'text-brand-slate hover:text-brand-dark'"
+          :class="selectedMethod === 'applepay' ? 'bg-white dark:bg-slate-800 text-brand-dark dark:text-slate-200 shadow-sm' : 'text-brand-slate hover:text-brand-dark dark:hover:text-slate-200'"
         >
           <img :src="appleIcon" class="h-[11px] w-auto" alt="Apple Pay" />
           <span class="leading-none">Apple Pay</span>
@@ -67,14 +67,14 @@
       <!-- Credit Card Form -->
       <form v-if="selectedMethod === 'card'" @submit.prevent="handlePayment" class="flex flex-col gap-4">
         <div class="relative">
-          <label class="text-[11px] font-bold font-header tracking-wide text-brand-dark mb-1.5 block">Card Number</label>
+          <label class="text-[11px] font-bold font-header tracking-wide text-brand-dark dark:text-slate-200 mb-1.5 block">Card Number</label>
           <div class="relative">
             <input
               v-model="cardNumber"
               @input="formatCardNumber"
               maxlength="19"
               placeholder="4242 4242 4242 4242"
-              class="w-full px-4 py-3 rounded-xl border bg-white/60 dark:bg-white/5 text-brand-dark text-sm outline-none transition-all"
+              class="w-full px-4 py-3 rounded-xl border bg-white/60 dark:bg-white/5 text-brand-dark dark:text-slate-200 dark:placeholder-slate-500 text-sm outline-none transition-all"
               :class="errors.cardNumber ? 'border-red-300' : 'border-black/10 dark:border-white/10 focus:border-primary/40 focus:shadow-[0_0_0_3px_rgba(75,104,255,0.1)]'"
             />
           </div>
@@ -83,25 +83,25 @@
 
         <div class="grid grid-cols-2 gap-4">
           <div>
-            <label class="text-[11px] font-bold font-header tracking-wide text-brand-dark mb-1.5 block">Expiry</label>
+            <label class="text-[11px] font-bold font-header tracking-wide text-brand-dark dark:text-slate-200 mb-1.5 block">Expiry</label>
             <input
               v-model="expiry"
               @input="formatExpiry"
               maxlength="5"
               placeholder="MM/YY"
-              class="w-full px-4 py-3 rounded-xl border bg-white/60 dark:bg-white/5 text-brand-dark text-sm outline-none transition-all"
+              class="w-full px-4 py-3 rounded-xl border bg-white/60 dark:bg-white/5 text-brand-dark dark:text-slate-200 dark:placeholder-slate-500 text-sm outline-none transition-all"
               :class="errors.expiry ? 'border-red-300' : 'border-black/10 dark:border-white/10 focus:border-primary/40 focus:shadow-[0_0_0_3px_rgba(75,104,255,0.1)]'"
             />
             <p v-if="errors.expiry" class="text-red-500 text-[11px] mt-1 font-body">{{ errors.expiry }}</p>
           </div>
           <div>
-            <label class="text-[11px] font-bold font-header tracking-wide text-brand-dark mb-1.5 block">CVV</label>
+            <label class="text-[11px] font-bold font-header tracking-wide text-brand-dark dark:text-slate-200 mb-1.5 block">CVV</label>
             <input
               v-model="cvv"
               @input="formatCvv"
               maxlength="4"
               placeholder="123"
-              class="w-full px-4 py-3 rounded-xl border bg-white/60 dark:bg-white/5 text-brand-dark text-sm outline-none transition-all"
+              class="w-full px-4 py-3 rounded-xl border bg-white/60 dark:bg-white/5 text-brand-dark dark:text-slate-200 dark:placeholder-slate-500 text-sm outline-none transition-all"
               :class="errors.cvv ? 'border-red-300' : 'border-black/10 dark:border-white/10 focus:border-primary/40 focus:shadow-[0_0_0_3px_rgba(75,104,255,0.1)]'"
             />
             <p v-if="errors.cvv" class="text-red-500 text-[11px] mt-1 font-body">{{ errors.cvv }}</p>
@@ -109,11 +109,11 @@
         </div>
 
         <div>
-          <label class="text-[11px] font-bold font-header tracking-wide text-brand-dark mb-1.5 block">Cardholder Name</label>
+          <label class="text-[11px] font-bold font-header tracking-wide text-brand-dark dark:text-slate-200 mb-1.5 block">Cardholder Name</label>
           <input
             v-model="name"
             placeholder="John Doe"
-            class="w-full px-4 py-3 rounded-xl border bg-white/60 dark:bg-white/5 text-brand-dark text-sm outline-none transition-all"
+            class="w-full px-4 py-3 rounded-xl border bg-white/60 dark:bg-white/5 text-brand-dark dark:text-slate-200 dark:placeholder-slate-500 text-sm outline-none transition-all"
             :class="errors.name ? 'border-red-300' : 'border-black/10 dark:border-white/10 focus:border-primary/40 focus:shadow-[0_0_0_3px_rgba(75,104,255,0.1)]'"
           />
           <p v-if="errors.name" class="text-red-500 text-[11px] mt-1 font-body">{{ errors.name }}</p>
@@ -138,17 +138,17 @@
           <div class="w-16 h-16 rounded-2xl bg-black dark:bg-white flex items-center justify-center mx-auto mb-4">
             <img :src="appleIcon" class="h-8 w-auto invert dark:invert-0" alt="Apple" />
           </div>
-          <h3 class="font-header font-bold text-xl text-brand-dark mb-2">Apple Pay</h3>
+          <h3 class="font-header font-bold text-xl text-brand-dark dark:text-slate-200 mb-2">Apple Pay</h3>
           <p class="text-sm text-brand-slate mb-6">Fast, secure, and contactless payment</p>
 
           <div class="flex items-center justify-center gap-3 mb-6">
             <div class="flex items-center gap-1.5 bg-black/5 dark:bg-white/5 px-3 py-2 rounded-xl">
               <PhCheckCircle :size="14" weight="fill" class="text-emerald-500" />
-              <span class="text-xs text-brand-dark font-semibold">Touch ID</span>
+              <span class="text-xs text-brand-dark dark:text-slate-200 font-semibold">Touch ID</span>
             </div>
             <div class="flex items-center gap-1.5 bg-black/5 dark:bg-white/5 px-3 py-2 rounded-xl">
               <PhCheckCircle :size="14" weight="fill" class="text-emerald-500" />
-              <span class="text-xs text-brand-dark font-semibold">Face ID</span>
+              <span class="text-xs text-brand-dark dark:text-slate-200 font-semibold">Face ID</span>
             </div>
           </div>
 
@@ -185,7 +185,7 @@
           <div class="w-16 h-16 rounded-full bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center mb-4">
             <PhCheckCircle :size="32" weight="fill" class="text-emerald-500" />
           </div>
-          <h3 class="font-header font-bold text-xl text-brand-dark mb-2">Payment Successful!</h3>
+          <h3 class="font-header font-bold text-xl text-brand-dark dark:text-slate-200 mb-2">Payment Successful!</h3>
           <p class="text-brand-slate text-sm text-center mb-6 max-w-[280px]">
             Your Professional plan has been activated{{ isAnnual ? ' and you\'ll be billed $276 annually' : ' and you\'ll be billed $29 monthly' }}. You can now enjoy unlimited Smart Meetings.
           </p>

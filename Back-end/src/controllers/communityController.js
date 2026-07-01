@@ -129,9 +129,14 @@ export const getCommunityOverview = async (req, res) => {
                 .limit(5);
         }
 
-        const members = await User.find({ community: communityId, status: "active" })
-            .select("firstName lastName email avatar role createdAt")
-            .sort({ createdAt: -1 });
+        const rawMembers = await User.find({ community: communityId, status: "active" })
+            .select("firstName lastName email avatar role createdAt");
+
+        const members = rawMembers.sort((a, b) => {
+            if (a.role === "admin" && b.role !== "admin") return -1;
+            if (b.role === "admin" && a.role !== "admin") return 1;
+            return new Date(a.createdAt) - new Date(b.createdAt);
+        });
 
         res.status(200).json({
             success: true,

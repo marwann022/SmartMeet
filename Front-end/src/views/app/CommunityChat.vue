@@ -5,7 +5,7 @@
     >
       <!-- Header -->
       <div
-        class="flex items-center justify-between px-6 py-4 border-b border-black/5 flex-shrink-0"
+        class="flex items-center justify-between px-6 py-4 border-b border-black/5 dark:border-white/5 flex-shrink-0"
       >
         <div class="flex flex-col gap-0.5">
           <h1 class="font-header font-bold text-lg text-brand-dark">
@@ -77,7 +77,7 @@
                 :class="
                   isOwnMessage(msg)
                     ? 'bg-grad-primary text-white rounded-tr-md'
-                    : 'bg-white/70 border border-black/5 text-brand-dark rounded-tl-md'
+                    : 'bg-white/70 dark:bg-slate-800/80 border border-black/5 dark:border-white/5 text-brand-dark rounded-tl-md'
                 "
               >
                 {{ msg.message }}
@@ -88,23 +88,23 @@
       </div>
 
       <!-- Input -->
-      <div class="flex-shrink-0 border-t border-black/5 px-6 py-4">
+      <div class="flex-shrink-0 border-t border-black/5 dark:border-white/5 px-6 py-4">
         <div
-          class="flex items-end gap-3 bg-white/60 border border-black/8 rounded-2xl px-4 py-2.5 focus-within:border-primary/30 focus-within:shadow-[0_0_0_3px_rgba(75,104,255,0.08)] transition-all duration-200"
+          class="flex items-center align-middle gap-3 bg-white/60 dark:bg-slate-900/60 border border-black/8 dark:border-white/10 rounded-2xl px-4 py-2.5 focus-within:border-primary/30 focus-within:shadow-[0_0_0_3px_rgba(75,104,255,0.08)] transition-all duration-200"
         >
           <textarea
             v-model="messageText"
             @keydown="handleKeydown"
             placeholder="Type a message..."
             rows="1"
-            class="flex-1 bg-transparent border-0 outline-none resize-none text-sm text-brand-dark placeholder:text-brand-slate/60 font-body leading-relaxed max-h-32"
+            class="flex-1 h-full bg-transparent border-0 outline-none resize-none text-sm text-brand-dark placeholder:text-brand-slate/60 font-body leading-relaxed"
             :disabled="sending"
           ></textarea>
           <button
             @click="handleSend"
             :disabled="!canSend || sending"
             class="flex-shrink-0 w-9 h-9 rounded-xl flex items-center justify-center transition-all duration-200 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
-            :class="canSend && !sending ? 'bg-grad-primary text-white shadow-[0_4px_12px_rgba(75,104,255,0.25)] hover:shadow-[0_6px_16px_rgba(75,104,255,0.35)] active:scale-95' : 'bg-black/5 text-brand-slate'"
+            :class="canSend && !sending ? 'bg-grad-primary text-white shadow-[0_4px_12px_rgba(75,104,255,0.25)] hover:shadow-[0_6px_16px_rgba(75,104,255,0.35)] active:scale-95' : 'bg-black/5 dark:bg-white/5 text-brand-slate'"
           >
             <PhPaperPlaneRight :size="16" weight="bold" />
           </button>

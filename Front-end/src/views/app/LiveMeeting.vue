@@ -13,7 +13,7 @@
           </span>
           <span>End Meeting</span>
         </button>
-        <div class="h-6 w-[1px] bg-black/10"></div>
+        <div class="h-6 w-[1px] bg-black/10 dark:bg-white/10"></div>
         <div class="flex flex-col items-start text-left">
           <span class="text-[10px] text-brand-slate font-extrabold uppercase tracking-wider">In-App Live Room</span>
           <h2 class="text-xl font-bold font-header text-brand-dark leading-tight">{{ meeting?.title }}</h2>

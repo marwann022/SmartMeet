@@ -7,8 +7,8 @@
       >
         {{ user?.name || 'User' }}
       </span>
-      <p class="text-[11px] font-medium leading-tight mt-[3px] whitespace-nowrap" style="color: #4F7CFF">
-        {{ roleLabel }}<span class="mx-[5px]" style="color: #9CA3AF; font-weight: 400">•</span>{{ planLabel }}
+      <p class="text-[11px] font-medium leading-tight mt-[3px] whitespace-nowrap text-primary">
+        {{ roleLabel }}<span class="mx-[5px] text-brand-slate font-normal">•</span>{{ planLabel }}
       </p>
     </div>
   </div>

@@ -27,6 +27,8 @@ const formatDuration = (minutes) => {
 
 export const useMeetingStore = defineStore('meeting', () => {
   const meetings = ref([])
+  const loading = ref(false)
+  const error = ref(null)
 
   const upcomingMeetings = computed(() => {
     const now = new Date()
@@ -74,16 +76,24 @@ export const useMeetingStore = defineStore('meeting', () => {
   })
 
   const fetchMeetings = async () => {
+    loading.value = true
+    error.value = null
     try {
       const token = localStorage.getItem('token')
-      if (!token) return
+      if (!token) {
+        loading.value = false
+        return
+      }
 
       const { data } = await axios.get(`${API}/meetings`, getHeaders())
       if (data.success) {
         meetings.value = (data.meetings || []).map(transformMeeting)
       }
-    } catch (error) {
-      console.error('Failed to fetch meetings:', error)
+    } catch (err) {
+      console.error('Failed to fetch meetings:', err)
+      error.value = 'Failed to load meetings.'
+    } finally {
+      loading.value = false
     }
   }
 
@@ -235,6 +245,8 @@ export const useMeetingStore = defineStore('meeting', () => {
 
   return {
     meetings,
+    loading,
+    error,
     upcomingMeetings,
     selectedMeeting,
     activeLiveMeeting,

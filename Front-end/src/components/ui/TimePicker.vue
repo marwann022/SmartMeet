@@ -36,7 +36,7 @@
       >
         <div class="grid grid-cols-3 gap-2.5 h-[190px]">
           <!-- Hours Column -->
-          <div class="relative flex-1 border-r border-black/5 pr-1">
+          <div class="relative flex-1 border-r border-black/5 dark:border-white/5 pr-1">
             <div class="text-[9px] font-extrabold text-brand-slate/60 text-center uppercase tracking-widest mb-1">Hr</div>
             <div class="relative overflow-hidden h-[160px]">
               <!-- Fade overlays -->
@@ -59,7 +59,7 @@
           </div>
 
           <!-- Minutes Column -->
-          <div class="relative flex-1 border-r border-black/5 pr-1">
+          <div class="relative flex-1 border-r border-black/5 dark:border-white/5 pr-1">
             <div class="text-[9px] font-extrabold text-brand-slate/60 text-center uppercase tracking-widest mb-1">Min</div>
             <div class="relative overflow-hidden h-[160px]">
               <!-- Fade overlays -->
@@ -108,7 +108,7 @@
         </div>
 
         <!-- Footer -->
-        <div class="flex justify-between items-center pt-2.5 border-t border-black/5">
+        <div class="flex justify-between items-center pt-2.5 border-t border-black/5 dark:border-white/5">
           <button
             type="button"
             @click="cancelSelection"

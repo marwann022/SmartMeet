@@ -63,7 +63,7 @@
               <PhBrain :size="120" />
             </div>
 
-            <div class="flex justify-between items-center pb-4 border-b border-black/5">
+            <div class="flex justify-between items-center pb-4 border-b border-black/5 dark:border-white/5">
               <div class="flex items-center gap-2.5">
                 <PhSparkle :size="20" class="text-primary" />
                 <h3 class="font-header font-bold text-lg text-brand-dark">Executive Summary</h3>
@@ -89,16 +89,16 @@
 
           <!-- Meeting Timeline (only if data exists) -->
           <div v-if="selectedTimeline.length > 0" class="card-glass rounded-[28px] p-6 sm:p-8 flex flex-col gap-6">
-            <div class="flex items-center gap-2.5 pb-4 border-b border-black/5">
+            <div class="flex items-center gap-2.5 pb-4 border-b border-black/5 dark:border-white/5">
               <PhCalendarBlank :size="20" class="text-primary" />
               <h3 class="font-header font-bold text-lg text-brand-dark">Meeting Timeline</h3>
             </div>
 
             <div class="relative py-4">
-              <div class="absolute top-1/2 left-0 right-0 h-0.5 bg-black/5 -translate-y-1/2 z-0 hidden md:block"></div>
+              <div class="absolute top-1/2 left-0 right-0 h-0.5 bg-black/5 dark:bg-white/5 -translate-y-1/2 z-0 hidden md:block"></div>
               <div class="grid grid-cols-1 md:grid-cols-4 gap-6 relative z-10">
                 <div v-for="(item, idx) in selectedTimeline" :key="idx" class="flex md:flex-col items-center md:text-center gap-4 md:gap-3">
-                  <div class="w-10 h-10 rounded-full bg-white border border-black/8 shadow-sm flex items-center justify-center text-xs font-bold text-primary flex-shrink-0" :class="idx === 0 ? 'border-primary shadow-[0_0_10px_rgba(75,104,255,0.15)] ring-2 ring-primary/20' : ''">
+                  <div class="w-10 h-10 rounded-full bg-white dark:bg-slate-900 border border-black/8 dark:border-white/10 shadow-sm flex items-center justify-center text-xs font-bold text-primary flex-shrink-0" :class="idx === 0 ? 'border-primary shadow-[0_0_10px_rgba(75,104,255,0.15)] ring-2 ring-primary/20' : ''">
                     {{ item.time }}
                   </div>
                   <div class="flex flex-col md:items-center text-left md:text-center">
@@ -112,7 +112,7 @@
 
           <!-- Action Items -->
           <div class="card-glass rounded-[28px] p-6 sm:p-8 flex flex-col gap-6">
-            <div class="flex justify-between items-center pb-4 border-b border-black/5">
+            <div class="flex justify-between items-center pb-4 border-b border-black/5 dark:border-white/5">
               <div class="flex items-center gap-2.5">
                 <PhCheckSquare :size="20" class="text-primary" />
                 <h3 class="font-header font-bold text-lg text-brand-dark">Action Items</h3>
@@ -158,7 +158,7 @@
         <div class="lg:col-span-4 flex flex-col gap-6">
           <!-- Decision Tracker -->
           <div class="card-glass rounded-[28px] p-6 flex flex-col gap-5">
-            <div class="flex items-center gap-2.5 pb-4 border-b border-black/5">
+            <div class="flex items-center gap-2.5 pb-4 border-b border-black/5 dark:border-white/5">
               <PhFolderUser :size="20" class="text-primary" />
               <h3 class="font-header font-bold text-lg text-brand-dark">Decision Tracker</h3>
             </div>
@@ -185,7 +185,7 @@
 
           <!-- Smart Transcript Box -->
           <div class="card-glass rounded-[28px] p-6 flex flex-col gap-5">
-            <div class="flex flex-col gap-3 pb-4 border-b border-black/5">
+            <div class="flex flex-col gap-3 pb-4 border-b border-black/5 dark:border-white/5">
               <div class="flex items-center gap-2.5">
                 <PhChatCenteredText :size="20" class="text-primary" />
                 <h3 class="font-header font-bold text-lg text-brand-dark">Smart Transcript</h3>
@@ -236,6 +236,7 @@
 
       <ArchiveTable
         :meetings="filteredMeetings"
+        :loading="meetingStore.loading"
         @select="selectMeeting"
         @join="joinCallRoom"
         @delete="confirmDeleteMeeting"

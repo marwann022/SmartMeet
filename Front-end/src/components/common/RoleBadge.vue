@@ -1,5 +1,8 @@
 <template>
-  <span class="role-badge" :class="roleClass">
+  <span 
+    class="inline-flex items-center gap-[5px] h-[26px] px-[10px] rounded-full text-[11px] font-semibold border whitespace-nowrap shadow-sm transition-all duration-200 hover:brightness-95 leading-none"
+    :class="roleClass"
+  >
     <component :is="icon" :size="11" weight="bold" class="flex-shrink-0" />
     {{ label }}
   </span>
@@ -20,39 +23,13 @@ const label = computed(() => normalizedRole.value === 'admin' ? 'Admin' : 'Membe
 
 const icon = computed(() => normalizedRole.value === 'admin' ? PhShieldCheck : PhUser)
 
-const roleClass = computed(() => normalizedRole.value === 'admin' ? 'role-badge--admin' : 'role-badge--member')
+const roleClass = computed(() => 
+  normalizedRole.value === 'admin' 
+    ? 'bg-red-50 dark:bg-red-500/10 border-red-300 dark:border-red-500/20 text-red-600 dark:text-red-400' 
+    : 'bg-blue-50 dark:bg-blue-500/10 border-blue-300 dark:border-blue-500/20 text-blue-600 dark:text-blue-400'
+)
 </script>
 
 <style scoped>
-.role-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  height: 26px;
-  padding: 0 10px;
-  border-radius: 999px;
-  font-size: 11px;
-  font-weight: 600;
-  border: 1px solid transparent;
-  white-space: nowrap;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
-  transition: filter 200ms ease;
-  line-height: 1;
-}
-
-.role-badge:hover {
-  filter: brightness(0.94);
-}
-
-.role-badge--admin {
-  background-color: #FEECEC;
-  border-color: #FCA5A5;
-  color: #DC2626;
-}
-
-.role-badge--member {
-  background-color: #EEF4FF;
-  border-color: #93C5FD;
-  color: #2563EB;
-}
+/* Scoped styles replaced by Tailwind classes */
 </style>

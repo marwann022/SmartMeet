@@ -99,7 +99,7 @@
              <div ref="notificationsRef" class="relative">
           <button
             @click="isNotificationsOpen = !isNotificationsOpen"
-            class="group bg-black/5 border border-black/10 rounded-full flex items-center justify-center w-9 h-9 cursor-pointer relative text-brand-slate transition-all duration-300 hover:bg-primary/5 hover:border-primary/15 hover:text-primary hover:scale-105 focus:outline-none"
+            class="group bg-black/5 dark:bg-white/8 border border-black/10 dark:border-white/10 rounded-full flex items-center justify-center w-9 h-9 cursor-pointer relative text-brand-slate transition-all duration-300 hover:bg-primary/5 hover:border-primary/15 hover:text-primary hover:scale-105 focus:outline-none"
             aria-label="Notifications"
           >
             <PhBell
@@ -122,7 +122,7 @@
               class="absolute right-0 mt-3.5 w-80 bg-white/90 dark:bg-slate-900/95 border border-white/80 dark:border-slate-800 rounded-2xl shadow-glass backdrop-blur-[20px] p-4 text-left z-50 transform origin-top-right transition-all duration-300"
             >
               <div
-                class="flex items-center justify-between border-b border-black/5 pb-2.5 mb-2.5"
+                class="flex items-center justify-between border-b border-black/5 dark:border-white/5 pb-2.5 mb-2.5"
               >
                 <span class="text-xs font-bold text-brand-dark"
                   >Notifications</span
@@ -160,7 +160,7 @@
                     class="p-2.5 rounded-xl transition-all duration-200 cursor-pointer border flex flex-col gap-1 text-[11px] leading-relaxed relative"
                     :class="
                       notification.read
-                        ? 'bg-transparent border-transparent hover:bg-black/5'
+                        ? 'bg-transparent border-transparent hover:bg-black/5 dark:hover:bg-white/5'
                         : 'bg-primary/[0.03] border-primary/10 hover:bg-primary/[0.06] shadow-sm'
                     "
                   >
@@ -245,10 +245,10 @@
         </div>
 
             <!-- Profile Container -->
-            <div ref="profileRef" class="relative">
+            <div ref="profileRef" class="relative flex items-center">
               <button
                 @click="isProfileOpen = !isProfileOpen"
-                class="cursor-pointer focus:outline-none bg-transparent border-0"
+                class="cursor-pointer focus:outline-none bg-transparent border-0 flex items-center p-0"
               >
                 <NavbarUserPanel />
               </button>
@@ -259,7 +259,7 @@
                   v-if="isProfileOpen"
                   class="absolute right-0 mt-3.5 w-52 bg-white/90 dark:bg-slate-900/95 border border-white/80 dark:border-slate-800 rounded-2xl shadow-glass backdrop-blur-[20px] p-2 text-left z-50 transform origin-top-right transition-all duration-300"
                 >
-                  <div class="px-3 py-2 border-b border-black/5 mb-1.5">
+                  <div class="px-3 py-2 border-b border-black/5 dark:border-white/5 mb-1.5">
                     <p class="text-[11px] font-bold text-brand-dark truncate">{{ user?.name || 'User' }}</p>
                     <p class="text-[9px] text-brand-slate truncate">{{ user?.email || 'user@smartmeet.ai' }}</p>
                   </div>
@@ -267,7 +267,7 @@
                     <router-link
                       to="/settings?tab=profile"
                       @click="isProfileOpen = false"
-                      class="flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-semibold text-brand-slate hover:text-brand-dark hover:bg-black/5 transition-all duration-200"
+                      class="flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-semibold text-brand-slate hover:text-brand-dark dark:hover:text-slate-200 hover:bg-black/5 dark:hover:bg-white/5 transition-all duration-200"
                     >
                       <PhUser :size="14" weight="bold" class="text-brand-slate" />
                       <span>View Profile</span>
@@ -275,12 +275,12 @@
                     <router-link
                       to="/settings"
                       @click="isProfileOpen = false"
-                      class="flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-semibold text-brand-slate hover:text-brand-dark hover:bg-black/5 transition-all duration-200"
+                      class="flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-semibold text-brand-slate hover:text-brand-dark dark:hover:text-slate-200 hover:bg-black/5 dark:hover:bg-white/5 transition-all duration-200"
                     >
                       <PhGear :size="14" weight="bold" class="text-brand-slate" />
                       <span>Settings</span>
                     </router-link>
-                    <div class="border-t border-black/5 my-1"></div>
+                    <div class="border-t border-black/5 dark:border-white/5 my-1"></div>
                     <button
                       @click.stop="handleLogout"
                       class="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-semibold text-red-500 hover:bg-red-500/20 transition-all duration-200 cursor-pointer text-left focus:outline-none"
@@ -309,7 +309,7 @@
       </div>
 
       <!-- Shared App Footer -->
-      <footer v-if="$route.path !== '/knowledge-ai'" class="flex justify-between items-center text-[9px] font-bold text-brand-slate tracking-wide uppercase mt-[48px] pt-[16px] pb-[4px] border-t border-black/5 flex-shrink-0 w-full">
+      <footer v-if="$route.path !== '/knowledge-ai'" class="flex justify-between items-center text-[9px] font-bold text-brand-slate tracking-wide uppercase mt-[48px] pt-[16px] pb-[4px] border-t border-black/5 dark:border-white/5 flex-shrink-0 w-full">
         <span>© 2026 SmartMeet AI Inc. All rights reserved.</span>
         <div class="flex gap-[24px]">
           <a href="#" class="hover:text-primary transition-colors" @click.prevent>Terms of Service</a>

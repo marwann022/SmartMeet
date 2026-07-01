@@ -17,7 +17,11 @@
         <router-link
           to="/"
           class="text-xs font-semibold relative py-1.5 px-3.5 rounded-full border border-transparent transition-all duration-300 focus:outline-none focus:ring-0 active:outline-none"
-          :class="$route.path === '/' ? 'text-primary bg-primary/8 border-transparent' : 'text-brand-slate hover:text-primary hover:bg-primary/5'"
+          :class="
+            $route.path === '/'
+              ? 'text-primary bg-primary/8 border-transparent'
+              : 'text-brand-slate hover:text-primary hover:bg-primary/5'
+          "
         >
           Home
         </router-link>
@@ -25,7 +29,11 @@
         <router-link
           to="/features"
           class="text-xs font-semibold relative py-1.5 px-3.5 rounded-full border border-transparent transition-all duration-300 focus:outline-none focus:ring-0 active:outline-none"
-          :class="$route.path === '/features' ? 'text-primary bg-primary/8 border-transparent' : 'text-brand-slate hover:text-primary hover:bg-primary/5'"
+          :class="
+            $route.path === '/features'
+              ? 'text-primary bg-primary/8 border-transparent'
+              : 'text-brand-slate hover:text-primary hover:bg-primary/5'
+          "
         >
           Features
         </router-link>
@@ -33,7 +41,11 @@
         <router-link
           to="/pricing"
           class="text-xs font-semibold relative py-1.5 px-3.5 rounded-full border border-transparent transition-all duration-300 focus:outline-none focus:ring-0 active:outline-none"
-          :class="$route.path === '/pricing' ? 'text-primary bg-primary/8 border-transparent' : 'text-brand-slate hover:text-primary hover:bg-primary/5'"
+          :class="
+            $route.path === '/pricing'
+              ? 'text-primary bg-primary/8 border-transparent'
+              : 'text-brand-slate hover:text-primary hover:bg-primary/5'
+          "
         >
           Pricing
         </router-link>
@@ -41,10 +53,14 @@
 
       <!-- Authenticated Navigation -->
       <template v-else>
-          <router-link
+        <router-link
           to="/"
           class="text-xs font-semibold relative py-1.5 px-3.5 rounded-full border border-transparent transition-all duration-300 focus:outline-none focus:ring-0 active:outline-none"
-          :class="$route.path === '/' ? 'text-primary bg-primary/8 border-transparent' : 'text-brand-slate hover:text-primary hover:bg-primary/5'"
+          :class="
+            $route.path === '/'
+              ? 'text-primary bg-primary/8 border-transparent'
+              : 'text-brand-slate hover:text-primary hover:bg-primary/5'
+          "
         >
           Home
         </router-link>
@@ -52,7 +68,11 @@
         <router-link
           to="/features"
           class="text-xs font-semibold relative py-1.5 px-3.5 rounded-full border border-transparent transition-all duration-300 focus:outline-none focus:ring-0 active:outline-none"
-          :class="$route.path === '/features' ? 'text-primary bg-primary/8 border-transparent' : 'text-brand-slate hover:text-primary hover:bg-primary/5'"
+          :class="
+            $route.path === '/features'
+              ? 'text-primary bg-primary/8 border-transparent'
+              : 'text-brand-slate hover:text-primary hover:bg-primary/5'
+          "
         >
           Features
         </router-link>
@@ -60,7 +80,11 @@
         <router-link
           to="/pricing"
           class="text-xs font-semibold relative py-1.5 px-3.5 rounded-full border border-transparent transition-all duration-300 focus:outline-none focus:ring-0 active:outline-none"
-          :class="$route.path === '/pricing' ? 'text-primary bg-primary/8 border-transparent' : 'text-brand-slate hover:text-primary hover:bg-primary/5'"
+          :class="
+            $route.path === '/pricing'
+              ? 'text-primary bg-primary/8 border-transparent'
+              : 'text-brand-slate hover:text-primary hover:bg-primary/5'
+          "
         >
           Pricing
         </router-link>
@@ -68,7 +92,11 @@
         <router-link
           to="/dashboard"
           class="text-xs font-semibold relative py-1.5 px-3.5 rounded-full border border-transparent transition-all duration-300 focus:outline-none focus:ring-0 active:outline-none"
-          :class="$route.path === '/dashboard' ? 'text-primary bg-primary/8 border-transparent' : 'text-brand-slate hover:text-primary hover:bg-primary/5'"
+          :class="
+            $route.path === '/dashboard'
+              ? 'text-primary bg-primary/8 border-transparent'
+              : 'text-brand-slate hover:text-primary hover:bg-primary/5'
+          "
         >
           Dashboard
         </router-link>
@@ -81,7 +109,11 @@
       <button
         @click="uiStore.toggleTheme"
         class="group bg-black/5 dark:bg-white/8 border border-black/10 dark:border-white/10 rounded-full flex items-center justify-center w-9 h-9 cursor-pointer text-brand-slate hover:bg-primary/5 hover:border-primary/15 hover:text-primary hover:scale-105 focus:outline-none transition-all duration-300"
-        :title="uiStore.theme === 'light' ? 'Switch to Dark Mode' : 'Switch to Light Mode'"
+        :title="
+          uiStore.theme === 'light'
+            ? 'Switch to Dark Mode'
+            : 'Switch to Light Mode'
+        "
       >
         <span class="sr-only">Toggle theme</span>
         <!-- Moon Icon -->
@@ -285,10 +317,10 @@
         </div>
 
         <!-- Profile Container -->
-        <div ref="profileRef" class="relative">
+        <div ref="profileRef" class="relative flex items-center">
           <button
             @click="isProfileOpen = !isProfileOpen"
-            class="cursor-pointer focus:outline-none bg-transparent border-0"
+            class="cursor-pointer focus:outline-none bg-transparent border-0 flex items-center p-0"
           >
             <NavbarUserPanel />
           </button>
@@ -373,17 +405,23 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
-import { useRouter } from 'vue-router'
-import { PhBell, PhUser, PhGear, PhSignOut, PhTrash } from '@phosphor-icons/vue'
-import { useAuthStore } from '@/stores/auth'
-import { useNotificationStore } from '@/stores/notification'
-import { useUiStore } from '@/stores/ui'
-import Modal from '@/components/ui/Modal.vue'
-import Button from '@/components/ui/Button.vue'
-import NavbarUserPanel from '@/components/common/NavbarUserPanel.vue'
+import { ref, computed, onMounted, onUnmounted, watch } from "vue";
+import { useRouter } from "vue-router";
+import {
+  PhBell,
+  PhUser,
+  PhGear,
+  PhSignOut,
+  PhTrash,
+} from "@phosphor-icons/vue";
+import { useAuthStore } from "@/stores/auth";
+import { useNotificationStore } from "@/stores/notification";
+import { useUiStore } from "@/stores/ui";
+import Modal from "@/components/ui/Modal.vue";
+import Button from "@/components/ui/Button.vue";
+import NavbarUserPanel from "@/components/common/NavbarUserPanel.vue";
 import axios from "axios";
-const uiStore = useUiStore()
+const uiStore = useUiStore();
 const router = useRouter();
 const authStore = useAuthStore();
 const notificationStore = useNotificationStore();
@@ -522,7 +560,6 @@ watch(authenticated, (newVal) => {
     notificationStore.fetchNotifications();
   }
 });
-
 </script>
 
 <style scoped>

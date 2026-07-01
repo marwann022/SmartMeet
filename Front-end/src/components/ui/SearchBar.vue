@@ -11,7 +11,7 @@
     <button
       v-if="modelValue"
       @click="$emit('update:modelValue', '')"
-      class="absolute right-3 top-1/2 -translate-y-1/2 w-[18px] h-[18px] rounded-full bg-black/5 flex items-center justify-center text-brand-slate hover:bg-black/10 cursor-pointer transition-colors"
+      class="absolute right-3 top-1/2 -translate-y-1/2 w-[18px] h-[18px] rounded-full bg-black/5 dark:bg-white/10 flex items-center justify-center text-brand-slate hover:bg-black/10 dark:hover:bg-white/20 cursor-pointer transition-colors"
       type="button"
     >
       <PhX :size="8" />

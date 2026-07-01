@@ -5,7 +5,7 @@
       <div
         class="card-glass rounded-[28px] p-6 sm:p-8 flex flex-col gap-6 border border-white/80 shadow-glass"
       >
-        <div class="flex items-center gap-2.5 pb-4 border-b border-black/5">
+        <div class="flex items-center gap-2.5 pb-4 border-b border-black/5 dark:border-white/5">
           <PhUserCircle :size="20" class="text-primary" />
           <h3 class="font-header font-bold text-lg text-brand-dark">
             Profile Information
@@ -124,7 +124,7 @@
       <div
         class="card-glass rounded-[28px] p-6 sm:p-8 flex flex-col gap-6 border border-white/80 shadow-glass"
       >
-        <div class="flex items-center gap-2.5 pb-4 border-b border-black/5">
+        <div class="flex items-center gap-2.5 pb-4 border-b border-black/5 dark:border-white/5">
           <PhLockKey :size="20" class="text-primary" />
           <h3 class="font-header font-bold text-lg text-brand-dark">
             Security Settings
@@ -203,7 +203,7 @@
             <div
               v-for="session in sessions"
               :key="session._id"
-              class="flex justify-between items-center p-3.5 bg-white/40 dark:bg-slate-900/40 border border-black/[0.03] dark:border-white/5 rounded-2xl"
+              class="flex justify-between items-center p-3.5 bg-white/40 dark:bg-slate-900 border border-black/ dark:border-white/10 rounded-2xl"
             >
 
   <div class="flex items-center gap-3">
@@ -244,7 +244,7 @@
 
   <span
     v-if="session._id === currentSessionId"
-    class="text-xs font-bold bg-gray-100 text-gray-500 px-3 py-1 rounded-lg"
+    class="text-xs font-bold bg-slate-900 text-white px-3 py-1 rounded-lg"
   >
     THIS DEVICE
   </span>
@@ -272,7 +272,7 @@
         class="card-glass rounded-[28px] p-6 flex flex-col gap-5 border border-white/80 shadow-glass"
       >
         <div
-          class="flex justify-between items-center pb-3 border-b border-black/5"
+          class="flex justify-between items-center pb-3 border-b border-black/5 dark:border-white/5"
         >
           <h3 class="font-header font-bold text-lg text-brand-dark">
             Billing Overview
@@ -295,7 +295,7 @@
           </div>
 
           <div
-            class="flex justify-between items-center text-xs text-brand-slate font-medium pt-2 border-t border-black/5"
+            class="flex justify-between items-center text-xs text-brand-slate font-medium pt-2 border-t border-black/5 dark:border-white/5"
           >
             <div class="flex items-center gap-1.5">
               <PhCalendar :size="14" class="text-primary" />
@@ -314,7 +314,7 @@
             </button>
             <button
               @click="$router.push('/pricing')"
-              class="w-full py-3 rounded-xl bg-white border border-black/8 text-xs font-bold font-header text-brand-slate hover:bg-black/5 transition-all cursor-pointer"
+              class="w-full py-3 rounded-xl bg-white dark:bg-white/5 border border-black/8 dark:border-white/10 text-xs font-bold font-header text-brand-slate dark:text-slate-300 hover:bg-black/5 dark:hover:bg-white/10 transition-all cursor-pointer"
             >
               Manage Subscription
             </button>

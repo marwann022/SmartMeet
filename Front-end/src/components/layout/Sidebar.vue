@@ -94,7 +94,7 @@
         </span>
         <div class="flex items-center gap-2 mt-1">
           <RoleBadge :role="user?.role || 'member'" />
-          <span class="text-[9px] font-extrabold text-primary tracking-wider uppercase leading-none">
+          <span class="text-[9px] font-extrabold text-primary dark:text-blue-400 tracking-wider uppercase leading-none">
             {{ user?.plan?.replace(/ \((Monthly|Annual)\)/, '') || "Free" }}
           </span>
         </div>

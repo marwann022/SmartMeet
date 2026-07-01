@@ -87,7 +87,7 @@ a:active,
 }
 
 
-/* Custom Scrollbar */
+/* Custom Scrollbar — Light Mode */
 ::-webkit-scrollbar {
   width: 10px;
   height: 10px;
@@ -102,6 +102,18 @@ a:active,
 }
 ::-webkit-scrollbar-thumb:hover {
   background: rgba(0, 0, 0, 0.18);
+}
+
+/* Custom Scrollbar — Dark Mode */
+.dark ::-webkit-scrollbar-track {
+  background: #0f172a;
+}
+.dark ::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: #0f172a;
+}
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.18);
 }
 
 /* Elegant Light Aurora Backdrop Orbs */
@@ -186,6 +198,15 @@ body::after {
   box-shadow: var(--shadow-glass-hover);
 }
 
+/* Ensure dark-mode card borders always use the CSS variable, overriding any
+   hardcoded Tailwind border-white/80 that may be applied to card-glass elements */
+.dark .card-glass {
+  border-color: var(--border-glass) !important;
+}
+.dark .card-glass:hover {
+  border-color: var(--border-glass-hover) !important;
+}
+
 /* Shell and view container layouts */
 .page-shell {
   @apply w-full max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 flex flex-col min-h-screen;
@@ -194,12 +215,15 @@ body::after {
   @apply flex flex-col gap-12 lg:gap-16;
 }
 
-/* Ensure form elements declare light color-scheme to prevent dark-theme browser overrides on autofill */
+/* Ensure form elements declare the correct color-scheme per theme to prevent browser autofill mismatches */
 input, select, textarea {
-  color-scheme: light !important;
+  color-scheme: light;
+}
+.dark input, .dark select, .dark textarea {
+  color-scheme: dark;
 }
 
-/* Override browser default autofill background and text color to match premium input styling system-wide */
+/* Override browser default autofill background — Light Mode */
 input:-webkit-autofill,
 input:-webkit-autofill:hover, 
 input:-webkit-autofill:focus, 
@@ -213,8 +237,27 @@ select:-webkit-autofill:hover,
 select:-webkit-autofill:focus,
 select:-webkit-autofill:active {
   -webkit-box-shadow: 0 0 0 1000px #ffffff inset !important;
-  -webkit-text-fill-color: #0d1227 !important; /* Matches brand-dark text color */
+  -webkit-text-fill-color: #0d1227 !important;
   box-shadow: 0 0 0 1000px #ffffff inset !important;
+  transition: background-color 5000s ease-in-out 0s;
+}
+
+/* Override browser default autofill background — Dark Mode */
+.dark input:-webkit-autofill,
+.dark input:-webkit-autofill:hover,
+.dark input:-webkit-autofill:focus,
+.dark input:-webkit-autofill:active,
+.dark textarea:-webkit-autofill,
+.dark textarea:-webkit-autofill:hover,
+.dark textarea:-webkit-autofill:focus,
+.dark textarea:-webkit-autofill:active,
+.dark select:-webkit-autofill,
+.dark select:-webkit-autofill:hover,
+.dark select:-webkit-autofill:focus,
+.dark select:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 1000px #020817 inset !important;
+  -webkit-text-fill-color: #f8fafc !important;
+  box-shadow: 0 0 0 1000px #020817 inset !important;
   transition: background-color 5000s ease-in-out 0s;
 }
 

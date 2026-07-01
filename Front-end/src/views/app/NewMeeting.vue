@@ -27,7 +27,7 @@
         <div
           class="card-glass rounded-[28px] p-6 sm:p-8 flex flex-col gap-6 relative z-20"
         >
-          <div class="flex items-center gap-2.5 pb-4 border-b border-black/5">
+          <div class="flex items-center gap-2.5 pb-4 border-b border-black/5 dark:border-white/5">
             <PhInfo :size="20" class="text-primary" />
             <h3 class="font-header font-bold text-xl text-brand-dark">
               Meeting Details
@@ -234,7 +234,7 @@
 
         <!-- Intelligence settings card -->
         <div class="card-glass rounded-[28px] p-6 sm:p-8 flex flex-col gap-6">
-          <div class="flex items-center gap-2.5 pb-4 border-b border-black/5">
+          <div class="flex items-center gap-2.5 pb-4 border-b border-black/5 dark:border-white/5">
             <PhBrain :size="20" class="text-primary" />
             <h3 class="font-header font-bold text-xl text-brand-dark">
               Intelligence Settings
@@ -268,7 +268,7 @@
                 <button
                   type="button"
                   @click="form.record = !form.record"
-                  class="w-[44px] h-[24px] rounded-full transition-colors duration-300 focus:outline-none relative flex items-center cursor-pointer border border-black/5"
+                  class="w-[44px] h-[24px] rounded-full transition-colors duration-300 focus:outline-none relative flex items-center cursor-pointer border border-black/5 dark:border-white/10"
                   :class="form.record ? 'bg-primary' : 'bg-brand-slate/30'"
                 >
                   <span
@@ -297,7 +297,7 @@
                 <button
                   type="button"
                   @click="form.transcribe = !form.transcribe"
-                  class="w-[44px] h-[24px] rounded-full transition-colors duration-300 focus:outline-none relative flex items-center cursor-pointer border border-black/5"
+                  class="w-[44px] h-[24px] rounded-full transition-colors duration-300 focus:outline-none relative flex items-center cursor-pointer border border-black/5 dark:border-white/10"
                   :class="form.transcribe ? 'bg-primary' : 'bg-brand-slate/30'"
                 >
                   <span
@@ -327,7 +327,7 @@
                 <button
                   type="button"
                   @click="form.extractTasks = !form.extractTasks"
-                  class="w-[44px] h-[24px] rounded-full transition-colors duration-300 focus:outline-none relative flex items-center cursor-pointer border border-black/5"
+                  class="w-[44px] h-[24px] rounded-full transition-colors duration-300 focus:outline-none relative flex items-center cursor-pointer border border-black/5 dark:border-white/10"
                   :class="
                     form.extractTasks ? 'bg-primary' : 'bg-brand-slate/30'
                   "
@@ -351,7 +351,7 @@
       <div class="flex flex-col gap-8">
         <!-- Participants Card -->
         <div class="card-glass rounded-[28px] p-6 sm:p-8 flex flex-col gap-6">
-          <div class="flex items-center gap-2.5 pb-4 border-b border-black/5">
+          <div class="flex items-center gap-2.5 pb-4 border-b border-black/5 dark:border-white/5">
             <PhUsersThree :size="20" class="text-primary" />
             <h3 class="font-header font-bold text-xl text-brand-dark">
               Participants
@@ -428,7 +428,7 @@
                 <span class="font-header font-bold text-[11px] tracking-wider uppercase text-brand-slate ml-1">
                   Quick Select Team Members
                 </span>
-                <div class="flex flex-wrap gap-2 max-h-[120px] overflow-y-auto p-1 border border-black/[0.03] dark:border-white/5 rounded-xl bg-black/[0.01]">
+                <div class="flex flex-wrap gap-2 max-h-[120px] overflow-y-auto p-1 border border-black/[0.03] dark:border-white/5 rounded-xl bg-black/[0.01] dark:bg-white/[0.01]">
                   <button
                     v-for="m in membersList.filter(u => `${u.firstName} ${u.lastName}` !== authStore.user?.name)"
                     :key="m._id"
@@ -472,7 +472,7 @@
 
         <!-- Integrations Card -->
         <div class="card-glass rounded-[28px] p-6 sm:p-8 flex flex-col gap-6">
-          <div class="flex items-center gap-2.5 pb-4 border-b border-black/5">
+          <div class="flex items-center gap-2.5 pb-4 border-b border-black/5 dark:border-white/5">
             <PhArrowsMerge :size="20" class="text-primary" />
             <h3 class="font-header font-bold text-xl text-brand-dark">
               Integrations
@@ -502,7 +502,7 @@
               <button
                 type="button"
                 @click="form.syncSlack = !form.syncSlack"
-                class="w-[44px] h-[24px] rounded-full transition-colors duration-300 focus:outline-none relative flex items-center cursor-pointer border border-black/5"
+                class="w-[44px] h-[24px] rounded-full transition-colors duration-300 focus:outline-none relative flex items-center cursor-pointer border border-black/5 dark:border-white/10"
                 :class="form.syncSlack ? 'bg-[#4a154b]' : 'bg-brand-slate/30'"
               >
                 <span

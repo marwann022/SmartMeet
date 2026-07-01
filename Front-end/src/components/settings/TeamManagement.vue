@@ -1,6 +1,28 @@
 <template>
   <div class="flex flex-col gap-6 animate-fade-in text-left">
-    <template v-if="isAdmin">
+    <template v-if="isLoading">
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div v-for="i in 4" :key="i" class="h-[120px] rounded-2xl bg-black/5 dark:bg-white/5 animate-pulse"></div>
+      </div>
+      <div class="h-[400px] rounded-[28px] bg-black/5 dark:bg-white/5 animate-pulse w-full"></div>
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div class="h-[300px] rounded-[28px] bg-black/5 dark:bg-white/5 animate-pulse w-full"></div>
+        <div class="h-[300px] rounded-[28px] bg-black/5 dark:bg-white/5 animate-pulse w-full"></div>
+      </div>
+    </template>
+    
+    <template v-else-if="error">
+      <div class="flex flex-col items-center justify-center py-20 gap-4 opacity-70">
+        <PhWarningCircle :size="48" class="text-red-500" />
+        <h3 class="font-header font-bold text-lg text-brand-dark">Failed to Load</h3>
+        <p class="text-sm text-brand-slate text-center max-w-md">{{ error }}</p>
+        <button @click="loadOverview" class="px-6 py-2 rounded-xl bg-primary/10 text-primary font-bold hover:bg-primary hover:text-white transition-all text-xs">
+          Retry
+        </button>
+      </div>
+    </template>
+    
+    <template v-else-if="isAdmin">
       <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <div
           v-for="stat in teamStats"
@@ -113,29 +135,37 @@
                 </td>
                 <td class="py-3 pl-4 text-right relative">
                   <button
-                    @click="toggleMemberDropdown(m.id, $event)"
-                    @click.stop
-                    class="w-7 h-7 rounded-lg hover:bg-black/5 dark:hover:bg-white/5 flex items-center justify-center text-brand-slate transition-colors cursor-pointer"
+                    @click.stop="activeMemberDropdown = activeMemberDropdown === m.id ? null : m.id"
+                    class="w-7 h-7 rounded-lg hover:bg-black/5 dark:hover:bg-white/5 inline-flex ml-auto items-center justify-center text-brand-slate transition-colors cursor-pointer"
                   >
                     <PhDotsThreeOutlineVertical :size="14" weight="bold" />
                   </button>
 
                   <div
                     v-if="activeMemberDropdown === m.id"
-                    class="fixed z-50 min-w-[160px] bg-white dark:bg-slate-900 rounded-xl shadow-xl border border-black/8 dark:border-white/10 py-1 overflow-hidden"
-                    :style="{ left: dropdownPosition.x - 140 + 'px', top: dropdownPosition.y + 'px' }"
+                    class="absolute right-0 top-[80%] mt-2 z-50 w-[180px] bg-white dark:bg-slate-900 rounded-xl shadow-xl border border-black/8 dark:border-white/10 py-1"
                     @click.stop
                   >
                     <button
+                      @click="copyMemberEmail(m)"
+                      :disabled="actionLoading"
+                      class="w-full flex items-center gap-2.5 px-3.5 py-2.5 text-xs font-semibold text-brand-dark hover:bg-primary/5 dark:hover:bg-primary/10 transition-colors cursor-pointer text-left disabled:opacity-50"
+                    >
+                      <PhEnvelopeSimple :size="14" weight="bold" />
+                      Copy Email
+                    </button>
+                    <button
                       @click="handleChangeRole(m)"
-                      class="w-full flex items-center gap-2.5 px-3.5 py-2.5 text-xs font-semibold text-brand-dark hover:bg-primary/5 dark:hover:bg-primary/10 transition-colors cursor-pointer text-left"
+                      :disabled="actionLoading"
+                      class="w-full flex items-center gap-2.5 px-3.5 py-2.5 text-xs font-semibold text-brand-dark hover:bg-primary/5 dark:hover:bg-primary/10 transition-colors cursor-pointer text-left disabled:opacity-50"
                     >
                       <PhArrowArcLeft :size="14" weight="bold" />
                       {{ m.role === 'Admin' ? 'Change to Member' : 'Change to Admin' }}
                     </button>
                     <button
                       @click="handleRemoveMember(m)"
-                      class="w-full flex items-center gap-2.5 px-3.5 py-2.5 text-xs font-semibold text-red-600 hover:bg-red-50 dark:hover:bg-red-500/20 transition-colors cursor-pointer text-left"
+                      :disabled="actionLoading"
+                      class="w-full flex items-center gap-2.5 px-3.5 py-2.5 text-xs font-semibold text-red-600 hover:bg-red-50 dark:hover:bg-red-500/20 transition-colors cursor-pointer text-left disabled:opacity-50"
                     >
                       <PhUserMinus :size="14" weight="bold" />
                       Remove from Community
@@ -238,54 +268,40 @@
           </h3>
 
           <div class="flex flex-col gap-4 flex-1">
-            <div class="flex gap-2.5 items-start text-[11px]">
-              <div
-                class="w-2.5 h-2.5 rounded-full bg-primary/40 mt-1.5 flex-shrink-0"
-              ></div>
-              <div class="flex flex-col gap-0.5">
-                <span class="font-extrabold text-brand-dark text-[11px]"
-                  >Ahmed</span
-                >
-                <span class="text-brand-dark leading-tight"
-                  >Hello everyone 👋</span
-                >
-                <span class="text-brand-slate text-[10px]">2 min ago</span>
+            <template v-if="chatLoading">
+              <div v-for="i in 3" :key="'skel-chat-' + i" class="flex gap-2.5 items-start">
+                <div class="w-2.5 h-2.5 rounded-full bg-black/5 dark:bg-white/5 animate-pulse mt-1.5 flex-shrink-0"></div>
+                <div class="flex flex-col gap-1 w-full">
+                  <div class="h-3 w-16 bg-black/5 dark:bg-white/5 animate-pulse rounded"></div>
+                  <div class="h-3 w-32 bg-black/5 dark:bg-white/5 animate-pulse rounded"></div>
+                </div>
               </div>
-            </div>
-            <div class="flex gap-2.5 items-start text-[11px]">
-              <div
-                class="w-2.5 h-2.5 rounded-full bg-green-500/50 mt-1.5 flex-shrink-0"
-              ></div>
-              <div class="flex flex-col gap-0.5">
-                <span class="font-extrabold text-brand-dark text-[11px]"
-                  >Sara</span
-                >
-                <span class="text-brand-dark leading-tight"
-                  >Task completed.</span
-                >
-                <span class="text-brand-slate text-[10px]">5 min ago</span>
+            </template>
+            <template v-else-if="chatMessages.length === 0">
+              <div class="flex flex-col items-center justify-center flex-1 py-4 opacity-50">
+                <PhChatCenteredText :size="24" class="text-brand-slate mb-2" />
+                <p class="text-xs text-brand-slate text-center max-w-[200px]">No community messages yet. Start the conversation by sending the first message.</p>
               </div>
-            </div>
-            <div class="flex gap-2.5 items-start text-[11px]">
-              <div
-                class="w-2.5 h-2.5 rounded-full bg-amber-500/50 mt-1.5 flex-shrink-0"
-              ></div>
-              <div class="flex flex-col gap-0.5">
-                <span class="font-extrabold text-brand-dark text-[11px]"
-                  >Omar</span
-                >
-                <span class="text-brand-dark leading-tight"
-                  >Meeting starts at 5 PM.</span
-                >
-                <span class="text-brand-slate text-[10px]">10 min ago</span>
+            </template>
+            <template v-else>
+              <div v-for="msg in chatMessages" :key="msg._id" class="flex gap-2.5 items-start text-[11px]">
+                <img :src="msg.sender?.avatar || userProfileImg" class="w-5 h-5 rounded-full mt-0.5 object-cover flex-shrink-0" />
+                <div class="flex flex-col gap-0.5">
+                  <span class="font-extrabold text-brand-dark text-[11px]">
+                    {{ msg.sender?.firstName ? `${msg.sender.firstName} ${msg.sender.lastName || ''}`.trim() : (msg.sender?.name || 'User') }}
+                  </span>
+                  <span class="text-brand-dark leading-tight">{{ msg.message }}</span>
+                  <span class="text-brand-slate text-[10px]">{{ formatTimeAgo(msg.createdAt) }}</span>
+                </div>
               </div>
-            </div>
+            </template>
           </div>
-          <button
-            class="w-full py-2.5 rounded-xl bg-grad-primary text-white font-header font-bold text-[11px] uppercase tracking-wide transition-all cursor-pointer"
+          <router-link
+            to="/community-chat"
+            class="w-full py-2.5 rounded-xl bg-grad-primary text-white font-header font-bold text-[11px] uppercase tracking-wide transition-all cursor-pointer text-center inline-block"
           >
             Open Chat
-          </button>
+          </router-link>
         </div>
       </div>
     </template>
@@ -440,54 +456,40 @@
         </h3>
 
         <div class="flex flex-col gap-4 flex-1">
-          <div class="flex gap-2.5 items-start text-[11px]">
-            <div
-              class="w-2.5 h-2.5 rounded-full bg-primary/40 mt-1.5 flex-shrink-0"
-            ></div>
-            <div class="flex flex-col gap-0.5">
-              <span class="font-extrabold text-brand-dark text-[11px]"
-                >Ahmed</span
-              >
-              <span class="text-brand-dark leading-tight"
-                >Hello everyone 👋</span
-              >
-              <span class="text-brand-slate text-[10px]">2 min ago</span>
+          <template v-if="chatLoading">
+            <div v-for="i in 3" :key="'skel-chat-u-' + i" class="flex gap-2.5 items-start">
+              <div class="w-2.5 h-2.5 rounded-full bg-black/5 dark:bg-white/5 animate-pulse mt-1.5 flex-shrink-0"></div>
+              <div class="flex flex-col gap-1 w-full">
+                <div class="h-3 w-16 bg-black/5 dark:bg-white/5 animate-pulse rounded"></div>
+                <div class="h-3 w-32 bg-black/5 dark:bg-white/5 animate-pulse rounded"></div>
+              </div>
             </div>
-          </div>
-          <div class="flex gap-2.5 items-start text-[11px]">
-            <div
-              class="w-2.5 h-2.5 rounded-full bg-green-500/50 mt-1.5 flex-shrink-0"
-            ></div>
-            <div class="flex flex-col gap-0.5">
-              <span class="font-extrabold text-brand-dark text-[11px]"
-                >Sara</span
-              >
-              <span class="text-brand-dark leading-tight"
-                >Task completed.</span
-              >
-              <span class="text-brand-slate text-[10px]">5 min ago</span>
+          </template>
+          <template v-else-if="chatMessages.length === 0">
+            <div class="flex flex-col items-center justify-center flex-1 py-4 opacity-50">
+              <PhChatCenteredText :size="24" class="text-brand-slate mb-2" />
+              <p class="text-xs text-brand-slate text-center max-w-[200px]">No community messages yet. Start the conversation by sending the first message.</p>
             </div>
-          </div>
-          <div class="flex gap-2.5 items-start text-[11px]">
-            <div
-              class="w-2.5 h-2.5 rounded-full bg-amber-500/50 mt-1.5 flex-shrink-0"
-            ></div>
-            <div class="flex flex-col gap-0.5">
-              <span class="font-extrabold text-brand-dark text-[11px]"
-                >Omar</span
-              >
-              <span class="text-brand-dark leading-tight"
-                >Meeting starts at 5 PM.</span
-              >
-              <span class="text-brand-slate text-[10px]">10 min ago</span>
+          </template>
+          <template v-else>
+            <div v-for="msg in chatMessages" :key="msg._id" class="flex gap-2.5 items-start text-[11px]">
+              <img :src="msg.sender?.avatar || userProfileImg" class="w-5 h-5 rounded-full mt-0.5 object-cover flex-shrink-0" />
+              <div class="flex flex-col gap-0.5">
+                <span class="font-extrabold text-brand-dark text-[11px]">
+                  {{ msg.sender?.firstName ? `${msg.sender.firstName} ${msg.sender.lastName || ''}`.trim() : (msg.sender?.name || 'User') }}
+                </span>
+                <span class="text-brand-dark leading-tight">{{ msg.message }}</span>
+                <span class="text-brand-slate text-[10px]">{{ formatTimeAgo(msg.createdAt) }}</span>
+              </div>
             </div>
-          </div>
+          </template>
         </div>
-        <button
-          class="w-full py-2.5 rounded-xl bg-grad-primary text-white font-header font-bold text-[11px] uppercase tracking-wide transition-all cursor-pointer"
+        <router-link
+          to="/community-chat"
+          class="w-full py-2.5 rounded-xl bg-grad-primary text-white font-header font-bold text-[11px] uppercase tracking-wide transition-all cursor-pointer text-center inline-block"
         >
           Open Chat
-        </button>
+        </router-link>
       </div>
     </template>
 
@@ -510,6 +512,9 @@ import {
   PhShieldCheck,
   PhArrowArcLeft,
   PhUserMinus,
+  PhChatCenteredText,
+  PhWarningCircle,
+  PhEnvelopeSimple,
 } from "@phosphor-icons/vue";
 import Select from "../ui/Select.vue";
 import RoleBadge from "../common/RoleBadge.vue";
@@ -520,7 +525,7 @@ import { useToasts } from "../../composables/useToasts";
 import userProfileImg from "../../assets/User Profile.png";
 
 const roleOptions = [
-  { value: "user", label: "User" },
+  { value: "user", label: "Member" },
   { value: "admin", label: "Admin" },
 ];
 
@@ -543,6 +548,12 @@ const isAdmin = ref(userData.role === "admin");
 
 const memberStats = ref([]);
 const communityInfo = ref(null);
+
+const isLoading = ref(true);
+const error = ref(null);
+const chatMessages = ref([]);
+const chatLoading = ref(false);
+const actionLoading = ref(false);
 
 const activeMemberDropdown = ref(null);
 const dropdownPosition = ref({ x: 0, y: 0 });
@@ -571,7 +582,7 @@ const toggleMemberDropdown = (memberId, event) => {
     return;
   }
   const rect = event.currentTarget.getBoundingClientRect();
-  dropdownPosition.value = { x: rect.left, y: rect.bottom + 4 };
+  dropdownPosition.value = { x: rect.right, y: rect.bottom + 4 };
   activeMemberDropdown.value = memberId;
 };
 
@@ -633,7 +644,35 @@ const loadOverview = async () => {
     }
   } catch (err) {
     console.error("Failed to load overview", err);
+    error.value = err.response?.data?.message || "Failed to load community details.";
+  } finally {
+    isLoading.value = false;
   }
+};
+
+const loadChatMessages = async () => {
+  try {
+    chatLoading.value = true;
+    const token = localStorage.getItem("token");
+    const { data } = await axios.get("http://localhost:5000/api/community-chat?limit=3", {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    if (data.success) {
+      chatMessages.value = data.messages;
+    }
+  } catch (err) {
+    console.error("Failed to load chat", err);
+  } finally {
+    chatLoading.value = false;
+  }
+};
+
+const formatTimeAgo = (dateString) => {
+  const diff = Math.floor((new Date() - new Date(dateString)) / 1000);
+  if (diff < 60) return "Just now";
+  if (diff < 3600) return `${Math.floor(diff / 60)} min ago`;
+  if (diff < 86400) return `${Math.floor(diff / 3600)} hr ago`;
+  return `${Math.floor(diff / 86400)} d ago`;
 };
 
 const inviteForm = reactive({
@@ -680,10 +719,21 @@ const handleSendInvitation = async () => {
   }
 };
 
+const copyMemberEmail = async (member) => {
+  closeDropdown();
+  try {
+    await navigator.clipboard.writeText(member.email);
+    success("Email copied successfully.");
+  } catch (err) {
+    warning("Unable to copy email.");
+  }
+};
+
 const handleChangeRole = async (member) => {
   closeDropdown();
   const newRole = member.role === "Admin" ? "user" : "admin";
   try {
+    actionLoading.value = true;
     const token = localStorage.getItem("token");
     const { data } = await axios.put(
       `http://localhost:5000/api/communities/members/${member.id}/role`,
@@ -696,12 +746,15 @@ const handleChangeRole = async (member) => {
     }
   } catch (err) {
     warning(err.response?.data?.message || "Failed to update role.");
+  } finally {
+    actionLoading.value = false;
   }
 };
 
 const handleRemoveMember = async (member) => {
   closeDropdown();
   try {
+    actionLoading.value = true;
     const token = localStorage.getItem("token");
     const { data } = await axios.delete(
       `http://localhost:5000/api/communities/members/${member.id}`,
@@ -713,11 +766,14 @@ const handleRemoveMember = async (member) => {
     }
   } catch (err) {
     warning(err.response?.data?.message || "Failed to remove member.");
+  } finally {
+    actionLoading.value = false;
   }
 };
 
 onMounted(() => {
   loadOverview();
+  loadChatMessages();
   document.addEventListener("click", handleClickOutside);
 });
 

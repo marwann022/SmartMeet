@@ -549,4 +549,12 @@ const themeTodayCellClasses = {
 ::-webkit-scrollbar-thumb:hover {
   background: rgba(0, 0, 0, 0.15);
 }
+
+/* Dark mode scrollbar overrides for DatePicker overlays */
+:global(.dark) ::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.12);
+}
+:global(.dark) ::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.22);
+}
 </style>

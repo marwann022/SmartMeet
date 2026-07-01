@@ -6,6 +6,8 @@ import { useAlertStore } from './alert'
 
 export const useTaskStore = defineStore('task', () => {
   const tasks = ref([])
+  const loading = ref(false)
+  const error = ref(null)
   const statusOrder = ['todo', 'inprogress', 'review', 'done']
   const authStore = useAuthStore()
   const alertStore = useAlertStore()
@@ -28,16 +30,24 @@ export const useTaskStore = defineStore('task', () => {
   }
 
   const fetchTasks = async () => {
+    loading.value = true
+    error.value = null
     try {
       const token = localStorage.getItem('token')
-      if (!token) return
+      if (!token) {
+        loading.value = false
+        return
+      }
 
       const { data } = await axios.get('http://localhost:5000/api/tasks', getHeaders())
       if (data.success) {
         tasks.value = data.tasks
       }
-    } catch (error) {
-      console.error('Failed to fetch tasks:', error)
+    } catch (err) {
+      console.error('Failed to fetch tasks:', err)
+      error.value = 'Failed to load tasks.'
+    } finally {
+      loading.value = false
     }
   }
 
@@ -260,6 +270,9 @@ export const useTaskStore = defineStore('task', () => {
 
   return {
     tasks,
+    loading,
+    error,
+    statusOrder,
     fetchTasks,
     addTask,
     updateTask,

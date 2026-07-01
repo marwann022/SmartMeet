@@ -90,25 +90,30 @@
           </div>
 
           <TransitionGroup name="task-item" tag="div" class="flex flex-col gap-4 min-h-[180px] relative w-full pb-10">
-            <TaskCard 
-              v-for="task in tasksByStatus(col.id)" 
-              :key="task.id" 
-              :task="task"
-              @move="(dir) => handleMoveTask(task, dir)" 
-              @delete="taskStore.removeTask(task.id || task._id)" 
-              @toggle="taskStore.toggleTask(task)" 
-              @click="selectedTask = task" 
-            />
-            
-            <div 
-              v-if="tasksByStatus(col.id).length === 0"
-              :key="'empty-' + col.id"
-              class="border border-dashed rounded-2xl flex flex-col items-center justify-center py-10 gap-2 w-full min-h-[150px] transition-all duration-300 bg-white/20 dark:bg-white/[0.01]"
-              :class="columnThemes[col.id].emptyBorder"
-            >
-              <component :is="col.icon" :size="26" weight="light" class="transition-transform duration-300 group-hover:scale-110" />
-              <span class="text-xs font-body font-medium">No tasks yet</span>
-            </div>
+            <template v-if="taskStore.loading">
+              <div v-for="i in 3" :key="'skeleton-' + i" class="bg-black/5 dark:bg-white/5 h-32 rounded-2xl animate-pulse"></div>
+            </template>
+            <template v-else>
+              <TaskCard 
+                v-for="task in tasksByStatus(col.id)" 
+                :key="task.id" 
+                :task="task"
+                @move="(dir) => handleMoveTask(task, dir)" 
+                @delete="taskStore.removeTask(task.id || task._id)" 
+                @toggle="taskStore.toggleTask(task)" 
+                @click="selectedTask = task" 
+              />
+              
+              <div 
+                v-if="tasksByStatus(col.id).length === 0"
+                :key="'empty-' + col.id"
+                class="border border-dashed rounded-2xl flex flex-col items-center justify-center py-10 gap-2 w-full min-h-[150px] transition-all duration-300 bg-white/20 dark:bg-white/[0.01]"
+                :class="columnThemes[col.id].emptyBorder"
+              >
+                <component :is="col.icon" :size="26" weight="light" class="transition-transform duration-300 group-hover:scale-110" />
+                <span class="text-xs font-body font-medium">No tasks yet</span>
+              </div>
+            </template>
           </TransitionGroup>
         </div>
       </div>
