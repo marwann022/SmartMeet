@@ -4,11 +4,11 @@
 
     <div class="flex items-center justify-center min-h-[calc(100vh-140px)] py-10 px-4">
       <div
-        class="w-full max-w-[480px] bg-white/70 border border-white/70 backdrop-blur-lg rounded-[32px] p-8 sm:p-12 shadow-glass flex flex-col gap-7 items-center transition-all duration-300 hover:border-white/95 hover:shadow-card-hover"
+        class="w-full max-w-[540px] bg-white/70 dark:bg-slate-900/70 border border-white/70 dark:border-white/10 backdrop-blur-lg rounded-[32px] p-8 sm:p-12 shadow-glass flex flex-col gap-7 items-center transition-all duration-300 hover:border-white/95 dark:hover:border-white/20 hover:shadow-card-hover"
       >
         <template v-if="success">
           <div
-            class="w-16 h-16 rounded-full bg-white/70 border border-white/70 backdrop-blur-lg shadow-glass flex items-center justify-center text-primary"
+            class="w-16 h-16 rounded-full bg-white/70 dark:bg-slate-900/70 border border-white/70 dark:border-white/10 backdrop-blur-lg shadow-glass flex items-center justify-center text-primary"
           >
             <PhCheckCircle :size="34" weight="fill" />
           </div>
@@ -63,7 +63,7 @@
                     required
                     minlength="8"
                     :disabled="loading"
-                    class="w-full h-12 bg-white border border-black/8 rounded-xl pl-11 pr-11 text-brand-dark text-sm font-semibold outline-none transition-all duration-300 shadow-[inset_0_1px_3px_rgba(0,0,0,0.03)] placeholder-brand-slate/60 focus:border-primary focus:shadow-[inset_0_1px_3px_rgba(0,0,0,0.03),0_0_12px_rgba(75,104,255,0.15)]"
+                    class="w-full h-12 bg-white dark:bg-slate-950/60 border border-black/8 dark:border-white/10 rounded-xl pl-11 pr-11 text-brand-dark text-sm font-semibold outline-none transition-all duration-300 shadow-[inset_0_1px_3px_rgba(0,0,0,0.03)] placeholder-brand-slate/60 focus:border-primary focus:shadow-[inset_0_1px_3px_rgba(0,0,0,0.03),0_0_12px_rgba(75,104,255,0.15)]"
                   />
 
                   <button
@@ -111,7 +111,7 @@
                     required
                     minlength="8"
                     :disabled="loading"
-                    class="w-full h-12 bg-white border border-black/8 rounded-xl pl-11 pr-11 text-brand-dark text-sm font-semibold outline-none transition-all duration-300 shadow-[inset_0_1px_3px_rgba(0,0,0,0.03)] placeholder-brand-slate/60 focus:border-primary focus:shadow-[inset_0_1px_3px_rgba(0,0,0,0.03),0_0_12px_rgba(75,104,255,0.15)]"
+                    class="w-full h-12 bg-white dark:bg-slate-950/60 border border-black/8 dark:border-white/10 rounded-xl pl-11 pr-11 text-brand-dark text-sm font-semibold outline-none transition-all duration-300 shadow-[inset_0_1px_3px_rgba(0,0,0,0.03)] placeholder-brand-slate/60 focus:border-primary focus:shadow-[inset_0_1px_3px_rgba(0,0,0,0.03),0_0_12px_rgba(75,104,255,0.15)]"
                   />
 
                   <button
@@ -139,7 +139,7 @@
 
             <div
               v-if="error"
-              class="rounded-xl bg-red-50 border border-red-200 px-4 py-3 text-red-600 text-xs font-semibold"
+              class="rounded-xl bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 px-4 py-3 text-red-600 dark:text-red-400 text-xs font-semibold"
             >
               {{ error }}
             </div>

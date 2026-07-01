@@ -2,7 +2,7 @@
   <div class="flex flex-col gap-6 animate-fade-in text-left">
     <!-- Workspace Preferences Card -->
     <div class="card-glass rounded-[28px] p-6 sm:p-8 flex flex-col gap-6 border border-white/80 shadow-glass">
-      <div class="flex items-center gap-3 pb-4 border-b border-black/5">
+      <div class="flex items-center gap-3 pb-4 border-b border-black/5 dark:border-white/5">
         <div class="w-10 h-10 rounded-xl bg-primary/8 border border-primary/15 flex items-center justify-center text-primary">
           <PhGear :size="20" weight="bold" />
         </div>
@@ -32,7 +32,7 @@
 
     <!-- AI Insights Engine Card -->
     <div class="card-glass rounded-[28px] p-6 sm:p-8 flex flex-col gap-6 border border-white/80 shadow-glass">
-      <div class="flex items-center gap-3 pb-4 border-b border-black/5">
+      <div class="flex items-center gap-3 pb-4 border-b border-black/5 dark:border-white/5">
         <div class="w-10 h-10 rounded-xl bg-primary/8 border border-primary/15 flex items-center justify-center text-primary">
           <PhGauge :size="20" weight="bold" />
         </div>
@@ -44,7 +44,7 @@
 
       <div class="flex flex-col gap-6">
         <!-- Toggle Auto-Summarization -->
-        <div class="flex items-center justify-between p-4 bg-white/40 border border-black/[0.03] rounded-2xl">
+        <div class="flex items-center justify-between p-4 bg-white/40 dark:bg-slate-900/40 border border-black/[0.03] dark:border-white/5 rounded-2xl">
           <div class="flex flex-col w-[80%]">
             <span class="text-sm font-bold text-brand-dark leading-tight">Auto-Summarization</span>
             <span class="text-xs text-brand-slate mt-0.5">Automatically generate a concise summary and action items after every meeting</span>
@@ -52,7 +52,7 @@
           <button 
             type="button"
             @click="generalForm.autoSummarize = !generalForm.autoSummarize"
-            class="w-[44px] h-[24px] rounded-full transition-colors duration-300 focus:outline-none relative flex items-center cursor-pointer border border-black/5"
+            class="w-[44px] h-[24px] rounded-full transition-colors duration-300 focus:outline-none relative flex items-center cursor-pointer border border-black/5 dark:border-white/10"
             :class="generalForm.autoSummarize ? 'bg-primary' : 'bg-brand-slate/30'"
           >
             <span class="absolute w-[18px] h-[18px] bg-white rounded-full transition-transform duration-300 shadow-sm" :style="{ transform: generalForm.autoSummarize ? 'translateX(22px)' : 'translateX(3px)' }"></span>
@@ -82,7 +82,7 @@
 
     <!-- Data & Privacy Card -->
     <div class="card-glass rounded-[28px] p-6 sm:p-8 flex flex-col gap-6 border border-white/80 shadow-glass">
-      <div class="flex items-center gap-3 pb-4 border-b border-black/5">
+      <div class="flex items-center gap-3 pb-4 border-b border-black/5 dark:border-white/5">
         <div class="w-10 h-10 rounded-xl bg-secondary/8 border border-secondary/15 flex items-center justify-center text-secondary">
           <PhShieldCheck :size="20" weight="bold" />
         </div>
@@ -94,7 +94,7 @@
 
       <div class="flex flex-col gap-4">
         <!-- Checkbox 1: Privacy-First Learning -->
-        <div class="p-4 rounded-2xl bg-white/40 border border-black/[0.03] hover:bg-white/70 transition-all duration-200">
+        <div class="p-4 rounded-2xl bg-white/40 dark:bg-slate-900/40 border border-black/[0.03] dark:border-white/5 hover:bg-white/70 dark:hover:bg-slate-900/60 transition-all duration-200">
           <Checkbox 
             v-model="generalForm.privacyFirst"
             label="Privacy-First Learning"
@@ -103,7 +103,7 @@
         </div>
 
         <!-- Checkbox 2: Auto-Delete Transcripts -->
-        <div class="p-4 rounded-2xl bg-white/40 border border-black/[0.03] hover:bg-white/70 transition-all duration-200">
+        <div class="p-4 rounded-2xl bg-white/40 dark:bg-slate-900/40 border border-black/[0.03] dark:border-white/5 hover:bg-white/70 dark:hover:bg-slate-900/60 transition-all duration-200">
           <Checkbox 
             v-model="generalForm.autoDelete"
             label="Auto-Delete Transcripts"
@@ -127,14 +127,14 @@
           <button @click="handleSyncNow" class="px-5 py-2.5 rounded-xl bg-grad-primary text-white text-xs font-bold font-header tracking-wide hover:shadow-[0_4px_12px_rgba(75,104,255,0.2)] active:scale-95 transition-all cursor-pointer">
             Sync Now
           </button>
-          <button @click="handleManageSync" class="px-5 py-2.5 rounded-xl bg-white border border-black/8 text-xs font-bold font-header text-brand-dark hover:bg-black/5 transition-all cursor-pointer">
+          <button @click="handleManageSync" class="px-5 py-2.5 rounded-xl bg-white dark:bg-slate-900 border border-black/8 dark:border-white/10 text-xs font-bold font-header text-brand-dark hover:bg-black/5 dark:hover:bg-white/5 transition-all cursor-pointer">
             Manage Sync
           </button>
         </div>
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div class="flex items-center justify-between p-4 bg-white/40 border border-black/[0.03] rounded-2xl">
+        <div class="flex items-center justify-between p-4 bg-white/40 dark:bg-slate-900/40 border border-black/[0.03] dark:border-white/5 rounded-2xl">
           <div class="flex items-center gap-3.5">
             <img :src="notionIcon" alt="Notion" class="w-8 h-8 object-contain" />
             <div class="text-left">
@@ -145,7 +145,7 @@
           <span class="text-[10px] font-extrabold px-2.5 py-0.5 rounded-md border border-green-500/20 bg-green-500/10 text-green-600 uppercase">Active</span>
         </div>
 
-        <div class="flex items-center justify-between p-4 bg-white/40 border border-black/[0.03] rounded-2xl">
+        <div class="flex items-center justify-between p-4 bg-white/40 dark:bg-slate-900/40 border border-black/[0.03] dark:border-white/5 rounded-2xl">
           <div class="flex items-center gap-3.5">
             <img :src="slackIcon" alt="Slack" class="w-8 h-8 object-contain" />
             <div class="text-left">
@@ -159,8 +159,8 @@
     </div>
 
     <!-- Footer Actions -->
-    <div class="flex justify-end items-center gap-4 pt-4 border-t border-black/5">
-      <button @click="resetGeneral" class="px-5 py-2.5 rounded-xl bg-white border border-black/8 font-header font-bold text-xs tracking-wider uppercase text-brand-dark hover:bg-black/5 transition-all cursor-pointer">Discard Changes</button>
+    <div class="flex justify-end items-center gap-4 pt-4 border-t border-black/5 dark:border-white/5">
+      <button @click="resetGeneral" class="px-5 py-2.5 rounded-xl bg-white dark:bg-slate-900 border border-black/8 dark:border-white/10 font-header font-bold text-xs tracking-wider uppercase text-brand-dark hover:bg-black/5 dark:hover:bg-white/5 transition-all cursor-pointer">Discard Changes</button>
       <button @click="saveGeneral" class="px-6 py-3 rounded-xl bg-grad-primary text-white font-header font-bold text-xs tracking-wider uppercase shadow-[0_4px_15px_rgba(75,104,255,0.2)] hover:shadow-[0_6px_22px_rgba(75,104,255,0.3)] transition-all cursor-pointer">Save AI Preferences</button>
     </div>
   </div>

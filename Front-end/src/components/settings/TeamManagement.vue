@@ -50,7 +50,7 @@
         class="card-glass rounded-[28px] p-6 flex flex-col gap-5 border border-white/80 shadow-glass"
       >
         <div
-          class="flex justify-between items-center pb-3 border-b border-black/5 flex-wrap gap-3"
+          class="flex justify-between items-center pb-3 border-b border-black/5 dark:border-white/5 flex-wrap gap-3"
         >
           <h3 class="font-header font-bold text-lg text-brand-dark">
             Team Members
@@ -61,7 +61,7 @@
               v-model="memberSearchQuery"
               type="text"
               placeholder="Search members..."
-              class="w-full pl-8 pr-3 py-1.5 rounded-xl bg-white border border-black/8 font-body text-xs text-brand-dark focus:outline-none"
+              class="w-full pl-8 pr-3 py-1.5 rounded-xl bg-white dark:bg-slate-950/60 border border-black/8 dark:border-white/10 font-body text-xs text-brand-dark focus:outline-none"
             />
             <PhMagnifyingGlass
               :size="12"
@@ -74,7 +74,7 @@
           <table class="w-full border-collapse text-left text-xs">
             <thead>
               <tr
-                class="border-b border-black/5 font-extrabold text-brand-slate uppercase pb-3"
+                class="border-b border-black/5 dark:border-white/5 font-extrabold text-brand-slate uppercase pb-3"
               >
                 <th class="pb-3 pr-4">Member</th>
                 <th class="pb-3 px-4">Role</th>
@@ -83,11 +83,11 @@
                 <th class="pb-3 pl-4 text-right">Actions</th>
               </tr>
             </thead>
-            <tbody class="divide-y divide-black/5">
+            <tbody class="divide-y divide-black/5 dark:divide-white/5">
               <tr
                 v-for="m in filteredMembers"
                 :key="m.id"
-                class="hover:bg-primary/[0.01]"
+                class="hover:bg-primary/[0.01] dark:hover:bg-white/[0.02]"
               >
                 <td class="py-3 pr-4">
                   <div class="flex items-center gap-3">
@@ -115,27 +115,27 @@
                   <button
                     @click="toggleMemberDropdown(m.id, $event)"
                     @click.stop
-                    class="w-7 h-7 rounded-lg hover:bg-black/5 flex items-center justify-center text-brand-slate transition-colors cursor-pointer"
+                    class="w-7 h-7 rounded-lg hover:bg-black/5 dark:hover:bg-white/5 flex items-center justify-center text-brand-slate transition-colors cursor-pointer"
                   >
                     <PhDotsThreeOutlineVertical :size="14" weight="bold" />
                   </button>
 
                   <div
                     v-if="activeMemberDropdown === m.id"
-                    class="fixed z-50 min-w-[160px] bg-white rounded-xl shadow-xl border border-black/8 py-1 overflow-hidden"
+                    class="fixed z-50 min-w-[160px] bg-white dark:bg-slate-900 rounded-xl shadow-xl border border-black/8 dark:border-white/10 py-1 overflow-hidden"
                     :style="{ left: dropdownPosition.x - 140 + 'px', top: dropdownPosition.y + 'px' }"
                     @click.stop
                   >
                     <button
                       @click="handleChangeRole(m)"
-                      class="w-full flex items-center gap-2.5 px-3.5 py-2.5 text-xs font-semibold text-brand-dark hover:bg-primary/5 transition-colors cursor-pointer text-left"
+                      class="w-full flex items-center gap-2.5 px-3.5 py-2.5 text-xs font-semibold text-brand-dark hover:bg-primary/5 dark:hover:bg-primary/10 transition-colors cursor-pointer text-left"
                     >
                       <PhArrowArcLeft :size="14" weight="bold" />
                       {{ m.role === 'Admin' ? 'Change to Member' : 'Change to Admin' }}
                     </button>
                     <button
                       @click="handleRemoveMember(m)"
-                      class="w-full flex items-center gap-2.5 px-3.5 py-2.5 text-xs font-semibold text-red-600 hover:bg-red-50 transition-colors cursor-pointer text-left"
+                      class="w-full flex items-center gap-2.5 px-3.5 py-2.5 text-xs font-semibold text-red-600 hover:bg-red-50 dark:hover:bg-red-500/20 transition-colors cursor-pointer text-left"
                     >
                       <PhUserMinus :size="14" weight="bold" />
                       Remove from Community
@@ -153,13 +153,13 @@
           class="card-glass rounded-[28px] p-6 flex flex-col gap-4 text-left border border-white/80 shadow-glass"
         >
           <h3
-            class="font-header font-bold text-base text-brand-dark pb-2 border-b border-black/5"
+            class="font-header font-bold text-base text-brand-dark pb-2 border-b border-black/5 dark:border-white/5"
           >
             Invite Member
           </h3>
 
           <div
-            class="flex items-center justify-between bg-white/40 border border-black/5 rounded-xl px-4 py-3"
+            class="flex items-center justify-between bg-white/40 dark:bg-slate-900/40 border border-black/5 dark:border-white/10 rounded-xl px-4 py-3"
           >
             <div class="flex flex-col gap-0.5">
               <span
@@ -191,7 +191,7 @@
                 v-model="inviteForm.fullName"
                 type="text"
                 placeholder="Name..."
-                class="w-full px-3.5 py-2.5 rounded-xl bg-white border border-black/8 font-body text-xs text-brand-dark focus:outline-none"
+                class="w-full px-3.5 py-2.5 rounded-xl bg-white dark:bg-slate-950/60 border border-black/8 dark:border-white/10 font-body text-xs text-brand-dark focus:outline-none"
               />
             </div>
             <div class="flex flex-col gap-1">
@@ -203,7 +203,7 @@
                 v-model="inviteForm.email"
                 type="email"
                 placeholder="Email..."
-                class="w-full px-3.5 py-2.5 rounded-xl bg-white border border-black/8 font-body text-xs text-brand-dark focus:outline-none"
+                class="w-full px-3.5 py-2.5 rounded-xl bg-white dark:bg-slate-950/60 border border-black/8 dark:border-white/10 font-body text-xs text-brand-dark focus:outline-none"
               />
             </div>
             <div class="flex flex-col gap-1">
@@ -232,7 +232,7 @@
           class="card-glass rounded-[28px] p-6 flex flex-col gap-4 text-left border border-white/80 shadow-glass"
         >
           <h3
-            class="font-header font-bold text-base text-brand-dark pb-2 border-b border-black/5"
+            class="font-header font-bold text-base text-brand-dark pb-2 border-b border-black/5 dark:border-white/5"
           >
             Community Chat
           </h3>
@@ -320,7 +320,7 @@
         class="card-glass rounded-[28px] p-6 flex flex-col gap-4 text-left border border-white/80 shadow-glass"
       >
         <h3
-          class="font-header font-bold text-base text-brand-dark pb-2 border-b border-black/5"
+          class="font-header font-bold text-base text-brand-dark pb-2 border-b border-black/5 dark:border-white/5"
         >
           Community Information
         </h3>
@@ -365,7 +365,7 @@
         class="card-glass rounded-[28px] p-6 flex flex-col gap-5 border border-white/80 shadow-glass"
       >
         <div
-          class="flex justify-between items-center pb-3 border-b border-black/5 flex-wrap gap-3"
+          class="flex justify-between items-center pb-3 border-b border-black/5 dark:border-white/5 flex-wrap gap-3"
         >
           <h3 class="font-header font-bold text-lg text-brand-dark">
             Team Members
@@ -376,7 +376,7 @@
               v-model="memberSearchQuery"
               type="text"
               placeholder="Search members..."
-              class="w-full pl-8 pr-3 py-1.5 rounded-xl bg-white border border-black/8 font-body text-xs text-brand-dark focus:outline-none"
+              class="w-full pl-8 pr-3 py-1.5 rounded-xl bg-white dark:bg-slate-950/60 border border-black/8 dark:border-white/10 font-body text-xs text-brand-dark focus:outline-none"
             />
             <PhMagnifyingGlass
               :size="12"
@@ -389,7 +389,7 @@
           <table class="w-full border-collapse text-left text-xs">
             <thead>
               <tr
-                class="border-b border-black/5 font-extrabold text-brand-slate uppercase pb-3"
+                class="border-b border-black/5 dark:border-white/5 font-extrabold text-brand-slate uppercase pb-3"
               >
                 <th class="pb-3 pr-4">Member</th>
                 <th class="pb-3 px-4">Role</th>
@@ -397,11 +397,11 @@
                 <th class="pb-3 px-4">Joined</th>
               </tr>
             </thead>
-            <tbody class="divide-y divide-black/5">
+            <tbody class="divide-y divide-black/5 dark:divide-white/5">
               <tr
                 v-for="m in filteredMembers"
                 :key="m.id"
-                class="hover:bg-primary/[0.01]"
+                class="hover:bg-primary/[0.01] dark:hover:bg-white/[0.02]"
               >
                 <td class="py-3 pr-4">
                   <div class="flex items-center gap-3">
@@ -434,7 +434,7 @@
         class="card-glass rounded-[28px] p-6 flex flex-col gap-4 text-left border border-white/80 shadow-glass"
       >
         <h3
-          class="font-header font-bold text-base text-brand-dark pb-2 border-b border-black/5"
+          class="font-header font-bold text-base text-brand-dark pb-2 border-b border-black/5 dark:border-white/5"
         >
           Community Chat
         </h3>

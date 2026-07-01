@@ -1,7 +1,7 @@
 <template>
   <div class="flex flex-col gap-6 animate-fade-in text-left">
     <div class="card-glass rounded-[28px] p-6 sm:p-8 flex flex-col gap-6 border border-white/80 shadow-glass">
-      <div class="flex items-center gap-3 pb-4 border-b border-black/5">
+      <div class="flex items-center gap-3 pb-4 border-b border-black/5 dark:border-white/5">
         <div class="w-10 h-10 rounded-xl bg-primary/8 border border-primary/15 flex items-center justify-center text-primary">
           <PhCreditCard :size="20" weight="bold" />
         </div>
@@ -12,7 +12,7 @@
       </div>
 
       <div class="flex flex-col gap-6">
-        <div class="p-5 bg-white/40 border border-black/[0.03] rounded-2xl flex items-center justify-between">
+        <div class="p-5 bg-white/40 dark:bg-slate-900/40 border border-black/[0.03] dark:border-white/5 rounded-2xl flex items-center justify-between">
           <div class="flex flex-col">
             <span class="text-sm font-bold text-brand-dark">Current Plan</span>
             <span class="text-xs text-brand-slate mt-0.5">
@@ -23,8 +23,8 @@
             class="px-4 py-2 rounded-full text-[11px] font-bold font-header uppercase tracking-wider"
             :class="
               isOnProPlan
-                ? 'bg-emerald-100 text-emerald-600'
-                : 'bg-primary/10 text-primary'
+                ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400'
+                : 'bg-primary/10 dark:bg-primary/20 text-primary'
             "
           >
             {{ planDisplay }}
@@ -33,7 +33,7 @@
 
         <div
           v-if="isOnProPlan"
-          class="p-5 bg-white/40 border border-black/[0.03] rounded-2xl flex items-center justify-between"
+          class="p-5 bg-white/40 dark:bg-slate-900/40 border border-black/[0.03] dark:border-white/5 rounded-2xl flex items-center justify-between"
         >
           <div class="flex flex-col">
             <span class="text-sm font-bold text-brand-dark">Cancel Subscription</span>
@@ -48,7 +48,7 @@
 
         <div
           v-else
-          class="p-5 bg-white/40 border border-black/[0.03] rounded-2xl flex items-center justify-between"
+          class="p-5 bg-white/40 dark:bg-slate-900/40 border border-black/[0.03] dark:border-white/5 rounded-2xl flex items-center justify-between"
         >
           <div class="flex flex-col">
             <span class="text-sm font-bold text-brand-dark">Upgrade to Pro</span>
@@ -72,7 +72,7 @@
       >
         <div class="w-full max-w-[400px] rounded-[28px] card-glass p-8 relative">
           <div class="flex flex-col items-center text-center">
-            <div class="w-14 h-14 rounded-full bg-red-100 flex items-center justify-center mb-4">
+            <div class="w-14 h-14 rounded-full bg-red-100 dark:bg-red-500/20 flex items-center justify-center mb-4">
               <PhWarningCircle :size="28" weight="fill" class="text-red-500" />
             </div>
             <h3 class="font-header font-bold text-lg text-brand-dark mb-2">
@@ -111,7 +111,7 @@
       >
         <div class="w-full max-w-[400px] rounded-[28px] card-glass p-8 relative">
           <div class="flex flex-col items-center text-center">
-            <div class="w-14 h-14 rounded-full bg-amber-100 flex items-center justify-center mb-4">
+            <div class="w-14 h-14 rounded-full bg-amber-100 dark:bg-amber-500/20 flex items-center justify-center mb-4">
               <PhCheckCircle :size="28" weight="fill" class="text-amber-500" />
             </div>
             <h3 class="font-header font-bold text-lg text-brand-dark mb-2">
