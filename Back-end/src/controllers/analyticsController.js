@@ -95,37 +95,32 @@ export const getTeamAnalytics = async (req, res) => {
             console.log("ChatMessage counting failed:", e.message);
         }
 
-        // 4. Top Contributors (Mock calculation based on current user + participants)
-        // Since full cross-user querying requires heavy aggregation, we build a heuristic scoreboard
+        // 4. Top Contributors (Actual active members excluding admin)
+        const activeMembers = await User.find({
+            community: { $in: communityIds },
+            role: "user",
+            status: "active"
+        }).select("firstName lastName email avatar");
+        
         let contributorsMap = new Map();
         
-        // Add current user
-        contributorsMap.set(req.user.email, {
-            name: req.user.firstName + " " + (req.user.lastName || ""),
-            email: req.user.email,
-            avatar: req.user.avatar || null,
-            score: completedTasks * 10 + totalMeetings * 5,
-            completionRate: completionRate,
-            role: "Admin"
+        activeMembers.forEach(member => {
+            contributorsMap.set(member.email, {
+                name: `${member.firstName} ${member.lastName || ""}`.trim(),
+                email: member.email,
+                avatar: member.avatar || null,
+                score: 15, // Base score
+                completionRate: Math.round(Math.random() * 40) + 50, // Mock completion rate for members
+                role: "Member"
+            });
         });
 
-        // Add frequent participants
+        // Boost score if they were frequent participants in meetings
         meetings.forEach(m => {
             if (m.participants) {
                 m.participants.forEach(p => {
-                    if (p.email && p.email !== req.user.email) {
-                        if (!contributorsMap.has(p.email)) {
-                            contributorsMap.set(p.email, {
-                                name: p.name,
-                                email: p.email,
-                                avatar: null,
-                                score: 15,
-                                completionRate: Math.round(Math.random() * 40) + 50, // Mock for others
-                                role: "Member"
-                            });
-                        } else {
-                            contributorsMap.get(p.email).score += 5;
-                        }
+                    if (p.email && contributorsMap.has(p.email)) {
+                        contributorsMap.get(p.email).score += 5;
                     }
                 });
             }
