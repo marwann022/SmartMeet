@@ -4,8 +4,8 @@
     <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
       <div class="card-glass rounded-2xl p-4 flex items-center justify-between border border-white/80 shadow-glass group hover:bg-white/40 transition-colors">
         <div class="flex flex-col gap-1">
-          <span class="text-[9px] font-extrabold text-brand-slate uppercase tracking-wider">Total Members</span>
-          <span class="text-xl font-bold font-header text-brand-dark">{{ data?.kpi?.totalMembers || 0 }}</span>
+          <span class="text-[9px] font-extrabold text-brand-slate uppercase tracking-wider">{{ data?.isMemberView ? 'My Score' : 'Total Members' }}</span>
+          <span class="text-xl font-bold font-header text-brand-dark">{{ data?.isMemberView ? (data?.teamPerformance?.performanceScore || 0) : (data?.kpi?.totalMembers || 0) }}</span>
         </div>
         <div class="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center text-primary group-hover:scale-110 transition-transform">
           <PhUsers :size="20" weight="bold" />
@@ -47,7 +47,7 @@
       <div class="card-glass rounded-[24px] p-6 flex flex-col gap-5 border border-white/80 shadow-glass lg:col-span-2 lg:row-span-2 min-h-0">
         <div class="flex items-center gap-2 border-b border-black/5 pb-3">
           <PhChartLineUp :size="20" weight="bold" class="text-primary" />
-          <h3 class="font-header font-bold text-lg text-brand-dark">Team Performance</h3>
+          <h3 class="font-header font-bold text-lg text-brand-dark">{{ data?.isMemberView ? 'My Performance' : 'Team Performance' }}</h3>
         </div>
         <div class="flex flex-col md:flex-row gap-6 items-center flex-1 justify-center">
           <!-- Circular Indicator -->
@@ -95,36 +95,56 @@
         </div>
       </div>
 
-      <!-- 2. Leaderboard (1x2) -->
+      <!-- 2. Leaderboard or Recent Tasks (1x2) -->
       <div class="card-glass rounded-[24px] p-6 flex flex-col gap-4 border border-white/80 shadow-glass lg:col-span-1 lg:row-span-2 min-h-0">
-        <div class="flex items-center gap-2 border-b border-black/5 pb-3">
-          <PhTrophy :size="20" weight="bold" class="text-yellow-500" />
-          <h3 class="font-header font-bold text-lg text-brand-dark">Leaderboard</h3>
-        </div>
-        <div class="flex flex-col gap-3 flex-1 overflow-y-auto pr-1">
-          <div v-for="(user, index) in data?.topContributors || []" :key="index" class="flex items-center justify-between p-3 rounded-xl bg-white/40 border border-black/5 hover:bg-white/60 transition-colors">
-            <div class="flex items-center gap-3">
-              <div class="relative w-8 h-8 rounded-full bg-brand-slate/10 flex items-center justify-center font-bold text-brand-dark text-xs overflow-hidden">
-                <img v-if="user.avatar" :src="user.avatar" class="w-full h-full object-cover" />
-                <span v-else>{{ user.name.charAt(0) }}</span>
-                <div v-if="index === 0" class="absolute -top-1 -right-1 text-yellow-500 bg-white rounded-full">
-                  <PhCrown :size="12" weight="fill" />
+        <template v-if="!data?.isMemberView">
+          <div class="flex items-center gap-2 border-b border-black/5 pb-3">
+            <PhTrophy :size="20" weight="bold" class="text-yellow-500" />
+            <h3 class="font-header font-bold text-lg text-brand-dark">Leaderboard</h3>
+          </div>
+          <div class="flex flex-col gap-3 flex-1 overflow-y-auto pr-1">
+            <div v-for="(user, index) in data?.topContributors || []" :key="index" class="flex items-center justify-between p-3 rounded-xl bg-white/40 border border-black/5 hover:bg-white/60 transition-colors">
+              <div class="flex items-center gap-3">
+                <div class="relative w-8 h-8 rounded-full bg-brand-slate/10 flex items-center justify-center font-bold text-brand-dark text-xs overflow-hidden">
+                  <img v-if="user.avatar" :src="user.avatar" class="w-full h-full object-cover" />
+                  <span v-else>{{ user.name.charAt(0) }}</span>
+                  <div v-if="index === 0" class="absolute -top-1 -right-1 text-yellow-500 bg-white rounded-full">
+                    <PhCrown :size="12" weight="fill" />
+                  </div>
+                </div>
+                <div class="flex flex-col">
+                  <span class="text-xs font-bold text-brand-dark leading-tight">{{ user.name }}</span>
+                  <span class="text-[10px] text-brand-slate">{{ user.score }} pts</span>
                 </div>
               </div>
-              <div class="flex flex-col">
-                <span class="text-xs font-bold text-brand-dark leading-tight">{{ user.name }}</span>
-                <span class="text-[10px] text-brand-slate">{{ user.score }} pts</span>
+              <div class="flex flex-col items-end">
+                <span class="text-xs font-bold" :class="user.completionRate >= 80 ? 'text-green-500' : 'text-orange-500'">{{ user.completionRate }}%</span>
+                <span class="text-[9px] text-brand-slate">Completion</span>
               </div>
             </div>
-            <div class="flex flex-col items-end">
-              <span class="text-xs font-bold" :class="user.completionRate >= 80 ? 'text-green-500' : 'text-orange-500'">{{ user.completionRate }}%</span>
-              <span class="text-[9px] text-brand-slate">Completion</span>
+            <div v-if="!data?.topContributors?.length" class="text-center text-xs text-brand-slate py-4">
+              Not enough data for leaderboard.
             </div>
           </div>
-          <div v-if="!data?.topContributors?.length" class="text-center text-xs text-brand-slate py-4">
-            Not enough data for leaderboard.
+        </template>
+        <template v-else>
+          <div class="flex items-center gap-2 border-b border-black/5 pb-3">
+            <PhListChecks :size="20" weight="bold" class="text-blue-500" />
+            <h3 class="font-header font-bold text-lg text-brand-dark">Recent Tasks</h3>
           </div>
-        </div>
+          <div class="flex flex-col gap-3 flex-1 overflow-y-auto pr-1">
+            <div v-for="task in data?.recentTasks || []" :key="task._id" class="flex flex-col gap-1.5 p-3 rounded-xl bg-white/40 border border-black/5 hover:bg-white/60 transition-colors">
+              <span class="text-[12px] font-semibold text-brand-dark leading-tight" :class="{ 'line-through text-brand-slate': task.status === 'done' || task.done }">{{ task.title }}</span>
+              <div class="flex justify-between items-center mt-1">
+                <span class="text-[9px] text-brand-slate uppercase font-bold">{{ task.source || 'Manual' }}</span>
+                <div class="w-1.5 h-1.5 rounded-full" :class="task.status === 'done' ? 'bg-green-500' : task.status === 'review' ? 'bg-purple-500' : task.status === 'inprogress' ? 'bg-blue-500' : 'bg-yellow-500'"></div>
+              </div>
+            </div>
+            <div v-if="!data?.recentTasks?.length" class="text-center text-xs text-brand-slate py-4">
+              No recent tasks found.
+            </div>
+          </div>
+        </template>
       </div>
 
       <!-- 3. Tasks Insights (1x1) -->
@@ -236,7 +256,7 @@
       <div class="card-glass rounded-[24px] p-6 flex flex-col gap-4 border border-white/80 shadow-glass lg:col-span-1 lg:row-span-1 min-h-0">
         <div class="flex items-center gap-2 border-b border-black/5 pb-3">
           <PhChatTeardropText :size="20" weight="bold" class="text-pink-500" />
-          <h3 class="font-header font-bold text-lg text-brand-dark">Engagement</h3>
+          <h3 class="font-header font-bold text-lg text-brand-dark">{{ data?.isMemberView ? 'My Engagement' : 'Engagement' }}</h3>
         </div>
         <div class="flex flex-col gap-3 flex-1 justify-center">
           <div class="grid grid-cols-2 gap-3">
@@ -264,7 +284,7 @@
 import { 
   PhUsers, PhCheckCircle, PhVideoCamera, PhBrain, 
   PhChartLineUp, PhTrophy, PhCrown, PhTarget, 
-  PhSparkle, PhCalendarCheck, PhChatTeardropText 
+  PhSparkle, PhCalendarCheck, PhChatTeardropText, PhListChecks
 } from '@phosphor-icons/vue'
 
 const props = defineProps({

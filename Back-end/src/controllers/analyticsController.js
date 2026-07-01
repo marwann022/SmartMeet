@@ -14,9 +14,16 @@ export const getTeamAnalytics = async (req, res) => {
         const now = new Date();
         const startOfWeek = new Date(now.setDate(now.getDate() - now.getDay()));
         const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+        const isAdmin = req.user.role === "admin";
+        const communityId = req.user.community;
 
         // 1. Team Performance & Tasks Insights
-        const tasks = await Task.find({ $or: [{ user: userId }, { createdBy: userId }] });
+        let tasks;
+        if (isAdmin) {
+            tasks = await Task.find({ community: communityId });
+        } else {
+            tasks = await Task.find({ $or: [{ user: userId }, { createdBy: userId }], community: communityId });
+        }
         
         let totalTasks = tasks.length;
         let completedTasks = 0;
@@ -45,9 +52,15 @@ export const getTeamAnalytics = async (req, res) => {
         const performanceScore = Math.max(0, completionRate - (overdueTasks * 2));
 
         // 2. Meetings Analytics & Attendance
-        const meetings = await Meeting.find({
-            $or: [{ host: userId }, { "participants.email": req.user.email }]
-        });
+        let meetings;
+        if (isAdmin) {
+            meetings = await Meeting.find({ community: communityId });
+        } else {
+            meetings = await Meeting.find({
+                $or: [{ host: userId }, { "participants.email": req.user.email }],
+                community: communityId
+            });
+        }
 
         let totalMeetings = meetings.length;
         let meetingsThisWeek = 0;
@@ -143,6 +156,7 @@ export const getTeamAnalytics = async (req, res) => {
         res.status(200).json({
             success: true,
             analytics: {
+                isMemberView: !isAdmin,
                 kpi: {
                     totalMembers: contributorsMap.size,
                     totalMeetings,
@@ -182,6 +196,7 @@ export const getTeamAnalytics = async (req, res) => {
                     aiGenerated: aiTasks,
                     manual: manualTasks
                 },
+                recentTasks: tasks.sort((a, b) => new Date(b.createdAt || Date.now()) - new Date(a.createdAt || Date.now())).slice(0, 5),
                 attendance: {
                     overallRate: 85, // Computed mock
                     bestMember: topContributors[0]?.name || "N/A",
