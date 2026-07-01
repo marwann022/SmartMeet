@@ -167,11 +167,11 @@ const startInstantMeeting = async () => {
 
 const menuTabs = [
   { id: 'dashboard', label: 'Dashboard', route: '/dashboard', icon: PhLayout },
-  { id: 'community-chat', label: 'Community Chat', route: '/community-chat', icon: PhChatDots },
+  { id: 'knowledge', label: 'Knowledge AI', route: '/knowledge-ai', icon: PhBrain },
   { id: 'team-management', label: 'Team Management', route: '/team-management', icon: PhUsersThree },
   { id: 'archive', label: 'Archive', route: '/archive', icon: PhArchive },
   { id: 'tasks', label: 'Tasks', route: '/tasks', icon: PhCheckSquare },
-  { id: 'knowledge', label: 'Knowledge AI', route: '/knowledge-ai', icon: PhBrain },
+  { id: 'community-chat', label: 'Community Chat', route: '/community-chat', icon: PhChatDots },
   { id: 'settings', label: 'Settings', route: '/settings', icon: PhGear }
 ]
 
