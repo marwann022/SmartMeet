@@ -3,7 +3,7 @@
     <Navbar />
 
     <div class="flex items-center justify-center min-h-[calc(100vh-140px)] py-10 px-4">
-      <div class="w-full max-w-[480px] bg-white/70 border border-white/70 backdrop-blur-lg rounded-[32px] p-8 sm:p-12 shadow-glass flex flex-col gap-7 items-center transition-all duration-300 hover:border-white/95 hover:shadow-card-hover">
+      <div class="w-full max-w-[540px] bg-white/70 dark:bg-slate-900/70 border border-white/70 dark:border-white/10 backdrop-blur-lg rounded-[32px] p-8 sm:p-12 shadow-glass flex flex-col gap-7 items-center transition-all duration-300 hover:border-white/95 dark:hover:border-white/20 hover:shadow-card-hover">
         <template v-if="!loginSuccess">
           <!-- Header -->
           <div class="text-center flex flex-col gap-2">
@@ -15,7 +15,7 @@
           <div class="w-full">
             <button
               type="button"
-              class="w-full flex items-center justify-center gap-3 py-3 px-4 rounded-xl border border-black/8 bg-white/50 text-[11px] font-bold text-brand-dark transition-all duration-300 hover:bg-white hover:border-primary/20 hover:shadow-sm cursor-pointer"
+              class="w-full flex items-center justify-center gap-3 py-3 px-4 rounded-xl border border-black/8 dark:border-white/10 bg-white/50 dark:bg-white/5 text-[11px] font-bold text-brand-dark transition-all duration-300 hover:bg-white dark:hover:bg-white/10 hover:border-primary/20 hover:shadow-sm cursor-pointer"
               @click="handleSSOLogin('Google')"
             >
               <img :src="googleIcon" alt="Google" class="w-4 h-4 object-contain" />
@@ -25,19 +25,19 @@
 
           <!-- OR Divider -->
           <div class="flex items-center gap-4 w-full my-2">
-            <div class="flex-1 h-[1px] bg-black/5"></div>
+            <div class="flex-1 h-[1px] bg-black/5 dark:bg-white/10"></div>
             <div class="font-header font-bold text-[10px] text-brand-slate tracking-widest">OR</div>
-            <div class="flex-1 h-[1px] bg-black/5"></div>
+            <div class="flex-1 h-[1px] bg-black/5 dark:bg-white/10"></div>
           </div>
 
           <!-- Global Error Banner -->
-          <div v-if="showGlobalError" class="w-full p-4 bg-red-50 border border-red-200 text-red-700 text-sm font-semibold rounded-2xl flex items-center gap-3 animate-fadeIn text-left">
+          <div v-if="showGlobalError" class="w-full p-4 bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 text-red-700 dark:text-red-400 text-sm font-semibold rounded-2xl flex items-center gap-3 animate-fadeIn text-left">
             <PhWarningCircle :size="20" class="text-red-500 shrink-0" />
             <span>Please fix the errors in the fields below.</span>
           </div>
 
           <!-- Backend Error Banner -->
-          <div v-if="backendError" class="w-full p-4 bg-red-50 border border-red-200 text-red-700 text-sm font-semibold rounded-2xl flex items-center gap-3 animate-fadeIn text-left">
+          <div v-if="backendError" class="w-full p-4 bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 text-red-700 dark:text-red-400 text-sm font-semibold rounded-2xl flex items-center gap-3 animate-fadeIn text-left">
             <PhWarningCircle :size="20" class="text-red-500 shrink-0" />
             <span>{{ backendError }}</span>
           </div>
@@ -121,7 +121,7 @@
             <!-- Ripple Ring 2 -->
             <div class="absolute w-20 h-20 rounded-full bg-primary/5 border border-primary/10 animate-pulse delay-75"></div>
             <!-- Center Spinner Card -->
-            <div class="w-14 h-14 rounded-2xl bg-white/90 border border-white flex items-center justify-center text-primary shadow-glass backdrop-blur-md relative z-10 animate-bounce">
+            <div class="w-14 h-14 rounded-2xl bg-white/90 dark:bg-slate-900/90 border border-white dark:border-white/10 flex items-center justify-center text-primary shadow-glass backdrop-blur-md relative z-10 animate-bounce">
               <PhSparkle :size="28" weight="fill" class="animate-spin duration-1000" />
             </div>
           </div>

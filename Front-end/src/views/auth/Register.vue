@@ -7,7 +7,7 @@
       <!-- ── Verifying token ─────────────────────────────────────────── -->
       <section
         v-if="verifying"
-        class="w-full max-w-[540px] bg-white/70 border border-white/70 backdrop-blur-lg rounded-[32px] p-12 shadow-glass flex flex-col items-center gap-6"
+        class="w-full max-w-[540px] bg-white/70 dark:bg-slate-900/70 border border-white/70 dark:border-white/10 backdrop-blur-lg rounded-[32px] p-12 shadow-glass flex flex-col items-center gap-6"
         aria-label="Verifying invitation"
       >
         <div class="w-10 h-10 rounded-full border-[3px] border-primary/20 border-t-primary animate-spin"></div>
@@ -17,7 +17,7 @@
       <!-- ── Error states ───────────────────────────────────────────── -->
       <section
         v-else-if="tokenError"
-        class="w-full max-w-[540px] bg-white/70 border border-white/70 backdrop-blur-lg rounded-[32px] p-10 sm:p-12 shadow-glass flex flex-col items-center gap-6 text-center transition-all duration-300 hover:border-white/95 hover:shadow-card-hover"
+        class="w-full max-w-[540px] bg-white/70 dark:bg-slate-900/70 border border-white/70 dark:border-white/10 backdrop-blur-lg rounded-[32px] p-10 sm:p-12 shadow-glass flex flex-col items-center gap-6 text-center transition-all duration-300 hover:border-white/95 dark:hover:border-white/20 hover:shadow-card-hover"
         role="alert"
       >
         <div
@@ -51,7 +51,7 @@
       <!-- ── Invitation form ────────────────────────────────────────── -->
       <section
         v-else
-        class="w-full max-w-[540px] bg-white/70 border border-white/70 backdrop-blur-lg rounded-[32px] p-6 sm:p-10 lg:p-12 shadow-glass flex flex-col gap-7 items-center transition-all duration-300 hover:border-white/95 hover:shadow-card-hover group/card"
+        class="w-full max-w-[540px] bg-white/70 dark:bg-slate-900/70 border border-white/70 dark:border-white/10 backdrop-blur-lg rounded-[32px] p-6 sm:p-10 lg:p-12 shadow-glass flex flex-col gap-7 items-center transition-all duration-300 hover:border-white/95 dark:hover:border-white/20 hover:shadow-card-hover group/card"
         aria-labelledby="register-title"
       >
 
@@ -86,7 +86,7 @@
           <!-- Backend error -->
           <div
             v-if="backendError"
-            class="w-full p-4 bg-red-50 border border-red-200 text-red-700 text-sm font-semibold rounded-2xl flex items-center gap-3 animate-fadeIn text-left"
+            class="w-full p-4 bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 text-red-700 dark:text-red-400 text-sm font-semibold rounded-2xl flex items-center gap-3 animate-fadeIn text-left"
             role="alert"
           >
             <PhWarningCircle :size="20" class="text-red-500 shrink-0" />
@@ -98,7 +98,7 @@
 
             <div class="flex flex-col gap-1">
               <label class="text-xs font-bold text-brand-dark">Full Name</label>
-              <div class="flex items-center gap-2.5 w-full px-3.5 py-2.5 rounded-xl bg-black/[0.03] border border-black/8">
+              <div class="flex items-center gap-2.5 w-full px-3.5 py-2.5 rounded-xl bg-black/[0.03] dark:bg-white/5 border border-black/8 dark:border-white/10">
                 <PhUser :size="17" class="text-brand-slate/50 shrink-0" weight="bold" />
                 <span class="text-sm font-medium text-brand-dark flex-1">{{ invitation.fullName }}</span>
                 <PhLock :size="13" class="text-brand-slate/30 shrink-0" weight="bold" />
@@ -107,7 +107,7 @@
 
             <div class="flex flex-col gap-1">
               <label class="text-xs font-bold text-brand-dark">Email</label>
-              <div class="flex items-center gap-2.5 w-full px-3.5 py-2.5 rounded-xl bg-black/[0.03] border border-black/8">
+              <div class="flex items-center gap-2.5 w-full px-3.5 py-2.5 rounded-xl bg-black/[0.03] dark:bg-white/5 border border-black/8 dark:border-white/10">
                 <PhEnvelope :size="17" class="text-brand-slate/50 shrink-0" weight="bold" />
                 <span class="text-sm font-medium text-brand-dark flex-1">{{ invitation.email }}</span>
                 <PhLock :size="13" class="text-brand-slate/30 shrink-0" weight="bold" />
@@ -116,7 +116,7 @@
 
             <div class="flex flex-col gap-1">
               <label class="text-xs font-bold text-brand-dark">Role</label>
-              <div class="flex items-center gap-2.5 w-full px-3.5 py-2.5 rounded-xl bg-black/[0.03] border border-black/8">
+              <div class="flex items-center gap-2.5 w-full px-3.5 py-2.5 rounded-xl bg-black/[0.03] dark:bg-white/5 border border-black/8 dark:border-white/10">
                 <PhShieldCheck :size="17" class="text-brand-slate/50 shrink-0" weight="bold" />
                 <span class="text-sm font-medium text-brand-dark flex-1 capitalize">{{ invitation.role }}</span>
                 <PhLock :size="13" class="text-brand-slate/30 shrink-0" weight="bold" />
@@ -127,9 +127,9 @@
 
           <!-- Divider -->
           <div class="flex items-center gap-4 w-full" aria-hidden="true">
-            <div class="flex-1 h-[1px] bg-black/5"></div>
+            <div class="flex-1 h-[1px] bg-black/5 dark:bg-white/10"></div>
             <span class="font-header font-bold text-[10px] text-brand-slate tracking-widest">SET PASSWORD</span>
-            <div class="flex-1 h-[1px] bg-black/5"></div>
+            <div class="flex-1 h-[1px] bg-black/5 dark:bg-white/10"></div>
           </div>
 
           <!-- Password form -->
@@ -164,7 +164,7 @@
             >
               <div
                 v-if="password"
-                class="flex flex-col gap-3 p-4 bg-brand-slate/5 rounded-2xl text-left border border-black/5 w-full"
+                class="flex flex-col gap-3 p-4 bg-brand-slate/5 dark:bg-white/5 rounded-2xl text-left border border-black/5 dark:border-white/10 w-full"
                 aria-live="polite"
               >
                 <div class="flex items-center justify-between gap-3">
@@ -236,7 +236,7 @@
       </section>
 
       <!-- Security badge -->
-      <div class="max-w-full flex items-center gap-2.5 px-4 sm:px-5 py-2 bg-white/85 border border-black/5 rounded-full backdrop-blur-lg pointer-events-none shadow-[0_2px_10px_rgba(0,0,0,0.01)] select-none">
+      <div class="max-w-full flex items-center gap-2.5 px-4 sm:px-5 py-2 bg-white/85 dark:bg-slate-900/85 border border-black/5 dark:border-white/10 rounded-full backdrop-blur-lg pointer-events-none shadow-[0_2px_10px_rgba(0,0,0,0.01)] select-none">
         <div class="flex items-center justify-center text-primary opacity-80">
           <PhShieldCheck :size="16" weight="bold" />
         </div>
@@ -297,7 +297,7 @@ const errorConfigs = {
   'not-found': {
     type: 'not-found',
     icon: PhWarningCircle,
-    iconBg: 'bg-red-500/10 border-red-500/20',
+    iconBg: 'bg-red-500/10 dark:bg-red-500/20 border-red-500/20 dark:border-red-500/30',
     iconColor: 'text-red-500',
     title: 'Invitation Not Found',
     message: 'This invitation link is invalid or does not exist. Please ask your admin to send a new invitation.',
@@ -305,7 +305,7 @@ const errorConfigs = {
   expired: {
     type: 'expired',
     icon: PhClock,
-    iconBg: 'bg-amber-500/10 border-amber-500/20',
+    iconBg: 'bg-amber-500/10 dark:bg-amber-500/20 border-amber-500/20 dark:border-amber-500/30',
     iconColor: 'text-amber-500',
     title: 'Invitation Expired',
     message: 'This invitation link has expired. Please ask your admin to send a new invitation.',
@@ -313,7 +313,7 @@ const errorConfigs = {
   used: {
     type: 'used',
     icon: PhCheckCircle,
-    iconBg: 'bg-blue-500/10 border-blue-500/20',
+    iconBg: 'bg-blue-500/10 dark:bg-blue-500/20 border-blue-500/20 dark:border-blue-500/30',
     iconColor: 'text-blue-500',
     title: 'Invitation Already Used',
     message: 'This invitation has already been accepted. Sign in to access your account.',
@@ -321,7 +321,7 @@ const errorConfigs = {
   error: {
     type: 'error',
     icon: PhWarningCircle,
-    iconBg: 'bg-red-500/10 border-red-500/20',
+    iconBg: 'bg-red-500/10 dark:bg-red-500/20 border-red-500/20 dark:border-red-500/30',
     iconColor: 'text-red-500',
     title: 'Something Went Wrong',
     message: 'We could not verify your invitation. Please try again or contact your admin.',

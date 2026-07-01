@@ -66,10 +66,10 @@
         @blur="touchField('confirmPassword')"
       />
 
-      <div class="flex flex-col-reverse gap-3 border-t border-black/5 pt-5 sm:flex-row sm:items-center sm:justify-end">
+      <div class="flex flex-col-reverse gap-3 border-t border-black/5 dark:border-white/5 pt-5 sm:flex-row sm:items-center sm:justify-end">
         <button
           type="button"
-          class="rounded-xl border border-black/8 bg-white px-5 py-2.5 font-header text-xs font-bold text-brand-dark transition-all hover:bg-black/5"
+          class="rounded-xl border border-black/8 dark:border-white/10 bg-white dark:bg-slate-900 px-5 py-2.5 font-header text-xs font-bold text-brand-dark transition-all hover:bg-black/5 dark:hover:bg-white/5"
           @click="handleClose"
         >
           Cancel
@@ -270,17 +270,17 @@ const PasswordField = defineComponent({
           type: fieldProps.visible ? 'text' : 'password',
           autocomplete: fieldProps.autocomplete,
           class: [
-            'w-full rounded-xl border bg-white px-4 py-3 pr-12 font-body text-sm text-brand-dark transition-all placeholder-brand-slate/40 focus:outline-none',
+            'w-full rounded-xl border bg-white dark:bg-slate-950/60 px-4 py-3 pr-12 font-body text-sm text-brand-dark transition-all placeholder-brand-slate/40 focus:outline-none',
             fieldProps.error
               ? 'border-red-300 focus:border-red-400 focus:shadow-[0_0_0_3px_rgba(239,68,68,0.08)]'
-              : 'border-black/8 focus:border-primary/30 focus:shadow-[0_0_0_3px_rgba(75,104,255,0.08)]'
+              : 'border-black/8 dark:border-white/10 focus:border-primary/30 focus:shadow-[0_0_0_3px_rgba(75,104,255,0.08)]'
           ],
           onInput: (event) => fieldEmit('update:modelValue', event.target.value),
           onBlur: () => fieldEmit('blur')
         }),
         h('button', {
           type: 'button',
-          class: 'absolute right-3 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-lg text-brand-slate transition-colors hover:bg-black/5 hover:text-primary',
+          class: 'absolute right-3 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-lg text-brand-slate transition-colors hover:bg-black/5 dark:hover:bg-white/5 hover:text-primary',
           'aria-label': fieldProps.visible ? 'Hide password' : 'Show password',
           onClick: () => fieldEmit('toggle')
         }, [

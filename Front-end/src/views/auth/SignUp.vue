@@ -4,7 +4,7 @@
 
     <main class="flex flex-col items-center justify-center gap-10 py-8 sm:py-10 px-1 sm:px-4">
       <section
-        class="w-full max-w-[540px] bg-white/70 border border-white/70 backdrop-blur-lg rounded-[32px] p-6 sm:p-10 lg:p-12 shadow-glass flex flex-col gap-7 items-center transition-all duration-300 hover:border-white/95 hover:shadow-card-hover group/card"
+        class="w-full max-w-[540px] bg-white/70 dark:bg-slate-900/70 border border-white/70 dark:border-white/10 backdrop-blur-lg rounded-[32px] p-6 sm:p-10 lg:p-12 shadow-glass flex flex-col gap-7 items-center transition-all duration-300 hover:border-white/95 dark:hover:border-white/20 hover:shadow-card-hover group/card"
         aria-labelledby="signup-title"
       >
         <template v-if="!registrationSuccess">
@@ -20,7 +20,7 @@
           <div class="w-full">
             <button
               type="button"
-              class="w-full flex items-center justify-center gap-3 py-3 px-4 rounded-xl border border-black/8 bg-white/50 text-[11px] font-bold text-brand-dark transition-all duration-300 hover:bg-white hover:border-primary/20 hover:shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-2 focus-visible:ring-offset-white/70 disabled:cursor-not-allowed disabled:opacity-70"
+              class="w-full flex items-center justify-center gap-3 py-3 px-4 rounded-xl border border-black/8 dark:border-white/10 bg-white/50 dark:bg-white/5 text-[11px] font-bold text-brand-dark transition-all duration-300 hover:bg-white dark:hover:bg-white/10 hover:border-primary/20 hover:shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-2 focus-visible:ring-offset-white/70 dark:focus-visible:ring-offset-slate-900 disabled:cursor-not-allowed disabled:opacity-70"
               :disabled="loading"
               @click="handleSSO('Google')"
             >
@@ -30,14 +30,14 @@
           </div>
 
           <div class="flex items-center gap-4 w-full my-1" aria-hidden="true">
-            <div class="flex-1 h-[1px] bg-black/5"></div>
+            <div class="flex-1 h-[1px] bg-black/5 dark:bg-white/10"></div>
             <div class="font-header font-bold text-[10px] text-brand-slate tracking-widest">OR</div>
-            <div class="flex-1 h-[1px] bg-black/5"></div>
+            <div class="flex-1 h-[1px] bg-black/5 dark:bg-white/10"></div>
           </div>
 
           <div
             v-if="showGlobalError"
-            class="w-full p-4 bg-red-50 border border-red-200 text-red-700 text-sm font-semibold rounded-2xl flex items-center gap-3 animate-fadeIn text-left"
+            class="w-full p-4 bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 text-red-700 dark:text-red-400 text-sm font-semibold rounded-2xl flex items-center gap-3 animate-fadeIn text-left"
             role="alert"
           >
             <PhWarningCircle :size="20" class="text-red-500 shrink-0" />
@@ -46,7 +46,7 @@
 
           <div
             v-if="backendError"
-            class="w-full p-4 bg-red-50 border border-red-200 text-red-700 text-sm font-semibold rounded-2xl flex items-center gap-3 animate-fadeIn text-left"
+            class="w-full p-4 bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 text-red-700 dark:text-red-400 text-sm font-semibold rounded-2xl flex items-center gap-3 animate-fadeIn text-left"
             role="alert"
           >
             <PhWarningCircle :size="20" class="text-red-500 shrink-0" />
@@ -119,7 +119,7 @@
               >
                 <div
                   v-if="password"
-                  class="flex flex-col gap-3 p-4 bg-brand-slate/5 rounded-2xl text-left border border-black/5 w-full"
+                  class="flex flex-col gap-3 p-4 bg-brand-slate/5 dark:bg-white/5 rounded-2xl text-left border border-black/5 dark:border-white/10 w-full"
                   aria-live="polite"
                 >
                   <div class="flex items-center justify-between gap-3">
@@ -186,10 +186,10 @@
                     v-for="option in roleOptions"
                     :key="option.value"
                     :for="`role-${option.value}`"
-                    class="group/role relative min-h-[132px] flex cursor-pointer rounded-2xl border bg-white/50 p-4 text-left transition-all duration-300"
+                    class="group/role relative min-h-[132px] flex cursor-pointer rounded-2xl border bg-white/50 dark:bg-white/5 p-4 text-left transition-all duration-300"
                     :class="role === option.value
-                      ? 'border-primary/70 bg-primary/5 shadow-sm ring-2 ring-primary/15'
-                      : 'border-black/5 hover:-translate-y-0.5 hover:border-primary/25 hover:bg-white/80 hover:shadow-sm'"
+                      ? 'border-primary/70 dark:border-primary/70 bg-primary/5 dark:bg-primary/10 shadow-sm ring-2 ring-primary/15'
+                      : 'border-black/5 dark:border-white/10 hover:-translate-y-0.5 hover:border-primary/25 dark:hover:border-primary/25 hover:bg-white/80 dark:hover:bg-white/10 hover:shadow-sm'"
                   >
                     <input
                       :id="`role-${option.value}`"
@@ -204,7 +204,7 @@
                     />
 
                     <span
-                      class="absolute inset-0 rounded-2xl transition peer-focus-visible:ring-2 peer-focus-visible:ring-primary/45 peer-focus-visible:ring-offset-2 peer-focus-visible:ring-offset-white/70"
+                      class="absolute inset-0 rounded-2xl transition peer-focus-visible:ring-2 peer-focus-visible:ring-primary/45 peer-focus-visible:ring-offset-2 peer-focus-visible:ring-offset-white/70 dark:peer-focus-visible:ring-offset-slate-900"
                       aria-hidden="true"
                     ></span>
 
@@ -213,7 +213,7 @@
                         <span class="flex items-center gap-2">
                           <span
                             class="flex h-5 w-5 shrink-0 items-center justify-center rounded-full border transition-colors duration-200"
-                            :class="role === option.value ? 'border-primary bg-primary/10' : 'border-brand-slate/25 bg-white/70'"
+                            :class="role === option.value ? 'border-primary bg-primary/10' : 'border-brand-slate/25 dark:border-white/20 bg-white/70 dark:bg-slate-950/60'"
                             aria-hidden="true"
                           >
                             <span
@@ -293,7 +293,7 @@
 
           <div class="text-xs text-brand-slate gap-1.5 flex justify-center mt-1">
             <span>Already have an account?</span>
-            <router-link to="/signin" class="text-primary font-bold hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-2 focus-visible:ring-offset-white/70 rounded">
+            <router-link to="/signin" class="text-primary font-bold hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-2 focus-visible:ring-offset-white/70 dark:focus-visible:ring-offset-slate-900 rounded">
               Log In
             </router-link>
           </div>
@@ -311,14 +311,14 @@
           </p>
           <router-link
             to="/signin"
-            class="w-full py-3.5 px-6 rounded-xl bg-primary hover:bg-[#3850e0] text-white text-xs font-bold tracking-wider uppercase hover:shadow-md transition-all duration-300 cursor-pointer text-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-2 focus-visible:ring-offset-white/70"
+            class="w-full py-3.5 px-6 rounded-xl bg-primary hover:bg-[#3850e0] text-white text-xs font-bold tracking-wider uppercase hover:shadow-md transition-all duration-300 cursor-pointer text-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-2 focus-visible:ring-offset-white/70 dark:focus-visible:ring-offset-slate-900"
           >
             Proceed to Log In
           </router-link>
         </div>
       </section>
 
-      <div class="max-w-full flex items-center gap-2.5 px-4 sm:px-5 py-2 bg-white/85 border border-black/5 rounded-full backdrop-blur-lg pointer-events-none shadow-[0_2px_10px_rgba(0,0,0,0.01)] select-none">
+      <div class="max-w-full flex items-center gap-2.5 px-4 sm:px-5 py-2 bg-white/85 dark:bg-slate-900/85 border border-black/5 dark:border-white/10 rounded-full backdrop-blur-lg pointer-events-none shadow-[0_2px_10px_rgba(0,0,0,0.01)] select-none">
         <div class="flex items-center justify-center text-primary opacity-80">
           <PhShieldCheck :size="16" weight="bold" />
         </div>
