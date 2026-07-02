@@ -9,7 +9,7 @@
           <div class="h-4 w-64 bg-black/5 dark:bg-white/5 rounded animate-pulse"></div>
         </div>
         <p v-else class="text-[14px]">
-          AI analyzed <span class="font-bold text-primary">{{ dashboardStore.stats.meetingsThisWeek }} meetings</span> this week. Productivity is {{ dashboardStore.stats.productivityChange >= 0 ? 'up' : 'down' }} by {{ Math.abs(dashboardStore.stats.productivityChange) }}%.
+          AI analyzed <span class="font-bold text-primary">{{ dashboardStore.stats.meetingsThisWeek }} meetings</span> this week.
         </p>
       </div>
       <div class="flex items-center gap-4 flex-wrap sm:flex-nowrap">

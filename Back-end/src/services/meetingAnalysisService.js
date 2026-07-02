@@ -50,7 +50,7 @@ export const translateTranscriptToEnglish = async (transcript) => {
                       * "Marwan" (often transcribed as "Maron", "mroan", "مروان")
                       * "Youssef" (often transcribed as "use of", "Yusuf", "يوسف")
                       * "Hana" (often transcribed as "Hana", "هنا")
-                      * "Ibrahim" (often transcribed as "Rahim", "use of Rahim", "ibrahim", "ابراهيم")
+                      * "Ebrahim" (often transcribed as "Rahim", "use of Rahim", "ebrahim", "ابراهيم")
                       * "Zena" (often transcribed as "Zinn", "zena", "زينة")
                       * "Ahmed" (often transcribed as "ahmed", "أحمد")
                       * "Sara" (often transcribed as "sara", "سارة")
@@ -153,12 +153,12 @@ Use empty arrays when data is missing.
 
 Reference Workspace Context:
 - Project Name: SmartMeet
-- Known Team Members: Marwan, Youssef, Hana, Ibrahim, Zena, Ahmed, Sara
+- Known Team Members: Marwan, Youssef, Hana, Ebrahim, Zena, Ahmed, Sara
 
 Extraction Constraint: Be highly precise. Extract decisions, agreements, and action items ONLY if they are explicitly mentioned or agreed to in the text. Do not make up tasks or decisions not stated in the transcript.
 Deduplication Constraint: Ensure all extracted actionItems and decisions are unique. Consolidate any duplicate or repetitive entries into a single clear item instead of listing it multiple times.
 Chronological Constraint: Extract the actionItems and decisions in the exact chronological order in which they appear and are discussed in the transcript from top to bottom.
-Task Assignment Constraint: When extracting "actionItems" and "decisions", try to map the owner/assignee to one of the Known Team Members (Marwan, Youssef, Hana, Ibrahim, Zena, Ahmed, Sara) if they are mentioned or implied. Do not leave "assignedTo" or "owner" empty/unassigned if one of the known team members was discussed as responsible for it in the text.
+Task Assignment Constraint: When extracting "actionItems" and "decisions", try to map the owner/assignee to one of the Known Team Members (Marwan, Youssef, Hana, Ebrahim, Zena, Ahmed, Sara) if they are mentioned or implied. Do not leave "assignedTo" or "owner" empty/unassigned if one of the known team members was discussed as responsible for it in the text.
 Language Constraint: Generate the summaries, meetingOverview, topics, decisions, actionItems, and all other text fields in ENGLISH ONLY.
 ${partial ? "This is one chunk of a long meeting, so preserve only facts visible in this chunk." : ""}`,
             },
@@ -186,7 +186,7 @@ const mergeAnalyses = async ({ partials, meeting }) => {
         messages: [
             {
                 role: "system",
-                content: "Return strict JSON only. Merge these partial meeting analyses into one deduplicated final analysis using the same schema. Keep decisions, tasks, deadlines, risks, questions, agreements, and disagreements specific. Important constraint: Generate all text fields, summaries, and tasks in ENGLISH ONLY. Consolidate any duplicate or repetitive items. Ensure task owners/assignees map correctly to known team members (Marwan, Youssef, Hana, Ibrahim, Zena, Ahmed, Sara) and preserve their correct spellings. Keep the final merged tasks and decisions ordered in the chronological order of the spoken meeting transcript.",
+                content: "Return strict JSON only. Merge these partial meeting analyses into one deduplicated final analysis using the same schema. Keep decisions, tasks, deadlines, risks, questions, agreements, and disagreements specific. Important constraint: Generate all text fields, summaries, and tasks in ENGLISH ONLY. Consolidate any duplicate or repetitive items. Ensure task owners/assignees map correctly to known team members (Marwan, Youssef, Hana, Ebrahim, Zena, Ahmed, Sara) and preserve their correct spellings. Keep the final merged tasks and decisions ordered in the chronological order of the spoken meeting transcript.",
             },
             {
                 role: "user",
@@ -305,7 +305,7 @@ export const liveExtractTaskFromText = async (text) => {
 
 Workspace Context:
 - Project Name: SmartMeet (سمارت ميت)
-- Known Team Members: Marwan (مروان), Youssef (يوسف), Hana (هنا), Ibrahim (ابراهيم), Zena (زينة), Ahmed (أحمد), Sara (سارة)
+- Known Team Members: Marwan (مروان), Youssef (يوسف), Hana (هنا), Ebrahim (ابراهيم), Zena (زينة), Ahmed (أحمد), Sara (سارة)
 
 Rules:
 1. Extract the task title and assignee in the same language as the spoken snippet.

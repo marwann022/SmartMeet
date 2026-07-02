@@ -24,7 +24,7 @@
           'compact:left-[0px]'
         ]"
       >
-        <header class="flex items-center justify-between px-[28px] pt-[10px] pb-[16px] rounded-full bg-white/65 dark:bg-slate-900/65 border border-white/70 dark:border-slate-800/80 shadow-glass backdrop-blur-[20px] transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] hover:border-white/85 dark:hover:border-slate-700 hover:bg-white/75 dark:hover:bg-slate-800/75 hover:shadow-[0_12px_40px_0_rgba(31,38,135,0.08),0_0_20px_rgba(75,104,255,0.05)] w-full">
+        <header class="flex items-center justify-between px-[28px] pt-[16px] pb-[16px] rounded-full bg-white/65 dark:bg-slate-900/65 border border-white/70 dark:border-slate-800/80 shadow-glass backdrop-blur-[20px] transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] hover:border-white/85 dark:hover:border-slate-700 hover:bg-white/75 dark:hover:bg-slate-800/75 hover:shadow-[0_12px_40px_0_rgba(31,38,135,0.08),0_0_20px_rgba(75,104,255,0.05)] w-full">
           <!-- Mobile Brand Title -->
           <div class="hidden compact:flex items-center gap-2">
             <span class="font-header font-extrabold text-sm tracking-tight text-primary">SmartMeet</span>
