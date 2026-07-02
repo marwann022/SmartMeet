@@ -43,8 +43,8 @@
           </div>
 
           <!-- Credentials Form -->
-          <form class="flex flex-col gap-6 w-full" @submit.prevent="handleSignIn" novalidate>
-            <div class="flex flex-col gap-5 w-full">
+          <form class="flex flex-col gap-6 w-full" :key="showTwoFactor ? 'otp' : 'login'" novalidate>
+            <div v-if="!showTwoFactor" class="flex flex-col gap-5 w-full">
               <!-- Email -->
               <Input
                 id="email"
@@ -89,17 +89,46 @@
               </div>
             </div>
 
+            <!-- 2FA OTP Section -->
+            <div v-if="showTwoFactor" class="flex flex-col gap-5 w-full">
+              <div class="text-center mb-2">
+                <p class="text-sm text-brand-slate">Enter the verification code from your authenticator app.</p>
+              </div>
+              <Input
+                id="otp"
+                type="text"
+                label="Verification Code"
+                v-model="twoFactorOtp"
+                placeholder="000000"
+                required
+                :disabled="loading"
+                :error="showGlobalError && !twoFactorOtp ? 'Code is required' : ''"
+              >
+                <template #icon>
+                  <PhLock :size="18" weight="bold" />
+                </template>
+              </Input>
+              <button
+                type="button"
+                class="text-primary font-header font-bold text-xs hover:text-blue-800 transition-colors text-left"
+                @click="showTwoFactor = false; backendError = ''; loading = false"
+              >
+                &larr; Back to login
+              </button>
+            </div>
+
             <!-- Submit -->
             <button
-              type="submit"
+              type="button"
               :disabled="loading"
               class="w-full py-3.5 bg-grad-primary text-white font-header font-bold text-[11px] tracking-wider uppercase rounded-xl shadow-[0_4px_15px_rgba(75,104,255,0.25)] hover:shadow-[0_6px_20px_rgba(75,104,255,0.35)] active:scale-[0.98] transition-all duration-300 disabled:opacity-50 disabled:pointer-events-none flex items-center justify-center cursor-pointer"
+              @click="showTwoFactor ? handleTwoFactorVerification() : handleSignIn()"
             >
               <span
                 v-if="loading"
-                class="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spinner"
+                class="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"
               ></span>
-              <span v-else>Log In</span>
+              <span v-else>{{ showTwoFactor ? 'Verify' : 'Log In' }}</span>
             </button>
           </form>
 
@@ -156,6 +185,9 @@ const loading = ref(false);
 const showGlobalError = ref(false);
 const loginSuccess = ref(false);
 const backendError = ref("");
+const showTwoFactor = ref(false);
+const twoFactorOtp = ref("");
+const preAuthToken = ref("");
 
 const errors = ref({
   email: "",
@@ -233,6 +265,7 @@ onMounted(async () => {
 const handleSignIn = async () => {
   showGlobalError.value = false;
   backendError.value = "";
+  showTwoFactor.value = false;
 
   const isEmailValid = validateEmail(email.value);
   const isPasswordValid = validatePassword(password.value);
@@ -249,6 +282,14 @@ const handleSignIn = async () => {
       email: email.value,
       password: password.value,
     });
+
+    if (data.requiresTwoFactor) {
+      preAuthToken.value = data.preAuthToken;
+      showTwoFactor.value = true;
+      twoFactorOtp.value = "";
+      loading.value = false;
+      return;
+    }
 
     const userData = {
       ...data.user,
@@ -267,6 +308,46 @@ const handleSignIn = async () => {
     }, 1200);
   } catch (error) {
     backendError.value = error.response?.data?.message || "Login failed";
+  } finally {
+    if (!loginSuccess.value) {
+      loading.value = false;
+    }
+  }
+};
+
+const handleTwoFactorVerification = async () => {
+  backendError.value = "";
+
+  const code = twoFactorOtp.value?.trim();
+
+  if (!code || !/^\d{6}$/.test(code)) {
+    backendError.value = "Please enter a valid 6-digit code.";
+    return;
+  }
+
+  try {
+    loading.value = true;
+
+    const { data } = await axios.post("http://localhost:5000/api/users/2fa/verify-login", {
+      token: code,
+      preAuthToken: preAuthToken.value,
+    });
+
+    const userData = {
+      ...data.user,
+      name: `${data.user.firstName} ${data.user.lastName}`,
+    };
+
+    localStorage.setItem("sessionId", data.sessionId);
+    authStore.login(userData, data.token);
+
+    loginSuccess.value = true;
+    setTimeout(() => {
+      router.push("/dashboard");
+    }, 1200);
+  } catch (error) {
+    backendError.value = error.response?.data?.message || "Invalid verification code.";
+    twoFactorOtp.value = "";
   } finally {
     if (!loginSuccess.value) {
       loading.value = false;

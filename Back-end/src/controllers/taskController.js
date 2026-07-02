@@ -76,7 +76,15 @@ export const createTask = async (req, res) => {
 
         let targetUserIds = [];
         if (isAdmin && assigneeIds && Array.isArray(assigneeIds) && assigneeIds.length > 0) {
-            targetUserIds = assigneeIds;
+            // Deduplicate to prevent duplicate assignments
+            const seen = new Set();
+            for (const id of assigneeIds) {
+                const key = id.toString();
+                if (!seen.has(key)) {
+                    seen.add(key);
+                    targetUserIds.push(id);
+                }
+            }
         } else {
             targetUserIds = [req.user._id];
         }
@@ -105,6 +113,8 @@ export const createTask = async (req, res) => {
             createdTasks.push(task);
         }
 
+        const adminName = req.user.name || `${req.user.firstName || ""} ${req.user.lastName || ""}`.trim() || "The admin";
+
         // Admin community task: notify each assigned member
         if (isAdmin && req.user.community && createdTasks.length > 0) {
             const notifications = createdTasks.map((t) => ({
@@ -112,10 +122,67 @@ export const createTask = async (req, res) => {
                 community: req.user.community,
                 type: "task",
                 title: "New Task Assigned",
-                message: `A new task "${t.title}" has been assigned to you by the administrator.`,
+                message: `${adminName} assigned "${t.title}" to you.`,
                 relatedId: t._id,
             }));
             await Notification.insertMany(notifications);
+
+            // Socket emission to each assigned member
+            try {
+                const io = getIO();
+                const userSocketsMap = getUserSockets();
+                for (const task of createdTasks) {
+                    const assigneeId = task.user.toString();
+                    const sockets = userSocketsMap.get(assigneeId);
+                    if (sockets) {
+                        const payload = {
+                            type: "task",
+                            title: "New Task Assigned",
+                            message: `${adminName} assigned "${task.title}" to you.`,
+                            relatedId: task._id,
+                        };
+                        for (const sid of sockets) {
+                            io.to(sid).emit("task:notification", payload);
+                        }
+                    }
+                }
+            } catch (_err) {}
+        }
+
+        // Member personal task: notify the community admin
+        if (!isAdmin && req.user.community && createdTasks.length > 0) {
+            const communityAdmin = await User.findOne({ community: req.user.community, role: "admin" }).select("_id name firstName lastName");
+            if (communityAdmin) {
+                const memberName = req.user.name || `${req.user.firstName || ""} ${req.user.lastName || ""}`.trim() || "A member";
+                const taskTitle = createdTasks[0].title;
+
+                await Notification.create({
+                    recipient: communityAdmin._id,
+                    community: req.user.community,
+                    type: "task",
+                    title: "New Task Created by Member",
+                    message: `${memberName} created a new task "${taskTitle}".`,
+                    relatedId: createdTasks[0]._id,
+                });
+
+                try {
+                    const io = getIO();
+                    const userSocketsMap = getUserSockets();
+                    const adminId = communityAdmin._id.toString();
+                    const sockets = userSocketsMap.get(adminId);
+                    if (sockets) {
+                        const payload = {
+                            type: "task",
+                            title: "New Task Created by Member",
+                            message: `${memberName} created a new task "${taskTitle}".`,
+                            relatedId: createdTasks[0]._id,
+                        };
+                        for (const sid of sockets) {
+                            io.to(sid).emit("task:notification", payload);
+                        }
+                    }
+                } catch (_err) {}
+            }
         }
 
         res.status(201).json({

@@ -375,15 +375,15 @@ export const acceptInvitation = async (req, res) => {
     invitation.status = "accepted";
     await invitation.save();
 
-    const jwtToken = generateToken(user._id);
+    const tempToken = generateToken(user._id);
 
-    // Session creation is best-effort — it must not block the response
+    let session;
     try {
       const parser = new UAParser(req.headers["user-agent"]);
       const deviceInfo = parser.getResult();
-      await Session.create({
+      session = await Session.create({
         user: user._id,
-        refreshToken: jwtToken,
+        refreshToken: tempToken,
         browser: deviceInfo.browser.name || "Unknown",
         browserVersion: deviceInfo.browser.version || "",
         os: deviceInfo.os.name || "Unknown",
@@ -397,10 +397,18 @@ export const acceptInvitation = async (req, res) => {
       // non-fatal
     }
 
+    const jwtToken = generateToken(user._id, session?._id);
+
+    if (session) {
+      session.refreshToken = jwtToken;
+      await session.save().catch(_ => {});
+    }
+
     res.status(201).json({
       success: true,
       message: "Account created successfully.",
       token: jwtToken,
+      sessionId: session ? session._id : null,
       user: user.getPublicProfile(),
     });
   } catch (error) {

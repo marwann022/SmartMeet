@@ -63,11 +63,16 @@ export const useTaskStore = defineStore('task', () => {
         due: task.due || 'TBD',
         dueDate: task.dueDate || '',
         dueTime: task.dueTime || '23:59',
-        source: task.source || 'Manual Entry'
+        source: task.source || 'Manual Entry',
+        assigneeIds: task.assigneeIds || undefined,
       }
       const { data } = await axios.post('http://localhost:5000/api/tasks', newTaskData, getHeaders())
       if (data.success) {
-        tasks.value.unshift(data.task)
+        if (data.tasks && data.tasks.length > 1) {
+          tasks.value.unshift(...data.tasks)
+        } else {
+          tasks.value.unshift(data.task)
+        }
       }
     } catch (error) {
       console.error('Failed to add task:', error)

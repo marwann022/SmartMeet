@@ -4,6 +4,7 @@ import User from "../models/User.js";
 import { registerCommunityChat } from "./communityChat.socket.js";
 
 const userSockets = new Map();
+const sessionSockets = new Map();
 
 let io;
 
@@ -32,6 +33,7 @@ export const initializeSocket = (server) => {
       }
 
       socket.user = user;
+      socket.sessionId = socket.handshake.auth.sessionId || decoded.sessionId || null;
       next();
     } catch (error) {
       next(new Error("Invalid token."));
@@ -45,6 +47,10 @@ export const initializeSocket = (server) => {
     }
     userSockets.get(userId).add(socket.id);
 
+    if (socket.sessionId) {
+      sessionSockets.set(socket.sessionId.toString(), socket);
+    }
+
     registerCommunityChat(io, socket, userSockets);
 
     socket.on("disconnect", () => {
@@ -53,6 +59,13 @@ export const initializeSocket = (server) => {
         sockets.delete(socket.id);
         if (sockets.size === 0) {
           userSockets.delete(userId);
+        }
+      }
+
+      if (socket.sessionId) {
+        const current = sessionSockets.get(socket.sessionId.toString());
+        if (current && current.id === socket.id) {
+          sessionSockets.delete(socket.sessionId.toString());
         }
       }
     });
@@ -69,3 +82,7 @@ export const getIO = () => {
 };
 
 export const getUserSockets = () => userSockets;
+
+export const getSocketBySessionId = (sessionId) => {
+  return sessionSockets.get(sessionId.toString()) || null;
+};

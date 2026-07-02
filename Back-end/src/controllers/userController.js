@@ -6,6 +6,7 @@ import generateToken from "../utils/generateToken.js";
 import sendEmail from "../utils/sendEmail.js";
 
 import crypto from "crypto";
+import jwt from "jsonwebtoken";
 import { OAuth2Client } from "google-auth-library";
 
 import speakeasy from "speakeasy";
@@ -211,13 +212,39 @@ export const register = async (req, res) => {
       });
     }
 
-    // Generate JWT
-    const token = generateToken(user._id);
+    const tempToken = generateToken(user._id);
+
+    const parser = new UAParser(req.headers["user-agent"]);
+    const deviceInfo = parser.getResult();
+
+    let session;
+    try {
+      session = await Session.create({
+        user: user._id,
+        refreshToken: tempToken,
+        browser: deviceInfo.browser.name || "Unknown",
+        browserVersion: deviceInfo.browser.version || "",
+        os: deviceInfo.os.name || "Unknown",
+        osVersion: deviceInfo.os.version || "",
+        device: deviceInfo.device.model || "Desktop",
+        deviceType: deviceInfo.device.type || "desktop",
+        ip: req.ip,
+        lastActive: new Date(),
+      });
+    } catch (_) {}
+
+    const token = generateToken(user._id, session?._id);
+
+    if (session) {
+      session.refreshToken = token;
+      await session.save().catch(_ => {});
+    }
 
     res.status(201).json({
       success: true,
       message: "User registered successfully",
       token,
+      sessionId: session ? session._id : null,
       communityCode: role === "admin" ? generatedCommunityCode : null,
       user: user.getPublicProfile(),
     });
@@ -277,6 +304,21 @@ export const login = async (req, res) => {
       });
     }
 
+    // 3. 2FA check
+    if (user.twoFactorEnabled) {
+      const preAuthToken = jwt.sign(
+        { id: user._id, twoFactorPending: true },
+        process.env.JWT_SECRET,
+        { expiresIn: "5m" }
+      );
+
+      return res.status(200).json({
+        success: true,
+        requiresTwoFactor: true,
+        preAuthToken,
+      });
+    }
+
     // Update last login
     user.lastLogin = new Date();
     await user.save();
@@ -286,77 +328,36 @@ export const login = async (req, res) => {
     const deviceInfo = parser.getResult();
     console.log(deviceInfo);
 
-    // Generate JWT
-    const token = generateToken(user._id);
-
-    console.log("Creating session...");
-    // await Session.create({
-    //     user: user._id,
-
-    //     refreshToken: token,
-
-    //     browser: deviceInfo.browser.name || "Unknown",
-
-    //     browserVersion: deviceInfo.browser.version || "",
-
-    //     os: deviceInfo.os.name || "Unknown",
-
-    //     osVersion: deviceInfo.os.version || "",
-
-    //     device: deviceInfo.device.model || "Desktop",
-
-    //     deviceType: deviceInfo.device.type || "desktop",
-
-    //     ip: req.ip,
-
-    //     lastActive: new Date()
-    // });
-    console.log("Before Session.create");
+    const tempToken = generateToken(user._id);
 
     let session;
 
     try {
       session = await Session.create({
         user: user._id,
-
-        refreshToken: token,
-
+        refreshToken: tempToken,
         browser: deviceInfo.browser.name || "Unknown",
-
         browserVersion: deviceInfo.browser.version || "",
-
         os: deviceInfo.os.name || "Unknown",
-
         osVersion: deviceInfo.os.version || "",
-
         device: deviceInfo.device.model || "Desktop",
-
         deviceType: deviceInfo.device.type || "desktop",
-
         ip: req.ip,
-
         lastActive: new Date(),
       });
 
       console.log("Session Saved Successfully");
-
-      console.log(session);
-      const count = await Session.countDocuments();
-
-      console.log("Total Sessions:", count);
-
-      const sessions = await Session.find();
-
-      console.log("All Sessions:");
-
-      console.log(sessions);
     } catch (err) {
       console.error("SESSION CREATE ERROR:");
-
       console.error(err);
     }
 
-    console.log("Session created successfully");
+    const token = generateToken(user._id, session?._id);
+
+    if (session) {
+      session.refreshToken = token;
+      await session.save().catch(err => console.error("Session refreshToken update failed:", err));
+    }
 
     res.status(200).json({
       success: true,
@@ -445,13 +446,41 @@ export const googleLogin = async (req, res) => {
       });
     }
 
-    // Generate JWT
-    const localToken = generateToken(user._id);
+    const tempToken = generateToken(user._id);
+
+    const parser = new UAParser(req.headers["user-agent"]);
+    const deviceInfo = parser.getResult();
+
+    let session;
+    try {
+      session = await Session.create({
+        user: user._id,
+        refreshToken: tempToken,
+        browser: deviceInfo.browser.name || "Unknown",
+        browserVersion: deviceInfo.browser.version || "",
+        os: deviceInfo.os.name || "Unknown",
+        osVersion: deviceInfo.os.version || "",
+        device: deviceInfo.device.model || "Desktop",
+        deviceType: deviceInfo.device.type || "desktop",
+        ip: req.ip,
+        lastActive: new Date(),
+      });
+    } catch (_) {
+      // non-fatal
+    }
+
+    const localToken = generateToken(user._id, session?._id);
+
+    if (session) {
+      session.refreshToken = localToken;
+      await session.save().catch(_ => {});
+    }
 
     res.status(200).json({
       success: true,
       message: "Login Successful via Google",
       token: localToken,
+      sessionId: session ? session._id : null,
       user: user.getPublicProfile(),
     });
   } catch (error) {
@@ -624,7 +653,7 @@ export const getProfile = async (req, res) => {
 
     res.status(200).json({
       success: true,
-      user,
+      user: user.getPublicProfile(),
     });
   } catch (error) {
     res.status(500).json({
@@ -659,8 +688,6 @@ export const updateProfile = async (req, res) => {
     user.jobTitle = req.body.jobTitle || user.jobTitle;
 
     user.avatar = req.body.avatar || user.avatar;
-
-    user.twoFactor = req.body.twoFactor;
 
     await user.save();
 
@@ -857,13 +884,115 @@ export const disableTwoFactor = async (req, res) => {
   }
 };
 
+export const verifyLoginTwoFactor = async (req, res) => {
+  try {
+    const { token: otpToken, preAuthToken } = req.body;
+
+    if (!preAuthToken) {
+      return res.status(400).json({
+        success: false,
+        message: "Verification session expired. Please login again.",
+      });
+    }
+
+    let decoded;
+    try {
+      decoded = jwt.verify(preAuthToken, process.env.JWT_SECRET);
+    } catch (_) {
+      return res.status(400).json({
+        success: false,
+        message: "Verification session expired. Please login again.",
+      });
+    }
+
+    if (!decoded.twoFactorPending) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid verification request.",
+      });
+    }
+
+    const user = await User.findById(decoded.id);
+
+    if (!user || !user.twoFactorEnabled) {
+      return res.status(400).json({
+        success: false,
+        message: "2FA is not enabled on this account.",
+      });
+    }
+
+    if (!user.twoFactorSecret) {
+      return res.status(400).json({
+        success: false,
+        message: "2FA is not configured. Please setup 2FA first.",
+      });
+    }
+
+    const verified = speakeasy.totp.verify({
+      secret: user.twoFactorSecret,
+      encoding: "base32",
+      token: otpToken,
+      window: 1,
+    });
+
+    if (!verified) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid verification code.",
+      });
+    }
+
+    // Update last login
+    user.lastLogin = new Date();
+    await user.save();
+
+    const parser = new UAParser(req.headers["user-agent"]);
+    const deviceInfo = parser.getResult();
+
+    const tempToken = generateToken(user._id);
+
+    let session;
+
+    try {
+      session = await Session.create({
+        user: user._id,
+        refreshToken: tempToken,
+        browser: deviceInfo.browser.name || "Unknown",
+        browserVersion: deviceInfo.browser.version || "",
+        os: deviceInfo.os.name || "Unknown",
+        osVersion: deviceInfo.os.version || "",
+        device: deviceInfo.device.model || "Desktop",
+        deviceType: deviceInfo.device.type || "desktop",
+        ip: req.ip,
+        lastActive: new Date(),
+      });
+    } catch (_) {}
+
+    const token = generateToken(user._id, session?._id);
+
+    if (session) {
+      session.refreshToken = token;
+      await session.save().catch(_ => {});
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Login Successful",
+      token,
+      sessionId: session ? session._id : null,
+      user: user.getPublicProfile(),
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
 //----------------sessions--------------------------
 export const getUserSessions = async (req, res) => {
   try {
-    console.log("REQ USER:");
-
-    console.log(req.user);
-
     const sessions = await Session.find({
       user: req.user._id,
     }).sort({
@@ -873,6 +1002,49 @@ export const getUserSessions = async (req, res) => {
     res.status(200).json({
       success: true,
       sessions,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+export const revokeSession = async (req, res) => {
+  try {
+    const session = await Session.findById(req.params.id);
+
+    if (!session) {
+      return res.status(404).json({
+        success: false,
+        message: "Session not found.",
+      });
+    }
+
+    if (session.user.toString() !== req.user._id.toString()) {
+      return res.status(403).json({
+        success: false,
+        message: "Not authorized to revoke this session.",
+      });
+    }
+
+    await Session.deleteOne({ _id: session._id });
+
+    try {
+      const { getIO, getSocketBySessionId } = await import("../socket/index.js");
+      const io = getIO();
+      const socket = getSocketBySessionId(session._id.toString());
+      if (socket) {
+        io.to(socket.id).emit("session:revoked");
+      }
+    } catch (_) {
+      // socket emit is best-effort
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Session revoked successfully.",
     });
   } catch (error) {
     res.status(500).json({

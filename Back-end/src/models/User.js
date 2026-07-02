@@ -174,6 +174,7 @@ userSchema.methods.getPublicProfile = function () {
   const userObject = this.toObject();
   delete userObject.password;
   delete userObject.refreshToken;
+  delete userObject.twoFactorSecret;
   return userObject;
 };
 

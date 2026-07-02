@@ -2,11 +2,11 @@ import { io } from "socket.io-client";
 
 let socket = null;
 
-export const connectChatSocket = (token) => {
+export const connectChatSocket = (token, sessionId = null) => {
   if (socket?.connected) return socket;
 
   socket = io("http://localhost:5000", {
-    auth: { token },
+    auth: { token, sessionId },
     transports: ["websocket", "polling"],
     reconnection: true,
     reconnectionAttempts: 10,

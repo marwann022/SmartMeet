@@ -1,5 +1,6 @@
 import jwt from "jsonwebtoken";
 import User from "../models/User.js";
+import Session from "../models/Session.js";
 
 export const protect = async(req, res, next) => {
     try {
@@ -26,6 +27,14 @@ export const protect = async(req, res, next) => {
         );
 
         req.user = await User.findById(decoded.id);
+
+        if (decoded.sessionId) {
+            req.sessionId = decoded.sessionId;
+            Session.updateOne(
+                { _id: decoded.sessionId },
+                { lastActive: new Date() }
+            ).catch(() => {});
+        }
 
         next();
 

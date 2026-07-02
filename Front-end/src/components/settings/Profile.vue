@@ -146,7 +146,7 @@
             </div>
             <button
               type="button"
-              @click="setupTwoFactor"
+              @click="toggleTwoFactor"
               class="w-[44px] h-[24px] rounded-full transition-colors duration-300 focus:outline-none relative flex items-center cursor-pointer border border-white/25"
               :class="
                 profileForm.twoFactor ? 'bg-primary' : 'bg-brand-slate/30'
@@ -333,7 +333,7 @@
   <Modal
   :show="showTwoFactorModal"
   title="Setup Two-Factor Authentication"
-  @close="showTwoFactorModal = false"
+  @close="resetTwoFactorModal"
 >
   <div class="flex flex-col gap-4">
 
@@ -347,13 +347,19 @@
       type="text"
       placeholder="Enter 6 digit code"
       class="border rounded-xl p-3"
+      :disabled="verifying"
     />
 
     <button
       @click="verifyTwoFactor"
-      class="bg-primary text-white rounded-xl py-3"
+      :disabled="verifying"
+      class="bg-primary text-white rounded-xl py-3 disabled:opacity-50 disabled:pointer-events-none flex items-center justify-center gap-2"
     >
-      Verify
+      <span
+        v-if="verifying"
+        class="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"
+      ></span>
+      <span>{{ verifying ? 'Verifying...' : 'Verify' }}</span>
     </button>
 
   </div>
@@ -381,7 +387,15 @@ import Modal from "../ui/Modal.vue";
 
 
 
-const verifyTwoFactor = async () => {
+const toggleTwoFactor = () => {
+  if (profileForm.twoFactor) {
+    disableTwoFactor();
+  } else {
+    setupTwoFactor();
+  }
+};
+
+const disableTwoFactor = async () => {
 
   try {
 
@@ -389,10 +403,63 @@ const verifyTwoFactor = async () => {
       localStorage.getItem("token");
 
     await axios.post(
+      "http://localhost:5000/api/users/2fa/disable",
+      {},
+      {
+        headers: {
+          Authorization:
+            `Bearer ${token}`
+        }
+      }
+    );
+
+    profileForm.twoFactor = false;
+
+    success(
+      "Two-Factor Authentication Disabled"
+    );
+
+  } catch (err) {
+
+    console.error(err);
+
+    error(
+      "Failed to disable 2FA"
+    );
+
+  }
+
+};
+
+const verifying = ref(false);
+
+const resetTwoFactorModal = () => {
+  showTwoFactorModal.value = false;
+  verifying.value = false;
+  verificationCode.value = "";
+  qrCode.value = "";
+};
+
+const verifyTwoFactor = async () => {
+
+  const code = verificationCode.value?.trim();
+
+  if (!code || !/^\d{6}$/.test(code)) {
+    error("Please enter a valid 6-digit code");
+    return;
+  }
+
+  try {
+
+    verifying.value = true;
+
+    const token =
+      localStorage.getItem("token");
+
+    await axios.post(
       "http://localhost:5000/api/users/2fa/verify",
       {
-        token:
-          verificationCode.value
+        token: code
       },
       {
         headers: {
@@ -408,8 +475,7 @@ const verifyTwoFactor = async () => {
       "Two-Factor Authentication Enabled"
     );
 
-    showTwoFactorModal.value =
-      false;
+    resetTwoFactorModal();
 
   } catch (err) {
 
@@ -417,6 +483,8 @@ const verifyTwoFactor = async () => {
       err.response?.data?.message ||
       "Invalid code"
     );
+
+    verifying.value = false;
 
   }
 
@@ -632,8 +700,7 @@ const saveProfile = async () => {
         lastName,
         phone: profileForm.phone,
         company: profileForm.company,
-        jobTitle: profileForm.jobTitle,
-        twoFactor: profileForm.twoFactor
+        jobTitle: profileForm.jobTitle
       },
       {
         headers: {

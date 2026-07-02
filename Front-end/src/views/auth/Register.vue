@@ -440,6 +440,10 @@ const handleRegister = async () => {
       name: `${data.user.firstName} ${data.user.lastName}`.trim(),
     }
 
+    if (data.sessionId) {
+      localStorage.setItem("sessionId", data.sessionId)
+    }
+
     authStore.login(userData, data.token)
     registerSuccess.value = true
 

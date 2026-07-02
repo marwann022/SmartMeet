@@ -12,7 +12,11 @@ import {
     uploadAvatar,
     googleLogin,
     setupTwoFactor,
+    verifyTwoFactor,
+    disableTwoFactor,
+    verifyLoginTwoFactor,
     getUserSessions,
+    revokeSession,
     getNotificationSettings,
     updateNotificationSettings
 } from "../controllers/userController.js";
@@ -66,10 +70,33 @@ router.post(
     setupTwoFactor
 );
 
+router.post(
+    "/2fa/verify",
+    protect,
+    verifyTwoFactor
+);
+
+router.post(
+    "/2fa/disable",
+    protect,
+    disableTwoFactor
+);
+
+router.post(
+    "/2fa/verify-login",
+    verifyLoginTwoFactor
+);
+
 router.get(
     "/sessions",
     protect,
     getUserSessions
+);
+
+router.delete(
+    "/sessions/:id",
+    protect,
+    revokeSession
 );
 
 router.route("/notification-settings")
