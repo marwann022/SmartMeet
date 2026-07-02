@@ -132,6 +132,28 @@
         />
       </div>
     </div>
+
+    <!-- Admin Review Actions on card: Approve / Reject (review only) -->
+    <div
+      v-if="task.status === 'review' && authStore.user?.role === 'admin'"
+      class="border-t border-black/5 dark:border-white/5 pt-2.5 mt-1 flex gap-2"
+      @click.stop
+    >
+      <button
+        @click.stop="$emit('approve', task)"
+        class="flex-1 px-3 py-1.5 rounded-lg bg-primary text-white text-[10px] font-extrabold transition-all duration-200 hover:bg-primary/90 hover:scale-[1.02] cursor-pointer"
+      >
+        <PhCheck :size="11" weight="bold" class="inline mr-1" />
+        APPROVE
+      </button>
+      <button
+        @click.stop="$emit('reject', task)"
+        class="flex-1 px-3 py-1.5 rounded-lg border border-red-500/40 text-red-500 text-[10px] font-extrabold transition-all duration-200 hover:bg-red-500/10 hover:border-red-500 cursor-pointer"
+      >
+        <PhX :size="11" weight="bold" class="inline mr-1" />
+        REJECT
+      </button>
+    </div>
   </div>
 </template>
 
@@ -139,6 +161,8 @@
 import { computed } from 'vue'
 import {
   PhCheckCircle,
+  PhCheck,
+  PhX,
   PhArrowLeft,
   PhArrowRight,
   PhTrash,
@@ -161,7 +185,7 @@ const props = defineProps({
   },
 })
 
-defineEmits(['move', 'delete', 'toggle', 'click'])
+defineEmits(['move', 'delete', 'toggle', 'click', 'approve', 'reject'])
 
 const authStore = useAuthStore()
 const { now } = useNow()

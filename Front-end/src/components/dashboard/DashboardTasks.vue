@@ -101,7 +101,9 @@
                 @move="(dir) => handleMoveTask(task, dir)" 
                 @delete="taskStore.removeTask(task.id || task._id)" 
                 @toggle="taskStore.toggleTask(task)" 
-                @click="selectedTask = task" 
+                @click="selectedTask = task"
+                @approve="handleCardApprove"
+                @reject="handleCardReject"
               />
               
               <div 
@@ -249,32 +251,11 @@
             </div>
           </div>
           
-          <!-- Admin Review Actions: Approve / Reject -->
-          <div v-if="selectedTask.status === 'review' && authStore.user?.role === 'admin'" class="flex flex-col gap-3 pt-4 border-t border-black/5 dark:border-white/10">
-            <div v-if="!showRejectField" class="flex gap-3">
-              <Button variant="primary" class="flex-1" @click="handleApprove">
-                <template #icon-left><PhCheck :size="14" weight="bold" /></template>
-                Approve
-              </Button>
-              <Button variant="danger" class="flex-1" @click="showRejectField = true">
-                <template #icon-left><PhX :size="14" weight="bold" /></template>
-                Reject
-              </Button>
-            </div>
-            <div v-else class="flex flex-col gap-3">
-              <div class="flex flex-col gap-1.5">
-                <label class="text-[10px] font-extrabold uppercase tracking-wider text-brand-slate pl-1 font-header">Rejection Comment (optional)</label>
-                <textarea v-model="rejectComment" rows="2" placeholder="Please attach the meeting notes..." class="w-full px-4 py-3 rounded-xl bg-white dark:bg-slate-900/50 border font-body text-sm text-brand-dark dark:text-slate-200 focus:outline-none transition-all duration-300 resize-none border-red-500/20 dark:border-white/10 focus:border-red-500/30" />
-              </div>
-              <div class="flex gap-3">
-                <Button variant="danger" class="flex-1" @click="handleReject">Confirm Reject</Button>
-                <Button variant="outline" class="flex-1" @click="cancelReject">Cancel</Button>
-              </div>
-            </div>
-          </div>
+
 
           <div class="flex gap-3 pt-4 border-t border-black/5 dark:border-white/10">
             <Button 
+              v-if="selectedTask.status !== 'review'"
               class="flex-1"
               :variant="selectedTask.status === 'done' || selectedTask.done ? 'outline' : 'primary'"
               @click="handleToggleTask"
@@ -412,6 +393,53 @@
           >
             Confirm Review
           </button>
+        </div>
+      </div>
+    </Modal>
+
+    <!-- Approve Confirmation Modal -->
+    <Modal
+      :show="showApproveConfirm"
+      title="Approve Task?"
+      max-width="sm"
+      theme="primary"
+      @close="showApproveConfirm = false"
+    >
+      <div class="flex flex-col gap-4 text-left">
+        <p class="text-sm text-brand-slate leading-relaxed font-body">
+          This will mark the task as <strong>Done</strong> and notify the assigned member. Are you sure?
+        </p>
+        <div class="flex justify-end gap-3 mt-4">
+          <Button variant="glass" @click="showApproveConfirm = false">Cancel</Button>
+          <Button variant="primary" @click="confirmApprove">Approve</Button>
+        </div>
+      </div>
+    </Modal>
+
+    <!-- Reject Dialog Modal -->
+    <Modal
+      :show="showRejectDialog"
+      title="Reject Task"
+      max-width="sm"
+      theme="danger"
+      @close="closeRejectDialog"
+    >
+      <div class="flex flex-col gap-4 text-left">
+        <p class="text-sm text-brand-slate leading-relaxed font-body">
+          This will move the task back to <strong>In Progress</strong>. Optionally add a comment for the assignee.
+        </p>
+        <div class="flex flex-col gap-1.5">
+          <label class="text-[10px] font-extrabold uppercase tracking-wider text-brand-slate pl-1 font-header">Comment (optional)</label>
+          <textarea
+            v-model="rejectComment"
+            rows="3"
+            placeholder="What needs to be changed?..."
+            class="w-full px-4 py-3 rounded-xl bg-white dark:bg-slate-900/50 border font-body text-sm text-brand-dark dark:text-slate-200 focus:outline-none transition-all duration-300 resize-none border-red-500/20 dark:border-white/10 focus:border-red-500/30"
+          />
+        </div>
+        <div class="flex justify-end gap-3 mt-4">
+          <Button variant="glass" @click="closeRejectDialog">Cancel</Button>
+          <Button variant="danger" @click="confirmReject">Reject</Button>
         </div>
       </div>
     </Modal>
@@ -699,35 +727,43 @@ const isLocked = computed(() => {
   return !isAdmin && (selectedTask.value.status === 'review' || selectedTask.value.status === 'done')
 })
 
+const showApproveConfirm = ref(false)
+const showRejectDialog = ref(false)
 const rejectComment = ref('')
-const showRejectField = ref(false)
-const showRejectConfirmModal = ref(false)
+const pendingCardTask = ref(null)
 
-const handleApprove = async () => {
-  if (!selectedTask.value) return
-  const id = selectedTask.value.id || selectedTask.value._id
-  const success = await taskStore.approveTask(id)
-  if (success) {
-    selectedTask.value = null
-    taskStore.fetchTasks()
-  }
+const handleCardApprove = (task) => {
+  pendingCardTask.value = task
+  showApproveConfirm.value = true
 }
 
-const handleReject = async () => {
-  if (!selectedTask.value) return
-  const id = selectedTask.value.id || selectedTask.value._id
-  const success = await taskStore.rejectTask(id, rejectComment.value)
-  if (success) {
-    selectedTask.value = null
-    taskStore.fetchTasks()
-  }
-  showRejectField.value = false
-  rejectComment.value = ''
+const confirmApprove = async () => {
+  if (!pendingCardTask.value) return
+  const id = pendingCardTask.value.id || pendingCardTask.value._id
+  await taskStore.approveTask(id)
+  showApproveConfirm.value = false
+  pendingCardTask.value = null
 }
 
-const cancelReject = () => {
-  showRejectField.value = false
+const handleCardReject = (task) => {
+  pendingCardTask.value = task
   rejectComment.value = ''
+  showRejectDialog.value = true
+}
+
+const confirmReject = async () => {
+  if (!pendingCardTask.value) return
+  const id = pendingCardTask.value.id || pendingCardTask.value._id
+  await taskStore.rejectTask(id, rejectComment.value)
+  showRejectDialog.value = false
+  rejectComment.value = ''
+  pendingCardTask.value = null
+}
+
+const closeRejectDialog = () => {
+  showRejectDialog.value = false
+  rejectComment.value = ''
+  pendingCardTask.value = null
 }
 
 const formatReviewTime = (ts) => {
