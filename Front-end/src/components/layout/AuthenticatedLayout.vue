@@ -221,6 +221,16 @@
                           ✗ Request Rejected
                         </p>
                       </div>
+
+                      <!-- Join Meeting button for meeting notifications -->
+                      <div v-if="notification.type === 'meeting'" class="mt-3">
+                        <button
+                          @click.stop="joinMeeting(notification)"
+                          class="px-2.5 py-1 rounded-full bg-primary text-white text-[10px] font-bold transition-all duration-200 hover:scale-105"
+                        >
+                          Join Meeting
+                        </button>
+                      </div>
                     </div>
                     <span class="text-[9px] text-brand-slate font-semibold">{{
                       notification.time
@@ -357,6 +367,7 @@ import { PhGear, PhClockClockwise, PhUser, PhSignOut, PhBell, PhTrash } from '@p
 import Modal from '@/components/ui/Modal.vue'
 import Button from '@/components/ui/Button.vue'
 import { useNotificationStore } from '../../stores/notification'
+import { useMeetingStore } from '@/stores/meeting'
 import axios from 'axios'
 import { useAlertStore } from '@/stores/alert'
 import NavbarUserPanel from '@/components/common/NavbarUserPanel.vue'
@@ -367,6 +378,7 @@ const searchQuery = ref('')
 const uiStore = useUiStore()
 const authStore = useAuthStore()
 const notificationStore = useNotificationStore()
+const meetingStore = useMeetingStore()
 const alertStore = useAlertStore()
 
 const user = computed(() => authStore.user)
@@ -431,6 +443,33 @@ const rejectJoinRequest = async (notification) => {
   }
 }
 
+const joinMeeting = async (notification) => {
+  await notificationStore.markAsRead(notification.id)
+  isNotificationsOpen.value = false
+
+  try {
+    const meeting = await meetingStore.fetchMeeting(notification.relatedId)
+    if (!meeting) {
+      router.push('/archive')
+      return
+    }
+
+    const scheduledTime = new Date(meeting.startTime)
+    const now = new Date()
+    if (scheduledTime - now > 300000) {
+      const formattedTime = scheduledTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
+      await alertStore.showAlert(`This meeting is scheduled for ${formattedTime}. You cannot start or join it before the scheduled start time.`, "Meeting Not Started", "primary")
+      router.push('/archive')
+      return
+    }
+
+    meetingStore.activeLiveMeeting = meeting
+    router.push('/live-meeting')
+  } catch {
+    router.push('/archive')
+  }
+}
+
 const markAllAsRead = () => {
   notificationStore.markAllAsRead()
 }
@@ -474,6 +513,10 @@ const setupChatSocket = () => {
   })
 
   socket.on('task:notification', () => {
+    notificationStore.fetchNotifications()
+  })
+
+  socket.on('meeting:notification', () => {
     notificationStore.fetchNotifications()
   })
 

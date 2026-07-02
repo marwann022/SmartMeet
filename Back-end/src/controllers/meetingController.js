@@ -1,5 +1,7 @@
 import Meeting from "../models/Meeting.js";
 import User from "../models/User.js";
+import Notification from "../models/Notification.js";
+import { getIO, getUserSockets } from "../socket/index.js";
 import { extractAudioIfNeeded, transcribeAudio } from "../services/transcriptionService.js";
 import {
     analyzeMeetingTranscript,
@@ -64,6 +66,92 @@ export const createMeeting = async (req, res) => {
             meetingLink: meetingLink || "",
             meetingId: generateMeetingId(),
         });
+
+        // Notify invited participants
+        try {
+            const communityId = req.user.community?._id || req.user.community;
+            if (communityId && participants && participants.length > 0) {
+                const hostName = req.user.firstName || req.user.name || "Organizer";
+                const dateStr = startTime
+                    ? new Date(startTime).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
+                    : "";
+                const timeStr = startTime
+                    ? new Date(startTime).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" })
+                    : "";
+
+                for (const p of participants) {
+                    const participantName = typeof p === "string" ? p : p.name || "";
+                    const participantEmail = p.email || "";
+
+                    let user = null;
+
+                    if (participantEmail) {
+                        user = await User.findOne({
+                            email: participantEmail.toLowerCase().trim(),
+                            community: communityId,
+                            status: "active",
+                        });
+                    }
+
+                    if (!user && participantName) {
+                        user = await User.findOne({
+                            community: communityId,
+                            status: "active",
+                            $or: [
+                                { name: participantName },
+                                { firstName: participantName },
+                            ],
+                        });
+
+                        if (!user) {
+                            const spaceIdx = participantName.indexOf(" ");
+                            if (spaceIdx > 0) {
+                                const first = participantName.substring(0, spaceIdx);
+                                const last = participantName.substring(spaceIdx + 1);
+                                user = await User.findOne({
+                                    community: communityId,
+                                    status: "active",
+                                    firstName: first,
+                                    lastName: last,
+                                });
+                            }
+                        }
+                    }
+
+                    if (!user) continue;
+                    if (user._id.toString() === req.user._id.toString()) continue;
+
+                    await Notification.create({
+                        recipient: user._id,
+                        community: communityId,
+                        type: "meeting",
+                        title: `Meeting Invitation: ${title}`,
+                        message: `You are invited to "${title}"${dateStr ? ` on ${dateStr}` : ""}${timeStr ? ` at ${timeStr}` : ""}. Organized by ${hostName}.`,
+                        relatedId: meeting._id,
+                    });
+
+                    // Real-time socket delivery
+                    try {
+                        const io = getIO();
+                        const sockets = getUserSockets().get(user._id.toString());
+                        if (sockets) {
+                            for (const sid of sockets) {
+                                io.to(sid).emit("meeting:notification", {
+                                    type: "meeting",
+                                    title: `Meeting Invitation: ${title}`,
+                                    message: `You are invited to "${title}"${dateStr ? ` on ${dateStr}` : ""}${timeStr ? ` at ${timeStr}` : ""}.`,
+                                    relatedId: meeting._id,
+                                });
+                            }
+                        }
+                    } catch (socketErr) {
+                        console.error("Socket emit failed for meeting notification:", socketErr);
+                    }
+                }
+            }
+        } catch (notifErr) {
+            console.error("Failed to create meeting notifications:", notifErr);
+        }
 
         res.status(201).json({ success: true, meeting });
     } catch (error) {

@@ -213,6 +213,21 @@ export const useMeetingStore = defineStore('meeting', () => {
     }
   }
 
+  const fetchMeeting = async (meetingId) => {
+    try {
+      const token = localStorage.getItem('token')
+      if (!token) return null
+      const { data } = await axios.get(`${API}/meetings/${meetingId}`, getHeaders())
+      if (data.success) {
+        return transformMeeting(data.meeting)
+      }
+      return null
+    } catch (error) {
+      console.error('Failed to fetch meeting:', error)
+      return null
+    }
+  }
+
   const updateMeeting = async (updatedMeeting) => {
     try {
       const id = updatedMeeting._id || updatedMeeting.id
@@ -251,6 +266,7 @@ export const useMeetingStore = defineStore('meeting', () => {
     selectedMeeting,
     activeLiveMeeting,
     fetchMeetings,
+    fetchMeeting,
     fetchMeetingDetails,
     createMeeting,
     deleteMeeting,

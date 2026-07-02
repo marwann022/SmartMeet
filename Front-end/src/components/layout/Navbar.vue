@@ -293,6 +293,16 @@
                           ✗ Request Rejected
                         </p>
                       </div>
+
+                      <!-- Join Meeting button for meeting notifications -->
+                      <div v-if="notification.type === 'meeting'" class="mt-3">
+                        <button
+                          @click.stop="joinMeeting(notification)"
+                          class="px-2.5 py-1 rounded-full bg-primary text-white text-[10px] font-bold transition-all duration-200 hover:scale-105"
+                        >
+                          Join Meeting
+                        </button>
+                      </div>
                     </div>
                     <span class="text-[9px] text-brand-slate font-semibold">{{
                       notification.time
@@ -416,15 +426,18 @@ import {
 } from "@phosphor-icons/vue";
 import { useAuthStore } from "@/stores/auth";
 import { useNotificationStore } from "@/stores/notification";
+import { useMeetingStore } from "@/stores/meeting";
 import { useUiStore } from "@/stores/ui";
 import Modal from "@/components/ui/Modal.vue";
 import Button from "@/components/ui/Button.vue";
 import NavbarUserPanel from "@/components/common/NavbarUserPanel.vue";
 import axios from "axios";
+import { connectChatSocket, disconnectChatSocket } from '@/services/chatSocket'
 const uiStore = useUiStore();
 const router = useRouter();
 const authStore = useAuthStore();
 const notificationStore = useNotificationStore();
+const meetingStore = useMeetingStore();
 
 const authenticated = computed(() => authStore.isAuthenticated);
 
@@ -461,6 +474,31 @@ const handleNotificationClick = (notification) => {
     router.push("/dashboard");
   }
 };
+
+const joinMeeting = async (notification) => {
+  await notificationStore.markAsRead(notification.id)
+  isNotificationsOpen.value = false
+
+  try {
+    const meeting = await meetingStore.fetchMeeting(notification.relatedId)
+    if (!meeting) {
+      router.push('/archive')
+      return
+    }
+
+    const scheduledTime = new Date(meeting.startTime)
+    const now = new Date()
+    if (scheduledTime - now > 300000) {
+      router.push('/archive')
+      return
+    }
+
+    meetingStore.activeLiveMeeting = meeting
+    router.push('/live-meeting')
+  } catch {
+    router.push('/archive')
+  }
+}
 
 const approveJoinRequest = async (notification) => {
   try {
@@ -543,15 +581,29 @@ const handleClickOutside = (event) => {
   }
 };
 
+let notifSocket = null
+
 onMounted(() => {
   document.addEventListener("click", handleClickOutside);
   if (authenticated.value) {
     notificationStore.fetchNotifications();
+
+    const token = localStorage.getItem("token")
+    if (token) {
+      const sessionId = localStorage.getItem("sessionId")
+      notifSocket = connectChatSocket(token, sessionId)
+      notifSocket.on("meeting:notification", () => {
+        notificationStore.fetchNotifications()
+      })
+    }
   }
 });
 
 onUnmounted(() => {
   document.removeEventListener("click", handleClickOutside);
+  if (notifSocket) {
+    notifSocket.off("meeting:notification")
+  }
 });
 
 // Fetch notifications as soon as authentication state becomes true (e.g. login)
