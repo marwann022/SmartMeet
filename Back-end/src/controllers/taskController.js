@@ -315,6 +315,14 @@ export const updateTask = async (req, res) => {
             });
         }
 
+        // Admin cannot move tasks into "In Progress" unless returning from Review
+        if (isAdmin && status === "inprogress" && task.status !== "review") {
+            return res.status(403).json({
+                success: false,
+                message: "Only the assigned member can start a task.",
+            });
+        }
+
         // Action: When non-admin/non-creator team member switches task to 'review', notify ALL admins
         const settingToReview = status === "review" && task.status !== "review";
         if (settingToReview && !isAuthorized) {
@@ -407,12 +415,12 @@ export const updateTask = async (req, res) => {
             } catch (_err) {}
         }
 
-        // Admin rejects: review → inprogress
-        const adminRejecting = isAdmin && status === "inprogress" && task.status === "review";
-        if (adminRejecting) {
+        // Admin returns task: review → inprogress (needs changes)
+        const adminReturning = isAdmin && status === "inprogress" && task.status === "review";
+        if (adminReturning) {
             if (!task.reviewHistory) task.reviewHistory = [];
             task.reviewHistory.push({
-                action: "rejected",
+                action: "returned",
                 user: req.user._id,
                 comment: reviewComment || "",
                 timestamp: new Date(),
@@ -421,16 +429,12 @@ export const updateTask = async (req, res) => {
             const adminName = req.user.name || `${req.user.firstName || ""} ${req.user.lastName || ""}`.trim() || "An admin";
             const taskTitle = task.title || title;
 
-            const notifMessage = reviewComment
-                ? `Your task "${taskTitle}" requires changes. Comment: ${reviewComment}`
-                : `Your task "${taskTitle}" requires changes.`;
-
             await Notification.create({
                 recipient: task.user,
                 community: task.community,
                 type: "rejection",
-                title: "Task Needs Changes",
-                message: notifMessage,
+                title: "Task Returned",
+                message: `${adminName} requested changes on "${taskTitle}". The task has been moved back to In Progress.`,
                 relatedId: task._id,
             });
 
@@ -442,8 +446,8 @@ export const updateTask = async (req, res) => {
                 if (sockets) {
                     const payload = {
                         type: "rejection",
-                        title: "Task Needs Changes",
-                        message: `Your task "${taskTitle}" requires changes.`,
+                        title: "Task Returned",
+                        message: `${adminName} requested changes on "${taskTitle}". The task has been moved back to In Progress.`,
                         relatedId: task._id,
                     };
                     for (const sid of sockets) {
@@ -556,7 +560,7 @@ export const approveTask = async (req, res) => {
     }
 };
 
-// @desc    Admin rejects a task in review, moves back to inprogress
+// @desc    Admin returns a task from review back to inprogress (needs changes)
 // @route   PUT /api/tasks/:id/reject
 // @access  Private/Admin
 export const rejectTask = async (req, res) => {
@@ -567,11 +571,11 @@ export const rejectTask = async (req, res) => {
         }
 
         if (req.user.role !== "admin") {
-            return res.status(403).json({ success: false, message: "Only admins can reject tasks." });
+            return res.status(403).json({ success: false, message: "Only admins can return tasks." });
         }
 
         if (!req.user.community || !task.community || task.community.toString() !== req.user.community.toString()) {
-            return res.status(403).json({ success: false, message: "Unauthorized to reject this task." });
+            return res.status(403).json({ success: false, message: "Unauthorized to return this task." });
         }
 
         if (task.status !== "review") {
@@ -582,7 +586,7 @@ export const rejectTask = async (req, res) => {
 
         if (!task.reviewHistory) task.reviewHistory = [];
         task.reviewHistory.push({
-            action: "rejected",
+            action: "returned",
             user: req.user._id,
             comment,
             timestamp: new Date(),
@@ -595,16 +599,13 @@ export const rejectTask = async (req, res) => {
         await task.save();
 
         const adminName = req.user.name || `${req.user.firstName || ""} ${req.user.lastName || ""}`.trim() || "An admin";
-        const notifMessage = comment
-            ? `Your task "${task.title}" requires changes. Comment: ${comment}`
-            : `Your task "${task.title}" requires changes.`;
 
         await Notification.create({
             recipient: task.user,
             community: task.community,
             type: "rejection",
-            title: "Task Needs Changes",
-            message: notifMessage,
+            title: "Task Returned",
+            message: `${adminName} requested changes on "${task.title}". The task has been moved back to In Progress.`,
             relatedId: task._id,
         });
 
@@ -616,8 +617,8 @@ export const rejectTask = async (req, res) => {
             if (sockets) {
                 const payload = {
                     type: "rejection",
-                    title: "Task Needs Changes",
-                    message: `Your task "${task.title}" requires changes.`,
+                    title: "Task Returned",
+                    message: `${adminName} requested changes on "${task.title}". The task has been moved back to In Progress.`,
                     relatedId: task._id,
                 };
                 for (const sid of sockets) {

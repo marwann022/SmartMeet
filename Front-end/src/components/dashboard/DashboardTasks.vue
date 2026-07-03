@@ -65,10 +65,12 @@
             columnThemes[col.id].bg,
             columnThemes[col.id].border,
             columnThemes[col.id].accentBorder,
-            activeDragColumn === col.id ? `${columnThemes[col.id].glowBorder} ${columnThemes[col.id].glowBg} scale-[1.01] shadow-[0_12px_36px_rgba(0,0,0,0.08)]` : 'shadow-[0_4px_20px_rgba(0,0,0,0.01)]'
+            activeDragColumn === col.id ? `${columnThemes[col.id].glowBorder} ${columnThemes[col.id].glowBg} scale-[1.01] shadow-[0_12px_36px_rgba(0,0,0,0.08)]` : 'shadow-[0_4px_20px_rgba(0,0,0,0.01)]',
+            rejectedDropStatus === col.id ? 'animate-column-shake' : ''
           ]"
-          @dragover.prevent
-          @dragenter.prevent="activeDragColumn = col.id"
+          @dragover="onDragOver($event, col.id)"
+          @dragenter="onDragEnter($event, col.id)"
+          @dragleave="onDragLeave(col.id)"
           @drop="onDrop($event, col.id)"
         >
           <div class="flex items-center justify-between px-1 pb-1">
@@ -78,14 +80,38 @@
                 <span class="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75" :class="columnThemes[col.id].dot"></span>
                 <span class="relative inline-flex rounded-full h-2 w-2" :class="columnThemes[col.id].dot"></span>
               </span>
-              
-              <span class="font-header font-bold text-lg text-brand-dark leading-8 transition-colors duration-300" :class="columnThemes[col.id].labelColor">
-                {{ col.label }}
-              </span>
-              
-              <span class="font-header font-bold text-[11px] px-2 py-0.5 rounded-full transition-all duration-300 transform group-hover:scale-105" :class="columnThemes[col.id].badge">
-                {{ tasksByStatus(col.id).length }}
-              </span>
+
+              <div class="flex flex-col">
+                <div class="flex items-center gap-2">
+                  <span class="font-header font-bold text-lg text-brand-dark leading-8 transition-colors duration-300" :class="columnThemes[col.id].labelColor">
+                    {{ col.label }}
+                  </span>
+
+                  <span class="font-header font-bold text-[11px] px-2 py-0.5 rounded-full transition-all duration-300 transform group-hover:scale-105" :class="columnThemes[col.id].badge">
+                    {{ tasksByStatus(col.id).length }}
+                  </span>
+                </div>
+
+                <!-- Read Only badge for In Progress when admin -->
+                <div v-if="col.id === 'inprogress' && isAdmin" class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20 w-fit">
+                  <PhLock :size="10" weight="bold" />
+                  Read Only
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Admin Info Card for In Progress -->
+          <div v-if="col.id === 'inprogress' && isAdmin && tasksByStatus(col.id).length > 0" class="rounded-2xl border border-blue-200/50 dark:border-blue-500/20 bg-blue-500/5 dark:bg-blue-500/10 backdrop-blur-md p-4 flex items-start gap-3 shadow-sm">
+            <div class="flex-shrink-0 w-8 h-8 rounded-xl bg-blue-500/10 text-blue-600 dark:text-blue-400 flex items-center justify-center">
+              <PhLock :size="16" weight="bold" />
+            </div>
+            <div class="flex flex-col gap-0.5 min-w-0">
+              <span class="font-header font-bold text-xs text-blue-700 dark:text-blue-300 uppercase tracking-wider">Members Work Here</span>
+              <p class="text-[11px] font-body text-blue-600/80 dark:text-blue-400/80 leading-relaxed">
+                Only assigned members can move tasks into or out of this stage.<br>
+                Admins can monitor progress and review submitted work.
+              </p>
             </div>
           </div>
 
@@ -102,8 +128,21 @@
               @reject="handleCardReject"
             />
             
+            <!-- Custom empty state for In Progress when admin -->
             <div 
-              v-if="tasksByStatus(col.id).length === 0"
+              v-if="col.id === 'inprogress' && isAdmin && tasksByStatus(col.id).length === 0"
+              :key="'empty-inprogress-admin'"
+              class="border border-dashed rounded-2xl flex flex-col items-center justify-center py-10 gap-2 w-full min-h-[150px] transition-all duration-300 bg-blue-500/[0.02] border-blue-500/20"
+            >
+              <div class="w-10 h-10 rounded-full bg-blue-500/10 text-blue-600 dark:text-blue-400 flex items-center justify-center mb-1">
+                <PhLock :size="18" weight="bold" />
+              </div>
+              <span class="text-xs font-header font-bold text-blue-700 dark:text-blue-300">Members Work Here</span>
+              <span class="text-[11px] font-body text-blue-500/70 dark:text-blue-400/60 text-center px-4 leading-relaxed">Tasks started by community members will appear here.<br>Admins can monitor progress only.</span>
+            </div>
+            <!-- Generic empty state -->
+            <div 
+              v-else-if="tasksByStatus(col.id).length === 0"
               :key="'empty-' + col.id"
               class="border border-dashed rounded-2xl flex flex-col items-center justify-center py-10 gap-2 w-full min-h-[150px] transition-all duration-300 bg-white/20 dark:bg-white/[0.01]"
               :class="columnThemes[col.id].emptyBorder"
@@ -220,7 +259,7 @@
               <div v-for="entry in selectedTask.reviewHistory" :key="entry._id || entry.timestamp" class="flex items-center gap-2 text-xs">
                 <span class="w-2 h-2 rounded-full flex-shrink-0" :class="entry.action === 'approved' ? 'bg-emerald-500' : entry.action === 'rejected' ? 'bg-red-500' : 'bg-amber-500'"></span>
                 <span class="font-semibold text-brand-dark">
-                  {{ entry.action === 'submitted' ? 'Submitted for review' : entry.action === 'approved' ? 'Approved' : 'Rejected' }}
+                  {{ entry.action === 'submitted' ? 'Submitted for review' : entry.action === 'approved' ? 'Approved' : entry.action === 'returned' ? 'Returned to In Progress' : 'Rejected' }}
                 </span>
                 <span v-if="entry.comment" class="text-brand-slate truncate max-w-[200px]" :title="entry.comment">— "{{ entry.comment }}"</span>
                 <span class="text-brand-slate/60 ml-auto flex-shrink-0">{{ formatReviewTime(entry.timestamp) }}</span>
@@ -236,21 +275,44 @@
                 v-for="opt in statusOptions"
                 :key="opt.value"
                 @click="selectStatus(opt.value)"
-                :disabled="isLocked"
-                class="py-2 px-2 rounded-xl border font-bold text-xs transition-all duration-300 text-center cursor-pointer font-header"
+                :disabled="isStageDisabled(opt.value)"
+                :aria-disabled="isStageDisabled(opt.value) ? 'true' : undefined"
+                :tabindex="isStageDisabled(opt.value) ? '-1' : '0'"
+                :aria-label="getStageAriaLabel(opt)"
+                class="stage-btn relative py-2 px-2 rounded-xl border font-bold text-xs transition-all duration-300 text-center font-header"
                 :class="[
                   selectedTask.status === opt.value
                     ? 'bg-primary text-white border-transparent shadow-[0_4px_12px_rgba(75,104,255,0.25)]'
-                    : 'bg-white/50 dark:bg-slate-900/50 border-black/5 dark:border-white/10 hover:bg-white dark:hover:bg-slate-900/85 text-brand-dark dark:text-slate-200 hover:border-black/10',
-                  isLocked ? 'cursor-not-allowed opacity-50' : ''
+                    : isStageDisabled(opt.value)
+                      ? 'bg-transparent border-dashed border-slate-300 dark:border-slate-600 text-slate-400 dark:text-slate-500 cursor-not-allowed opacity-60'
+                      : 'bg-white/50 dark:bg-slate-900/50 border-black/5 dark:border-white/10 hover:bg-white dark:hover:bg-slate-900/85 text-brand-dark dark:text-slate-200 hover:border-black/10 cursor-pointer',
                 ]"
               >
+                <PhLock v-if="isStageDisabled(opt.value)" :size="11" weight="bold" class="inline mr-1" />
                 {{ opt.label }}
+                <span v-if="isStageDisabled(opt.value)" class="stage-tooltip" role="tooltip">Only the assigned member can start this task.</span>
               </button>
             </div>
           </div>
-          
 
+          <!-- Admin Review Actions: Approve / Return to In Progress (review only) -->
+          <div v-if="selectedTask.status === 'review' && authStore.user?.role === 'admin'" class="flex flex-col gap-3 pt-4 border-t border-black/5 dark:border-white/10">
+            <label class="text-[10px] font-extrabold uppercase tracking-wider text-brand-slate pl-1 font-header">Review Actions</label>
+            <div class="flex gap-3">
+              <Button variant="primary" class="flex-1" @click="handleCardApprove(selectedTask)">
+                <template #icon-left><PhCheck :size="14" weight="bold" /></template>
+                Approve
+              </Button>
+              <button
+                @click="handleReturnToInProgress"
+                class="flex-1 px-4 py-2.5 rounded-xl border-2 border-orange-500/40 text-orange-500 font-bold text-xs transition-all duration-200 hover:bg-orange-500/10 hover:border-orange-500 cursor-pointer flex items-center justify-center gap-1.5"
+                title="Request changes from the assigned member."
+              >
+                <PhArrowUUpLeft :size="14" weight="bold" />
+                Return to In Progress
+              </button>
+            </div>
+          </div>
 
           <div class="flex gap-3 pt-4 border-t border-black/5 dark:border-white/10">
             <Button 
@@ -449,7 +511,7 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import {
   PhPlus, PhClock, PhArrowsClockwise, PhEye, PhCheckCircle,
-  PhCalendarBlank, PhX, PhCheck, PhWarningCircle
+  PhCalendarBlank, PhX, PhCheck, PhWarningCircle, PhLock, PhArrowUUpLeft
 } from '@phosphor-icons/vue'
 import { useTaskStore } from '../../stores/task'
 import TaskCard from './TaskCard.vue'
@@ -466,6 +528,7 @@ import { useAuthStore } from '../../stores/auth'
 import UserAvatar from '../common/UserAvatar.vue'
 import axios from 'axios'
 import { sortByUrgency, formatDateDisplay, getTodayString } from '../../utils/taskDeadline'
+import { useToasts } from '../../composables/useToasts'
 import { getChatSocket } from '@/services/chatSocket'
 
 const props = defineProps({
@@ -584,6 +647,7 @@ const columnThemes = {
 }
 
 const activeDragColumn = ref(null)
+const rejectedDropStatus = ref(null)
 
 const showReviewConfirmModal = ref(false)
 let pendingReviewConfirmAction = null
@@ -606,12 +670,61 @@ const cancelReviewAction = () => {
   showReviewConfirmModal.value = false
 }
 
+const onDragOver = (e, status) => {
+  if (status === 'inprogress' && authStore.user?.role === 'admin') {
+    const taskId = e.dataTransfer.getData('text/plain')
+    if (taskId) {
+      const task = taskStore.tasks.find(t => String(t.id || t._id) === String(taskId))
+      if (task && (task.status === 'review' || task.status === 'inprogress')) {
+        e.preventDefault()
+        e.dataTransfer.dropEffect = 'move'
+        return
+      }
+    }
+    e.dataTransfer.dropEffect = 'none'
+    return
+  }
+  e.preventDefault()
+  e.dataTransfer.dropEffect = 'move'
+}
+
+const onDragEnter = (e, status) => {
+  e.preventDefault()
+  if (status === 'inprogress' && authStore.user?.role === 'admin') {
+    const taskId = e.dataTransfer.getData('text/plain')
+    if (taskId) {
+      const task = taskStore.tasks.find(t => String(t.id || t._id) === String(taskId))
+      if (task && (task.status === 'review' || task.status === 'inprogress')) {
+        activeDragColumn.value = status
+        return
+      }
+    }
+    return
+  }
+  activeDragColumn.value = status
+}
+
+const onDragLeave = (status) => {
+  if (activeDragColumn.value === status) {
+    activeDragColumn.value = null
+  }
+}
+
 const onDrop = (event, status) => {
   event.preventDefault()
   activeDragColumn.value = null
   const taskId = event.dataTransfer.getData('text/plain')
   if (taskId) {
     const task = taskStore.tasks.find(t => String(t.id) === String(taskId) || String(t._id) === String(taskId))
+
+    // Admin cannot drop tasks into In Progress (unless returning from review)
+    if (task && status === 'inprogress' && authStore.user?.role === 'admin' && task.status !== 'review' && task.status !== 'inprogress') {
+      rejectedDropStatus.value = status
+      setTimeout(() => { rejectedDropStatus.value = null }, 600)
+      info('Only the assigned member can move a task into In Progress.', 'Read Only Stage')
+      return
+    }
+
     if (task && status === 'review' && authStore.user?.role !== 'admin') {
       triggerReviewConfirmModal(() => {
         taskStore.setTaskStatus(taskId, status)
@@ -628,6 +741,13 @@ const handleMoveTask = (task, direction) => {
   const nextIndex = currentIndex + direction
   if (nextIndex >= 0 && nextIndex < statusOrder.length) {
     const nextStatus = statusOrder[nextIndex]
+
+    // Admin cannot move tasks into In Progress via buttons (unless returning from review)
+    if (nextStatus === 'inprogress' && authStore.user?.role === 'admin' && task.status !== 'review' && task.status !== 'inprogress') {
+      info('Only the assigned member can move a task into In Progress.', 'Read Only Stage')
+      return
+    }
+
     if (nextStatus === 'review' && authStore.user?.role !== 'admin') {
       triggerReviewConfirmModal(() => {
         taskStore.moveTask(task, direction)
@@ -675,6 +795,8 @@ const newTask = ref({
 })
 
 const authStore = useAuthStore()
+const { info } = useToasts()
+const isAdmin = computed(() => authStore.user?.role === 'admin')
 const members = ref([])
 const selectedAssignmentType = ref('one')
 const selectedAssigneeId = ref('')
@@ -765,6 +887,13 @@ const closeRejectDialog = () => {
   showRejectDialog.value = false
   rejectComment.value = ''
   pendingCardTask.value = null
+}
+
+const handleReturnToInProgress = async () => {
+  if (!selectedTask.value) return
+  const id = selectedTask.value.id || selectedTask.value._id
+  await taskStore.rejectTask(id, '')
+  selectedTask.value = null
 }
 
 const formatReviewTime = (ts) => {
@@ -867,8 +996,27 @@ const addTask = () => {
   showAddModal.value = false
 }
 
+const isStageDisabled = (status) => {
+  if (!selectedTask.value) return true
+  const isAdmin = authStore.user?.role === 'admin'
+  // Admin cannot move tasks into "In Progress" from todo or done,
+  // but CAN return from review to inprogress
+  if (isAdmin && status === 'inprogress' && selectedTask.value.status !== 'review' && selectedTask.value.status !== 'inprogress') return true
+  // Non-admin members cannot change status once task is locked (review/done)
+  if (!isAdmin && (selectedTask.value.status === 'review' || selectedTask.value.status === 'done')) return true
+  return false
+}
+
+const getStageAriaLabel = (opt) => {
+  if (isStageDisabled(opt.value)) {
+    return `${opt.label}. Disabled. Only the assigned member can start this task.`
+  }
+  return opt.label
+}
+
 const selectStatus = async (status) => {
   if (!selectedTask.value) return
+  if (isStageDisabled(status)) return
   const id = selectedTask.value.id || selectedTask.value._id
   if (status === 'review' && authStore.user?.role !== 'admin') {
     triggerReviewConfirmModal(async () => {
@@ -901,4 +1049,47 @@ const handleToggleTask = async () => {
 .task-item-leave-to     { opacity: 0; transform: translateY(-8px) scale(0.96); }
 .task-item-move         { transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
 
+/* Stage button tooltip — centered above the button */
+.stage-btn {
+  position: relative;
+}
+.stage-tooltip {
+  visibility: hidden;
+  opacity: 0;
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  background: rgba(15, 23, 42, 0.92);
+  backdrop-filter: blur(4px);
+  color: #e2e8f0;
+  font-size: 10px;
+  font-weight: 600;
+  font-family: "Montserrat", sans-serif;
+  padding: 6px 12px;
+  border-radius: 8px;
+  pointer-events: none;
+  z-index: 50;
+  transition: opacity 0.2s ease, visibility 0.2s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18);
+}
+.stage-btn:hover .stage-tooltip {
+  visibility: visible;
+  opacity: 1;
+}
+
+/* Shake animation for rejected drop */
+@keyframes column-shake {
+  0%, 100% { transform: translateX(0); }
+  15% { transform: translateX(-6px); }
+  30% { transform: translateX(6px); }
+  45% { transform: translateX(-4px); }
+  60% { transform: translateX(4px); }
+  75% { transform: translateX(-2px); }
+  90% { transform: translateX(2px); }
+}
+.animate-column-shake {
+  animation: column-shake 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97);
+}
 </style>

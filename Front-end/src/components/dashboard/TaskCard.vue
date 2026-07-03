@@ -29,6 +29,12 @@
           <PhUser :size="10" weight="bold" />
           Manual
         </span>
+        <span
+          v-if="needsChanges"
+          class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-orange-500/10 text-orange-600 dark:text-orange-400 border border-orange-500/20"
+        >
+          Needs Changes
+        </span>
       </div>
 
       <!-- Right side actions container -->
@@ -198,6 +204,14 @@ const isLocked = computed(() => {
 const isAiGenerated = computed(() =>
   props.task.source && props.task.source.startsWith('Meeting:')
 )
+
+const needsChanges = computed(() => {
+  const t = props.task
+  if (t.status !== 'inprogress') return false
+  if (!t.reviewHistory || t.reviewHistory.length === 0) return false
+  const last = t.reviewHistory[t.reviewHistory.length - 1]
+  return last.action === 'returned' || last.action === 'rejected'
+})
 
 const onDragStart = (e) => {
   if (isLocked.value) {

@@ -82,7 +82,7 @@ const taskSchema = new mongoose.Schema({
     reviewHistory: [{
         action: {
             type: String,
-            enum: ["submitted", "approved", "rejected"],
+            enum: ["submitted", "approved", "rejected", "returned"],
         },
         user: {
             type: mongoose.Schema.Types.ObjectId,
