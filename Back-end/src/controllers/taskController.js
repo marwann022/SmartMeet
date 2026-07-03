@@ -12,14 +12,12 @@ export const getTasks = async (req, res) => {
         let query;
 
         if (req.user.role === "admin") {
-            const orClauses = [{ user: req.user._id }];
             if (req.user.community) {
-                orClauses.push({ community: req.user.community, isPersonal: false });
-            }
-            query = { $or: orClauses };
+                // Admin sees ALL community tasks (management dashboard),
+                // never filtered by assignment — admins are managers, not assignees.
+                query = { community: req.user.community };
 
-            // Privacy Rule: Admin should not view private tasks belonging to meetings conducted exclusively between two other members.
-            if (req.user.community) {
+                // Privacy Rule: Admin should not view private tasks belonging to meetings conducted exclusively between two other members.
                 const communityUsers = await User.find({ community: req.user.community }).select("_id");
                 const communityUserIds = communityUsers.map((u) => u._id);
 
@@ -33,13 +31,18 @@ export const getTasks = async (req, res) => {
                     const privateMeetingIds = privateMeetings.map((m) => m._id);
                     query.meeting = { $nin: privateMeetingIds };
                 }
+            } else {
+                query = { user: req.user._id };
             }
         } else {
             // Non-admin members should only see their own assigned tasks
             query = { user: req.user._id };
         }
 
-        const tasks = await Task.find(query).sort({ createdAt: -1 }).populate('user', 'name avatar role');
+        const tasks = await Task.find(query)
+            .sort({ createdAt: -1 })
+            .populate('user', 'name avatar role')
+            .populate('createdBy', 'name firstName lastName role');
 
         res.status(200).json({
             success: true,
@@ -75,17 +78,42 @@ export const createTask = async (req, res) => {
         const isAdmin = req.user.role === "admin";
 
         let targetUserIds = [];
-        if (isAdmin && assigneeIds && Array.isArray(assigneeIds) && assigneeIds.length > 0) {
-            // Deduplicate to prevent duplicate assignments
-            const seen = new Set();
-            for (const id of assigneeIds) {
-                const key = id.toString();
-                if (!seen.has(key)) {
-                    seen.add(key);
-                    targetUserIds.push(id);
+        if (isAdmin) {
+            const { assignToEveryone, assignToSelf } = req.body;
+
+            if (assignToSelf) {
+                // Future mode: admin assigns task to themselves only
+                targetUserIds = [req.user._id];
+            } else if (assignToEveryone) {
+                // Assign to all non-admin community members
+                if (req.user.community) {
+                    const allMembers = await User.find({
+                        community: req.user.community,
+                        role: { $ne: "admin" },
+                    }).select("_id");
+                    targetUserIds = allMembers.map((m) => m._id);
+                }
+            } else if (assigneeIds && Array.isArray(assigneeIds) && assigneeIds.length > 0) {
+                // Assign to selected members only — never include the admin
+                const adminIdStr = req.user._id.toString();
+                const seen = new Set();
+                for (const id of assigneeIds) {
+                    const key = id.toString();
+                    if (key !== adminIdStr && !seen.has(key)) {
+                        seen.add(key);
+                        targetUserIds.push(id);
+                    }
                 }
             }
+
+            if (targetUserIds.length === 0) {
+                return res.status(400).json({
+                    success: false,
+                    message: "No valid assignees found. Please select at least one member.",
+                });
+            }
         } else {
+            // Non-admin: task is assigned to themselves
             targetUserIds = [req.user._id];
         }
 
@@ -438,10 +466,14 @@ export const updateTask = async (req, res) => {
         Object.assign(task, updateData);
         await task.save();
 
+        const populatedTask = await Task.findById(task._id)
+            .populate('user', 'name avatar role')
+            .populate('createdBy', 'name firstName lastName role');
+
         res.status(200).json({
             success: true,
             message: "Task updated successfully",
-            task,
+            task: populatedTask,
         });
     } catch (error) {
         res.status(500).json({
@@ -514,7 +546,11 @@ export const approveTask = async (req, res) => {
             }
         } catch (_err) {}
 
-        res.status(200).json({ success: true, message: "Task approved.", task });
+        const populatedTask = await Task.findById(task._id)
+            .populate('user', 'name avatar role')
+            .populate('createdBy', 'name firstName lastName role');
+
+        res.status(200).json({ success: true, message: "Task approved.", task: populatedTask });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
     }
@@ -590,7 +626,11 @@ export const rejectTask = async (req, res) => {
             }
         } catch (_err) {}
 
-        res.status(200).json({ success: true, message: "Task rejected and moved back to In Progress.", task });
+        const populatedTask = await Task.findById(task._id)
+            .populate('user', 'name avatar role')
+            .populate('createdBy', 'name firstName lastName role');
+
+        res.status(200).json({ success: true, message: "Task rejected and moved back to In Progress.", task: populatedTask });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
     }

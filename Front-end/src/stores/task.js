@@ -65,6 +65,7 @@ export const useTaskStore = defineStore('task', () => {
         dueTime: task.dueTime || '23:59',
         source: task.source || 'Manual Entry',
         assigneeIds: task.assigneeIds || undefined,
+        assignToEveryone: task.assignToEveryone || undefined,
       }
       const { data } = await axios.post('http://localhost:5000/api/tasks', newTaskData, getHeaders())
       if (data.success) {
