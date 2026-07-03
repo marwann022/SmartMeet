@@ -177,7 +177,7 @@
               </Input>
 
               <fieldset class="flex flex-col gap-3 w-full">
-                <legend class="text-xs font-bold text-brand-dark text-left">
+                <legend class="text-xs font-bold text-brand-dark text-left mb-3 ml-1">
                   Role
                 </legend>
 
@@ -266,8 +266,8 @@
                 </Input>
               </Transition>
 
-              <div class="flex flex-col gap-2 w-full text-left">
-                <span class="text-xs font-bold text-brand-dark">
+              <div class="flex flex-col gap-2 w-full text-left mt-2">
+                <span class="text-xs font-bold text-brand-dark mb-2">
                   Terms &amp; Conditions
                 </span>
                 <Checkbox
