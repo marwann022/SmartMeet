@@ -5,7 +5,7 @@
         <div
           v-for="toast in toasts"
           :key="toast.id"
-          class="card-glass flex items-start gap-3 rounded-2xl border border-white/80 bg-white/85 p-4 text-left shadow-glass backdrop-blur-[24px]"
+          class="card-glass flex items-start gap-3 rounded-2xl border border-white/80 dark:border-white/8 bg-white/85 dark:bg-slate-900/95 p-4 text-left shadow-glass backdrop-blur-[24px]"
           :class="toastShellClasses[toast.type]"
           role="status"
         >
@@ -27,7 +27,7 @@
 
           <button
             type="button"
-            class="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-black/5 text-brand-slate transition-colors hover:bg-black/10"
+            class="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-black/5 dark:bg-white/5 text-brand-slate transition-colors hover:bg-black/10 dark:hover:bg-white/10"
             aria-label="Dismiss notification"
             @click="removeToast(toast.id)"
           >

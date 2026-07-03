@@ -27,7 +27,7 @@
         <div
           class="card-glass rounded-[28px] p-6 sm:p-8 flex flex-col gap-6 relative z-20"
         >
-          <div class="flex items-center gap-2.5 pb-4 border-b border-black/5">
+          <div class="flex items-center gap-2.5 pb-4 border-b border-black/5 dark:border-white/5">
             <PhInfo :size="20" class="text-primary" />
             <h3 class="font-header font-bold text-xl text-brand-dark">
               Meeting Details
@@ -35,6 +35,15 @@
           </div>
 
           <div class="flex flex-col gap-5">
+            <!-- Mode Selector -->
+            <div class="flex flex-col gap-2">
+              <Select
+                v-model="meetingMode"
+                :options="modeOptions"
+                label="Scheduling Mode"
+              />
+            </div>
+
             <!-- Title -->
             <div class="flex flex-col gap-2">
               <label
@@ -45,7 +54,7 @@
                 v-model="form.title"
                 type="text"
                 placeholder="e.g. Q4 Product Roadmap Alignment"
-                class="w-full px-4 py-3.5 rounded-xl bg-white border border-black/8 font-body text-sm text-brand-dark placeholder-brand-slate/40 focus:outline-none focus:border-primary/30 focus:shadow-[0_0_0_3px_rgba(75,104,255,0.08)] transition-all duration-300"
+                class="w-full px-4 py-3.5 rounded-xl bg-white dark:bg-slate-950/60 border border-black/8 dark:border-white/10 font-body text-sm text-brand-dark placeholder-brand-slate/40 focus:outline-none focus:border-primary/30 focus:shadow-[0_0_0_3px_rgba(75,104,255,0.08)] transition-all duration-300"
                 :class="{ 'border-red-400': errors.title }"
               />
               <span
@@ -65,82 +74,117 @@
                 v-model="form.description"
                 placeholder="What is the primary objective of this session?"
                 rows="4"
-                class="w-full px-4 py-3.5 rounded-xl bg-white border border-black/8 font-body text-sm text-brand-dark placeholder-brand-slate/40 focus:outline-none focus:border-primary/30 focus:shadow-[0_0_0_3px_rgba(75,104,255,0.08)] transition-all duration-300 resize-none"
+                class="w-full px-4 py-3.5 rounded-xl bg-white dark:bg-slate-950/60 border border-black/8 dark:border-white/10 font-body text-sm text-brand-dark placeholder-brand-slate/40 focus:outline-none focus:border-primary/30 focus:shadow-[0_0_0_3px_rgba(75,104,255,0.08)] transition-all duration-300 resize-none"
+                :class="{ 'border-red-400': errors.description }"
               ></textarea>
+              <span
+                v-if="errors.description"
+                class="text-[11px] text-red-500 font-semibold ml-1"
+                >{{ errors.description }}</span
+              >
             </div>
 
-            <!-- Meeting Type Select (Personal Discussion, Brainstorm) -->
+            <!-- Meeting Type Select (Visible for both Scheduled & Instant meetings) -->
             <div class="flex flex-col gap-2">
               <label
                 class="font-header font-bold text-[11px] tracking-wider uppercase text-brand-slate ml-1"
                 >Meeting Type</label
               >
-              <div class="grid grid-cols-2 gap-3">
+              <div 
+                class="grid gap-3"
+                :class="authStore.user?.role === 'admin' ? 'grid-cols-3' : 'grid-cols-2'"
+              >
                 <button
                   type="button"
-                  @click="form.type = 'Personal Discussion'"
-                  class="flex flex-col items-center justify-center gap-2 p-3.5 rounded-xl border transition-all duration-300 cursor-pointer"
+                  @click="setMeetingType('personal')"
+                  class="flex flex-col items-center justify-center gap-2 p-3.5 rounded-xl border dark:border-white/10 transition-all duration-300 cursor-pointer"
                   :class="
-                    form.type === 'Personal Discussion'
+                    form.type === 'Personal'
                       ? 'bg-primary/8 border-primary text-primary font-bold shadow-sm'
-                      : 'bg-white border-black/8 text-brand-slate hover:bg-black/5'
+                      : 'bg-white dark:bg-slate-950/60 border-black/8 dark:border-white/10 text-brand-slate hover:bg-black/5 dark:hover:bg-white/5'
                   "
                 >
                   <PhUser :size="24" class="text-primary" weight="bold" />
-                  <span class="text-xs">Personal Discussion</span>
+                  <span class="text-xs">Personal</span>
                 </button>
                 <button
                   type="button"
-                  @click="form.type = 'Brainstorm'"
-                  class="flex flex-col items-center justify-center gap-2 p-3.5 rounded-xl border transition-all duration-300 cursor-pointer"
+                  @click="setMeetingType('team')"
+                  class="flex flex-col items-center justify-center gap-2 p-3.5 rounded-xl border dark:border-white/10 transition-all duration-300 cursor-pointer"
                   :class="
-                    form.type === 'Brainstorm'
+                    form.type === 'Team'
                       ? 'bg-primary/8 border-primary text-primary font-bold shadow-sm'
-                      : 'bg-white border-black/8 text-brand-slate hover:bg-black/5'
+                      : 'bg-white dark:bg-slate-950/60 border-black/8 dark:border-white/10 text-brand-slate hover:bg-black/5 dark:hover:bg-white/5'
+                  "
+                >
+                  <PhUsersThree :size="24" class="text-primary" weight="bold" />
+                  <span class="text-xs">Team</span>
+                </button>
+                <button
+                  v-if="authStore.user?.role === 'admin'"
+                  type="button"
+                  @click="setMeetingType('custom')"
+                  class="flex flex-col items-center justify-center gap-2 p-3.5 rounded-xl border dark:border-white/10 transition-all duration-300 cursor-pointer"
+                  :class="
+                    form.type === 'Custom'
+                      ? 'bg-primary/8 border-primary text-primary font-bold shadow-sm'
+                      : 'bg-white dark:bg-slate-950/60 border-black/8 dark:border-white/10 text-brand-slate hover:bg-black/5 dark:hover:bg-white/5'
                   "
                 >
                   <PhBrain :size="24" class="text-primary" weight="bold" />
-                  <span class="text-xs">Brainstorm</span>
+                  <span class="text-xs">Custom</span>
                 </button>
               </div>
             </div>
 
-            <!-- Date, Time & Duration row -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
-              <!-- Date & Time Pickers side-by-side -->
-              <div class="flex flex-col gap-1.5">
-                <div class="grid grid-cols-2 gap-3">
-                  <!-- Date Picker -->
-                  <DatePicker
-                    v-model="form.date"
-                    label="Date"
-                    :has-error="!!errors.datetime"
-                  />
+            <!-- Smoothly animated Scheduled Meeting settings -->
+            <transition
+              name="expand-fade"
+              @before-enter="el => el.style.overflow = 'hidden'"
+              @after-enter="el => el.style.overflow = 'visible'"
+              @before-leave="el => el.style.overflow = 'hidden'"
+              @after-leave="el => el.style.overflow = 'visible'"
+            >
+              <div v-if="meetingMode === 'schedule'" class="flex flex-col gap-5">
 
-                  <!-- Time Picker -->
-                  <TimePicker
-                    v-model="form.time"
-                    label="Time"
-                    :has-error="!!errors.datetime"
-                    :is-today="isTodaySelected"
-                  />
+                <!-- Date, Time & Duration row -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
+                  <!-- Date & Time Pickers side-by-side -->
+                  <div class="flex flex-col gap-1.5">
+                    <div class="grid grid-cols-2 gap-3">
+                      <!-- Date Picker -->
+                      <DatePicker
+                        v-model="form.date"
+                        label="Date"
+                        :has-error="!!errors.datetime"
+                      />
+
+                      <!-- Time Picker -->
+                      <TimePicker
+                        v-model="form.time"
+                        label="Time"
+                        :has-error="!!errors.datetime"
+                        :is-today="isTodaySelected"
+                      />
+                    </div>
+                    <span
+                      v-if="errors.datetime"
+                      class="text-[11px] text-red-500 font-semibold ml-1"
+                      >{{ errors.datetime }}</span
+                    >
+                  </div>
+
+                  <!-- Duration -->
+                  <div class="flex flex-col gap-1.5">
+                    <Select
+                      v-model="form.duration"
+                      :options="durationOptions"
+                      label="Duration"
+                    />
+                  </div>
                 </div>
-                <span
-                  v-if="errors.datetime"
-                  class="text-[11px] text-red-500 font-semibold ml-1"
-                  >{{ errors.datetime }}</span
-                >
               </div>
-
-              <!-- Duration -->
-              <div class="flex flex-col gap-1.5">
-                <Select
-                  v-model="form.duration"
-                  :options="durationOptions"
-                  label="Duration"
-                />
-              </div>
-            </div>
+            </transition>
 
             <div class="flex flex-col gap-3 mt-8">
               <button
@@ -180,7 +224,7 @@
               <button
                 type="button"
                 @click="goToDashboard"
-                class="w-full py-3.5 rounded-xl bg-white border border-black/8 font-header font-bold text-xs tracking-wider uppercase text-brand-dark hover:bg-black/5 transition-all duration-300 cursor-pointer"
+                class="w-full py-3.5 rounded-xl bg-white dark:bg-slate-950/60 border border-black/8 dark:border-white/10 font-header font-bold text-xs tracking-wider uppercase text-brand-dark hover:bg-black/5 dark:hover:bg-white/5 transition-all duration-300 cursor-pointer"
               >
                 Cancel and Discard
               </button>
@@ -190,7 +234,7 @@
 
         <!-- Intelligence settings card -->
         <div class="card-glass rounded-[28px] p-6 sm:p-8 flex flex-col gap-6">
-          <div class="flex items-center gap-2.5 pb-4 border-b border-black/5">
+          <div class="flex items-center gap-2.5 pb-4 border-b border-black/5 dark:border-white/5">
             <PhBrain :size="20" class="text-primary" />
             <h3 class="font-header font-bold text-xl text-brand-dark">
               Intelligence Settings
@@ -211,7 +255,7 @@
             <div class="flex flex-col gap-4 pt-2">
               <!-- Switch 1: Record Meeting -->
               <div
-                class="flex items-center justify-between p-3 bg-white/40 border border-black/[0.03] rounded-2xl"
+                class="flex items-center justify-between p-3 bg-white/40 dark:bg-slate-950/40 border border-black/[0.03] dark:border-white/10 rounded-2xl"
               >
                 <div class="flex flex-col text-left">
                   <span class="text-sm font-bold text-brand-dark leading-tight"
@@ -224,7 +268,7 @@
                 <button
                   type="button"
                   @click="form.record = !form.record"
-                  class="w-[44px] h-[24px] rounded-full transition-colors duration-300 focus:outline-none relative flex items-center cursor-pointer border border-black/5"
+                  class="w-[44px] h-[24px] rounded-full transition-colors duration-300 focus:outline-none relative flex items-center cursor-pointer border border-black/5 dark:border-white/10"
                   :class="form.record ? 'bg-primary' : 'bg-brand-slate/30'"
                 >
                   <span
@@ -240,7 +284,7 @@
 
               <!-- Switch 2: Real-time Transcription -->
               <div
-                class="flex items-center justify-between p-3 bg-white/40 border border-black/[0.03] rounded-2xl"
+                class="flex items-center justify-between p-3 bg-white/40 dark:bg-slate-950/40 border border-black/[0.03] dark:border-white/10 rounded-2xl"
               >
                 <div class="flex flex-col text-left">
                   <span class="text-sm font-bold text-brand-dark leading-tight"
@@ -253,7 +297,7 @@
                 <button
                   type="button"
                   @click="form.transcribe = !form.transcribe"
-                  class="w-[44px] h-[24px] rounded-full transition-colors duration-300 focus:outline-none relative flex items-center cursor-pointer border border-black/5"
+                  class="w-[44px] h-[24px] rounded-full transition-colors duration-300 focus:outline-none relative flex items-center cursor-pointer border border-black/5 dark:border-white/10"
                   :class="form.transcribe ? 'bg-primary' : 'bg-brand-slate/30'"
                 >
                   <span
@@ -269,7 +313,7 @@
 
               <!-- Switch 3: Auto-extract Tasks -->
               <div
-                class="flex items-center justify-between p-3 bg-white/40 border border-black/[0.03] rounded-2xl"
+                class="flex items-center justify-between p-3 bg-white/40 dark:bg-slate-950/40 border border-black/[0.03] dark:border-white/10 rounded-2xl"
               >
                 <div class="flex flex-col text-left">
                   <span class="text-sm font-bold text-brand-dark leading-tight"
@@ -283,7 +327,7 @@
                 <button
                   type="button"
                   @click="form.extractTasks = !form.extractTasks"
-                  class="w-[44px] h-[24px] rounded-full transition-colors duration-300 focus:outline-none relative flex items-center cursor-pointer border border-black/5"
+                  class="w-[44px] h-[24px] rounded-full transition-colors duration-300 focus:outline-none relative flex items-center cursor-pointer border border-black/5 dark:border-white/10"
                   :class="
                     form.extractTasks ? 'bg-primary' : 'bg-brand-slate/30'
                   "
@@ -307,7 +351,7 @@
       <div class="flex flex-col gap-8">
         <!-- Participants Card -->
         <div class="card-glass rounded-[28px] p-6 sm:p-8 flex flex-col gap-6">
-          <div class="flex items-center gap-2.5 pb-4 border-b border-black/5">
+          <div class="flex items-center gap-2.5 pb-4 border-b border-black/5 dark:border-white/5">
             <PhUsersThree :size="20" class="text-primary" />
             <h3 class="font-header font-bold text-xl text-brand-dark">
               Participants
@@ -315,51 +359,112 @@
           </div>
 
           <div class="flex flex-col gap-4">
-            <!-- Add participant input -->
-            <div class="flex flex-col gap-2">
-              <label
-                class="font-header font-bold text-[11px] tracking-wider uppercase text-brand-slate ml-1"
-                >Add Stakeholder</label
-              >
-              <div class="flex gap-2">
-                <input
-                  v-model="participantInput"
-                  @keydown.enter.prevent="addParticipant"
-                  type="text"
-                  placeholder="Enter name or email..."
-                  class="flex-1 px-4 py-2.5 rounded-xl bg-white border border-black/8 font-body text-sm text-brand-dark placeholder-brand-slate/40 focus:outline-none focus:border-primary/30 transition-all duration-300"
-                />
-                <button
-                  type="button"
-                  @click="addParticipant"
-                  class="w-10 h-10 rounded-xl bg-primary hover:bg-[#3b52e3] text-white flex items-center justify-center transition-colors cursor-pointer"
+            <!-- 1. Personal Selection -->
+            <div v-if="form.type === 'Personal'" class="w-full text-left">
+              <Select
+                v-model="selectedPersonalMember"
+                @change="handlePersonalMemberChange"
+                label="Select Personal Contact"
+                placeholder="Choose a team member..."
+                :options="membersList
+                  .filter(u => `${u.firstName} ${u.lastName}` !== authStore.user?.name)
+                  .map(m => ({
+                    value: `${m.firstName} ${m.lastName}`,
+                    label: `${m.firstName} ${m.lastName} (${m.email})`
+                  }))"
+              />
+            </div>
+
+            <!-- 2. Team View -->
+            <div v-else-if="form.type === 'Team'" class="p-4 rounded-2xl bg-primary/5 border border-primary/10 text-left">
+              <span class="text-xs font-semibold text-primary block mb-1">Team Meeting Mode</span>
+              <p class="text-[11px] text-brand-slate leading-relaxed">
+                All team members are automatically added as participants:
+              </p>
+              <div class="flex flex-wrap gap-1.5 mt-2.5">
+                <span 
+                  v-for="p in form.participants" 
+                  :key="p"
+                  class="inline-block px-2.5 py-1.5 rounded-full bg-white dark:bg-slate-900 border border-black/5 dark:border-white/5 text-[10px] font-bold text-brand-dark"
                 >
-                  <PhPlus :size="16" weight="bold" />
-                </button>
+                  {{ p }}
+                </span>
+                <span 
+                  v-if="form.participants.length === 0" 
+                  class="text-[10px] text-brand-slate italic"
+                >
+                  No other members found in your team.
+                </span>
               </div>
             </div>
 
-            <!-- Added participants list tags -->
-            <div class="flex flex-wrap gap-2 mt-2">
-              <div
-                v-for="(p, index) in form.participants"
-                :key="index"
-                class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary/8 border border-primary/15 text-xs text-primary font-bold transition-all duration-300 hover:bg-primary/12"
-              >
-                <span>{{ p }}</span>
-                <button
-                  type="button"
-                  @click="removeParticipant(index)"
-                  class="w-[18px] h-[18px] rounded-full hover:bg-primary/20 flex items-center justify-center text-primary/80 hover:text-primary transition-colors cursor-pointer"
-                >
-                  <PhX :size="10" weight="bold" />
-                </button>
+            <!-- 3. Custom View -->
+            <div v-else class="flex flex-col gap-4">
+              <!-- Add stakeholder input -->
+              <div class="flex flex-col gap-2">
+                <label class="font-header font-bold text-[11px] tracking-wider uppercase text-brand-slate ml-1">
+                  Add Stakeholder
+                </label>
+                <div class="flex gap-2">
+                  <input
+                    v-model="participantInput"
+                    @keydown.enter.prevent="addParticipant"
+                    type="text"
+                    placeholder="Enter custom name/email..."
+                    class="flex-1 px-4 py-2.5 rounded-xl bg-white dark:bg-slate-950/60 border border-black/8 dark:border-white/10 font-body text-sm text-brand-dark placeholder-brand-slate/40 focus:outline-none focus:border-primary/30 transition-all duration-300"
+                  />
+                  <button
+                    type="button"
+                    @click="addParticipant"
+                    class="w-10 h-10 rounded-xl bg-primary hover:bg-[#3b52e3] text-white flex items-center justify-center transition-colors cursor-pointer"
+                  >
+                    <PhPlus :size="16" weight="bold" />
+                  </button>
+                </div>
               </div>
-              <div
-                v-if="form.participants.length === 0"
-                class="text-xs text-brand-slate italic p-1"
-              >
-                No participants added yet.
+
+              <!-- Quick Select Team Members -->
+              <div v-if="membersList.filter(u => `${u.firstName} ${u.lastName}` !== authStore.user?.name).length > 0" class="flex flex-col gap-1.5">
+                <span class="font-header font-bold text-[11px] tracking-wider uppercase text-brand-slate ml-1">
+                  Quick Select Team Members
+                </span>
+                <div class="flex flex-wrap gap-2 max-h-[120px] overflow-y-auto p-1 border border-black/[0.03] dark:border-white/5 rounded-xl bg-black/[0.01] dark:bg-white/[0.01]">
+                  <button
+                    v-for="m in membersList.filter(u => `${u.firstName} ${u.lastName}` !== authStore.user?.name)"
+                    :key="m._id"
+                    type="button"
+                    @click="toggleCustomMember(`${m.firstName} ${m.lastName}`)"
+                    class="px-3 py-1.5 rounded-xl border text-[11px] font-semibold transition-all cursor-pointer select-none"
+                    :class="form.participants.includes(`${m.firstName} ${m.lastName}`)
+                      ? 'bg-primary/8 border-primary text-primary font-bold shadow-sm'
+                      : 'bg-white dark:bg-slate-950/40 border-black/5 text-brand-slate hover:bg-black/5'"
+                  >
+                    {{ m.firstName }} {{ m.lastName }}
+                  </button>
+                </div>
+              </div>
+
+              <!-- Added participants list tags -->
+              <div class="flex flex-col gap-2 mt-2">
+                <span class="font-header font-bold text-[11px] tracking-wider uppercase text-brand-slate ml-1">
+                  Selected Attendees ({{ form.participants.length }})
+                </span>
+                <div class="flex flex-wrap gap-2">
+                  <div
+                    v-for="(p, index) in form.participants"
+                    :key="index"
+                    class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary/8 border border-primary/15 text-xs text-primary font-bold transition-all duration-300 hover:bg-primary/12"
+                  >
+                    <span>{{ p }}</span>
+                    <button
+                      type="button"
+                      @click="removeParticipant(index)"
+                      class="w-[18px] h-[18px] rounded-full hover:bg-primary/20 flex items-center justify-center text-primary/80 hover:text-primary transition-colors cursor-pointer"
+                    >
+                      <PhX :size="10" weight="bold" />
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -367,7 +472,7 @@
 
         <!-- Integrations Card -->
         <div class="card-glass rounded-[28px] p-6 sm:p-8 flex flex-col gap-6">
-          <div class="flex items-center gap-2.5 pb-4 border-b border-black/5">
+          <div class="flex items-center gap-2.5 pb-4 border-b border-black/5 dark:border-white/5">
             <PhArrowsMerge :size="20" class="text-primary" />
             <h3 class="font-header font-bold text-xl text-brand-dark">
               Integrations
@@ -377,7 +482,7 @@
           <div class="flex flex-col gap-4">
             <!-- Sync Slack -->
             <div
-              class="flex items-center justify-between p-3.5 bg-white/40 border border-black/[0.03] rounded-2xl"
+              class="flex items-center justify-between p-3.5 bg-white/40 dark:bg-slate-950/40 border border-black/[0.03] dark:border-white/10 rounded-2xl"
             >
               <div class="flex items-center gap-3 w-[70%]">
                 <img
@@ -397,7 +502,7 @@
               <button
                 type="button"
                 @click="form.syncSlack = !form.syncSlack"
-                class="w-[44px] h-[24px] rounded-full transition-colors duration-300 focus:outline-none relative flex items-center cursor-pointer border border-black/5"
+                class="w-[44px] h-[24px] rounded-full transition-colors duration-300 focus:outline-none relative flex items-center cursor-pointer border border-black/5 dark:border-white/10"
                 :class="form.syncSlack ? 'bg-[#4a154b]' : 'bg-brand-slate/30'"
               >
                 <span
@@ -418,9 +523,12 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed } from "vue";
+import { ref, reactive, computed, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import { useMeetingStore } from "@/stores/meeting";
+import { useAuthStore } from "@/stores/auth";
+import axios from "axios";
+import { useAlertStore } from "@/stores/alert";
 import {
   PhSparkle,
   PhInfo,
@@ -428,11 +536,7 @@ import {
   PhUsersThree,
   PhArrowsMerge,
   PhPlus,
-  PhCheck,
   PhX,
-  PhCalendar,
-  PhClock,
-  PhVideoCamera,
   PhUser,
 } from "@phosphor-icons/vue";
 import Select from "@/components/ui/Select.vue";
@@ -463,6 +567,29 @@ import slackIcon from "@/assets/slack.png";
 
 const router = useRouter();
 const meetingStore = useMeetingStore();
+const authStore = useAuthStore();
+const alertStore = useAlertStore();
+
+// Fetch community members
+const membersList = ref([]);
+const selectedPersonalMember = ref("");
+
+const fetchMembers = async () => {
+  try {
+    const { data } = await axios.get("http://localhost:5000/api/communities/members", {
+      headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+    });
+    if (data.success) {
+      membersList.value = data.members || [];
+    }
+  } catch (err) {
+    console.error("Failed to fetch community members:", err);
+  }
+};
+
+onMounted(() => {
+  fetchMembers();
+});
 
 // Date & Time picker utility functions
 const getTodayDateString = () => {
@@ -484,7 +611,7 @@ const getDefaultTimeString = () => {
 const form = reactive({
   title: "",
   description: "",
-  type: "Personal Discussion", // Default selection
+  type: "Personal", // Default selection
   date: getTodayDateString(),
   time: getDefaultTimeString(),
   datetime: "",
@@ -493,10 +620,7 @@ const form = reactive({
   record: true,
   transcribe: true,
   extractTasks: true,
-  participants: [
-    "Sarah Jenkins (s.jenkins@smartmeet.ai)",
-    "Marcus Wright (m.wright@smartmeet.ai)",
-  ],
+  participants: [],
   syncSlack: false,
 });
 
@@ -505,77 +629,54 @@ const isTodaySelected = computed(() => {
 });
 
 const participantInput = ref("");
+const meetingMode = ref("instant");
+const modeOptions = [
+  { value: "instant", label: "Instant Meeting" },
+  { value: "schedule", label: "Scheduled Meeting" },
+];
+
 const errors = reactive({
   title: "",
+  description: "",
   datetime: "",
 });
 
-const successState = ref(false);
-const createdMeeting = ref(null);
-
 const isSubmitting = ref(false);
-const accessToken = ref(
-  sessionStorage.getItem("smartmeet_google_access_token") || "",
-);
 
-const getGoogleAccessToken = (callback, errorCallback) => {
-  if (accessToken.value) {
-    callback(accessToken.value);
-    return;
-  }
-
-  if (!window.google) {
-    alert(
-      "Google Identity services are still loading. Scheduling with Jitsi embedded call instead.",
-    );
-    errorCallback("not_loaded");
-    return;
-  }
-
-  const clientId = localStorage.getItem("smartmeet_google_client_id");
-  if (!clientId) {
-    alert(
-      "Google Client ID is not configured! Scheduling with Jitsi embedded call instead.",
-    );
-    errorCallback("no_client_id");
-    return;
-  }
-
-  try {
-    const tokenClient = window.google.accounts.oauth2.initTokenClient({
-      client_id: clientId,
-      scope: "https://www.googleapis.com/auth/calendar.events",
-      callback: (tokenResponse) => {
-        if (tokenResponse.access_token) {
-          sessionStorage.setItem(
-            "smartmeet_google_access_token",
-            tokenResponse.access_token,
-          );
-          accessToken.value = tokenResponse.access_token;
-          callback(tokenResponse.access_token);
-        } else {
-          errorCallback("no_token");
-        }
-      },
-      error_callback: (err) => {
-        console.error(err);
-        alert(
-          "Failed to authorize Google Calendar access. Scheduling with Jitsi embedded call instead.",
-        );
-        errorCallback(err);
-      },
-    });
-    tokenClient.requestAccessToken({ prompt: "" });
-  } catch (err) {
-    console.error(err);
-    alert(
-      "Failed to initialize Google Auth. Scheduling with Jitsi embedded call instead.",
-    );
-    errorCallback(err);
+// Actions
+const setMeetingType = (type) => {
+  if (type === 'personal') {
+    form.type = 'Personal';
+    form.participants = [];
+    selectedPersonalMember.value = '';
+  } else if (type === 'team') {
+    form.type = 'Team';
+    const currentUserName = authStore.user?.name || "";
+    const isCreatorAdmin = authStore.user?.role === 'admin';
+    form.participants = membersList.value
+      .filter(m => isCreatorAdmin || m.role !== 'admin')
+      .map(m => `${m.firstName} ${m.lastName}`)
+      .filter(name => name !== currentUserName);
+  } else {
+    form.type = 'Custom';
+    form.participants = [];
   }
 };
 
-// Actions
+const handlePersonalMemberChange = () => {
+  if (selectedPersonalMember.value) {
+    form.participants = [selectedPersonalMember.value];
+  }
+};
+
+const toggleCustomMember = (name) => {
+  const idx = form.participants.indexOf(name);
+  if (idx === -1) {
+    form.participants.push(name);
+  } else {
+    form.participants.splice(idx, 1);
+  }
+};
 const addParticipant = () => {
   const input = participantInput.value.trim();
   if (input) {
@@ -594,6 +695,7 @@ const removeParticipant = (index) => {
 const validateForm = () => {
   let isValid = true;
   errors.title = "";
+  errors.description = "";
   errors.datetime = "";
 
   if (!form.title.trim()) {
@@ -601,16 +703,23 @@ const validateForm = () => {
     isValid = false;
   }
 
-  // Combine date and time to datetime format YYYY-MM-DDTHH:MM
-  if (form.date && form.time) {
-    form.datetime = `${form.date}T${form.time}`;
-  } else {
-    form.datetime = "";
+  if (!form.description.trim()) {
+    errors.description = "Meeting description is required.";
+    isValid = false;
   }
 
-  if (!form.datetime) {
-    errors.datetime = "Please choose a date & time.";
-    isValid = false;
+  if (meetingMode.value === 'schedule') {
+    // Combine date and time to datetime format YYYY-MM-DDTHH:MM
+    if (form.date && form.time) {
+      form.datetime = `${form.date}T${form.time}`;
+    } else {
+      form.datetime = "";
+    }
+
+    if (!form.datetime) {
+      errors.datetime = "Please choose a date & time.";
+      isValid = false;
+    }
   }
 
   return isValid;
@@ -620,81 +729,61 @@ const goToDashboard = () => {
   router.push("/dashboard");
 };
 
-const joinLiveCall = (meeting) => {
-  meetingStore.activeLiveMeeting = meeting;
-  router.push("/live-meeting");
-};
-
-const submitMeeting = () => {
+const submitMeeting = async () => {
   if (!validateForm()) return;
   isSubmitting.value = true;
 
-  const dateObj = new Date(form.datetime);
-  const formattedDate = dateObj.toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  });
-  const formattedTime = dateObj.toLocaleTimeString("en-US", {
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-
   const meetingId = Date.now();
-  const newMeeting = {
-    title: form.title,
-    description: form.description,
-    type: form.type,
-    datetime: form.datetime,
-    date: formattedDate,
-    time: formattedTime,
-    duration: form.duration,
-    participantsCount: form.participants.length,
-    meetLink: `https://meet.jit.si/SmartMeet_${meetingId}`,
-    participants: [...form.participants],
-    bullets: [],
-    timeline: [],
-    tasks: [],
-    decisions: [],
-    transcript: [],
-  };
 
-  meetingStore.createMeeting(newMeeting);
+  if (meetingMode.value === 'instant') {
+    const newMeeting = {
+      title: form.title,
+      description: form.description,
+      type: form.type,
+      startTime: new Date().toISOString(),
+      duration: 30, // Default 30 min duration for instant
+      meetLink: `https://meet.jit.si/SmartMeet_${meetingId}`,
+      participants: [...form.participants],
+    };
 
-  // Set the active live meeting with the created details
-  const created = {
-    ...newMeeting,
-    id: meetingStore.meetings[0].id,
-  };
-  meetingStore.activeLiveMeeting = created;
+    const created = await meetingStore.createMeeting(newMeeting);
+    meetingStore.activeLiveMeeting = created || {
+      ...newMeeting,
+      id: meetingId.toString(),
+    };
+    isSubmitting.value = false;
+    router.push("/live-meeting");
+  } else {
+    const newMeeting = {
+      title: form.title,
+      description: form.description,
+      type: form.type,
+      datetime: form.datetime,
+      duration: form.duration,
+      meetLink: `https://meet.jit.si/SmartMeet_${meetingId}`,
+      participants: [...form.participants],
+    };
 
-  isSubmitting.value = false;
+    const created = await meetingStore.createMeeting(newMeeting);
+    isSubmitting.value = false;
 
-  // Redirect directly to the live meeting page
-  router.push("/live-meeting");
+    const scheduledTime = new Date(form.datetime);
+    const now = new Date();
+
+    if (scheduledTime - now > 120000) {
+      await alertStore.showAlert("Meeting successfully scheduled! You can join it from the Archive once the start time is reached.", "Meeting Scheduled", "primary");
+      router.push("/dashboard");
+    } else {
+      meetingStore.activeLiveMeeting = created || {
+        ...newMeeting,
+        id: meetingId.toString(),
+      };
+      router.push("/live-meeting");
+    }
+  }
 };
 
-const resetForm = () => {
-  form.title = "";
-  form.description = "";
-  form.type = "Personal Discussion";
-  form.date = getTodayDateString();
-  form.time = getDefaultTimeString();
-  form.datetime = "";
-  form.duration = "30 minutes";
-  form.summaryStyle = "Action-Oriented";
-  form.record = true;
-  form.transcribe = true;
-  form.extractTasks = true;
-  form.participants = [
-    "Sarah Jenkins (s.jenkins@smartmeet.ai)",
-    "Marcus Wright (m.wright@smartmeet.ai)",
-  ];
-  form.syncSlack = false;
 
-  successState.value = false;
-  createdMeeting.value = null;
-};
 </script>
 
 <style scoped>
@@ -711,5 +800,24 @@ const resetForm = () => {
     opacity: 1;
     transform: translateY(0) scale(1);
   }
+}
+
+/* Expand-fade animation for clean dropdown section toggles */
+.expand-fade-enter-active,
+.expand-fade-leave-active {
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  max-height: 400px;
+  opacity: 1;
+}
+
+.expand-fade-enter-from,
+.expand-fade-leave-to {
+  max-height: 0;
+  opacity: 0;
+  transform: translateY(-8px);
+  margin-top: 0;
+  margin-bottom: 0;
+  padding-top: 0;
+  padding-bottom: 0;
 }
 </style>

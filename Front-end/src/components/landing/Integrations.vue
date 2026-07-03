@@ -1,222 +1,132 @@
 <template>
-  <section
-    id="integrations"
-    class="py-24 border-t border-black/5 w-full"
-  >
-    <!-- Header -->
-    <div
-      class="max-w-[700px] mx-auto text-center mb-16 px-4"
-    >
-      <span
-        class="
-        text-[10px]
-        font-bold
-        tracking-[0.18em]
-        text-primary
-        uppercase
-        font-header
-        "
-      >
-        UNIVERSAL COMPATIBILITY
+  <section id="integrations" class="bg-brand-bg py-10 border-t border-black/5 dark:border-white/5 w-full relative overflow-hidden">
+    <div class="max-w-[700px] mx-auto text-center mb-16 px-4 relative z-10">
+      <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/8 border border-primary/15 text-primary text-[10px] font-bold tracking-wider uppercase mb-5 font-header">
+        Ecosystem Connectivity
       </span>
-
-      <h2
-        class="
-        text-3xl
-        sm:text-5xl
-        lg:text-6xl
-
-        font-bold
-        font-header
-
-        tracking-tight
-
-        text-brand-dark
-
-        mt-5
-        mb-5
-        "
-      >
-        Works with your existing tools.
+      
+      <h2 class="text-3xl sm:text-5xl font-header font-bold text-brand-dark tracking-tight mb-5 leading-tight">
+        Connects with your stack.
       </h2>
-
-      <p
-        class="
-        text-base
-        sm:text-lg
-
-        text-brand-slate
-
-        leading-relaxed
-        "
-      >
-        Connect SmartMeet with the platforms your team
-        already uses and automatically turn conversations
-        into actionable knowledge.
+      
+      <p class="text-base sm:text-lg text-brand-slate font-body leading-relaxed max-w-[550px] mx-auto">
+        Push transcripts, action items, tags, and context directly into the tools your product and engineering teams already live in.
       </p>
     </div>
 
-<!-- Integrations Grid -->
-<div
-  class="
-  grid
-  grid-cols-2
-  lg:grid-cols-4
+    <!-- Integrations Grid (Fixed: Added rounded-3xl class to cards) -->
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-6 max-w-[1000px] mx-auto px-4 relative z-10">
+      
+      <!-- Google Meet -->
+      <div class="integration-card card-glass rounded-3xl group">
+        <div class="logo-wrapper">
+          <img src="../../assets/Google_Meet_icon_(2020).svg.png" alt="Google Meet" class="integration-logo" />
+        </div>
+        <span class="integration-name">Google Meet</span>
+        <span class="coming-soon">Auto-sync</span>
+      </div>
 
-  gap-6
+      <!-- Slack -->
+      <div class="integration-card card-glass rounded-3xl group">
+        <div class="logo-wrapper">
+          <img src="../../assets/slack.png" alt="Slack" class="integration-logo" />
+        </div>
+        <span class="integration-name">Slack</span>
+        <span class="coming-soon">Instant Alerts</span>
+      </div>
 
-  max-w-[1100px]
-  mx-auto
+      <!-- Notion -->
+      <div class="integration-card card-glass rounded-3xl group">
+        <div class="logo-wrapper">
+          <img src="../../assets/Notion-logo.svg.png" alt="Notion" class="integration-logo" />
+        </div>
+        <span class="integration-name">Notion DB</span>
+        <span class="coming-soon">Knowledge Wiki</span>
+      </div>
 
-  px-4
-  "
->
+      <!-- Salesforce -->
+      <div class="integration-card card-glass rounded-3xl group">
+        <div class="logo-wrapper">
+          <img src="../../assets/Salesforce.com_logo.svg.png" alt="Salesforce" class="integration-logo animate-float" />
+        </div>
+        <span class="integration-name">Salesforce CRM</span>
+        <span class="coming-soon">Contact Link</span>
+      </div>
 
-  <!-- Google Meet -->
-  <div class="integration-card group">
-    <img
-      src="../../assets/Google_Meet_icon_(2020).svg.png"
-      alt="Google Meet"
-      class="integration-logo"
-    />
-
-    <span class="integration-name">
-      Google Meet
-    </span>
-  </div>
-
-  <!-- Slack -->
-  <div class="integration-card group">
-    <img
-      src="../../assets/slack.png"
-      alt="Slack"
-      class="integration-logo"
-    />
-
-    <span class="integration-name">
-      Slack
-    </span>
-  </div>
-
-  <!-- Notion -->
-  <div class="integration-card group">
-    <img
-      src="../../assets/Notion-logo.svg.png"
-      alt="Notion"
-      class="integration-logo"
-    />
-
-    <span class="integration-name">
-      Notion
-    </span>
-  </div>
-
-  <!-- Salesforce -->
-  <div class="integration-card group">
-    <img
-      src="../../assets/Salesforce.com_logo.svg.png"
-      alt="Salesforce"
-      class="integration-logo"
-    />
-
-    <span class="integration-name">
-      Salesforce
-    </span>
-  </div>
-
-</div>
+    </div>
   </section>
 </template>
 
 <script setup>
-// Static Component
+// Static presentation component
 </script>
 
 <style scoped>
-.integration-card {
-  @apply relative
-  bg-white/50
-  backdrop-blur-sm
-  border
-  border-white/70
-  rounded-3xl
-
-  h-[130px]
-
-  flex
-  flex-col
-  items-center
-  justify-center
-  gap-3
-
-  transition-all
-  duration-500;
-
-  box-shadow:
-    0 4px 20px rgba(0,0,0,0.03);
+/* High-performance non-clipped background glows */
+.integrations-section {
+  background: radial-gradient(circle at 50% 50%, rgba(6, 182, 212, 0.04) 0%, rgba(255, 255, 255, 0) 60%);
 }
 
-.integration-card:hover {
-  transform:
-    translateY(-8px)
-    scale(1.03);
+.integration-card {
+  position: relative;
+  height: 160px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
 
-  border-color:
-    rgba(75,104,255,0.25);
-
-  box-shadow:
-    0 20px 45px rgba(75,104,255,0.12);
+.logo-wrapper {
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .integration-logo {
-  height: 42px;
+  max-height: 44px;
   width: auto;
-
   max-width: 120px;
-
   object-fit: contain;
-
-  filter: grayscale(100%);
-  opacity: .6;
-
-  transition: all .35s ease;
+  filter: grayscale(100%) opacity(0.5);
+  transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .integration-card:hover .integration-logo {
-  filter: grayscale(0%);
-  opacity: 1;
+  filter: grayscale(0%) opacity(1);
+  transform: scale(1.08);
 }
 
 .integration-name {
   font-size: 12px;
   font-weight: 700;
   color: #64748b;
+  font-family: 'Montserrat', sans-serif;
+  transition: color 0.3s ease;
 }
 
 .integration-card:hover .integration-name {
-  color: #111827;
+  color: var(--brand-dark);
 }
 
 .coming-soon {
   position: absolute;
-
-  top: 10px;
-  right: 10px;
-
-  font-size: 9px;
-  font-weight: 700;
-
-  color: #4b68ff;
-
-  background:
-    rgba(75,104,255,.08);
-
-  border:
-    1px solid rgba(75,104,255,.15);
-
+  top: 14px;
+  right: 14px;
+  font-size: 8px;
+  font-weight: 800;
+  font-family: 'Montserrat', sans-serif;
+  color: #06b6d4;
+  background: rgba(6, 182, 212, 0.08);
+  border: 1px solid rgba(6, 182, 212, 0.15);
   border-radius: 999px;
-
-  padding:
-    4px 8px;
+  padding: 3px 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  opacity: 0.85;
 }
 </style>

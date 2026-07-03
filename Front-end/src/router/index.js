@@ -23,6 +23,12 @@ const routes = [
                 name: 'Pricing',
                 component: () =>
                     import ('@/views/public/Pricing.vue')
+            },
+            {
+                path: 'checkout/paymob',
+                name: 'PaymobCheckout',
+                component: () =>
+                    import ('@/views/public/PaymobCheckout.vue')
             }
         ]
     },
@@ -35,10 +41,28 @@ const routes = [
             import ('@/views/auth/SignIn.vue')
     },
     {
+        path: '/forgot-password',
+        name: 'ForgotPassword',
+        component: () =>
+            import ('@/views/auth/ForgotPassword.vue')
+    },
+    {
+        path: '/reset-password/:token',
+        name: 'ResetPassword',
+        component: () =>
+            import ('@/views/auth/ResetPassword.vue')
+    },
+    {
         path: '/signup',
         name: 'SignUp',
         component: () =>
             import ('@/views/auth/SignUp.vue')
+    },
+    {
+        path: '/register',
+        name: 'Register',
+        component: () =>
+            import ('@/views/auth/Register.vue')
     },
 
     // ── APP ────────────────────────────────────────────────
@@ -70,6 +94,18 @@ const routes = [
                 name: 'KnowledgeAI',
                 component: () =>
                     import ('@/views/app/KnowledgeAI.vue')
+            },
+            {
+                path: 'community-chat',
+                name: 'CommunityChat',
+                component: () =>
+                    import ('@/views/app/CommunityChat.vue')
+            },
+            {
+                path: 'team-management',
+                name: 'TeamManagement',
+                component: () =>
+                    import ('@/views/app/TeamManagement.vue')
             },
             {
                 path: 'settings',
@@ -119,15 +155,24 @@ const router = createRouter({
 })
 
 router.beforeEach((to, from, next) => {
-    const user = JSON.parse(
-        localStorage.getItem('user')
-    )
+    const user = JSON.parse(localStorage.getItem('user'))
 
     if (to.meta.requiresAuth && !user) {
         next('/signin')
-    } else {
-        next()
+        return
     }
+
+    // Pending/rejected users can only access /dashboard and /settings
+    if (user && to.meta.requiresAuth) {
+        const restricted = user.status === 'pending' || user.status === 'rejected'
+        const allowed = to.path === '/dashboard' || to.path === '/settings'
+        if (restricted && !allowed) {
+            next('/dashboard')
+            return
+        }
+    }
+
+    next()
 })
 
 export default router

@@ -3,8 +3,38 @@
 @tailwind utilities;
 
 @layer base {
+  .preload,
+  .preload * {
+    transition: none !important;
+    animation: none !important;
+  }
+
+  :root {
+    --brand-bg: #f1f3f9;
+    --brand-dark: #0f172a;
+    --brand-slate: #64748b;
+    --glass-bg: linear-gradient(135deg, rgba(255, 255, 255, 0.8) 0%, rgba(243, 246, 255, 0.72) 50%, rgba(255, 243, 248, 0.65) 100%);
+    --glass-bg-hover: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(235, 242, 255, 0.8) 50%, rgba(255, 235, 244, 0.72) 100%);
+    --border-glass: rgba(255, 255, 255, 0.7);
+    --border-glass-hover: rgba(255, 255, 255, 0.95);
+    --shadow-glass: 0 8px 32px 0 rgba(31, 38, 135, 0.06);
+    --shadow-glass-hover: 0 20px 40px 0 rgba(31, 38, 135, 0.08);
+  }
+
+  .dark {
+    --brand-bg: #090d16;
+    --brand-dark: #f8fafc;
+    --brand-slate: #94a3b8;
+    --glass-bg: linear-gradient(135deg, rgba(15, 23, 42, 0.65) 0%, rgba(30, 41, 59, 0.6) 50%, rgba(15, 23, 42, 0.65) 100%);
+    --glass-bg-hover: linear-gradient(135deg, rgba(30, 41, 59, 0.75) 0%, rgba(15, 23, 42, 0.7) 50%, rgba(30, 41, 59, 0.75) 100%);
+    --border-glass: rgba(255, 255, 255, 0.08);
+    --border-glass-hover: rgba(255, 255, 255, 0.15);
+    --shadow-glass: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+    --shadow-glass-hover: 0 20px 40px 0 rgba(0, 0, 0, 0.4);
+  }
+
   body {
-    @apply bg-brand-bg text-brand-dark min-h-screen font-body overflow-x-hidden leading-relaxed relative;
+    @apply bg-brand-bg text-brand-dark min-h-screen font-body overflow-x-hidden leading-relaxed relative transition-colors duration-300;
   }
 }
 
@@ -57,7 +87,7 @@ a:active,
 }
 
 
-/* Custom Scrollbar */
+/* Custom Scrollbar — Light Mode */
 ::-webkit-scrollbar {
   width: 10px;
   height: 10px;
@@ -74,6 +104,18 @@ a:active,
   background: rgba(0, 0, 0, 0.18);
 }
 
+/* Custom Scrollbar — Dark Mode */
+.dark ::-webkit-scrollbar-track {
+  background: #0f172a;
+}
+.dark ::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: #0f172a;
+}
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.18);
+}
+
 /* Elegant Light Aurora Backdrop Orbs */
 body::before, body::after {
   content: "";
@@ -85,6 +127,8 @@ body::before, body::after {
   z-index: -1;
   filter: blur(140px);
   opacity: 0.45;
+  transform: translate3d(0, 0, 0); /* Fix compositor edge bleeding artifact */
+  will-change: transform, filter;
 }
 
 body::before {
@@ -141,10 +185,26 @@ body::after {
 
 /* Glassmorphism custom base styles */
 .card-glass {
-  @apply bg-glass-bg border border-white/70 shadow-glass backdrop-blur-glass transition-all duration-300;
+  background: var(--glass-bg);
+  border: 1px solid var(--border-glass);
+  box-shadow: var(--shadow-glass);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .card-glass:hover {
-  @apply bg-glass-bg-hover border-white/95 shadow-card-hover;
+  background: var(--glass-bg-hover);
+  border-color: var(--border-glass-hover);
+  box-shadow: var(--shadow-glass-hover);
+}
+
+/* Ensure dark-mode card borders always use the CSS variable, overriding any
+   hardcoded Tailwind border-white/80 that may be applied to card-glass elements */
+.dark .card-glass {
+  border-color: var(--border-glass) !important;
+}
+.dark .card-glass:hover {
+  border-color: var(--border-glass-hover) !important;
 }
 
 /* Shell and view container layouts */
@@ -154,3 +214,97 @@ body::after {
 .home-view {
   @apply flex flex-col gap-12 lg:gap-16;
 }
+
+/* Ensure form elements declare the correct color-scheme per theme to prevent browser autofill mismatches */
+input, select, textarea {
+  color-scheme: light;
+}
+.dark input, .dark select, .dark textarea {
+  color-scheme: dark;
+}
+
+/* Override browser default autofill background — Light Mode */
+input:-webkit-autofill,
+input:-webkit-autofill:hover, 
+input:-webkit-autofill:focus, 
+input:-webkit-autofill:active,
+textarea:-webkit-autofill,
+textarea:-webkit-autofill:hover,
+textarea:-webkit-autofill:focus,
+textarea:-webkit-autofill:active,
+select:-webkit-autofill,
+select:-webkit-autofill:hover,
+select:-webkit-autofill:focus,
+select:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 1000px #ffffff inset !important;
+  -webkit-text-fill-color: #0d1227 !important;
+  box-shadow: 0 0 0 1000px #ffffff inset !important;
+  transition: background-color 5000s ease-in-out 0s;
+}
+
+/* Override browser default autofill background — Dark Mode */
+.dark input:-webkit-autofill,
+.dark input:-webkit-autofill:hover,
+.dark input:-webkit-autofill:focus,
+.dark input:-webkit-autofill:active,
+.dark textarea:-webkit-autofill,
+.dark textarea:-webkit-autofill:hover,
+.dark textarea:-webkit-autofill:focus,
+.dark textarea:-webkit-autofill:active,
+.dark select:-webkit-autofill,
+.dark select:-webkit-autofill:hover,
+.dark select:-webkit-autofill:focus,
+.dark select:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 1000px #020817 inset !important;
+  -webkit-text-fill-color: #f8fafc !important;
+  box-shadow: 0 0 0 1000px #020817 inset !important;
+  transition: background-color 5000s ease-in-out 0s;
+}
+
+/* Smooth Fallback Theme Transitions */
+.theme-transition,
+.theme-transition *,
+.theme-transition *::before,
+.theme-transition *::after {
+  transition: background-color 0.4s ease,
+              border-color 0.4s ease,
+              color 0.4s ease,
+              fill 0.4s ease,
+              stroke 0.4s ease,
+              box-shadow 0.4s ease,
+              backdrop-filter 0.4s ease !important;
+  transition-delay: 0s !important;
+}
+
+/* Disable transitions during view-transition to make dark-mode toggle smooth */
+.no-transitions,
+.no-transitions *,
+.no-transitions *::before,
+.no-transitions *::after {
+  transition: none !important;
+  animation-duration: 0s !important;
+}
+
+/* Premium circular reveal for browsers supporting View Transitions API */
+@keyframes fade-out {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+::view-transition-old(root) {
+  animation: 90ms cubic-bezier(0.4, 0, 1, 1) both fade-out;
+  mix-blend-mode: normal;
+  z-index: 1;
+}
+
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+  z-index: 9999;
+}
+
+/* Ensure root element overflow is handled properly during View Transitions */
+html::view-transition-group(root) {
+  animation-duration: 0.4s;
+}
+

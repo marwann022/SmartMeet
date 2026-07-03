@@ -1,0 +1,32 @@
+[
+  {
+    "meetingId": "M001",
+    "title": "Authentication Discussion",
+    "teamId": "team1",
+    "transcript": "The team discussed authentication options. Firebase Authentication was rejected because of vendor lock-in concerns. JWT authentication with refresh tokens was selected as the final solution."
+  },
+  {
+    "meetingId": "M002",
+    "title": "Database Selection",
+    "teamId": "team1",
+    "transcript": "The engineering team compared PostgreSQL and MongoDB. MongoDB was selected because the application requires flexible document structures and faster development."
+  },
+  {
+    "meetingId": "M003",
+    "title": "Frontend Redesign",
+    "teamId": "team1",
+    "transcript": "Marwan will redesign the dashboard before next Friday. The team agreed to use a modern card-based layout and improve navigation."
+  },
+  {
+    "meetingId": "M004",
+    "title": "Sprint Planning",
+    "teamId": "team1",
+    "transcript": "The sprint will focus on API integration, authentication implementation, and dashboard improvements. Ahmed is responsible for API integration."
+  },
+  {
+    "meetingId": "M005",
+    "title": "API Architecture",
+    "teamId": "team1",
+    "transcript": "The team discussed REST and GraphQL. REST APIs were selected because they are simpler for the first release of SmartMeet."
+  }
+]

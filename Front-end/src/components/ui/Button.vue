@@ -50,9 +50,9 @@ const variantClasses = {
   primary: 'bg-grad-primary text-white shadow-[0_4px_15px_rgba(75,104,255,0.25)] hover:shadow-[0_6px_22px_rgba(75,104,255,0.4)] hover:scale-[1.02]',
   secondary: 'bg-[#181b25] text-white hover:bg-black',
   accent: 'bg-grad-accent text-white shadow-[0_4px_15px_rgba(236,72,153,0.25)] hover:shadow-[0_6px_22px_rgba(236,72,153,0.4)] hover:scale-[1.02]',
-  outline: 'bg-transparent border border-black/10 text-brand-dark hover:bg-black/5',
-  glass: 'bg-white/80 text-brand-dark border border-black/8 hover:bg-white hover:border-primary/20 hover:text-primary hover:shadow-[0_4px_15px_rgba(31,38,135,0.04)] hover:-translate-y-[2px]',
-  danger: 'border border-red-200 text-red-500 bg-red-50/60 hover:bg-red-50 hover:border-red-300'
+  outline: 'bg-transparent border border-black/10 dark:border-white/10 text-brand-dark hover:bg-black/5 dark:hover:bg-white/5',
+  glass: 'bg-white/80 dark:bg-white/10 text-brand-dark border border-black/10 dark:border-white/10 hover:bg-white dark:hover:bg-white/20 hover:border-primary/20 hover:text-primary hover:shadow-[0_4px_15px_rgba(31,38,135,0.04)] hover:-translate-y-[2px]',
+  danger: 'border border-red-200 dark:border-red-500/20 text-red-500 bg-red-50/60 dark:bg-red-500/10 hover:bg-red-50 dark:hover:bg-red-500/20 hover:border-red-300 dark:hover:border-red-500/30'
 }
 
 const themePrimaryClasses = {

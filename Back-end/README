@@ -1,0 +1,9 @@
+## Environment Setup
+
+1. Copy `.env.example`
+2. Rename it to `.env`
+3. Fill in the required values
+4. Run:
+
+npm install
+npm run dev

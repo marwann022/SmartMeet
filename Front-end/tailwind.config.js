@@ -1,5 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 export default {
+  darkMode: 'class',
   content: [
     "./index.html",
     "./src/**/*.{vue,js,ts,jsx,tsx}",
@@ -24,9 +25,9 @@ export default {
           glow: 'rgba(236, 72, 153, 0.15)',
         },
         brand: {
-          dark: '#0f172a',      // Slate Dark
-          slate: '#64748b',     // Slate Muted
-          bg: '#f1f3f9',        // Deep Light Gray
+          dark: 'var(--brand-dark)',      // Slate Dark (mapped to CSS variable)
+          slate: 'var(--brand-slate)',     // Slate Muted (mapped to CSS variable)
+          bg: 'var(--brand-bg)',        // Deep Light Gray (mapped to CSS variable)
           success: '#22c55e',
           warning: '#eab308',
           danger: '#ef4444',
@@ -46,8 +47,8 @@ export default {
         'glass-bg-hover': 'linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(235, 242, 255, 0.8) 50%, rgba(255, 235, 244, 0.72) 100%)',
       },
       boxShadow: {
-        'glass': '0 8px 32px 0 rgba(31, 38, 135, 0.06), 0 1px 2px 0 rgba(255, 255, 255, 0.5) inset',
-        'card-hover': '0 20px 40px 0 rgba(31, 38, 135, 0.08), 0 1px 2px 0 rgba(255, 255, 255, 0.7) inset',
+        'glass': 'var(--shadow-glass)',
+        'card-hover': 'var(--shadow-glass-hover)',
       },
       backdropBlur: {
         'glass': '20px',

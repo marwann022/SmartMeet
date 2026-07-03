@@ -5,7 +5,7 @@
       <div
         class="card-glass rounded-[28px] p-6 sm:p-8 flex flex-col gap-6 border border-white/80 shadow-glass"
       >
-        <div class="flex items-center gap-2.5 pb-4 border-b border-black/5">
+        <div class="flex items-center gap-2.5 pb-4 border-b border-black/5 dark:border-white/5">
           <PhUserCircle :size="20" class="text-primary" />
           <h3 class="font-header font-bold text-lg text-brand-dark">
             Profile Information
@@ -59,7 +59,7 @@
               <input
                 v-model="profileForm.fullName"
                 type="text"
-                class="w-full px-4 py-3 rounded-xl bg-white border border-black/8 font-body text-sm text-brand-dark focus:outline-none focus:border-primary/30 transition-all"
+                class="w-full px-4 py-3 rounded-xl bg-white dark:bg-slate-900/50 border border-black/8 dark:border-white/10 font-body text-sm text-brand-dark dark:text-slate-200 focus:outline-none focus:border-primary/30 transition-all"
               />
             </div>
             <div class="flex flex-col gap-2">
@@ -70,7 +70,7 @@
               <input
                 v-model="profileForm.jobTitle"
                 type="text"
-                class="w-full px-4 py-3 rounded-xl bg-white border border-black/8 font-body text-sm text-brand-dark focus:outline-none focus:border-primary/30 transition-all"
+                class="w-full px-4 py-3 rounded-xl bg-white dark:bg-slate-900/50 border border-black/8 dark:border-white/10 font-body text-sm text-brand-dark dark:text-slate-200 focus:outline-none focus:border-primary/30 transition-all"
               />
             </div>
             <div class="flex flex-col gap-2">
@@ -81,7 +81,7 @@
               <input
                 v-model="profileForm.email"
                 type="email"
-                class="w-full px-4 py-3 rounded-xl bg-white border border-black/8 font-body text-sm text-brand-dark focus:outline-none focus:border-primary/30 transition-all"
+                class="w-full px-4 py-3 rounded-xl bg-white dark:bg-slate-900/50 border border-black/8 dark:border-white/10 font-body text-sm text-brand-dark dark:text-slate-200 focus:outline-none focus:border-primary/30 transition-all"
               />
             </div>
             <div class="flex flex-col gap-2">
@@ -92,7 +92,7 @@
               <input
                 v-model="profileForm.phone"
                 type="text"
-                class="w-full px-4 py-3 rounded-xl bg-white border border-black/8 font-body text-sm text-brand-dark focus:outline-none focus:border-primary/30 transition-all text-left"
+                class="w-full px-4 py-3 rounded-xl bg-white dark:bg-slate-900/50 border border-black/8 dark:border-white/10 font-body text-sm text-brand-dark dark:text-slate-200 focus:outline-none focus:border-primary/30 transition-all text-left"
               />
             </div>
             <div class="flex flex-col gap-2 md:col-span-2">
@@ -103,7 +103,7 @@
               <input
                 v-model="profileForm.company"
                 type="text"
-                class="w-full px-4 py-3 rounded-xl bg-white border border-black/8 font-body text-sm text-brand-dark focus:outline-none focus:border-primary/30 transition-all"
+                class="w-full px-4 py-3 rounded-xl bg-white dark:bg-slate-900/50 border border-black/8 dark:border-white/10 font-body text-sm text-brand-dark dark:text-slate-200 focus:outline-none focus:border-primary/30 transition-all"
               />
             </div>
           </div>
@@ -124,7 +124,7 @@
       <div
         class="card-glass rounded-[28px] p-6 sm:p-8 flex flex-col gap-6 border border-white/80 shadow-glass"
       >
-        <div class="flex items-center gap-2.5 pb-4 border-b border-black/5">
+        <div class="flex items-center gap-2.5 pb-4 border-b border-black/5 dark:border-white/5">
           <PhLockKey :size="20" class="text-primary" />
           <h3 class="font-header font-bold text-lg text-brand-dark">
             Security Settings
@@ -134,7 +134,7 @@
         <div class="flex flex-col gap-5">
           <!-- 2FA Toggle -->
           <div
-            class="flex items-center justify-between p-4 bg-white/40 border border-black/[0.03] rounded-2xl"
+            class="flex items-center justify-between p-4 bg-white/40 dark:bg-slate-900/40 border border-black/[0.03] dark:border-white/5 rounded-2xl"
           >
             <div class="flex flex-col w-[80%] text-left">
               <span class="text-sm font-bold text-brand-dark leading-tight"
@@ -146,8 +146,8 @@
             </div>
             <button
               type="button"
-              @click="profileForm.twoFactor = !profileForm.twoFactor"
-              class="w-[44px] h-[24px] rounded-full transition-colors duration-300 focus:outline-none relative flex items-center cursor-pointer border border-black/5"
+              @click="toggleTwoFactor"
+              class="w-[44px] h-[24px] rounded-full transition-colors duration-300 focus:outline-none relative flex items-center cursor-pointer border border-white/25"
               :class="
                 profileForm.twoFactor ? 'bg-primary' : 'bg-brand-slate/30'
               "
@@ -165,21 +165,31 @@
 
           <!-- Change Password Button -->
           <div
-            class="flex items-center justify-between p-4 bg-white/40 border border-black/[0.03] rounded-2xl"
+            class="flex items-center justify-between p-4 bg-white/40 dark:bg-slate-900/40 border border-black/[0.03] dark:border-white/5 rounded-2xl"
           >
             <div class="flex flex-col text-left">
               <span class="text-sm font-bold text-brand-dark leading-tight"
                 >Change Account Password</span
               >
-              <span class="text-xs text-brand-slate mt-0.5"
-                >Ensure your account is protected with strong credentials</span
-              >
+              <span class="text-xs text-brand-slate mt-0.5">
+                {{ authStore.user?.googleId 
+                  ? "Your account is secured via Google Sign-In. Password management is handled by Google." 
+                  : "Ensure your account is protected with strong credentials" }}
+              </span>
             </div>
             <button
+              v-if="!authStore.user?.googleId"
               @click="handleChangePassword"
-              class="px-5 py-2.5 rounded-xl bg-white border border-black/8 hover:bg-black/5 text-xs font-bold font-header text-brand-dark transition-all cursor-pointer"
+              class="px-5 py-2.5 rounded-xl bg-white dark:bg-slate-900 border border-black/8 dark:border-white/10 hover:bg-black/5 dark:hover:bg-white/5 text-xs font-bold font-header text-brand-dark dark:text-slate-200 transition-all cursor-pointer"
             >
               Update Password
+            </button>
+            <button
+              v-else
+              disabled
+              class="px-5 py-2.5 rounded-xl bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/5 text-xs font-bold font-header text-brand-slate transition-all cursor-not-allowed opacity-60"
+            >
+              Google Auth
             </button>
           </div>
 
@@ -191,38 +201,65 @@
             >
 
             <div
-              v-for="session in deviceSessions"
-              :key="session.id"
-              class="flex justify-between items-center p-3.5 bg-white/40 border border-black/[0.03] rounded-2xl"
+              v-for="session in sessions"
+              :key="session._id"
+              class="flex justify-between items-center p-3.5 bg-white/40 dark:bg-slate-900 border border-black/ dark:border-white/10 rounded-2xl"
             >
-              <div class="flex items-center gap-3">
-                <div
-                  class="w-10 h-10 rounded-full bg-primary/8 flex items-center justify-center text-primary"
-                >
-                  <PhLaptop v-if="session.device.includes('Mac')" :size="20" />
-                  <PhDeviceMobile v-else :size="20" />
-                </div>
-                <div class="flex flex-col">
-                  <span class="text-xs font-bold text-brand-dark"
-                    >{{ session.device }} - {{ session.location }}</span
-                  >
-                  <span class="text-[10px] text-brand-slate mt-0.5"
-                    >{{ session.status }} • {{ session.browser }}</span
-                  >
-                </div>
-              </div>
-              <button
-                @click="revokeSession(session.id)"
-                class="text-xs font-bold uppercase px-3 py-1.5 rounded-lg transition-all cursor-pointer"
-                :class="
-                  session.device.includes('Mac')
-                    ? 'text-brand-slate/60 bg-black/[0.03] hover:text-red-600'
-                    : 'text-red-500 hover:text-red-600 hover:bg-red-50'
-                "
-              >
-                {{ session.device.includes("Mac") ? "This Device" : "Revoke" }}
-              </button>
-            </div>
+
+  <div class="flex items-center gap-3">
+
+    <div
+      class="w-10 h-10 rounded-full bg-primary/8 flex items-center justify-center text-primary"
+    >
+
+      <PhLaptop
+        v-if="session.deviceType === 'desktop'"
+        :size="20"
+      />
+
+      <PhDeviceMobile
+        v-else
+        :size="20"
+      />
+
+    </div>
+
+    <div>
+
+      <div class="font-bold">
+        {{ session.device }} - {{ session.os }}
+      </div>
+
+      <div class="text-xs text-gray-500">
+        {{ session.browser }}
+        •
+        {{ new Date(session.lastActive).toLocaleString() }}
+      </div>
+
+    </div>
+
+  </div>
+
+<div>
+
+  <span
+    v-if="session._id === currentSessionId"
+    class="text-xs font-bold bg-slate-900 text-white px-3 py-1 rounded-lg"
+  >
+    THIS DEVICE
+  </span>
+
+  <button
+    v-else
+    @click="revokeSession(session._id)"
+    class="text-red-500 font-bold hover:text-red-700"
+  >
+    Revoke
+  </button>
+
+</div>
+
+</div>
           </div>
         </div>
       </div>
@@ -235,39 +272,62 @@
         class="card-glass rounded-[28px] p-6 flex flex-col gap-5 border border-white/80 shadow-glass"
       >
         <div
-          class="flex justify-between items-center pb-3 border-b border-black/5"
+          class="flex justify-between items-center pb-3 border-b border-black/5 dark:border-white/5"
         >
           <h3 class="font-header font-bold text-lg text-brand-dark">
             Billing Overview
           </h3>
           <span
+            v-if="subscriptionLoading"
+            class="inline-block w-16 h-[18px] rounded-md skeleton-pulse"
+          />
+          <span
+            v-else-if="subscriptionError"
+            class="text-[9px] font-extrabold px-2.5 py-0.5 rounded-md border border-red-400/30 bg-red-400/10 text-red-500 uppercase"
+          >Error</span>
+          <span
+            v-else
             class="text-[9px] font-extrabold px-2.5 py-0.5 rounded-md border border-[#acedff]/30 bg-[#acedff]/10 text-primary uppercase"
-          >
-            Pro Plan
-          </span>
+          >{{ subscription?.plan || 'Free' }}</span>
         </div>
 
         <div class="flex flex-col gap-4 text-left">
-          <div class="flex justify-between items-baseline">
-            <span class="text-xs font-semibold text-brand-slate"
-              >Monthly Total</span
-            >
-            <span class="text-xl font-bold font-header text-brand-dark"
-              >$149.00</span
-            >
+          <div v-if="subscriptionError" class="flex flex-col gap-2 items-center py-2">
+            <span class="text-xs text-red-500">Failed to load billing info</span>
+            <button @click="loadSubscription" class="text-xs font-bold text-primary hover:underline cursor-pointer">Retry</button>
           </div>
 
-          <div
-            class="flex justify-between items-center text-xs text-brand-slate font-medium pt-2 border-t border-black/5"
-          >
-            <div class="flex items-center gap-1.5">
-              <PhCalendar :size="14" class="text-primary" />
-              <span>Renewal Date</span>
+          <template v-else>
+            <div class="flex justify-between items-baseline">
+              <span class="text-xs font-semibold text-brand-slate">Monthly Total</span>
+              <span
+                v-if="subscriptionLoading"
+                class="inline-block w-20 h-7 rounded-lg skeleton-pulse"
+              />
+              <span
+                v-else
+                class="text-xl font-bold font-header text-brand-dark"
+              >{{ formatPrice(subscription) }}</span>
             </div>
-            <span class="font-semibold text-brand-dark">Oct 12, 2026</span>
-          </div>
 
-          <!-- Buttons -->
+            <div
+              class="flex justify-between items-center text-xs text-brand-slate font-medium pt-2 border-t border-black/5 dark:border-white/5"
+            >
+              <div class="flex items-center gap-1.5">
+                <PhCalendar :size="14" class="text-primary" />
+                <span>Renewal Date</span>
+              </div>
+              <span
+                v-if="subscriptionLoading"
+                class="inline-block w-24 h-4 rounded skeleton-pulse"
+              />
+              <span
+                v-else
+                class="font-semibold text-brand-dark"
+              >{{ formatDate(subscription?.renewalDate) }}</span>
+            </div>
+          </template>
+
           <div class="flex flex-col gap-2 mt-2">
             <button
               @click="$router.push('/pricing')"
@@ -276,8 +336,8 @@
               Upgrade to Enterprise
             </button>
             <button
-              @click="$router.push('/pricing')"
-              class="w-full py-3 rounded-xl bg-white border border-black/8 text-xs font-bold font-header text-brand-slate hover:bg-black/5 transition-all cursor-pointer"
+              @click="handleManageSub"
+              class="w-full py-3 rounded-xl bg-white dark:bg-white/5 border border-black/8 dark:border-white/10 text-xs font-bold font-header text-brand-slate dark:text-slate-300 hover:bg-black/5 dark:hover:bg-white/10 transition-all cursor-pointer"
             >
               Manage Subscription
             </button>
@@ -285,37 +345,6 @@
         </div>
       </div>
 
-      <!-- Preferences Card -->
-      <div
-        class="card-glass rounded-[28px] p-6 flex flex-col gap-5 border border-white/80 shadow-glass"
-      >
-        <div class="flex items-center gap-2.5 pb-3 border-b border-black/5">
-          <PhGear :size="20" class="text-primary" />
-          <h3 class="font-header font-bold text-lg text-brand-dark">
-            Workspace Preferences
-          </h3>
-        </div>
-
-        <div class="flex flex-col gap-4 text-left">
-          <!-- Interface Theme -->
-          <div class="flex flex-col gap-1.5">
-            <Select
-              v-model="profileForm.theme"
-              :options="themeOptions"
-              label="Interface Theme"
-            />
-          </div>
-
-          <!-- Language -->
-          <div class="flex flex-col gap-1.5">
-            <Select
-              v-model="profileForm.language"
-              :options="languageOptions"
-              label="Language"
-            />
-          </div>
-        </div>
-      </div>
     </div>
   </div>
 
@@ -323,41 +352,170 @@
     :show="showPasswordModal"
     @close="showPasswordModal = false"
   />
+
+  <Modal
+  :show="showTwoFactorModal"
+  title="Setup Two-Factor Authentication"
+  @close="resetTwoFactorModal"
+>
+  <div class="flex flex-col gap-4">
+
+    <img
+      :src="qrCode"
+      class="w-64 mx-auto"
+    />
+
+    <input
+      v-model="verificationCode"
+      type="text"
+      placeholder="Enter 6 digit code"
+      class="border rounded-xl p-3"
+      :disabled="verifying"
+    />
+
+    <button
+      @click="verifyTwoFactor"
+      :disabled="verifying"
+      class="bg-primary text-white rounded-xl py-3 disabled:opacity-50 disabled:pointer-events-none flex items-center justify-center gap-2"
+    >
+      <span
+        v-if="verifying"
+        class="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"
+      ></span>
+      <span>{{ verifying ? 'Verifying...' : 'Verify' }}</span>
+    </button>
+
+  </div>
+</Modal>
+
   <Toast />
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from "vue";import {
+import { ref, reactive, computed, onMounted, onUnmounted, watch } from "vue";import {
   PhUserCircle,
   PhCamera,
   PhLockKey,
   PhLaptop,
   PhDeviceMobile,
   PhCalendar,
-  PhGear,
 } from "@phosphor-icons/vue";
-import Select from "../ui/Select.vue";
 import PasswordChangeModal from "./PasswordChangeModal.vue";
 import Toast from "../ui/Toast.vue";
 import { useToasts } from "../../composables/useToasts";
 // Import assets
 import axios from "axios"
 import { useAuthStore } from "@/stores/auth";
+import Modal from "../ui/Modal.vue";
+import { useSubscriptionStore } from "@/stores/subscription";
+
+
+
+const toggleTwoFactor = () => {
+  if (profileForm.twoFactor) {
+    disableTwoFactor();
+  } else {
+    setupTwoFactor();
+  }
+};
+
+const disableTwoFactor = async () => {
+
+  try {
+
+    const token =
+      localStorage.getItem("token");
+
+    await axios.post(
+      "http://localhost:5000/api/users/2fa/disable",
+      {},
+      {
+        headers: {
+          Authorization:
+            `Bearer ${token}`
+        }
+      }
+    );
+
+    profileForm.twoFactor = false;
+
+    success(
+      "Two-Factor Authentication Disabled"
+    );
+
+  } catch (err) {
+
+    console.error(err);
+
+    error(
+      "Failed to disable 2FA"
+    );
+
+  }
+
+};
+
+const verifying = ref(false);
+
+const resetTwoFactorModal = () => {
+  showTwoFactorModal.value = false;
+  verifying.value = false;
+  verificationCode.value = "";
+  qrCode.value = "";
+};
+
+const verifyTwoFactor = async () => {
+
+  const code = verificationCode.value?.trim();
+
+  if (!code || !/^\d{6}$/.test(code)) {
+    error("Please enter a valid 6-digit code");
+    return;
+  }
+
+  try {
+
+    verifying.value = true;
+
+    const token =
+      localStorage.getItem("token");
+
+    await axios.post(
+      "http://localhost:5000/api/users/2fa/verify",
+      {
+        token: code
+      },
+      {
+        headers: {
+          Authorization:
+            `Bearer ${token}`
+        }
+      }
+    );
+
+    profileForm.twoFactor = true;
+
+    success(
+      "Two-Factor Authentication Enabled"
+    );
+
+    resetTwoFactorModal();
+
+  } catch (err) {
+
+    error(
+      err.response?.data?.message ||
+      "Invalid code"
+    );
+
+    verifying.value = false;
+
+  }
+
+};
+
 
 const authStore = useAuthStore();
-
-const themeOptions = [
-  { value: "light", label: "Light Mode (Glassmorphism)" },
-  { value: "dark", label: "Dark Mode (Default)" },
-  { value: "system", label: "System Synchronized" },
-];
-
-const languageOptions = [
-  { value: "en-US", label: "English (US)" },
-  { value: "en-GB", label: "English (UK)" },
-  { value: "es-ES", label: "Spanish (ES)" },
-];
-
 
 // Master factory default values configuration
 const DEFAULT_PROFILE = {
@@ -368,12 +526,35 @@ const DEFAULT_PROFILE = {
   phone: "+1 (555) 892-4410",
   company: "Quantum Dynamics Global",
   twoFactor: false,
-  theme: "light",
-  language: "en-US",
 };
 
 // Core states matching layout structures
 const profileForm = reactive({ ...DEFAULT_PROFILE });
+
+const subscriptionStore = useSubscriptionStore();
+
+const subscription = computed(() => subscriptionStore.subscription);
+const subscriptionLoading = computed(() => subscriptionStore.loading);
+const subscriptionError = computed(() => subscriptionStore.error);
+const loadSubscription = subscriptionStore.fetch;
+
+const formatPrice = (sub) => {
+  if (!sub) return "$0.00";
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: sub.currency || "USD",
+    minimumFractionDigits: 2,
+  }).format(sub.price || 0);
+};
+
+const formatDate = (dateStr) => {
+  if (!dateStr) return "N/A";
+  return new Date(dateStr).toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  });
+};
 
 const loadProfile = async () => {
   try {
@@ -427,26 +608,62 @@ const loadProfile = async () => {
 }
 };
 
+const showTwoFactorModal = ref(false);
 const showPasswordModal = ref(false);
+
+const qrCode = ref("");
+
+const verificationCode = ref("");
+const sessions = ref([]);
+
+const currentSessionId = ref(
+  localStorage.getItem("sessionId")
+);
+
+
+watch(sessions, () => {
+    console.log("Vue Sessions Updated");
+    console.log(sessions.value);
+});
+
 const avatarInput = ref(null);
 const { success, error, info } = useToasts();
 
-const deviceSessions = ref([
-  {
-    id: 1,
-    device: 'MacBook Pro 16"',
-    location: "San Francisco",
-    status: "Active Now",
-    browser: "Chrome",
-  },
-  {
-    id: 2,
-    device: "iPhone 15 Pro",
-    location: "New York",
-    status: "2 hours ago",
-    browser: "iOS App",
-  },
-]);
+
+
+
+
+
+
+const loadSessions = async () => {
+
+    try {
+
+        const token = localStorage.getItem("token");
+
+        const { data } = await axios.get(
+            "http://localhost:5000/api/users/sessions",
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            }
+        );
+
+        sessions.value = data.sessions;
+
+console.log("Sessions Count:", sessions.value.length);
+console.table(sessions.value);
+
+        console.log("Loaded Sessions:", sessions.value);
+
+    } catch (err) {
+
+        console.error(err);
+
+    }
+
+};
 
 // --- Unified Persistence Logic Layer ---
 
@@ -456,16 +673,79 @@ const deviceSessions = ref([
 // Serializes and commits state snapshot directly onto disk
 
 
-// Auto-save runtime processing layer with performance safe debouncing (400ms)
+let refreshInterval = null;
+let isVisible = true;
 
+onMounted(async () => {
+  await loadProfile();
+  await loadSessions();
+  subscriptionStore.fetch();
 
-// Run early initialization to hydrate state cleanly before view mounting renders
+  document.addEventListener("visibilitychange", onVisibilityChange);
 
-onMounted(() => {
-  loadProfile();
+  refreshInterval = setInterval(() => {
+    if (isVisible) {
+      subscriptionStore.fetch();
+    }
+  }, 30000);
 });
 
+onUnmounted(() => {
+  if (refreshInterval) {
+    clearInterval(refreshInterval);
+    refreshInterval = null;
+  }
+  document.removeEventListener("visibilitychange", onVisibilityChange);
+});
+
+const onVisibilityChange = () => {
+  isVisible = !document.hidden;
+  if (isVisible) {
+    subscriptionStore.fetch();
+  }
+};
+
 // --- Explicit Event Actions ---
+
+
+const setupTwoFactor = async () => {
+
+  try {
+
+    const token =
+      localStorage.getItem("token");
+
+    const { data } =
+      await axios.post(
+        "http://localhost:5000/api/users/2fa/setup",
+        {},
+        {
+          headers: {
+            Authorization:
+              `Bearer ${token}`
+          }
+        }
+      );
+
+    qrCode.value =
+      data.qrCode;
+
+    showTwoFactorModal.value =
+      true;
+
+  } catch (err) {
+
+    console.error(err);
+
+    error(
+      "Failed to setup 2FA"
+    );
+
+  }
+
+};
+
+
 
 const saveProfile = async () => {
 
@@ -491,8 +771,7 @@ const saveProfile = async () => {
         lastName,
         phone: profileForm.phone,
         company: profileForm.company,
-        jobTitle: profileForm.jobTitle,
-        twoFactor: profileForm.twoFactor
+        jobTitle: profileForm.jobTitle
       },
       {
         headers: {
@@ -575,16 +854,34 @@ const handleChangePassword = () => {
   showPasswordModal.value = true;
 };
 
-const revokeSession = (id) => {
-  const session = deviceSessions.value.find((s) => s.id === id);
-  if (session) {
-    if (session.device.includes("Mac")) {
-      error("Cannot revoke the session for your currently active device.");
-      return;
-    }
-    deviceSessions.value = deviceSessions.value.filter((s) => s.id !== id);
-    success(`Revoked active session for ${session.device}.`);
+const revokeSession = async (id) => {
+
+  try {
+
+    const token = localStorage.getItem("token");
+
+    await axios.delete(
+      `http://localhost:5000/api/users/sessions/${id}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      }
+    );
+
+    sessions.value =
+      sessions.value.filter(s => s._id !== id);
+
+    success("Session revoked");
+
+  } catch (err) {
+
+    console.error(err);
+
+    error("Failed to revoke session");
+
   }
+
 };
 
 const handleUpgrade = () => {
@@ -599,3 +896,15 @@ const triggerAvatarUpload = () => {
   avatarInput.value.click();
 };
 </script>
+
+<style scoped>
+@keyframes skeleton-pulse {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 0.8; }
+}
+.skeleton-pulse {
+  animation: skeleton-pulse 1.5s ease-in-out infinite;
+  background: linear-gradient(90deg, #e5e7eb 25%, #f3f4f6 50%, #e5e7eb 75%);
+  background-size: 200% 100%;
+}
+</style>

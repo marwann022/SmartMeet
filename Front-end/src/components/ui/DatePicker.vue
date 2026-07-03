@@ -1,6 +1,6 @@
 <template>
   <div ref="datePickerRef" class="flex flex-col gap-1.5 w-full text-left relative">
-    <label v-if="label" class="text-[10px] font-extrabold uppercase tracking-wider text-brand-slate font-header pl-1">
+    <label v-if="label" class="text-[11px] font-semibold text-brand-slate tracking-wide font-header pl-1">
       {{ label }}
     </label>
     
@@ -18,7 +18,7 @@
         type="button"
         @click="toggleCalendar"
         :class="[
-          'w-full h-12 pl-11 pr-4 rounded-xl bg-white border font-body text-sm text-brand-dark text-left transition-all duration-300 hover:border-black/15 cursor-pointer focus:outline-none flex items-center',
+          'w-full h-12 pl-11 pr-4 rounded-xl bg-white dark:bg-slate-950/60 border font-body text-sm text-brand-dark text-left transition-all duration-300 hover:border-black/15 dark:hover:border-white/20 cursor-pointer focus:outline-none flex items-center',
           hasError ? 'border-red-400 focus:border-red-500 focus:shadow-[0_0_0_3px_rgba(239,68,68,0.08)]' : (themeFocusClasses[theme] || themeFocusClasses.primary)
         ]"
       >
@@ -31,7 +31,7 @@
       <div 
         v-if="isOpen" 
         @click.stop
-        class="absolute left-0 z-[250] w-[290px] bg-white border border-black/8 shadow-[0_16px_36px_rgba(0,0,0,0.1)] rounded-2xl p-4 flex flex-col gap-4 text-left"
+        class="absolute left-0 z-[250] w-[290px] bg-white dark:bg-slate-900 border border-black/8 dark:border-white/10 shadow-[0_16px_36px_rgba(0,0,0,0.2)] rounded-2xl p-4 flex flex-col gap-4 text-left"
         :style="direction === 'up' ? { bottom: 'calc(100% + 6px)' } : { top: 'calc(100% + 6px)' }"
       >
         <!-- Header: Month and Year Selector Buttons -->
@@ -41,7 +41,7 @@
             <button 
               type="button"
               @click.stop="toggleMonthSelect"
-              class="w-full flex items-center justify-between px-3 py-1.5 rounded-lg bg-black/3 hover:bg-black/5 transition-all text-xs font-bold text-brand-dark cursor-pointer"
+              class="w-full flex items-center justify-between px-3 py-1.5 rounded-lg bg-black/3 dark:bg-white/5 hover:bg-black/5 dark:hover:bg-white/10 transition-all text-xs font-bold text-brand-dark cursor-pointer"
             >
               <span>{{ months[month] }}</span>
               <PhCaretDown :size="12" />
@@ -49,14 +49,14 @@
             
             <div 
               v-if="showMonthSelect" 
-              class="absolute left-0 right-0 top-[calc(100%+4px)] z-[260] bg-white border border-black/8 shadow-lg rounded-xl max-h-[160px] overflow-y-auto py-1"
+              class="absolute left-0 right-0 top-[calc(100%+4px)] z-[260] bg-white dark:bg-slate-900 border border-black/8 dark:border-white/10 shadow-lg rounded-xl max-h-[160px] overflow-y-auto py-1"
             >
               <button
                 v-for="(mName, idx) in months"
                 :key="mName"
                 type="button"
                 @click="selectMonth(idx)"
-                class="w-full text-left px-3 py-1.5 text-xs text-brand-dark hover:bg-black/5 transition-colors cursor-pointer"
+                class="w-full text-left px-3 py-1.5 text-xs text-brand-dark hover:bg-black/5 dark:hover:bg-white/5 transition-colors cursor-pointer"
                 :class="idx === month ? [themeTextClasses[theme] || themeTextClasses.primary, 'font-bold'] : ''"
               >
                 {{ mName }}
@@ -69,7 +69,7 @@
             <button 
               type="button"
               @click.stop="toggleYearSelect"
-              class="w-full flex items-center justify-between px-3 py-1.5 rounded-lg bg-black/3 hover:bg-black/5 transition-all text-xs font-bold text-brand-dark cursor-pointer"
+              class="w-full flex items-center justify-between px-3 py-1.5 rounded-lg bg-black/3 dark:bg-white/5 hover:bg-black/5 dark:hover:bg-white/10 transition-all text-xs font-bold text-brand-dark cursor-pointer"
             >
               <span>{{ year }}</span>
               <PhCaretDown :size="12" />
@@ -77,14 +77,14 @@
             
             <div 
               v-if="showYearSelect" 
-              class="absolute left-0 right-0 top-[calc(100%+4px)] z-[260] bg-white border border-black/8 shadow-lg rounded-xl max-h-[160px] overflow-y-auto py-1"
+              class="absolute left-0 right-0 top-[calc(100%+4px)] z-[260] bg-white dark:bg-slate-900 border border-black/8 dark:border-white/10 shadow-lg rounded-xl max-h-[160px] overflow-y-auto py-1"
             >
               <button
                 v-for="yNum in years"
                 :key="yNum"
                 type="button"
                 @click="selectYear(yNum)"
-                class="w-full text-left px-3 py-1.5 text-xs text-brand-dark hover:bg-black/5 transition-colors cursor-pointer"
+                class="w-full text-left px-3 py-1.5 text-xs text-brand-dark hover:bg-black/5 dark:hover:bg-white/5 transition-colors cursor-pointer"
                 :class="yNum === year ? [themeTextClasses[theme] || themeTextClasses.primary, 'font-bold'] : ''"
               >
                 {{ yNum }}
@@ -115,8 +115,8 @@
             :class="[
               'w-8 h-8 flex items-center justify-center rounded-full text-xs font-semibold transition-all',
               isPastDate(cell) ? 'text-brand-slate/20 cursor-not-allowed opacity-30 pointer-events-none' : 'cursor-pointer',
-              !isPastDate(cell) && cell.isCurrentMonth ? 'text-brand-dark hover:bg-black/5' : '',
-              !isPastDate(cell) && !cell.isCurrentMonth ? 'text-brand-slate/30 hover:bg-black/3' : '',
+              !isPastDate(cell) && cell.isCurrentMonth ? 'text-brand-dark hover:bg-black/5 dark:hover:bg-white/5' : '',
+              !isPastDate(cell) && !cell.isCurrentMonth ? 'text-brand-slate/30 hover:bg-black/3 dark:hover:bg-white/3' : '',
               isDateSelected(cell) ? (themeSelectedCellClasses[theme] || themeSelectedCellClasses.primary) : '',
               isToday(cell) && !isDateSelected(cell) ? (themeTodayCellClasses[theme] || themeTodayCellClasses.primary) : ''
             ]"
@@ -126,7 +126,7 @@
         </div>
 
         <!-- Footer -->
-        <div class="flex justify-between items-center pt-2 border-t border-black/5 mt-1">
+        <div class="flex justify-between items-center pt-2 border-t border-black/5 dark:border-white/10 mt-1">
           <button
             type="button"
             @click="cancelSelection"
@@ -451,6 +451,9 @@ const confirmSelection = () => {
 
 // Click away listener
 const handleClickOutside = (e) => {
+  if (e.target && !document.body.contains(e.target)) {
+    return
+  }
   if (datePickerRef.value && !datePickerRef.value.contains(e.target)) {
     // Treat click outside as cancel
     cancelSelection()
@@ -466,7 +469,7 @@ onUnmounted(() => {
 })
 
 const themeFocusClasses = {
-  primary: 'border-black/8 focus:border-primary/30 focus:shadow-[0_0_0_3px_rgba(75,104,255,0.08)]',
+  primary: 'border-black/8 dark:border-white/10 focus:border-primary/30 focus:shadow-[0_0_0_3px_rgba(75,104,255,0.08)]',
   todo: 'border-primary/20 focus:border-primary/30 focus:shadow-[0_0_0_3px_rgba(75,104,255,0.08)]',
   inprogress: 'border-amber-500/20 focus:border-amber-500/30 focus:shadow-[0_0_0_3px_rgba(245,158,11,0.08)]',
   review: 'border-red-500/20 focus:border-red-500/30 focus:shadow-[0_0_0_3px_rgba(239,68,68,0.08)]',
@@ -545,5 +548,13 @@ const themeTodayCellClasses = {
 }
 ::-webkit-scrollbar-thumb:hover {
   background: rgba(0, 0, 0, 0.15);
+}
+
+/* Dark mode scrollbar overrides for DatePicker overlays */
+:global(.dark) ::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.12);
+}
+:global(.dark) ::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.22);
 }
 </style>

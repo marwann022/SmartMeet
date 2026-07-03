@@ -1,9 +1,9 @@
 <template>
-  <footer class="pt-12 pb-4 border-t border-black/5 mt-16 text-left w-full">
+  <footer class="pt-10 pb-6 px-10 border-t border-black/5 dark:border-white/5 mt-16 text-left w-full">
     <div class="flex flex-col md:flex-row justify-between gap-12 mb-12">
       <!-- Brand Column -->
       <div class="flex flex-col gap-4 max-w-sm">
-        <img src="@/assets/new logo.png" alt="SmartMeet" class="h-10 block self-start" />
+        <img src="@/assets/logo_clean.png" alt="SmartMeet" class="h-10 block self-start" />
         <p class="text-xs text-brand-slate leading-relaxed">
           Pioneering the future of organizational intelligence through advanced voice AI and semantic analysis.
         </p>
@@ -35,10 +35,10 @@
         <div class="flex flex-col gap-3">
           <h4 class="text-[11px] font-bold text-brand-dark tracking-wider uppercase mb-1.5">Connect</h4>
           <div class="flex items-center gap-3">
-            <a href="#" class="bg-black/5 border border-black/10 rounded-full w-8 h-8 flex items-center justify-center text-brand-slate transition-all duration-300 hover:bg-primary/5 hover:border-primary/15 hover:text-primary hover:scale-105" aria-label="Twitter">
+            <a href="#" class="bg-black/5 dark:bg-white/8 border border-black/10 dark:border-white/10 rounded-full w-8 h-8 flex items-center justify-center text-brand-slate transition-all duration-300 hover:bg-primary/5 hover:border-primary/15 hover:text-primary hover:scale-105" aria-label="Twitter">
               <PhTwitterLogo :size="16" weight="fill" />
             </a>
-            <a href="#" class="bg-black/5 border border-black/10 rounded-full w-8 h-8 flex items-center justify-center text-brand-slate transition-all duration-300 hover:bg-primary/5 hover:border-primary/15 hover:text-primary hover:scale-105" aria-label="LinkedIn">
+            <a href="#" class="bg-black/5 dark:bg-white/8 border border-black/10 dark:border-white/10 rounded-full w-8 h-8 flex items-center justify-center text-brand-slate transition-all duration-300 hover:bg-primary/5 hover:border-primary/15 hover:text-primary hover:scale-105" aria-label="LinkedIn">
               <PhLinkedinLogo :size="16" weight="fill" />
             </a>
           </div>
@@ -47,7 +47,7 @@
     </div>
 
     <!-- Bottom Copyright & Legal -->
-    <div class="flex flex-col sm:flex-row justify-between items-center pt-8 border-t border-black/5 text-xs text-brand-slate gap-4">
+    <div class="flex flex-col sm:flex-row justify-between items-center pt-8 border-t border-black/5 dark:border-white/5 text-xs text-brand-slate gap-4">
       <div>
         © 2026 SmartMeet AI Inc. All rights reserved.
       </div>

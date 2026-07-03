@@ -34,6 +34,27 @@
         @toggle="visible.new = !visible.new"
         @blur="touchField('newPassword')"
       />
+      <div class="text-xs space-y-1 text-brand-slate">
+  <p :class="/[a-z]/.test(form.newPassword) ? 'text-green-600' : ''">
+    ✓ Lowercase letter
+  </p>
+
+  <p :class="/[A-Z]/.test(form.newPassword) ? 'text-green-600' : ''">
+    ✓ Uppercase letter
+  </p>
+
+  <p :class="/[0-9]/.test(form.newPassword) ? 'text-green-600' : ''">
+    ✓ Number
+  </p>
+
+  <p :class="/[^a-zA-Z0-9]/.test(form.newPassword) ? 'text-green-600' : ''">
+    ✓ Special character
+  </p>
+
+  <p :class="form.newPassword.length >= 8 ? 'text-green-600' : ''">
+    ✓ 8+ characters
+  </p>
+</div>
 
       <PasswordField
         v-model="form.confirmPassword"
@@ -45,10 +66,10 @@
         @blur="touchField('confirmPassword')"
       />
 
-      <div class="flex flex-col-reverse gap-3 border-t border-black/5 pt-5 sm:flex-row sm:items-center sm:justify-end">
+      <div class="flex flex-col-reverse gap-3 border-t border-black/5 dark:border-white/5 pt-5 sm:flex-row sm:items-center sm:justify-end">
         <button
           type="button"
-          class="rounded-xl border border-black/8 bg-white px-5 py-2.5 font-header text-xs font-bold text-brand-dark transition-all hover:bg-black/5"
+          class="rounded-xl border border-black/8 dark:border-white/10 bg-white dark:bg-slate-900 px-5 py-2.5 font-header text-xs font-bold text-brand-dark transition-all hover:bg-black/5 dark:hover:bg-white/5"
           @click="handleClose"
         >
           Cancel
@@ -70,8 +91,8 @@
 import { computed, defineComponent, h, reactive, ref, watch } from 'vue'
 import { PhEye, PhEyeSlash, PhShieldCheck } from '@phosphor-icons/vue'
 import Modal from '../ui/Modal.vue'
-import { usePasswordStorage } from '../../composables/usePasswordStorage'
 import { useToasts } from '../../composables/useToasts'
+import axios from "axios"
 
 const props = defineProps({
   show: {
@@ -82,7 +103,6 @@ const props = defineProps({
 
 const emit = defineEmits(['close', 'updated'])
 
-const { setPassword, matchesPassword, hasPassword } = usePasswordStorage()
 const { success, error, info } = useToasts()
 
 const form = reactive({
@@ -123,9 +143,7 @@ const resetForm = () => {
 watch(
   () => props.show,
   (isShown) => {
-    if (isShown) {
-      info('Passwords are saved locally for this frontend demo under smartmeet_user_password.')
-    } else {
+    if (!isShown) {
       resetForm()
     }
   }
@@ -133,15 +151,22 @@ watch(
 
 const validation = computed(() => ({
   currentPassword: !form.currentPassword
-    ? 'Current password is required.'
-    : hasPassword() && !matchesPassword(form.currentPassword)
-      ? 'Current password does not match the saved SmartMeet password.'
-      : '',
+  ? 'Current password is required.'
+  : '',
   newPassword: !form.newPassword
-    ? 'New password is required.'
-    : form.newPassword.length < 8
-      ? 'New password must be at least 8 characters.'
-      : '',
+  ? 'New password is required.'
+  : !/[a-z]/.test(form.newPassword)
+    ? 'Must contain a lowercase letter.'
+    : !/[A-Z]/.test(form.newPassword)
+      ? 'Must contain an uppercase letter.'
+      : !/[0-9]/.test(form.newPassword)
+        ? 'Must contain a number.'
+        : !/[^a-zA-Z0-9]/.test(form.newPassword)
+          ? 'Must contain a special character.'
+          : form.newPassword.length < 8
+            ? 'Password must be at least 8 characters.'
+            : '',
+
   confirmPassword: !form.confirmPassword
     ? 'Please confirm the new password.'
     : form.confirmPassword !== form.newPassword
@@ -164,25 +189,68 @@ const handleClose = () => {
   if (!isSaving.value) emit('close')
 }
 
-const submitPassword = () => {
-  submitted.value = true
+const submitPassword = async () => {
+
+  submitted.value = true;
 
   if (!canSubmit.value) {
-    const message = validation.value.confirmPassword || validation.value.currentPassword || 'Validation failed.'
-    error(message)
-    return
+
+    const message =
+      validation.value.confirmPassword ||
+      validation.value.currentPassword ||
+      validation.value.newPassword ||
+      "Validation failed";
+
+    error(message);
+
+    return;
   }
 
-  isSaving.value = true
+  try {
 
-  window.setTimeout(() => {
-    setPassword(form.newPassword)
-    success('Password updated successfully.')
-    emit('updated')
-    emit('close')
-    isSaving.value = false
-  }, 650)
-}
+    isSaving.value = true;
+
+    const token =
+      localStorage.getItem("token");
+
+    await axios.put(
+      "http://localhost:5000/api/users/change-password",
+      {
+        currentPassword:
+          form.currentPassword,
+
+        newPassword:
+          form.newPassword
+      },
+      {
+        headers: {
+          Authorization:
+            `Bearer ${token}`
+        }
+      }
+    );
+
+    success(
+      "Password updated successfully"
+    );
+
+    emit("updated");
+
+    emit("close");
+
+  } catch (err) {
+
+    error(
+      err.response?.data?.message ||
+      "Failed to update password"
+    );
+
+  } finally {
+
+    isSaving.value = false;
+
+  }
+};
 
 const PasswordField = defineComponent({
   props: {
@@ -195,24 +263,24 @@ const PasswordField = defineComponent({
   emits: ['update:modelValue', 'toggle', 'blur'],
   setup(fieldProps, { emit: fieldEmit }) {
     return () => h('div', { class: 'flex flex-col gap-1.5' }, [
-      h('label', { class: 'font-header text-[11px] font-bold uppercase tracking-wider text-brand-slate ml-1' }, fieldProps.label),
+      h('label', { class: 'font-header text-[11px] font-semibold text-brand-slate tracking-wide ml-1' }, fieldProps.label),
       h('div', { class: 'relative' }, [
         h('input', {
           value: fieldProps.modelValue,
           type: fieldProps.visible ? 'text' : 'password',
           autocomplete: fieldProps.autocomplete,
           class: [
-            'w-full rounded-xl border bg-white px-4 py-3 pr-12 font-body text-sm text-brand-dark transition-all placeholder-brand-slate/40 focus:outline-none',
+            'w-full rounded-xl border bg-white dark:bg-slate-950/60 px-4 py-3 pr-12 font-body text-sm text-brand-dark transition-all placeholder-brand-slate/40 focus:outline-none',
             fieldProps.error
               ? 'border-red-300 focus:border-red-400 focus:shadow-[0_0_0_3px_rgba(239,68,68,0.08)]'
-              : 'border-black/8 focus:border-primary/30 focus:shadow-[0_0_0_3px_rgba(75,104,255,0.08)]'
+              : 'border-black/8 dark:border-white/10 focus:border-primary/30 focus:shadow-[0_0_0_3px_rgba(75,104,255,0.08)]'
           ],
           onInput: (event) => fieldEmit('update:modelValue', event.target.value),
           onBlur: () => fieldEmit('blur')
         }),
         h('button', {
           type: 'button',
-          class: 'absolute right-3 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-lg text-brand-slate transition-colors hover:bg-black/5 hover:text-primary',
+          class: 'absolute right-3 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-lg text-brand-slate transition-colors hover:bg-black/5 dark:hover:bg-white/5 hover:text-primary',
           'aria-label': fieldProps.visible ? 'Hide password' : 'Show password',
           onClick: () => fieldEmit('toggle')
         }, [

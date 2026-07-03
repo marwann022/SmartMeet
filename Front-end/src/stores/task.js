@@ -1,10 +1,16 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import axios from 'axios'
+import { useAuthStore } from './auth'
+import { useAlertStore } from './alert'
 
 export const useTaskStore = defineStore('task', () => {
   const tasks = ref([])
+  const loading = ref(false)
+  const error = ref(null)
   const statusOrder = ['todo', 'inprogress', 'review', 'done']
+  const authStore = useAuthStore()
+  const alertStore = useAlertStore()
 
   const getHeaders = () => ({
     headers: {
@@ -12,17 +18,36 @@ export const useTaskStore = defineStore('task', () => {
     }
   })
 
+  const isAuthorized = (task) => {
+    const userId = authStore.user?._id
+    const isAdmin = authStore.user?.role === 'admin'
+    const isCreator = task.createdBy === userId || (task.createdBy && task.createdBy._id === userId)
+    return isAdmin || isCreator
+  }
+
+  const isExtracted = (task) => {
+    return task.source && task.source.startsWith('Meeting:')
+  }
+
   const fetchTasks = async () => {
+    loading.value = true
+    error.value = null
     try {
       const token = localStorage.getItem('token')
-      if (!token) return
+      if (!token) {
+        loading.value = false
+        return
+      }
 
       const { data } = await axios.get('http://localhost:5000/api/tasks', getHeaders())
       if (data.success) {
         tasks.value = data.tasks
       }
-    } catch (error) {
-      console.error('Failed to fetch tasks:', error)
+    } catch (err) {
+      console.error('Failed to fetch tasks:', err)
+      error.value = 'Failed to load tasks.'
+    } finally {
+      loading.value = false
     }
   }
 
@@ -37,15 +62,22 @@ export const useTaskStore = defineStore('task', () => {
         avatarColor: task.avatarColor || 'bg-primary',
         due: task.due || 'TBD',
         dueDate: task.dueDate || '',
-        source: task.source || 'Manual Entry'
+        dueTime: task.dueTime || '23:59',
+        source: task.source || 'Manual Entry',
+        assigneeIds: task.assigneeIds || undefined,
+        assignToEveryone: task.assignToEveryone || undefined,
       }
       const { data } = await axios.post('http://localhost:5000/api/tasks', newTaskData, getHeaders())
       if (data.success) {
-        tasks.value.unshift(data.task)
+        if (data.tasks && data.tasks.length > 1) {
+          tasks.value.unshift(...data.tasks)
+        } else {
+          tasks.value.unshift(data.task)
+        }
       }
     } catch (error) {
       console.error('Failed to add task:', error)
-      alert(error.response?.data?.message || 'Failed to add task')
+      alertStore.showAlert(error.response?.data?.message || 'Failed to add task', 'Error', 'danger')
     }
   }
 
@@ -71,7 +103,7 @@ export const useTaskStore = defineStore('task', () => {
       }
     } catch (error) {
       console.error('Failed to delete task:', error)
-      alert(error.response?.data?.message || 'Failed to delete task')
+      alertStore.showAlert(error.response?.data?.message || 'Failed to delete task', 'Error', 'danger')
     }
   }
 
@@ -91,6 +123,13 @@ export const useTaskStore = defineStore('task', () => {
       newPreviousStatus = task.previousStatus
     }
 
+    if (newDone && isExtracted(task) && !isAuthorized(task)) {
+      alertStore.showAlert('Only the admin or task creator can mark meeting-extracted tasks as done.', 'Access Denied', 'review')
+      return false
+    }
+
+
+
     // Optimistic UI update
     task.done = newDone
     task.status = newStatus
@@ -102,12 +141,14 @@ export const useTaskStore = defineStore('task', () => {
         status: newStatus,
         previousStatus: newPreviousStatus
       }, getHeaders())
+      return true
     } catch (error) {
       console.error('Failed to toggle task:', error)
       // Rollback on error
       task.done = originalDone
       task.status = originalStatus
       task.previousStatus = originalPreviousStatus
+      return false
     }
   }
 
@@ -123,6 +164,13 @@ export const useTaskStore = defineStore('task', () => {
       const newDone = newStatus === 'done'
       const newPreviousStatus = task.status !== 'done' ? task.status : task.previousStatus
 
+      if (newStatus === 'done' && isExtracted(task) && !isAuthorized(task)) {
+        alertStore.showAlert('Only the admin or task creator can mark meeting-extracted tasks as done.', 'Access Denied', 'review')
+        return false
+      }
+
+
+
       // Optimistic update
       task.status = newStatus
       task.done = newDone
@@ -136,18 +184,21 @@ export const useTaskStore = defineStore('task', () => {
           done: newDone,
           previousStatus: task.previousStatus
         }, getHeaders())
+        return true
       } catch (error) {
         console.error('Failed to move task:', error)
         // Rollback on error
         task.status = originalStatus
         task.previousStatus = originalPreviousStatus
         task.done = originalDone
+        return false
       }
     }
+    return false
   }
 
   const setTaskStatus = async (id, newStatus) => {
-    const task = tasks.value.find(t => String(t.id) === String(id))
+    const task = tasks.value.find(t => String(t.id) === String(id) || String(t._id) === String(id))
     if (task) {
       const originalStatus = task.status
       const originalPreviousStatus = task.previousStatus
@@ -155,6 +206,13 @@ export const useTaskStore = defineStore('task', () => {
 
       const newDone = newStatus === 'done'
       const newPreviousStatus = task.status !== 'done' ? task.status : task.previousStatus
+
+      if (newStatus === 'done' && isExtracted(task) && !isAuthorized(task)) {
+        alertStore.showAlert('Only the admin or task creator can mark meeting-extracted tasks as done.', 'Access Denied', 'review')
+        return false
+      }
+
+
 
       // Optimistic update
       task.status = newStatus
@@ -169,24 +227,66 @@ export const useTaskStore = defineStore('task', () => {
           done: newDone,
           previousStatus: task.previousStatus
         }, getHeaders())
+        return true
       } catch (error) {
         console.error('Failed to set task status:', error)
         // Rollback
         task.status = originalStatus
         task.previousStatus = originalPreviousStatus
         task.done = originalDone
+        return false
       }
+    }
+    return false
+  }
+
+  const approveTask = async (id) => {
+    try {
+      const { data } = await axios.put(`http://localhost:5000/api/tasks/${id}/approve`, {}, getHeaders())
+      if (data.success) {
+        const idx = tasks.value.findIndex(t => String(t.id || t._id) === String(id))
+        if (idx !== -1) {
+          tasks.value[idx] = { ...tasks.value[idx], ...data.task }
+        }
+        return true
+      }
+    } catch (error) {
+      console.error('Failed to approve task:', error)
+      alertStore.showAlert(error.response?.data?.message || 'Failed to approve task', 'Error', 'danger')
+      return false
+    }
+  }
+
+  const rejectTask = async (id, comment = '') => {
+    try {
+      const { data } = await axios.put(`http://localhost:5000/api/tasks/${id}/reject`, { comment }, getHeaders())
+      if (data.success) {
+        const idx = tasks.value.findIndex(t => String(t.id || t._id) === String(id))
+        if (idx !== -1) {
+          tasks.value[idx] = { ...tasks.value[idx], ...data.task }
+        }
+        return true
+      }
+    } catch (error) {
+      console.error('Failed to reject task:', error)
+      alertStore.showAlert(error.response?.data?.message || 'Failed to reject task', 'Error', 'danger')
+      return false
     }
   }
 
   return {
     tasks,
+    loading,
+    error,
+    statusOrder,
     fetchTasks,
     addTask,
     updateTask,
     removeTask,
     toggleTask,
     moveTask,
-    setTaskStatus
+    setTaskStatus,
+    approveTask,
+    rejectTask,
   }
 })

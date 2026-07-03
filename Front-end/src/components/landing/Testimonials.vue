@@ -1,272 +1,167 @@
 <template>
-  <section
-    id="results"
-    class="py-24 border-t border-black/5 w-full"
-  >
+  <section id="results" class="bg-brand-bg pt-10">
     <!-- Header -->
-    <div
-      class="
-      text-center
-      max-w-[700px]
-      mx-auto
-
-      mb-16
-      px-4
-      "
-    >
-      <span
-        class="
-        text-[10px]
-        font-bold
-
-        tracking-[0.18em]
-
-        text-primary
-
-        uppercase
-
-        font-header
-        "
-      >
-        REAL IMPACT
+    <div class="max-w-[700px] mx-auto text-center mb-16 px-4 relative z-10">
+      <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-accent/8 border border-accent/15 text-accent text-[10px] font-bold tracking-wider uppercase mb-5 font-header">
+        User Testimonials
       </span>
-
-      <h2
-        class="
-        text-3xl
-        sm:text-5xl
-        lg:text-6xl
-
-        font-bold
-
-        font-header
-
-        tracking-tight
-
-        mt-5
-        mb-5
-
-        text-brand-dark
-        "
-      >
-        Teams save hours every week.
+      
+      <h2 class="text-3xl sm:text-5xl font-header font-bold text-brand-dark tracking-tight mb-5 leading-tight">
+        Loved by builders worldwide.
       </h2>
-
-      <p
-        class="
-        text-base
-        sm:text-lg
-
-        text-brand-slate
-
-        leading-relaxed
-        "
-      >
-        SmartMeet transforms conversations into
-        actionable knowledge, helping teams move
-        faster and stay aligned.
+      
+      <p class="text-base sm:text-lg text-brand-slate font-body leading-relaxed max-w-[550px] mx-auto">
+        Read how leaders in design, engineering, and product use SmartMeet to keep teams aligned and build collective memory.
       </p>
     </div>
 
-    <!-- Metrics Grid -->
+    <!-- Infinite Testimonial Marquee (Scrolls Left) -->
     <div
-      class="
-      grid
-      grid-cols-1
-      md:grid-cols-2
-      lg:grid-cols-4
-
-      gap-6
-      "
+      role="region"
+      aria-label="Customer testimonials"
+      class="w-full relative py-6 overflow-hidden z-10 [mask-image:linear-gradient(to_right,transparent_0%,#000_15%,#000_85%,transparent_100%)]"
     >
+      <div class="marquee-track flex gap-6 w-max animate-marquee">
+        
+        <div v-for="t in allTestimonials" :key="t.uid" class="testimonial-card rounded-2xl card-glass flex flex-col justify-between p-6 w-[350px] flex-shrink-0">
+          <div>
+            <!-- Star Rating -->
+            <div class="flex gap-1 mb-4 text-amber-500 text-sm" aria-label="5 stars">★ ★ ★ ★ ★</div>
+            <!-- Quote -->
+            <p class="text-xs text-brand-dark font-medium leading-relaxed font-body italic mb-6">
+              "{{ t.quote }}"
+            </p>
+          </div>
 
-      <!-- Card 1 -->
-      <div class="metric-card">
-        <div class="metric-number">
-          40K+
+          <!-- User Profile Details -->
+          <div class="flex items-center gap-3 mt-auto border-t border-black/5 pt-4">
+            <div class="w-10 h-10 rounded-full flex items-center justify-center font-header font-extrabold text-[11px] text-white bg-gradient-to-tr shadow-sm select-none"
+                 :class="t.avatarBg">
+              {{ t.initials }}
+            </div>
+            
+            <div class="text-left">
+              <h4 class="text-xs font-bold font-header text-brand-dark">{{ t.name }}</h4>
+              <p class="text-[10px] text-brand-slate font-semibold font-header">{{ t.role }}</p>
+            </div>
+
+            <!-- Company Tag (Harmonized inner radius: rounded-md) -->
+            <span class="ml-auto text-[9px] font-black uppercase tracking-wider text-brand-slate font-header border border-black/5 dark:border-white/10 px-2 py-1 rounded-md bg-slate-100/50 dark:bg-slate-800/50">
+              {{ t.company }}
+            </span>
+          </div>
         </div>
 
-        <div class="metric-title">
-          Meetings Processed
-        </div>
-
-        <p class="metric-desc">
-          AI-powered summaries generated across thousands of conversations.
-        </p>
       </div>
-
-      <!-- Card 2 -->
-      <div class="metric-card">
-        <div class="metric-number">
-          120K+
-        </div>
-
-        <div class="metric-title">
-          Tasks Generated
-        </div>
-
-        <p class="metric-desc">
-          Automatically extracted action items and follow-ups.
-        </p>
-      </div>
-
-      <!-- Card 3 -->
-      <div class="metric-card">
-        <div class="metric-number">
-          92%
-        </div>
-
-        <div class="metric-title">
-          Alignment Score
-        </div>
-
-        <p class="metric-desc">
-          Teams stay synchronized with searchable meeting knowledge.
-        </p>
-      </div>
-
-      <!-- Card 4 -->
-      <div class="metric-card">
-        <div class="metric-number">
-          31%
-        </div>
-
-        <div class="metric-title">
-          Less Meeting Time
-        </div>
-
-        <p class="metric-desc">
-          Faster decision making and fewer repetitive discussions.
-        </p>
-      </div>
-
     </div>
 
-    <!-- Bottom Banner -->
-    <div
-      class="
-      mt-16
-
-      rounded-[32px]
-
-      card-glass
-
-      p-8
-      sm:p-10
-
-      text-center
-      "
-    >
-      <div
-        class="
-        text-primary
-
-        font-bold
-
-        text-sm
-
-        uppercase
-
-        tracking-wider
-
-        mb-3
-        "
-      >
-        SmartMeet AI
-      </div>
-
-      <h3
-        class="
-        text-2xl
-        sm:text-3xl
-
-        font-bold
-
-        text-brand-dark
-
-        mb-4
-        "
-      >
-        Your organization's memory layer.
-      </h3>
-
-      <p
-        class="
-        text-brand-slate
-
-        max-w-[700px]
-
-        mx-auto
-        "
-      >
-        Search every meeting, retrieve every decision,
-        and never lose important context again.
-      </p>
-    </div>
+    
 
   </section>
 </template>
 
 <script setup>
-// Static Component
+import { computed } from 'vue'
+
+const testimonials = [
+  {
+    id: 1,
+    name: 'Sarah Connor',
+    role: 'VP of Product',
+    company: 'Vercel',
+    initials: 'SC',
+    avatarBg: 'from-pink-500 to-rose-500',
+    quote: 'SmartMeet completely eliminated meeting amnesia. We search for decisions made weeks ago and find the context in seconds.'
+  },
+  {
+    id: 2,
+    name: 'David Heinemeier',
+    role: 'CTO & Co-founder',
+    company: 'Basecamp',
+    initials: 'DH',
+    avatarBg: 'from-blue-500 to-indigo-500',
+    quote: 'No more annoying bot avatars sitting in calls. SmartMeet records silently and compiles action items into our tools.'
+  },
+  {
+    id: 3,
+    name: 'Elena Rostova',
+    role: 'Head of Engineering',
+    company: 'Linear',
+    initials: 'ER',
+    avatarBg: 'from-purple-500 to-violet-500',
+    quote: 'The auto-compiling tasks are scary accurate. Our engineers spend more time coding and less time writing sprint tickets.'
+  },
+  {
+    id: 4,
+    name: 'Marcus Aurelius',
+    role: 'Lead Architect',
+    company: 'Stoic Co.',
+    initials: 'MA',
+    avatarBg: 'from-teal-500 to-emerald-500',
+    quote: 'Captures the alignment score perfectly. We reduced our weekly sync overhead by over 30% since shifting to SmartMeet.'
+  },
+  {
+    id: 5,
+    name: 'Aisha Vance',
+    role: 'Staff Product Designer',
+    company: 'Airbnb',
+    initials: 'AV',
+    avatarBg: 'from-orange-500 to-amber-500',
+    quote: 'It feels like having an automated chief of staff in every meeting room. The UI is exceptionally premium and responsive.'
+  },
+  {
+    id: 6,
+    name: 'Kenji Takahashi',
+    role: 'Director of Ops',
+    company: 'Stripe',
+    initials: 'KT',
+    avatarBg: 'from-cyan-500 to-blue-500',
+    quote: 'We process thousands of minutes of audio weekly. SmartMeet acts as the ultimate reference layer for all project decisions.'
+  }
+]
+
+// Single computed source-of-truth: original + duplicate for seamless marquee loop
+const allTestimonials = computed(() => [
+  ...testimonials.map(t => ({ ...t, uid: `a-${t.id}` })),
+  ...testimonials.map(t => ({ ...t, uid: `b-${t.id}` }))
+])
 </script>
 
 <style scoped>
-.metric-card {
-  background: rgba(255, 255, 255, 0.45);
-  backdrop-filter: blur(16px);
-
-  border: 1px solid rgba(255, 255, 255, 0.7);
-
-  border-radius: 28px;
-
-  padding: 2rem;
-
-  text-align: left;
-
-  transition: all 0.5s ease;
+/* High-performance non-clipped background glows */
+.testimonials-section {
+  background: radial-gradient(circle at 10% 80%, rgba(236, 72, 153, 0.04) 0%, rgba(255, 255, 255, 0) 50%),
+              radial-gradient(circle at 90% 10%, rgba(75, 104, 255, 0.05) 0%, rgba(255, 255, 255, 0) 50%);
 }
 
-.metric-card:hover {
-  transform:
-    translateY(-8px)
-    scale(1.02);
-
-  box-shadow:
-    0 20px 50px rgba(75,104,255,0.12);
+.testimonial-card {
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.04), 0 1px 2px 0 rgba(255, 255, 255, 0.5) inset;
+  transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.metric-number {
-  font-size: 3rem;
-  line-height: 1;
-
-  font-weight: 800;
-
-  background: linear-gradient(
-    135deg,
-    #4b68ff,
-    #7f8cff
-  );
-
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-
-  margin-bottom: 16px;
+.testimonial-card:hover {
+  transform: translateY(-4px) scale(1.02);
+  box-shadow: 0 20px 40px 0 rgba(31, 38, 135, 0.08), 0 1px 2px 0 rgba(241, 243, 249, 0.7) inset;
 }
 
-.metric-title {
-  font-size: 1rem;
-  font-weight: 700;
-
-  color: #111827;
-
-  margin-bottom: 12px;
+/* Infinite Scroll Marquee Animation */
+@keyframes marquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
 }
 
-.metric-desc {
-  font-size: .875rem;
-  line-height: 1.7;
+.marquee-track {
+  animation: marquee 35s linear infinite;
+}
 
-  color: #64748b;
+.marquee-track:hover {
+  animation-play-state: paused;
+}
+
+/* Accessibility: respect user's motion preference */
+@media (prefers-reduced-motion: reduce) {
+  .marquee-track {
+    animation-play-state: paused;
+  }
 }
 </style>

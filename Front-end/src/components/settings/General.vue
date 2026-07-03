@@ -1,8 +1,38 @@
 <template>
   <div class="flex flex-col gap-6 animate-fade-in text-left">
+    <!-- Workspace Preferences Card -->
+    <div class="card-glass rounded-[28px] p-6 sm:p-8 flex flex-col gap-6 border border-white/80 shadow-glass">
+      <div class="flex items-center gap-3 pb-4 border-b border-black/5 dark:border-white/5">
+        <div class="w-10 h-10 rounded-xl bg-primary/8 border border-primary/15 flex items-center justify-center text-primary">
+          <PhGear :size="20" weight="bold" />
+        </div>
+        <div class="flex flex-col">
+          <h3 class="font-header font-bold text-lg text-brand-dark">Workspace Preferences</h3>
+          <p class="text-xs text-brand-slate">Customize your interface theme and display language.</p>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="flex flex-col gap-2">
+          <Select
+            v-model="generalForm.theme"
+            :options="themeOptions"
+            label="Interface Theme"
+          />
+        </div>
+        <div class="flex flex-col gap-2">
+          <Select
+            v-model="generalForm.language"
+            :options="languageOptions"
+            label="Language"
+          />
+        </div>
+      </div>
+    </div>
+
     <!-- AI Insights Engine Card -->
     <div class="card-glass rounded-[28px] p-6 sm:p-8 flex flex-col gap-6 border border-white/80 shadow-glass">
-      <div class="flex items-center gap-3 pb-4 border-b border-black/5">
+      <div class="flex items-center gap-3 pb-4 border-b border-black/5 dark:border-white/5">
         <div class="w-10 h-10 rounded-xl bg-primary/8 border border-primary/15 flex items-center justify-center text-primary">
           <PhGauge :size="20" weight="bold" />
         </div>
@@ -14,7 +44,7 @@
 
       <div class="flex flex-col gap-6">
         <!-- Toggle Auto-Summarization -->
-        <div class="flex items-center justify-between p-4 bg-white/40 border border-black/[0.03] rounded-2xl">
+        <div class="flex items-center justify-between p-4 bg-white/40 dark:bg-slate-900/40 border border-black/[0.03] dark:border-white/5 rounded-2xl">
           <div class="flex flex-col w-[80%]">
             <span class="text-sm font-bold text-brand-dark leading-tight">Auto-Summarization</span>
             <span class="text-xs text-brand-slate mt-0.5">Automatically generate a concise summary and action items after every meeting</span>
@@ -22,7 +52,7 @@
           <button 
             type="button"
             @click="generalForm.autoSummarize = !generalForm.autoSummarize"
-            class="w-[44px] h-[24px] rounded-full transition-colors duration-300 focus:outline-none relative flex items-center cursor-pointer border border-black/5"
+            class="w-[44px] h-[24px] rounded-full transition-colors duration-300 focus:outline-none relative flex items-center cursor-pointer border border-black/5 dark:border-white/10"
             :class="generalForm.autoSummarize ? 'bg-primary' : 'bg-brand-slate/30'"
           >
             <span class="absolute w-[18px] h-[18px] bg-white rounded-full transition-transform duration-300 shadow-sm" :style="{ transform: generalForm.autoSummarize ? 'translateX(22px)' : 'translateX(3px)' }"></span>
@@ -52,7 +82,7 @@
 
     <!-- Data & Privacy Card -->
     <div class="card-glass rounded-[28px] p-6 sm:p-8 flex flex-col gap-6 border border-white/80 shadow-glass">
-      <div class="flex items-center gap-3 pb-4 border-b border-black/5">
+      <div class="flex items-center gap-3 pb-4 border-b border-black/5 dark:border-white/5">
         <div class="w-10 h-10 rounded-xl bg-secondary/8 border border-secondary/15 flex items-center justify-center text-secondary">
           <PhShieldCheck :size="20" weight="bold" />
         </div>
@@ -64,41 +94,21 @@
 
       <div class="flex flex-col gap-4">
         <!-- Checkbox 1: Privacy-First Learning -->
-        <div 
-          @click="generalForm.privacyFirst = !generalForm.privacyFirst"
-          class="flex items-start gap-4 p-4 rounded-2xl bg-white/40 border border-black/[0.03] cursor-pointer hover:bg-white/70 transition-all duration-200"
-        >
-          <div 
-            class="w-[22px] h-[22px] rounded-lg border-2 border-brand-slate/40 flex items-center justify-center flex-shrink-0 mt-0.5"
-            :class="generalForm.privacyFirst ? 'border-primary bg-primary text-white' : ''"
-          >
-            <PhCheck v-if="generalForm.privacyFirst" :size="12" weight="bold" />
-          </div>
-          <div class="flex-1">
-            <span class="text-sm font-bold text-brand-dark block">Privacy-First Learning</span>
-            <span class="text-xs text-brand-slate leading-relaxed mt-1 block">
-              Allow SmartMeet to use anonymized transcripts to improve custom terminology recognition for your workspace. Your raw data is never shared.
-            </span>
-          </div>
+        <div class="p-4 rounded-2xl bg-white/40 dark:bg-slate-900/40 border border-black/[0.03] dark:border-white/5 hover:bg-white/70 dark:hover:bg-slate-900/60 transition-all duration-200">
+          <Checkbox 
+            v-model="generalForm.privacyFirst"
+            label="Privacy-First Learning"
+            description="Allow SmartMeet to use anonymized transcripts to improve custom terminology recognition for your workspace. Your raw data is never shared."
+          />
         </div>
 
         <!-- Checkbox 2: Auto-Delete Transcripts -->
-        <div 
-          @click="generalForm.autoDelete = !generalForm.autoDelete"
-          class="flex items-start gap-4 p-4 rounded-2xl bg-white/40 border border-black/[0.03] cursor-pointer hover:bg-white/70 transition-all duration-200"
-        >
-          <div 
-            class="w-[22px] h-[22px] rounded-lg border-2 border-brand-slate/40 flex items-center justify-center flex-shrink-0 mt-0.5"
-            :class="generalForm.autoDelete ? 'border-primary bg-primary text-white' : ''"
-          >
-            <PhCheck v-if="generalForm.autoDelete" :size="12" weight="bold" />
-          </div>
-          <div class="flex-1">
-            <span class="text-sm font-bold text-brand-dark block">Auto-Delete Transcripts</span>
-            <span class="text-xs text-brand-slate leading-relaxed mt-1 block">
-              Permanently delete transcript raw data from our servers 30 days after the meeting summary is generated.
-            </span>
-          </div>
+        <div class="p-4 rounded-2xl bg-white/40 dark:bg-slate-900/40 border border-black/[0.03] dark:border-white/5 hover:bg-white/70 dark:hover:bg-slate-900/60 transition-all duration-200">
+          <Checkbox 
+            v-model="generalForm.autoDelete"
+            label="Auto-Delete Transcripts"
+            description="Permanently delete transcript raw data from our servers 30 days after the meeting summary is generated."
+          />
         </div>
       </div>
     </div>
@@ -117,14 +127,14 @@
           <button @click="handleSyncNow" class="px-5 py-2.5 rounded-xl bg-grad-primary text-white text-xs font-bold font-header tracking-wide hover:shadow-[0_4px_12px_rgba(75,104,255,0.2)] active:scale-95 transition-all cursor-pointer">
             Sync Now
           </button>
-          <button @click="handleManageSync" class="px-5 py-2.5 rounded-xl bg-white border border-black/8 text-xs font-bold font-header text-brand-dark hover:bg-black/5 transition-all cursor-pointer">
+          <button @click="handleManageSync" class="px-5 py-2.5 rounded-xl bg-white dark:bg-slate-900 border border-black/8 dark:border-white/10 text-xs font-bold font-header text-brand-dark hover:bg-black/5 dark:hover:bg-white/5 transition-all cursor-pointer">
             Manage Sync
           </button>
         </div>
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div class="flex items-center justify-between p-4 bg-white/40 border border-black/[0.03] rounded-2xl">
+        <div class="flex items-center justify-between p-4 bg-white/40 dark:bg-slate-900/40 border border-black/[0.03] dark:border-white/5 rounded-2xl">
           <div class="flex items-center gap-3.5">
             <img :src="notionIcon" alt="Notion" class="w-8 h-8 object-contain" />
             <div class="text-left">
@@ -135,7 +145,7 @@
           <span class="text-[10px] font-extrabold px-2.5 py-0.5 rounded-md border border-green-500/20 bg-green-500/10 text-green-600 uppercase">Active</span>
         </div>
 
-        <div class="flex items-center justify-between p-4 bg-white/40 border border-black/[0.03] rounded-2xl">
+        <div class="flex items-center justify-between p-4 bg-white/40 dark:bg-slate-900/40 border border-black/[0.03] dark:border-white/5 rounded-2xl">
           <div class="flex items-center gap-3.5">
             <img :src="slackIcon" alt="Slack" class="w-8 h-8 object-contain" />
             <div class="text-left">
@@ -149,21 +159,37 @@
     </div>
 
     <!-- Footer Actions -->
-    <div class="flex justify-end items-center gap-4 pt-4 border-t border-black/5">
-      <button @click="resetGeneral" class="px-5 py-2.5 rounded-xl bg-white border border-black/8 font-header font-bold text-xs tracking-wider uppercase text-brand-dark hover:bg-black/5 transition-all cursor-pointer">Discard Changes</button>
+    <div class="flex justify-end items-center gap-4 pt-4 border-t border-black/5 dark:border-white/5">
+      <button @click="resetGeneral" class="px-5 py-2.5 rounded-xl bg-white dark:bg-slate-900 border border-black/8 dark:border-white/10 font-header font-bold text-xs tracking-wider uppercase text-brand-dark hover:bg-black/5 dark:hover:bg-white/5 transition-all cursor-pointer">Discard Changes</button>
       <button @click="saveGeneral" class="px-6 py-3 rounded-xl bg-grad-primary text-white font-header font-bold text-xs tracking-wider uppercase shadow-[0_4px_15px_rgba(75,104,255,0.2)] hover:shadow-[0_6px_22px_rgba(75,104,255,0.3)] transition-all cursor-pointer">Save AI Preferences</button>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, reactive } from 'vue'
-import { 
-  PhGauge, 
-  PhShieldCheck, 
-  PhCheck 
+import { reactive } from 'vue'
+import {
+  PhGauge,
+  PhShieldCheck,
+  PhGear
 } from '@phosphor-icons/vue'
 import Select from '../ui/Select.vue'
+import Checkbox from '../ui/Checkbox.vue'
+import { useAlertStore } from '@/stores/alert'
+
+const alertStore = useAlertStore()
+
+const themeOptions = [
+  { value: 'light', label: 'Light Mode (Glassmorphism)' },
+  { value: 'dark', label: 'Dark Mode (Default)' },
+  { value: 'system', label: 'System Synchronized' },
+]
+
+const languageOptions = [
+  { value: 'en-US', label: 'English (US)' },
+  { value: 'en-GB', label: 'English (UK)' },
+  { value: 'es-ES', label: 'Spanish (ES)' },
+]
 
 const detailLevelOptions = [
   { value: 'standard', label: 'Standard (Executive summary & key milestones)' },
@@ -181,6 +207,8 @@ import notionIcon from '../../assets/Notion-logo.svg.png'
 import slackIcon from '../../assets/slack.png'
 
 const generalForm = reactive({
+  theme: 'light',
+  language: 'en-US',
   autoSummarize: true,
   detailLevel: 'standard',
   focusType: 'tasks',
@@ -188,24 +216,26 @@ const generalForm = reactive({
   autoDelete: false
 })
 
-const resetGeneral = () => {
+const resetGeneral = async () => {
+  generalForm.theme = 'light'
+  generalForm.language = 'en-US'
   generalForm.autoSummarize = true
   generalForm.detailLevel = 'standard'
   generalForm.focusType = 'tasks'
   generalForm.privacyFirst = true
   generalForm.autoDelete = false
-  alert('Discarded unsaved AI changes.')
+  await alertStore.showAlert('Discarded unsaved AI changes.', 'Discarded', 'primary')
 }
 
-const saveGeneral = () => {
-  alert('Successfully saved AI engine preferences!')
+const saveGeneral = async () => {
+  await alertStore.showAlert('Successfully saved AI engine preferences!', 'Success', 'primary')
 }
 
-const handleSyncNow = () => {
-  alert('Knowledge database sync initialized. Fetching Notion databases & Slack threads...')
+const handleSyncNow = async () => {
+  await alertStore.showAlert('Knowledge database sync initialized. Fetching Notion databases & Slack threads...', 'Sync Initialized', 'primary')
 }
 
-const handleManageSync = () => {
-  alert('Google Calendar sync connection details settings open.')
+const handleManageSync = async () => {
+  await alertStore.showAlert('Google Calendar sync connection details settings open.', 'Calendar Settings', 'primary')
 }
 </script>
