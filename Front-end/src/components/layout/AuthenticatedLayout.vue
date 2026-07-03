@@ -226,11 +226,9 @@
                       <div v-if="notification.type === 'meeting'" class="mt-3">
                         <button
                           @click.stop="joinMeeting(notification)"
-                          :disabled="meetingStatuses[notification.relatedId] === 'completed'"
-                          class="px-2.5 py-1 rounded-full text-[10px] font-bold transition-all duration-200"
-                          :class="meetingStatuses[notification.relatedId] === 'completed' ? 'bg-brand-slate/30 text-brand-slate cursor-not-allowed' : 'bg-primary text-white hover:scale-105'"
+                          class="px-2.5 py-1 rounded-full bg-primary text-white text-[10px] font-bold transition-all duration-200 hover:scale-105"
                         >
-                          {{ meetingStatuses[notification.relatedId] === 'completed' ? 'Ended' : 'Join Meeting' }}
+                          Join Meeting
                         </button>
                       </div>
                     </div>
@@ -359,7 +357,7 @@
 </template>
 
 <script setup>
-import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUiStore } from '../../stores/ui'
 import Sidebar from './Sidebar.vue'
@@ -393,24 +391,6 @@ const showLogoutModal = ref(false)
 
 const notifications = computed(() => notificationStore.notifications)
 const unreadCount = computed(() => notificationStore.unreadCount)
-
-const meetingStatuses = ref({})
-
-const checkMeetingStatuses = async () => {
-  const meetingNotifs = notifications.value.filter(n => n.type === 'meeting' && n.relatedId)
-  for (const n of meetingNotifs) {
-    if (meetingStatuses.value[n.relatedId] === undefined) {
-      try {
-        const meeting = await meetingStore.fetchMeeting(n.relatedId)
-        if (meeting) {
-          meetingStatuses.value[n.relatedId] = meeting.status || 'scheduled'
-        }
-      } catch {}
-    }
-  }
-}
-
-watch(notifications, () => { checkMeetingStatuses() }, { deep: true })
 
 const handleNotificationClick = (notification) => {
   notificationStore.markAsRead(notification.id)
@@ -470,14 +450,6 @@ const joinMeeting = async (notification) => {
   try {
     const meeting = await meetingStore.fetchMeeting(notification.relatedId)
     if (!meeting) {
-      router.push('/archive')
-      return
-    }
-
-    meetingStatuses.value[notification.relatedId] = meeting.status || 'scheduled'
-
-    if (meeting.status === 'completed') {
-      await alertStore.showAlert('This meeting has already ended.', 'Meeting Ended', 'primary')
       router.push('/archive')
       return
     }

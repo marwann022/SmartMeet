@@ -11,7 +11,6 @@ import invitationRoutes from "./routes/invitationRoutes.js";
 import communityChatRoutes from "./routes/communityChatRoutes.js";
 import dashboardRoutes from "./routes/dashboardRoutes.js";
 import subscriptionRoutes from "./routes/subscriptionRoutes.js";
-import settingsRoutes from "./routes/settingsRoutes.js";
 import cors from "cors";
 
 const app = express();
@@ -39,6 +38,5 @@ app.use("/api/invitations", invitationRoutes);
 app.use("/api/community-chat", communityChatRoutes);
 app.use("/api/dashboard", dashboardRoutes);
 app.use("/api/subscription", subscriptionRoutes);
-app.use("/api/settings", settingsRoutes);
 
 export default app;

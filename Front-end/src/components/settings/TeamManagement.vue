@@ -92,11 +92,11 @@
           </div>
         </div>
 
-        <div class="overflow-x-auto" :class="{ 'overflow-visible': activeMemberDropdown !== null }">
+        <div class="overflow-x-auto">
           <table class="w-full border-collapse text-left text-xs">
             <thead>
               <tr
-                class="border-b border-black/5 dark:border-white/5 font-extrabold text-brand-slate uppercase sticky top-0 z-20 bg-white/90 dark:bg-slate-900/90 backdrop-blur-sm"
+                class="border-b border-black/5 dark:border-white/5 font-extrabold text-brand-slate uppercase pb-3"
               >
                 <th class="pb-3 pr-4">Member</th>
                 <th class="pb-3 px-4">Role</th>
@@ -135,45 +135,42 @@
                 </td>
                 <td class="py-3 pl-4 text-right relative">
                   <button
-                    @click.stop="toggleMemberDropdown(m.id, $event)"
+                    @click.stop="activeMemberDropdown = activeMemberDropdown === m.id ? null : m.id"
                     class="w-7 h-7 rounded-lg hover:bg-black/5 dark:hover:bg-white/5 inline-flex ml-auto items-center justify-center text-brand-slate transition-colors cursor-pointer"
                   >
                     <PhDotsThreeOutlineVertical :size="14" weight="bold" />
                   </button>
 
-                  <teleport to="body">
-                    <div
-                      v-if="activeMemberDropdown === m.id"
-                      class="fixed z-[9999] w-[180px] bg-white dark:bg-slate-900 rounded-xl shadow-xl border border-black/8 dark:border-white/10 py-1"
-                      :style="{ left: dropdownPosition.x + 'px', top: dropdownPosition.y + 'px' }"
-                      @click.stop
+                  <div
+                    v-if="activeMemberDropdown === m.id"
+                    class="absolute right-0 top-[80%] mt-2 z-50 w-[180px] bg-white dark:bg-slate-900 rounded-xl shadow-xl border border-black/8 dark:border-white/10 py-1"
+                    @click.stop
+                  >
+                    <button
+                      @click="copyMemberEmail(m)"
+                      :disabled="actionLoading"
+                      class="w-full flex items-center gap-2.5 px-3.5 py-2.5 text-xs font-semibold text-brand-dark hover:bg-primary/5 dark:hover:bg-primary/10 transition-colors cursor-pointer text-left disabled:opacity-50"
                     >
-                      <button
-                        @click="copyMemberEmail(m)"
-                        :disabled="actionLoading"
-                        class="w-full flex items-center gap-2.5 px-3.5 py-2.5 text-xs font-semibold text-brand-dark hover:bg-primary/5 dark:hover:bg-primary/10 transition-colors cursor-pointer text-left disabled:opacity-50"
-                      >
-                        <PhEnvelopeSimple :size="14" weight="bold" />
-                        Copy Email
-                      </button>
-                      <button
-                        @click="handleChangeRole(m)"
-                        :disabled="actionLoading"
-                        class="w-full flex items-center gap-2.5 px-3.5 py-2.5 text-xs font-semibold text-brand-dark hover:bg-primary/5 dark:hover:bg-primary/10 transition-colors cursor-pointer text-left disabled:opacity-50"
-                      >
-                        <PhArrowArcLeft :size="14" weight="bold" />
-                        {{ m.role === 'Admin' ? 'Change to Member' : 'Change to Admin' }}
-                      </button>
-                      <button
-                        @click="handleRemoveMember(m)"
-                        :disabled="actionLoading"
-                        class="w-full flex items-center gap-2.5 px-3.5 py-2.5 text-xs font-semibold text-red-600 hover:bg-red-50 dark:hover:bg-red-500/20 transition-colors cursor-pointer text-left disabled:opacity-50"
-                      >
-                        <PhUserMinus :size="14" weight="bold" />
-                        Remove from Community
-                      </button>
-                    </div>
-                  </teleport>
+                      <PhEnvelopeSimple :size="14" weight="bold" />
+                      Copy Email
+                    </button>
+                    <button
+                      @click="handleChangeRole(m)"
+                      :disabled="actionLoading"
+                      class="w-full flex items-center gap-2.5 px-3.5 py-2.5 text-xs font-semibold text-brand-dark hover:bg-primary/5 dark:hover:bg-primary/10 transition-colors cursor-pointer text-left disabled:opacity-50"
+                    >
+                      <PhArrowArcLeft :size="14" weight="bold" />
+                      {{ m.role === 'Admin' ? 'Change to Member' : 'Change to Admin' }}
+                    </button>
+                    <button
+                      @click="handleRemoveMember(m)"
+                      :disabled="actionLoading"
+                      class="w-full flex items-center gap-2.5 px-3.5 py-2.5 text-xs font-semibold text-red-600 hover:bg-red-50 dark:hover:bg-red-500/20 transition-colors cursor-pointer text-left disabled:opacity-50"
+                    >
+                      <PhUserMinus :size="14" weight="bold" />
+                      Remove from Community
+                    </button>
+                  </div>
                 </td>
               </tr>
             </tbody>
@@ -408,7 +405,7 @@
           <table class="w-full border-collapse text-left text-xs">
             <thead>
               <tr
-                class="border-b border-black/5 dark:border-white/5 font-extrabold text-brand-slate uppercase sticky top-0 z-20 bg-white/90 dark:bg-slate-900/90 backdrop-blur-sm"
+                class="border-b border-black/5 dark:border-white/5 font-extrabold text-brand-slate uppercase pb-3"
               >
                 <th class="pb-3 pr-4">Member</th>
                 <th class="pb-3 px-4">Role</th>
@@ -585,8 +582,7 @@ const toggleMemberDropdown = (memberId, event) => {
     return;
   }
   const rect = event.currentTarget.getBoundingClientRect();
-  const x = Math.min(rect.right - 180, window.innerWidth - 200);
-  dropdownPosition.value = { x: Math.max(8, x), y: rect.bottom + 4 };
+  dropdownPosition.value = { x: rect.right, y: rect.bottom + 4 };
   activeMemberDropdown.value = memberId;
 };
 

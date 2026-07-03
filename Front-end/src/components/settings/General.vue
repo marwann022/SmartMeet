@@ -163,191 +163,21 @@
       <button @click="resetGeneral" class="px-5 py-2.5 rounded-xl bg-white dark:bg-slate-900 border border-black/8 dark:border-white/10 font-header font-bold text-xs tracking-wider uppercase text-brand-dark hover:bg-black/5 dark:hover:bg-white/5 transition-all cursor-pointer">Discard Changes</button>
       <button @click="saveGeneral" class="px-6 py-3 rounded-xl bg-grad-primary text-white font-header font-bold text-xs tracking-wider uppercase shadow-[0_4px_15px_rgba(75,104,255,0.2)] hover:shadow-[0_6px_22px_rgba(75,104,255,0.3)] transition-all cursor-pointer">Save AI Preferences</button>
     </div>
-
-    <!-- Admin-Only: Integrations & Environment Panel -->
-    <template v-if="authStore.user?.role === 'admin'">
-      <div class="card-glass rounded-[28px] p-6 sm:p-8 flex flex-col gap-6 border border-white/80 shadow-glass">
-        <div class="flex items-center justify-between gap-3 pb-4 border-b border-black/5 dark:border-white/5">
-          <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-500">
-              <PhShield :size="20" weight="bold" />
-            </div>
-            <div class="flex flex-col">
-              <h3 class="font-header font-bold text-lg text-brand-dark">Admin: Integrations & Environment</h3>
-              <p class="text-xs text-brand-slate">Manage API tokens, webhook URLs, and environment variables.</p>
-            </div>
-          </div>
-          <button
-            @click="adminPanelOpen = !adminPanelOpen"
-            class="p-2 rounded-lg hover:bg-black/5 dark:hover:bg-white/5 transition-all cursor-pointer"
-          >
-            <PhCaretDown :size="18" weight="bold" class="text-brand-slate transition-transform duration-300" :class="{ 'rotate-180': adminPanelOpen }" />
-          </button>
-        </div>
-
-        <template v-if="adminPanelOpen">
-          <!-- Environment Variables -->
-          <div class="flex flex-col gap-3">
-            <h4 class="font-header font-bold text-sm text-brand-dark">Environment Variables</h4>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-              <div v-for="(val, key) in envVars" :key="key" class="flex flex-col gap-1 p-3 rounded-xl bg-white/40 dark:bg-slate-900/40 border border-black/[0.03] dark:border-white/5">
-                <span class="text-[9px] font-extrabold text-brand-slate uppercase tracking-wider">{{ key }}</span>
-                <span class="text-xs font-mono text-brand-dark break-all">{{ val ? (val.length > 40 ? val.substring(0, 40) + '...' : val) : '—' }}</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Token Validation -->
-          <div class="flex flex-col gap-3">
-            <h4 class="font-header font-bold text-sm text-brand-dark">API Token Validation</h4>
-            <div class="flex items-center gap-3">
-              <input
-                v-model="tokenTestValue"
-                type="text"
-                placeholder="Paste token to validate..."
-                class="flex-1 px-4 py-2.5 rounded-xl bg-white dark:bg-slate-950/60 border border-black/8 dark:border-white/10 font-body text-xs text-brand-dark focus:outline-none focus:border-primary/30"
-              />
-              <button
-                @click="validateToken"
-                :disabled="tokenTesting"
-                class="px-4 py-2.5 rounded-xl bg-primary text-white text-[10px] font-bold whitespace-nowrap transition-all hover:scale-105 cursor-pointer disabled:opacity-50"
-              >
-                {{ tokenTesting ? 'Testing...' : 'Validate Token' }}
-              </button>
-            </div>
-            <p v-if="tokenResult !== null" class="text-xs font-semibold" :class="tokenResult ? 'text-green-600' : 'text-red-500'">
-              {{ tokenResult ? '✓ Token is valid' : '✗ Token is invalid or expired' }}
-            </p>
-            <p class="text-[10px] text-brand-slate">Enter a JWT token to verify its validity and check the associated user.</p>
-          </div>
-
-          <!-- Webhook Configuration -->
-          <div class="flex flex-col gap-3">
-            <h4 class="font-header font-bold text-sm text-brand-dark">Webhook URL</h4>
-            <div class="flex items-center gap-3">
-              <input
-                v-model="webhookUrl"
-                type="url"
-                placeholder="https://hooks.example.com/smartmeet"
-                class="flex-1 px-4 py-2.5 rounded-xl bg-white dark:bg-slate-950/60 border border-black/8 dark:border-white/10 font-body text-xs text-brand-dark focus:outline-none focus:border-primary/30"
-              />
-              <button
-                @click="saveWebhook"
-                :disabled="webhookSaving"
-                class="px-4 py-2.5 rounded-xl bg-primary text-white text-[10px] font-bold whitespace-nowrap transition-all hover:scale-105 cursor-pointer disabled:opacity-50"
-              >
-                {{ webhookSaving ? 'Saving...' : 'Save' }}
-              </button>
-              <button
-                @click="testWebhook"
-                :disabled="webhookTesting"
-                class="px-4 py-2.5 rounded-xl bg-white dark:bg-slate-900 border border-black/8 dark:border-white/10 text-[10px] font-bold text-brand-dark transition-all hover:bg-black/5 cursor-pointer disabled:opacity-50"
-              >
-                {{ webhookTesting ? 'Testing...' : 'Test' }}
-              </button>
-            </div>
-            <p class="text-[10px] text-brand-slate">Configure a webhook URL to receive meeting summaries and event notifications in real-time.</p>
-          </div>
-        </template>
-      </div>
-    </template>
   </div>
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from 'vue'
+import { reactive } from 'vue'
 import {
   PhGauge,
   PhShieldCheck,
-  PhGear,
-  PhShield,
-  PhCaretDown
+  PhGear
 } from '@phosphor-icons/vue'
 import Select from '../ui/Select.vue'
 import Checkbox from '../ui/Checkbox.vue'
 import { useAlertStore } from '@/stores/alert'
-import { useAuthStore } from '@/stores/auth'
-import axios from 'axios'
 
 const alertStore = useAlertStore()
-const authStore = useAuthStore()
-
-const adminPanelOpen = ref(false)
-
-const envVars = reactive({
-  NODE_ENV: import.meta.env.VITE_NODE_ENV || process.env.NODE_ENV || 'development',
-  API_URL: import.meta.env.VITE_API_URL || 'http://localhost:5000',
-  APP_VERSION: import.meta.env.VITE_APP_VERSION || '1.0.0',
-})
-
-const tokenTestValue = ref('')
-const tokenTesting = ref(false)
-const tokenResult = ref(null)
-
-const validateToken = async () => {
-  if (!tokenTestValue.value.trim()) return
-  tokenTesting.value = true
-  tokenResult.value = null
-  try {
-    const { data } = await axios.get('http://localhost:5000/api/auth/profile', {
-      headers: { Authorization: `Bearer ${tokenTestValue.value.trim()}` }
-    })
-    tokenResult.value = data.success === true
-  } catch {
-    tokenResult.value = false
-  } finally {
-    tokenTesting.value = false
-  }
-}
-
-const webhookUrl = ref('')
-const webhookSaving = ref(false)
-const webhookTesting = ref(false)
-
-const saveWebhook = async () => {
-  if (!webhookUrl.value.trim()) return
-  webhookSaving.value = true
-  try {
-    await axios.post(
-      'http://localhost:5000/api/settings/webhook',
-      { url: webhookUrl.value.trim() },
-      { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } }
-    )
-    await alertStore.showAlert('Webhook URL saved successfully.', 'Webhook Saved', 'primary')
-  } catch {
-    await alertStore.showAlert('Failed to save webhook URL.', 'Error', 'danger')
-  } finally {
-    webhookSaving.value = false
-  }
-}
-
-const testWebhook = async () => {
-  if (!webhookUrl.value.trim()) return
-  webhookTesting.value = true
-  try {
-    await axios.post(
-      'http://localhost:5000/api/settings/webhook/test',
-      { url: webhookUrl.value.trim() },
-      { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } }
-    )
-    await alertStore.showAlert('Webhook test payload sent successfully.', 'Webhook Test', 'primary')
-  } catch {
-    await alertStore.showAlert('Webhook test failed. Check the URL and try again.', 'Webhook Error', 'danger')
-  } finally {
-    webhookTesting.value = false
-  }
-}
-
-onMounted(async () => {
-  try {
-    const { data } = await axios.get('http://localhost:5000/api/settings/webhook', {
-      headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-    })
-    if (data.success && data.url) {
-      webhookUrl.value = data.url
-    }
-  } catch {}
-})
 
 const themeOptions = [
   { value: 'light', label: 'Light Mode (Glassmorphism)' },

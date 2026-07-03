@@ -18,7 +18,6 @@ import {
     getMeetingKnowledge,
     getMeetingTasks,
     getMeetingDecisions,
-    updateMeetingKnowledge,
 } from "../controllers/meetingKnowledgeController.js";
 
 import mongoose from "mongoose";
@@ -53,6 +52,5 @@ router.get("/:id/summary", getMeetingSummary);
 router.get("/:id/knowledge", getMeetingKnowledge);
 router.get("/:id/tasks", getMeetingTasks);
 router.get("/:id/decisions", getMeetingDecisions);
-router.put("/:id/knowledge", updateMeetingKnowledge);
 
 export default router;
