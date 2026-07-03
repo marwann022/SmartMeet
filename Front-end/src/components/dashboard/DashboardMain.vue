@@ -302,8 +302,10 @@ const cancelReviewAction = () => {
 }
 
 const isTaskLocked = (task) => {
-  const isAdmin = authStore.user?.role === 'admin'
-  return !isAdmin && (task.status === 'review' || task.status === 'done')
+  if (authStore.user?.role === 'admin') {
+    return task.status !== 'review'
+  }
+  return task.status === 'review' || task.status === 'done'
 }
 
 const firstName = computed(() => {

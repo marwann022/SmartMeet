@@ -293,8 +293,8 @@
             <p class="text-xs font-body text-emerald-700 dark:text-emerald-300 leading-relaxed">This task has been completed and approved.</p>
           </div>
 
-          <!-- Interactive Stage Switcher in Modal -->
-          <div class="flex flex-col gap-2 border-t border-black/5 dark:border-white/10 pt-4">
+          <!-- Stage Switcher — members only; admin modal is informational -->
+          <div v-if="authStore.user?.role !== 'admin'" class="flex flex-col gap-2 border-t border-black/5 dark:border-white/10 pt-4">
             <label class="text-[10px] font-extrabold uppercase tracking-wider text-brand-slate pl-1 font-header">Move Stage</label>
             <div class="grid grid-cols-4 gap-2">
               <button 
@@ -321,28 +321,9 @@
             </div>
           </div>
 
-          <!-- Admin Review Actions: Approve / Return to In Progress (review only) -->
-          <div v-if="selectedTask.status === 'review' && authStore.user?.role === 'admin'" class="flex flex-col gap-3 pt-4 border-t border-black/5 dark:border-white/10">
-            <label class="text-[10px] font-extrabold uppercase tracking-wider text-brand-slate pl-1 font-header">Review Actions</label>
-            <div class="flex gap-3">
-              <Button variant="primary" class="flex-1" @click="handleCardApprove(selectedTask)">
-                <template #icon-left><PhCheck :size="14" weight="bold" /></template>
-                Approve
-              </Button>
-              <button
-                @click="handleReturnToInProgress"
-                class="flex-1 px-4 py-2.5 rounded-xl border-2 border-orange-500/40 text-orange-500 font-bold text-xs transition-all duration-200 hover:bg-orange-500/10 hover:border-orange-500 cursor-pointer flex items-center justify-center gap-1.5"
-                title="Request changes from the assigned member."
-              >
-                <PhArrowUUpLeft :size="14" weight="bold" />
-                Return to In Progress
-              </button>
-            </div>
-          </div>
-
           <div class="flex gap-3 pt-4 border-t border-black/5 dark:border-white/10">
             <Button 
-              v-if="isAdmin ? selectedTask.status !== 'review' : selectedTask.status === 'done'"
+              v-if="authStore.user?.role !== 'admin' && selectedTask.status === 'done'"
               class="flex-1"
               :variant="selectedTask.status === 'done' || selectedTask.done ? 'outline' : 'primary'"
               @click="handleToggleTask"
@@ -353,7 +334,7 @@
             <Button v-if="authStore.user?.role === 'admin'" variant="outline" @click="startEditing">
               Edit Details
             </Button>
-            <Button variant="danger" :disabled="isLocked" @click="taskStore.removeTask(selectedTask.id || selectedTask._id); selectedTask = null">
+            <Button variant="danger" :disabled="authStore.user?.role === 'admin' ? false : isLocked" @click="taskStore.removeTask(selectedTask.id || selectedTask._id); selectedTask = null">
               Delete
             </Button>
           </div>
@@ -697,22 +678,8 @@ const cancelReviewAction = () => {
 }
 
 const onDragOver = (e, status) => {
-  const isAdmin = authStore.user?.role === 'admin'
-  if (status === 'inprogress' && isAdmin) {
-    const taskId = e.dataTransfer.getData('text/plain')
-    if (taskId) {
-      const task = taskStore.tasks.find(t => String(t.id || t._id) === String(taskId))
-      if (task && (task.status === 'review' || task.status === 'inprogress')) {
-        e.preventDefault()
-        e.dataTransfer.dropEffect = 'move'
-        return
-      }
-    }
-    e.dataTransfer.dropEffect = 'none'
-    return
-  }
-  // Block admin drops into Review
-  if (status === 'review' && isAdmin) {
+  // Admin cannot use drag-and-drop — use approve/reject buttons
+  if (authStore.user?.role === 'admin') {
     e.dataTransfer.dropEffect = 'none'
     return
   }
@@ -721,23 +688,8 @@ const onDragOver = (e, status) => {
 }
 
 const onDragEnter = (e, status) => {
-  const isAdmin = authStore.user?.role === 'admin'
+  if (authStore.user?.role === 'admin') return
   e.preventDefault()
-  if (status === 'inprogress' && isAdmin) {
-    const taskId = e.dataTransfer.getData('text/plain')
-    if (taskId) {
-      const task = taskStore.tasks.find(t => String(t.id || t._id) === String(taskId))
-      if (task && (task.status === 'review' || task.status === 'inprogress')) {
-        activeDragColumn.value = status
-        return
-      }
-    }
-    return
-  }
-  // Don't highlight review column for admin drags
-  if (status === 'review' && isAdmin) {
-    return
-  }
   activeDragColumn.value = status
 }
 
@@ -755,37 +707,19 @@ const onDrop = (event, status) => {
   const task = taskStore.tasks.find(t => String(t.id) === String(taskId) || String(t._id) === String(taskId))
   if (!task) return
 
-  const isAdmin = authStore.user?.role === 'admin'
-
-  // Admin restrictions
-  if (isAdmin) {
-    // Admin cannot drop into In Progress (unless returning from review)
-    if (status === 'inprogress' && task.status !== 'review' && task.status !== 'inprogress') {
-      rejectedDropStatus.value = status
-      setTimeout(() => { rejectedDropStatus.value = null }, 600)
-      info('Only the assigned member can start or submit this task.', 'Action Not Allowed')
-      return
-    }
-    // Admin cannot drop into Review
-    if (status === 'review') {
-      rejectedDropStatus.value = status
-      setTimeout(() => { rejectedDropStatus.value = null }, 600)
-      info('Only the assigned member can start or submit this task.', 'Action Not Allowed')
-      return
-    }
+  // Admin cannot drag-and-drop — use approve/reject buttons on review cards
+  if (authStore.user?.role === 'admin') {
+    return
   }
 
-  // Member restrictions
-  if (!isAdmin) {
-    // Member cannot drop into Done
-    if (status === 'done') {
-      info('Tasks must be submitted for review and approved by an admin.', 'Action Not Allowed')
-      return
-    }
+  // Member cannot drop into Done
+  if (status === 'done') {
+    info('Tasks must be submitted for review and approved by an admin.', 'Action Not Allowed')
+    return
   }
 
   // Existing review confirm for member dropping into review
-  if (status === 'review' && !isAdmin) {
+  if (status === 'review') {
     triggerReviewConfirmModal(() => {
       taskStore.setTaskStatus(taskId, status)
     })

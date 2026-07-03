@@ -129,6 +129,15 @@ const userSchema = new mongoose.Schema(
       pushDesktop: { type: Boolean, default: true },
       pushMobile: { type: Boolean, default: true },
     },
+    subscription: {
+      plan: { type: String, enum: ["Free", "Professional", "Enterprise"], default: "Free" },
+      price: { type: Number, default: 0 },
+      currency: { type: String, default: "USD" },
+      billingCycle: { type: String, enum: ["Monthly", "Yearly"], default: "Monthly" },
+      renewalDate: { type: Date, default: null },
+      status: { type: String, enum: ["Active", "Trial", "Expired", "Cancelled"], default: "Trial" },
+      stripeCustomerId: { type: String, default: null },
+    },
   },
   {
     timestamps: true, // gives time for created at and updated at

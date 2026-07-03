@@ -278,33 +278,56 @@
             Billing Overview
           </h3>
           <span
+            v-if="subscriptionLoading"
+            class="inline-block w-16 h-[18px] rounded-md skeleton-pulse"
+          />
+          <span
+            v-else-if="subscriptionError"
+            class="text-[9px] font-extrabold px-2.5 py-0.5 rounded-md border border-red-400/30 bg-red-400/10 text-red-500 uppercase"
+          >Error</span>
+          <span
+            v-else
             class="text-[9px] font-extrabold px-2.5 py-0.5 rounded-md border border-[#acedff]/30 bg-[#acedff]/10 text-primary uppercase"
-          >
-            Pro Plan
-          </span>
+          >{{ subscription?.plan || 'Free' }}</span>
         </div>
 
         <div class="flex flex-col gap-4 text-left">
-          <div class="flex justify-between items-baseline">
-            <span class="text-xs font-semibold text-brand-slate"
-              >Monthly Total</span
-            >
-            <span class="text-xl font-bold font-header text-brand-dark"
-              >$149.00</span
-            >
+          <div v-if="subscriptionError" class="flex flex-col gap-2 items-center py-2">
+            <span class="text-xs text-red-500">Failed to load billing info</span>
+            <button @click="loadSubscription" class="text-xs font-bold text-primary hover:underline cursor-pointer">Retry</button>
           </div>
 
-          <div
-            class="flex justify-between items-center text-xs text-brand-slate font-medium pt-2 border-t border-black/5 dark:border-white/5"
-          >
-            <div class="flex items-center gap-1.5">
-              <PhCalendar :size="14" class="text-primary" />
-              <span>Renewal Date</span>
+          <template v-else>
+            <div class="flex justify-between items-baseline">
+              <span class="text-xs font-semibold text-brand-slate">Monthly Total</span>
+              <span
+                v-if="subscriptionLoading"
+                class="inline-block w-20 h-7 rounded-lg skeleton-pulse"
+              />
+              <span
+                v-else
+                class="text-xl font-bold font-header text-brand-dark"
+              >{{ formatPrice(subscription) }}</span>
             </div>
-            <span class="font-semibold text-brand-dark">Oct 12, 2026</span>
-          </div>
 
-          <!-- Buttons -->
+            <div
+              class="flex justify-between items-center text-xs text-brand-slate font-medium pt-2 border-t border-black/5 dark:border-white/5"
+            >
+              <div class="flex items-center gap-1.5">
+                <PhCalendar :size="14" class="text-primary" />
+                <span>Renewal Date</span>
+              </div>
+              <span
+                v-if="subscriptionLoading"
+                class="inline-block w-24 h-4 rounded skeleton-pulse"
+              />
+              <span
+                v-else
+                class="font-semibold text-brand-dark"
+              >{{ formatDate(subscription?.renewalDate) }}</span>
+            </div>
+          </template>
+
           <div class="flex flex-col gap-2 mt-2">
             <button
               @click="$router.push('/pricing')"
@@ -313,7 +336,7 @@
               Upgrade to Enterprise
             </button>
             <button
-              @click="$router.push('/pricing')"
+              @click="handleManageSub"
               class="w-full py-3 rounded-xl bg-white dark:bg-white/5 border border-black/8 dark:border-white/10 text-xs font-bold font-header text-brand-slate dark:text-slate-300 hover:bg-black/5 dark:hover:bg-white/10 transition-all cursor-pointer"
             >
               Manage Subscription
@@ -369,7 +392,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted, watch } from "vue";import {
+import { ref, reactive, computed, onMounted, onUnmounted, watch } from "vue";import {
   PhUserCircle,
   PhCamera,
   PhLockKey,
@@ -384,6 +407,7 @@ import { useToasts } from "../../composables/useToasts";
 import axios from "axios"
 import { useAuthStore } from "@/stores/auth";
 import Modal from "../ui/Modal.vue";
+import { useSubscriptionStore } from "@/stores/subscription";
 
 
 
@@ -507,6 +531,31 @@ const DEFAULT_PROFILE = {
 // Core states matching layout structures
 const profileForm = reactive({ ...DEFAULT_PROFILE });
 
+const subscriptionStore = useSubscriptionStore();
+
+const subscription = computed(() => subscriptionStore.subscription);
+const subscriptionLoading = computed(() => subscriptionStore.loading);
+const subscriptionError = computed(() => subscriptionStore.error);
+const loadSubscription = subscriptionStore.fetch;
+
+const formatPrice = (sub) => {
+  if (!sub) return "$0.00";
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: sub.currency || "USD",
+    minimumFractionDigits: 2,
+  }).format(sub.price || 0);
+};
+
+const formatDate = (dateStr) => {
+  if (!dateStr) return "N/A";
+  return new Date(dateStr).toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  });
+};
+
 const loadProfile = async () => {
   try {
 
@@ -624,15 +673,37 @@ console.table(sessions.value);
 // Serializes and commits state snapshot directly onto disk
 
 
-// Auto-save runtime processing layer with performance safe debouncing (400ms)
-
-
-// Run early initialization to hydrate state cleanly before view mounting renders
+let refreshInterval = null;
+let isVisible = true;
 
 onMounted(async () => {
   await loadProfile();
   await loadSessions();
+  subscriptionStore.fetch();
+
+  document.addEventListener("visibilitychange", onVisibilityChange);
+
+  refreshInterval = setInterval(() => {
+    if (isVisible) {
+      subscriptionStore.fetch();
+    }
+  }, 30000);
 });
+
+onUnmounted(() => {
+  if (refreshInterval) {
+    clearInterval(refreshInterval);
+    refreshInterval = null;
+  }
+  document.removeEventListener("visibilitychange", onVisibilityChange);
+});
+
+const onVisibilityChange = () => {
+  isVisible = !document.hidden;
+  if (isVisible) {
+    subscriptionStore.fetch();
+  }
+};
 
 // --- Explicit Event Actions ---
 
@@ -825,3 +896,15 @@ const triggerAvatarUpload = () => {
   avatarInput.value.click();
 };
 </script>
+
+<style scoped>
+@keyframes skeleton-pulse {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 0.8; }
+}
+.skeleton-pulse {
+  animation: skeleton-pulse 1.5s ease-in-out infinite;
+  background: linear-gradient(90deg, #e5e7eb 25%, #f3f4f6 50%, #e5e7eb 75%);
+  background-size: 200% 100%;
+}
+</style>

@@ -3,6 +3,7 @@ import User from "../models/User.js";
 import Notification from "../models/Notification.js";
 import Meeting from "../models/Meeting.js";
 import { getIO, getUserSockets } from "../socket/index.js";
+import { validateTransition, STATUS } from "../utils/workflow.js";
 
 // @desc    Get all tasks visible to the logged-in user
 // @route   GET /api/tasks
@@ -315,28 +316,12 @@ export const updateTask = async (req, res) => {
             });
         }
 
-        // Admin cannot move tasks into "In Progress" unless returning from Review
-        if (isAdmin && status === "inprogress" && task.status !== "review") {
-            return res.status(403).json({
-                success: false,
-                message: "Only the assigned member can start a task.",
-            });
-        }
-
-        // Admin cannot move tasks into "Review" — only members can submit for review
-        if (isAdmin && status === "review") {
-            return res.status(403).json({
-                success: false,
-                message: "Only the assigned member can submit a task for review.",
-            });
-        }
-
-        // Member cannot set status to "done" directly — must go through review → admin approve
-        if (!isAdmin && status === "done" && task.status !== "done") {
-            return res.status(403).json({
-                success: false,
-                message: "Task must be submitted for review and approved by an admin.",
-            });
+        // Centralized workflow validation — reject unauthorized transitions
+        if (status !== undefined && status !== task.status) {
+            const { allowed, reason } = validateTransition(task.status, status, req.user.role);
+            if (!allowed) {
+                return res.status(403).json({ success: false, message: reason });
+            }
         }
 
         // Action: When a member switches task to 'review', notify ALL admins

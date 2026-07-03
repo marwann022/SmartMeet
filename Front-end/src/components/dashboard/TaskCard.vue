@@ -1,6 +1,6 @@
 <template>
   <div
-    :draggable="!isLocked"
+    :draggable="isDraggable"
     @dragstart="onDragStart"
     @click="$emit('click')"
     class="group relative border border-solid rounded-xl p-[17px] flex flex-col gap-3 cursor-pointer transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(0,0,0,0.07)] select-none overflow-hidden"
@@ -52,7 +52,7 @@
         <!-- Hover state: move left / right / delete -->
         <div class="absolute right-0 opacity-0 group-hover:opacity-100 pointer-events-none group-hover:pointer-events-auto flex items-center gap-1 transition-opacity duration-200">
           <button
-            v-if="task.status !== 'todo' && !isLocked"
+            v-if="task.status !== 'todo' && !isLocked && authStore.user?.role !== 'admin'"
             @click.stop="$emit('move', -1)"
             class="w-6 h-6 rounded-lg bg-black/5 hover:bg-primary/10 hover:text-primary flex items-center justify-center transition-all duration-200 cursor-pointer"
             title="Move Left"
@@ -61,7 +61,7 @@
           </button>
 
           <button
-            v-if="task.status !== 'done' && !task.done && !isLocked"
+            v-if="task.status !== 'done' && !task.done && !isLocked && authStore.user?.role !== 'admin'"
             @click.stop="$emit('move', 1)"
             class="w-6 h-6 rounded-lg bg-black/5 hover:bg-primary/10 hover:text-primary flex items-center justify-center transition-all duration-200 cursor-pointer"
             title="Move Right"
@@ -196,9 +196,18 @@ defineEmits(['move', 'delete', 'toggle', 'click', 'approve', 'reject'])
 const authStore = useAuthStore()
 const { now } = useNow()
 
+const isAdmin = computed(() => authStore.user?.role === 'admin')
+
 const isLocked = computed(() => {
-  const isAdmin = authStore.user?.role === 'admin'
-  return !isAdmin && (props.task.status === 'review' || props.task.status === 'done')
+  if (authStore.user?.role === 'admin') {
+    return props.task.status === 'todo' || props.task.status === 'inprogress' || props.task.status === 'done'
+  }
+  return props.task.status === 'review' || props.task.status === 'done'
+})
+
+const isDraggable = computed(() => {
+  if (authStore.user?.role === 'admin') return false
+  return !isLocked.value
 })
 
 const isAiGenerated = computed(() =>
