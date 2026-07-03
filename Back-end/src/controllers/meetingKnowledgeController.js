@@ -93,3 +93,36 @@ export const getMeetingDecisions = async (req, res) => {
     const knowledge = await MeetingKnowledge.findOne({ meeting: meeting._id }).select("decisions");
     return res.status(200).json({ success: true, decisions: knowledge?.decisions || [] });
 };
+
+export const updateMeetingKnowledge = async (req, res) => {
+    const meeting = await findOwnedMeeting(req, res);
+    if (!meeting) return;
+
+    if (req.user.role !== "admin") {
+        return res.status(403).json({ success: false, message: "Only admins can edit meeting knowledge" });
+    }
+
+    const { summary, meetingOverview, decisions, actionItems } = req.body;
+
+    const updateFields = {};
+    if (summary !== undefined) updateFields.summary = summary;
+    if (meetingOverview !== undefined) updateFields.meetingOverview = meetingOverview;
+    if (decisions !== undefined) updateFields.decisions = decisions;
+
+    if (actionItems !== undefined && Array.isArray(actionItems)) {
+        for (const item of actionItems) {
+            if (item._id) {
+                await ActionItem.updateOne({ _id: item._id, meeting: meeting._id }, { $set: { title: item.title, status: item.status, assignedTo: item.assignedTo, priority: item.priority } });
+            } else if (item.title) {
+                await ActionItem.create({ meeting: meeting._id, title: item.title, status: item.status || "open", assignedTo: item.assignedTo || "Unassigned", priority: item.priority || "medium" });
+            }
+        }
+    }
+
+    if (Object.keys(updateFields).length > 0) {
+        await MeetingKnowledge.updateOne({ meeting: meeting._id }, { $set: updateFields });
+    }
+
+    const updated = await MeetingKnowledge.findOne({ meeting: meeting._id });
+    return res.status(200).json({ success: true, knowledge: updated });
+};

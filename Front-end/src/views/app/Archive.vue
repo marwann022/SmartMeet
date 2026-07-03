@@ -41,7 +41,7 @@
             <Badge type="primary">
               {{ meetingStore.selectedMeeting.type }}
             </Badge>
-            <span class="text-sm font-semibold text-brand-slate">• {{ meetingStore.selectedMeeting.duration }}</span>
+            <span class="text-sm font-semibold text-brand-slate">• {{ computedDuration }}</span>
             <span class="text-sm font-semibold text-brand-slate">• {{ meetingStore.selectedMeeting.date }}</span>
           </div>
           <h2 class="text-3xl sm:text-4xl font-bold font-header text-brand-dark tracking-tight leading-tight">
@@ -68,22 +68,50 @@
                 <PhSparkle :size="20" class="text-primary" />
                 <h3 class="font-header font-bold text-lg text-brand-dark">Executive Summary</h3>
               </div>
-              <Badge type="primary">AI Generated</Badge>
+              <div class="flex items-center gap-2">
+                <Badge type="primary">AI Generated</Badge>
+                <button
+                  v-if="authStore.user?.role === 'admin'"
+                  @click.stop="editSummary = !editSummary"
+                  class="px-2.5 py-1 rounded-lg border text-[10px] font-bold transition-all cursor-pointer"
+                  :class="editSummary ? 'bg-primary text-white border-primary' : 'border-black/10 dark:border-white/10 text-brand-slate hover:bg-primary/5'"
+                >
+                  <PhPencilSimple :size="11" weight="bold" class="inline mr-1" />{{ editSummary ? 'Done' : 'Edit' }}
+                </button>
+              </div>
             </div>
 
             <div class="flex flex-col gap-4 text-sm leading-relaxed text-brand-slate">
-              <p v-if="selectedSummary" class="text-[15px] font-medium text-brand-dark leading-relaxed">
-                {{ selectedSummary }}
-              </p>
-              <p v-else class="text-[15px] font-medium text-brand-dark">
-                No AI summary available yet. Process the meeting recording to generate one.
-              </p>
+              <div v-if="editSummary">
+                <textarea
+                  v-model="editSummaryText"
+                  rows="5"
+                  class="w-full px-4 py-3 rounded-xl bg-white dark:bg-slate-900/50 border font-body text-sm text-brand-dark dark:text-slate-200 focus:outline-none transition-all duration-300 resize-none border-primary/20 dark:border-white/10 focus:border-primary/30"
+                />
+                <div class="flex justify-end mt-2">
+                  <button
+                    @click="saveKnowledge"
+                    :disabled="savingKnowledge"
+                    class="px-3 py-1.5 rounded-lg bg-primary text-white text-[10px] font-bold transition-all hover:scale-105 cursor-pointer disabled:opacity-50"
+                  >
+                    {{ savingKnowledge ? 'Saving...' : 'Save' }}
+                  </button>
+                </div>
+              </div>
+              <template v-else>
+                <p v-if="selectedSummary" class="text-[15px] font-medium text-brand-dark leading-relaxed">
+                  {{ selectedSummary }}
+                </p>
+                <p v-else class="text-[15px] font-medium text-brand-dark">
+                  No AI summary available yet. Process the meeting recording to generate one.
+                </p>
 
-              <ul v-if="selectedBullets.length > 0" class="flex flex-col gap-3.5 list-disc pl-5">
-                <li v-for="(bullet, index) in selectedBullets" :key="index">
-                  {{ bullet }}
-                </li>
-              </ul>
+                <ul v-if="selectedBullets.length > 0" class="flex flex-col gap-3.5 list-disc pl-5">
+                  <li v-for="(bullet, index) in selectedBullets" :key="index">
+                    {{ bullet }}
+                  </li>
+                </ul>
+              </template>
             </div>
           </div>
 
@@ -117,35 +145,72 @@
                 <PhCheckSquare :size="20" class="text-primary" />
                 <h3 class="font-header font-bold text-lg text-brand-dark">Action Items</h3>
               </div>
-              <Badge v-if="selectedTasks.length > 0" :type="completionRate === 100 ? 'success' : 'primary'">
-                {{ completionRate }}% Completed
-              </Badge>
+              <div class="flex items-center gap-2">
+                <Badge v-if="selectedTasks.length > 0" :type="completionRate === 100 ? 'success' : 'primary'">
+                  {{ completionRate }}% Completed
+                </Badge>
+                <button
+                  v-if="authStore.user?.role === 'admin'"
+                  @click.stop="editActionItems = !editActionItems"
+                  class="px-2.5 py-1 rounded-lg border text-[10px] font-bold transition-all cursor-pointer"
+                  :class="editActionItems ? 'bg-primary text-white border-primary' : 'border-black/10 dark:border-white/10 text-brand-slate hover:bg-primary/5'"
+                >
+                  <PhPencilSimple :size="11" weight="bold" class="inline mr-1" />{{ editActionItems ? 'Done' : 'Edit' }}
+                </button>
+              </div>
             </div>
 
             <div v-if="selectedTasks.length > 0" class="flex flex-col gap-3">
               <div
-                v-for="task in selectedTasks"
-                :key="task.id"
-                @click="toggleTask(task)"
-                class="flex items-center gap-4 p-4 rounded-2xl bg-white/40 dark:bg-slate-900/40 border border-black/[0.03] dark:border-white/5 cursor-pointer hover:bg-white/70 dark:hover:bg-slate-900/60 hover:border-black/5 dark:hover:border-white/10 hover:translate-x-0.5 transition-all duration-200 select-none"
+                v-for="(task, idx) in selectedTasks"
+                :key="task.id || idx"
+                class="flex items-center gap-4 p-4 rounded-2xl bg-white/40 dark:bg-slate-900/40 border border-black/[0.03] dark:border-white/5 transition-all duration-200 select-none"
+                :class="{ 'cursor-pointer hover:bg-white/70 dark:hover:bg-slate-900/60 hover:border-black/5 dark:hover:border-white/10 hover:translate-x-0.5': !editActionItems }"
               >
                 <div
-                  class="w-[22px] h-[22px] rounded-lg border-2 border-brand-slate/40 flex items-center justify-center flex-shrink-0 transition-all"
+                  v-if="!editActionItems"
+                  @click="toggleTask(task)"
+                  class="w-[22px] h-[22px] rounded-lg border-2 border-brand-slate/40 flex items-center justify-center flex-shrink-0 transition-all cursor-pointer"
                   :class="task.checked ? 'border-primary bg-primary text-white' : ''"
                 >
                   <PhCheck v-if="task.checked" :size="12" weight="bold" />
                 </div>
 
                 <div class="flex-1 text-left">
-                  <span class="text-sm font-bold text-brand-dark transition-all block" :class="task.checked ? 'line-through text-brand-slate opacity-70' : ''">
-                    {{ task.title }}
+                  <span v-if="editActionItems" class="flex items-center gap-2">
+                    <input
+                      v-model="task.title"
+                      class="flex-1 px-3 py-1.5 rounded-lg bg-white dark:bg-slate-950/60 border border-black/8 dark:border-white/10 font-body text-sm text-brand-dark focus:outline-none focus:border-primary/30"
+                    />
+                    <select
+                      v-model="task.priority"
+                      class="px-2 py-1.5 rounded-lg bg-white dark:bg-slate-950/60 border border-black/8 dark:border-white/10 text-xs font-bold focus:outline-none"
+                    >
+                      <option value="LOW">LOW</option>
+                      <option value="MED">MED</option>
+                      <option value="HIGH">HIGH</option>
+                    </select>
                   </span>
-                  <span class="text-xs text-brand-slate mt-0.5 block">Assigned to: {{ task.assignee }}</span>
+                  <template v-else>
+                    <span class="text-sm font-bold text-brand-dark transition-all block" :class="task.checked ? 'line-through text-brand-slate opacity-70' : ''">
+                      {{ task.title }}
+                    </span>
+                    <span class="text-xs text-brand-slate mt-0.5 block">Assigned to: {{ task.assignee }}</span>
+                  </template>
                 </div>
 
-                <Badge :type="task.priority === 'HIGH' ? 'danger' : task.priority === 'MED' ? 'primary' : 'default'">
+                <Badge v-if="!editActionItems" :type="task.priority === 'HIGH' ? 'danger' : task.priority === 'MED' ? 'primary' : 'default'">
                   {{ task.priority }}
                 </Badge>
+              </div>
+              <div v-if="editActionItems" class="flex justify-end mt-2">
+                <button
+                  @click="saveActionItems"
+                  :disabled="savingKnowledge"
+                  class="px-3 py-1.5 rounded-lg bg-primary text-white text-[10px] font-bold transition-all hover:scale-105 cursor-pointer disabled:opacity-50"
+                >
+                  {{ savingKnowledge ? 'Saving...' : 'Save Changes' }}
+                </button>
               </div>
             </div>
             <div v-else class="text-sm text-brand-slate italic py-4 text-center">
@@ -161,6 +226,16 @@
             <div class="flex items-center gap-2.5 pb-4 border-b border-black/5 dark:border-white/5">
               <PhFolderUser :size="20" class="text-primary" />
               <h3 class="font-header font-bold text-lg text-brand-dark">Decision Tracker</h3>
+              <div class="ml-auto flex items-center gap-2">
+                <button
+                  v-if="authStore.user?.role === 'admin'"
+                  @click.stop="editDecisions = !editDecisions"
+                  class="px-2.5 py-1 rounded-lg border text-[10px] font-bold transition-all cursor-pointer"
+                  :class="editDecisions ? 'bg-primary text-white border-primary' : 'border-black/10 dark:border-white/10 text-brand-slate hover:bg-primary/5'"
+                >
+                  <PhPencilSimple :size="11" weight="bold" class="inline mr-1" />{{ editDecisions ? 'Done' : 'Edit' }}
+                </button>
+              </div>
             </div>
 
             <div v-if="selectedDecisions.length > 0" class="flex flex-col gap-3">
@@ -168,14 +243,42 @@
                 v-for="(dec, index) in selectedDecisions"
                 :key="index"
                 class="p-4 rounded-xl border flex flex-col gap-2 text-left"
-                :class="dec.status === 'APPROVED' ? 'bg-green-500/[0.03] border-green-500/10' : 'bg-yellow-500/[0.03] border-yellow-500/10'"
+                :class="!editDecisions && dec.status === 'APPROVED' ? 'bg-green-500/[0.03] border-green-500/10' : !editDecisions && dec.status !== 'APPROVED' ? 'bg-yellow-500/[0.03] border-yellow-500/10' : 'bg-white/40 dark:bg-slate-900/40 border-black/5 dark:border-white/10'"
               >
-                <span class="text-[9px] font-extrabold tracking-wider uppercase" :class="dec.status === 'APPROVED' ? 'text-green-600' : 'text-yellow-600'">
+                <div v-if="editDecisions" class="flex gap-2 items-center mb-1">
+                  <select
+                    v-model="dec.status"
+                    class="px-2 py-1 rounded-lg bg-white dark:bg-slate-950/60 border border-black/8 dark:border-white/10 text-[9px] font-extrabold uppercase focus:outline-none"
+                  >
+                    <option value="PENDING REVIEW">PENDING REVIEW</option>
+                    <option value="APPROVED">APPROVED</option>
+                  </select>
+                  <button @click="removeDecision(index)" class="text-red-500 hover:text-red-700 cursor-pointer">
+                    <PhTrash :size="12" weight="bold" />
+                  </button>
+                </div>
+                <span v-if="!editDecisions" class="text-[9px] font-extrabold tracking-wider uppercase" :class="dec.status === 'APPROVED' ? 'text-green-600' : 'text-yellow-600'">
                   {{ dec.status }}
                 </span>
-                <p class="text-xs font-semibold text-brand-dark leading-relaxed">
+                <p v-if="editDecisions">
+                  <textarea
+                    v-model="dec.text"
+                    rows="2"
+                    class="w-full px-3 py-2 rounded-lg bg-white dark:bg-slate-950/60 border border-black/8 dark:border-white/10 font-body text-xs text-brand-dark focus:outline-none resize-none"
+                  />
+                </p>
+                <p v-else class="text-xs font-semibold text-brand-dark leading-relaxed">
                   {{ dec.text }}
                 </p>
+              </div>
+              <div v-if="editDecisions" class="flex justify-end mt-2">
+                <button
+                  @click="saveDecisions"
+                  :disabled="savingKnowledge"
+                  class="px-3 py-1.5 rounded-lg bg-primary text-white text-[10px] font-bold transition-all hover:scale-105 cursor-pointer disabled:opacity-50"
+                >
+                  {{ savingKnowledge ? 'Saving...' : 'Save Changes' }}
+                </button>
               </div>
             </div>
             <div v-else class="text-sm text-brand-slate italic py-4 text-center">
@@ -381,6 +484,82 @@ const meetingStore = useMeetingStore()
 const router = useRouter()
 const authStore = useAuthStore()
 const alertStore = useAlertStore()
+import axios from 'axios'
+
+const editSummary = ref(false)
+const editDecisions = ref(false)
+const editActionItems = ref(false)
+const savingKnowledge = ref(false)
+
+const editSummaryText = ref('')
+
+watch(editSummary, (val) => {
+  if (val) editSummaryText.value = selectedSummary.value || ''
+})
+
+const saveKnowledge = async () => {
+  if (!meetingStore.selectedMeeting) return
+  const id = meetingStore.selectedMeeting._id || meetingStore.selectedMeeting.id
+  if (!id) return
+  savingKnowledge.value = true
+  try {
+    await axios.put(
+      `http://localhost:5000/api/meetings/${id}/knowledge`,
+      { summary: editSummaryText.value },
+      { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } }
+    )
+    meetingStore.selectedMeeting.summary = editSummaryText.value
+    editSummary.value = false
+  } catch (err) {
+    console.error('Failed to save summary:', err)
+  } finally {
+    savingKnowledge.value = false
+  }
+}
+
+const saveActionItems = async () => {
+  if (!meetingStore.selectedMeeting) return
+  const id = meetingStore.selectedMeeting._id || meetingStore.selectedMeeting.id
+  if (!id) return
+  savingKnowledge.value = true
+  try {
+    await axios.put(
+      `http://localhost:5000/api/meetings/${id}/knowledge`,
+      { actionItems: meetingStore.selectedMeeting.tasks || [] },
+      { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } }
+    )
+    editActionItems.value = false
+  } catch (err) {
+    console.error('Failed to save action items:', err)
+  } finally {
+    savingKnowledge.value = false
+  }
+}
+
+const saveDecisions = async () => {
+  if (!meetingStore.selectedMeeting) return
+  const id = meetingStore.selectedMeeting._id || meetingStore.selectedMeeting.id
+  if (!id) return
+  savingKnowledge.value = true
+  try {
+    await axios.put(
+      `http://localhost:5000/api/meetings/${id}/knowledge`,
+      { decisions: meetingStore.selectedMeeting.decisions || [] },
+      { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } }
+    )
+    editDecisions.value = false
+  } catch (err) {
+    console.error('Failed to save decisions:', err)
+  } finally {
+    savingKnowledge.value = false
+  }
+}
+
+const removeDecision = (index) => {
+  if (meetingStore.selectedMeeting?.decisions) {
+    meetingStore.selectedMeeting.decisions.splice(index, 1)
+  }
+}
 
 const showEditMeetingModal = ref(false)
 const editMeetingForm = ref({
@@ -493,6 +672,20 @@ const selectedDecisions = computed(() => {
 
 const selectedTranscript = computed(() => {
   return meetingStore.selectedMeeting?.transcript || []
+})
+
+const computedDuration = computed(() => {
+  const m = meetingStore.selectedMeeting
+  if (!m) return ''
+  if (m.duration && m.duration !== '') return m.duration
+  if (m.startTime && m.endTime) {
+    const diffMs = new Date(m.endTime) - new Date(m.startTime)
+    if (diffMs > 0) {
+      const mins = Math.ceil(diffMs / 60000)
+      return `${mins} minutes`
+    }
+  }
+  return ''
 })
 
 const selectMeeting = async (meeting) => {

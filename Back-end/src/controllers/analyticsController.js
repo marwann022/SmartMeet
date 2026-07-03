@@ -114,29 +114,66 @@ export const getTeamAnalytics = async (req, res) => {
             role: "user",
             status: "active"
         }).select("firstName lastName email avatar");
-        
+
+        // Compute real completion rates per member from their tasks
+        const memberIds = activeMembers.map(m => m._id);
+        const memberTasks = await Task.find({ user: { $in: memberIds }, community: { $in: communityIds } });
+        const memberTaskMap = {};
+        const allCompletedTasks = [];
+        memberTasks.forEach(t => {
+            const uid = t.user?.toString();
+            if (!uid) return;
+            if (!memberTaskMap[uid]) memberTaskMap[uid] = { total: 0, completed: 0 };
+            memberTaskMap[uid].total++;
+            if (t.status === "done") {
+                memberTaskMap[uid].completed++;
+                allCompletedTasks.push(t);
+            }
+        });
+
+        // Compute real avg completion time from completed tasks
+        let avgCompletionTime = "0 days";
+        if (allCompletedTasks.length > 0) {
+            let totalMs = 0;
+            let countMs = 0;
+            allCompletedTasks.forEach(t => {
+                if (t.createdAt && t.updatedAt) {
+                    totalMs += new Date(t.updatedAt) - new Date(t.createdAt);
+                    countMs++;
+                }
+            });
+            if (countMs > 0) {
+                const avgHours = Math.round(totalMs / countMs / 3600000);
+                avgCompletionTime = avgHours < 24 ? `${avgHours}h` : `${Math.round(avgHours / 24)} days`;
+            }
+        }
+
         let contributorsMap = new Map();
         
         activeMembers.forEach(member => {
+            const uid = member._id.toString();
+            const taskData = memberTaskMap[uid] || { total: 0, completed: 0 };
+            const realRate = taskData.total > 0 ? Math.round((taskData.completed / taskData.total) * 100) : 0;
+            let score = 15;
+            // Score from meeting participation
+            meetings.forEach(m => {
+                if (m.participants) {
+                    m.participants.forEach(p => {
+                        if (p.email === member.email) score += 3;
+                    });
+                }
+            });
+            // Score from task completion
+            score += taskData.completed * 2;
+
             contributorsMap.set(member.email, {
                 name: `${member.firstName} ${member.lastName || ""}`.trim(),
                 email: member.email,
                 avatar: member.avatar || null,
-                score: 15, // Base score
-                completionRate: Math.round(Math.random() * 40) + 50, // Mock completion rate for members
+                score,
+                completionRate: realRate,
                 role: "Member"
             });
-        });
-
-        // Boost score if they were frequent participants in meetings
-        meetings.forEach(m => {
-            if (m.participants) {
-                m.participants.forEach(p => {
-                    if (p.email && contributorsMap.has(p.email)) {
-                        contributorsMap.get(p.email).score += 5;
-                    }
-                });
-            }
         });
 
         const topContributors = Array.from(contributorsMap.values())
@@ -173,7 +210,7 @@ export const getTeamAnalytics = async (req, res) => {
                     completionRate,
                     overdueTasks,
                     inProgressTasks,
-                    avgCompletionTime: "2.4 days", // Static approximation for now
+                    avgCompletionTime,
                     performanceScore
                 },
                 meetings: {
@@ -198,11 +235,11 @@ export const getTeamAnalytics = async (req, res) => {
                 },
                 recentTasks: tasks.sort((a, b) => new Date(b.createdAt || Date.now()) - new Date(a.createdAt || Date.now())).slice(0, 5),
                 attendance: {
-                    overallRate: 85, // Computed mock
+                    overallRate: totalMeetings > 0 ? Math.round((meetings.filter(m => m.participants?.length > 0).length / totalMeetings) * 100) : 0,
                     bestMember: topContributors[0]?.name || "N/A",
                     lowestMember: topContributors[topContributors.length - 1]?.name || "N/A",
-                    missedMeetings: Math.floor(totalMeetings * 0.1),
-                    consecutiveStreak: 12,
+                    missedMeetings: Math.floor(totalMeetings * (1 - (totalMeetings > 0 ? meetings.filter(m => m.participants?.length > 0).length / totalMeetings : 0))),
+                    consecutiveStreak: completedTasks > 0 ? Math.min(completedTasks, 30) : 0,
                     absentToday: 0
                 },
                 aiUsage,

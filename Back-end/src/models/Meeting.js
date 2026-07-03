@@ -31,5 +31,15 @@ const meetingSchema = new mongoose.Schema({
 
 meetingSchema.index({ host: 1, status: 1, startTime: -1 });
 
+meetingSchema.pre("save", function (next) {
+    if (this.startTime && this.endTime) {
+        const diffMs = new Date(this.endTime) - new Date(this.startTime);
+        if (diffMs > 0) {
+            this.duration = Math.ceil(diffMs / 60000);
+        }
+    }
+    next();
+});
+
 const Meeting = mongoose.model("Meeting", meetingSchema);
 export default Meeting;
