@@ -98,7 +98,7 @@
 
              <div ref="notificationsRef" class="relative">
           <button
-            @click="isNotificationsOpen = !isNotificationsOpen"
+            @click="toggleNotifications"
             class="group bg-black/5 dark:bg-white/8 border border-black/10 dark:border-white/10 rounded-full flex items-center justify-center w-9 h-9 cursor-pointer relative text-brand-slate transition-all duration-300 hover:bg-primary/5 hover:border-primary/15 hover:text-primary hover:scale-105 focus:outline-none"
             aria-label="Notifications"
           >
@@ -222,13 +222,21 @@
                         </p>
                       </div>
 
-                      <!-- Join Meeting button for meeting notifications -->
+                      <!-- Meeting action button - conditional based on meeting status -->
                       <div v-if="notification.type === 'meeting'" class="mt-3">
                         <button
+                          v-if="getMeetingStatus(notification) === 'scheduled'"
                           @click.stop="joinMeeting(notification)"
                           class="px-2.5 py-1 rounded-full bg-primary text-white text-[10px] font-bold transition-all duration-200 hover:scale-105"
                         >
                           Join Meeting
+                        </button>
+                        <button
+                          v-else-if="getMeetingStatus(notification) === 'completed'"
+                          @click.stop="viewArchive(notification)"
+                          class="px-2.5 py-1 rounded-full bg-emerald-500 text-white text-[10px] font-bold transition-all duration-200 hover:scale-105"
+                        >
+                          View Archive
                         </button>
                       </div>
                     </div>
@@ -388,9 +396,44 @@ const profileRef = ref(null)
 const isNotificationsOpen = ref(false)
 const notificationsRef = ref(null)
 const showLogoutModal = ref(false)
+const meetingStatuses = ref({})
 
 const notifications = computed(() => notificationStore.notifications)
 const unreadCount = computed(() => notificationStore.unreadCount)
+
+const toggleNotifications = () => {
+  isNotificationsOpen.value = !isNotificationsOpen.value
+  if (isNotificationsOpen.value) {
+    notificationStore.markAllAsRead()
+    fetchMeetingStatuses()
+  }
+}
+
+const fetchMeetingStatuses = async () => {
+  const meetingNotifs = notifications.value.filter(n => n.type === 'meeting' && n.relatedId)
+  const ids = [...new Set(meetingNotifs.map(n => n.relatedId))]
+  for (const id of ids) {
+    try {
+      const meeting = await meetingStore.fetchMeeting(id)
+      if (meeting) {
+        meetingStatuses.value[id] = meeting.status
+      }
+    } catch {
+      meetingStatuses.value[id] = null
+    }
+  }
+}
+
+const getMeetingStatus = (notification) => {
+  if (!notification.relatedId) return null
+  return meetingStatuses.value[notification.relatedId] || null
+}
+
+const viewArchive = (notification) => {
+  notificationStore.markAsRead(notification.id)
+  isNotificationsOpen.value = false
+  router.push('/archive')
+}
 
 const handleNotificationClick = (notification) => {
   notificationStore.markAsRead(notification.id)

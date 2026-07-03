@@ -527,8 +527,8 @@ import { ref, reactive, computed, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import { useMeetingStore } from "@/stores/meeting";
 import { useAuthStore } from "@/stores/auth";
-import axios from "axios";
 import { useAlertStore } from "@/stores/alert";
+import { useDashboardStore } from "@/stores/dashboard";
 import {
   PhSparkle,
   PhInfo,
@@ -569,6 +569,7 @@ const router = useRouter();
 const meetingStore = useMeetingStore();
 const authStore = useAuthStore();
 const alertStore = useAlertStore();
+const dashboardStore = useDashboardStore();
 
 // Fetch community members
 const membersList = ref([]);
@@ -729,6 +730,13 @@ const goToDashboard = () => {
   router.push("/dashboard");
 };
 
+const refreshDashboard = () => {
+  meetingStore.fetchMeetings()
+  dashboardStore.fetchStats()
+  dashboardStore.fetchTeamAnalytics()
+  dashboardStore.fetchInsights()
+}
+
 const submitMeeting = async () => {
   if (!validateForm()) return;
   isSubmitting.value = true;
@@ -741,12 +749,13 @@ const submitMeeting = async () => {
       description: form.description,
       type: form.type,
       startTime: new Date().toISOString(),
-      duration: 30, // Default 30 min duration for instant
+      duration: 30,
       meetLink: `https://meet.jit.si/SmartMeet_${meetingId}`,
       participants: [...form.participants],
     };
 
     const created = await meetingStore.createMeeting(newMeeting);
+    refreshDashboard()
     meetingStore.activeLiveMeeting = created || {
       ...newMeeting,
       id: meetingId.toString(),
@@ -765,6 +774,7 @@ const submitMeeting = async () => {
     };
 
     const created = await meetingStore.createMeeting(newMeeting);
+    refreshDashboard()
     isSubmitting.value = false;
 
     const scheduledTime = new Date(form.datetime);

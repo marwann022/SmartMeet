@@ -27,6 +27,14 @@
               Edit Details
             </button>
             <button 
+              v-if="authStore.user?.role === 'admin' && hasKnowledge"
+              @click="openEditKnowledgeModal" 
+              class="px-[16px] py-[8px] border border-purple-500/20 rounded-xl bg-purple-500/5 hover:bg-purple-500 text-purple-500 hover:text-white transition-all font-bold text-xs flex items-center gap-2 cursor-pointer no-print"
+            >
+              <PhBrain :size="14" weight="bold" />
+              Edit Knowledge
+            </button>
+            <button 
               @click="confirmDeleteMeeting(meetingStore.selectedMeeting)" 
               class="px-[16px] py-[8px] border border-red-500/20 rounded-xl bg-red-500/5 hover:bg-red-500 text-red-500 hover:text-white transition-all font-bold text-xs flex items-center gap-2 cursor-pointer no-print"
             >
@@ -285,11 +293,11 @@
     <Modal
       :show="showEditMeetingModal"
       title="Edit Meeting Details"
-      max-width="md"
+      max-width="lg"
       theme="primary"
       @close="showEditMeetingModal = false"
     >
-      <div class="flex flex-col gap-4 text-left">
+      <div class="flex flex-col gap-4 text-left max-h-[70vh] overflow-y-auto pr-2">
         <Input v-model="editMeetingForm.title" label="Meeting Title" theme="primary" />
 
         <div class="flex flex-col gap-1.5 w-full">
@@ -303,7 +311,6 @@
         </div>
 
         <div class="grid grid-cols-2 gap-4">
-          <!-- Custom Type Selection -->
           <Select 
             v-model="editMeetingForm.type" 
             :options="meetingTypeOptions" 
@@ -311,7 +318,15 @@
             theme="primary"
           />
 
-          <!-- Duration Input -->
+          <Select 
+            v-model="editMeetingForm.status" 
+            :options="statusOptions" 
+            label="Status"
+            theme="primary"
+          />
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
           <div class="flex flex-col gap-1.5 w-full text-left">
             <label class="text-[11px] font-semibold text-brand-slate tracking-wide font-header pl-1">Duration (minutes)</label>
             <input 
@@ -320,22 +335,154 @@
               class="w-full h-12 px-4 rounded-xl bg-white dark:bg-slate-950/60 border border-black/8 dark:border-white/10 font-body text-sm text-brand-dark focus:outline-none focus:border-primary/30 focus:shadow-[0_0_0_3px_rgba(75,104,255,0.08)]"
             />
           </div>
+
+          <div class="flex flex-col gap-1.5 w-full text-left">
+            <label class="text-[11px] font-semibold text-brand-slate tracking-wide font-header pl-1">Meeting Link</label>
+            <input 
+              v-model="editMeetingForm.meetingLink" 
+              type="text" 
+              placeholder="https://meet.google.com/..."
+              class="w-full h-12 px-4 rounded-xl bg-white dark:bg-slate-950/60 border border-black/8 dark:border-white/10 font-body text-sm text-brand-dark focus:outline-none focus:border-primary/30 focus:shadow-[0_0_0_3px_rgba(75,104,255,0.08)]"
+            />
+          </div>
         </div>
 
-        <!-- Date Picker for start date -->
-        <DatePicker 
-          v-model="editMeetingForm.datetime" 
-          label="Meeting Date" 
-          direction="up"
-          theme="primary"
-        />
+        <div class="grid grid-cols-2 gap-4">
+          <DatePicker 
+            v-model="editMeetingForm.datetime" 
+            label="Meeting Date" 
+            direction="up"
+            theme="primary"
+          />
+          <div class="flex flex-col gap-1.5 w-full text-left">
+            <label class="text-[11px] font-semibold text-brand-slate tracking-wide font-header pl-1">Start Time</label>
+            <input 
+              v-model="editMeetingForm.startTime" 
+              type="time" 
+              class="w-full h-12 px-4 rounded-xl bg-white dark:bg-slate-950/60 border border-black/8 dark:border-white/10 font-body text-sm text-brand-dark focus:outline-none focus:border-primary/30 focus:shadow-[0_0_0_3px_rgba(75,104,255,0.08)]"
+            />
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+          <div class="flex flex-col gap-1.5 w-full text-left">
+            <label class="text-[11px] font-semibold text-brand-slate tracking-wide font-header pl-1">End Time</label>
+            <input 
+              v-model="editMeetingForm.endTime" 
+              type="time" 
+              class="w-full h-12 px-4 rounded-xl bg-white dark:bg-slate-950/60 border border-black/8 dark:border-white/10 font-body text-sm text-brand-dark focus:outline-none focus:border-primary/30 focus:shadow-[0_0_0_3px_rgba(75,104,255,0.08)]"
+            />
+          </div>
+        </div>
+
+        <div class="flex flex-col gap-1.5 w-full">
+          <label class="text-[10px] font-extrabold uppercase tracking-wider text-brand-slate pl-1 font-header">Participants (one per line, format: Name, email)</label>
+          <textarea 
+            v-model="editMeetingForm.participantsText" 
+            placeholder="John Doe, john@example.com"
+            rows="4"
+            class="w-full px-4 py-3 rounded-xl bg-white dark:bg-slate-900/50 border font-body text-sm text-brand-dark dark:text-slate-200 focus:outline-none transition-all duration-300 resize-none border-primary/20 dark:border-white/10 focus:border-primary/30"
+          />
+        </div>
 
         <div class="flex justify-end gap-3 mt-4 border-t border-black/5 dark:border-white/10 pt-4">
           <Button variant="outline" @click="showEditMeetingModal = false">
             Cancel
           </Button>
-          <Button variant="primary" @click="saveMeetingDetails">
+          <Button variant="primary" :disabled="isSavingMeeting" @click="saveMeetingDetails">
+            <span v-if="isSavingMeeting" class="w-3.5 h-3.5 border-2 border-current border-t-transparent rounded-full animate-spin mr-1"></span>
             Save Changes
+          </Button>
+        </div>
+      </div>
+    </Modal>
+
+    <!-- Edit Knowledge Modal -->
+    <Modal
+      :show="showEditKnowledgeModal"
+      title="Edit AI Knowledge"
+      max-width="lg"
+      theme="primary"
+      @close="showEditKnowledgeModal = false"
+    >
+      <div class="flex flex-col gap-4 text-left max-h-[70vh] overflow-y-auto pr-2">
+        <div class="flex flex-col gap-1.5 w-full">
+          <label class="text-[10px] font-extrabold uppercase tracking-wider text-brand-slate pl-1 font-header">Executive Summary</label>
+          <textarea 
+            v-model="editKnowledgeForm.summary" 
+            placeholder="AI-generated summary of the meeting..."
+            rows="5"
+            class="w-full px-4 py-3 rounded-xl bg-white dark:bg-slate-900/50 border font-body text-sm text-brand-dark dark:text-slate-200 focus:outline-none transition-all duration-300 resize-none border-primary/20 dark:border-white/10 focus:border-primary/30"
+          />
+        </div>
+
+        <div class="flex flex-col gap-1.5 w-full">
+          <label class="text-[10px] font-extrabold uppercase tracking-wider text-brand-slate pl-1 font-header">Meeting Overview</label>
+          <textarea 
+            v-model="editKnowledgeForm.meetingOverview" 
+            placeholder="Detailed overview of the meeting..."
+            rows="4"
+            class="w-full px-4 py-3 rounded-xl bg-white dark:bg-slate-900/50 border font-body text-sm text-brand-dark dark:text-slate-200 focus:outline-none transition-all duration-300 resize-none border-primary/20 dark:border-white/10 focus:border-primary/30"
+          />
+        </div>
+
+        <div class="flex flex-col gap-1.5 w-full">
+          <label class="text-[10px] font-extrabold uppercase tracking-wider text-brand-slate pl-1 font-header">Topics (one per line)</label>
+          <textarea 
+            v-model="editKnowledgeForm.topicsText" 
+            placeholder="Topic 1&#10;Topic 2"
+            rows="3"
+            class="w-full px-4 py-3 rounded-xl bg-white dark:bg-slate-900/50 border font-body text-sm text-brand-dark dark:text-slate-200 focus:outline-none transition-all duration-300 resize-none border-primary/20 dark:border-white/10 focus:border-primary/30"
+          />
+        </div>
+
+        <div class="flex flex-col gap-1.5 w-full">
+          <label class="text-[10px] font-extrabold uppercase tracking-wider text-brand-slate pl-1 font-header">Decisions (one per line)</label>
+          <textarea 
+            v-model="editKnowledgeForm.decisionsText" 
+            placeholder="Decision 1&#10;Decision 2"
+            rows="3"
+            class="w-full px-4 py-3 rounded-xl bg-white dark:bg-slate-900/50 border font-body text-sm text-brand-dark dark:text-slate-200 focus:outline-none transition-all duration-300 resize-none border-primary/20 dark:border-white/10 focus:border-primary/30"
+          />
+        </div>
+
+        <div class="flex flex-col gap-1.5 w-full">
+          <label class="text-[10px] font-extrabold uppercase tracking-wider text-brand-slate pl-1 font-header">Action Items / Follow-up Tasks (one per line)</label>
+          <textarea 
+            v-model="editKnowledgeForm.followUpText" 
+            placeholder="Task 1 - assignee&#10;Task 2 - assignee"
+            rows="3"
+            class="w-full px-4 py-3 rounded-xl bg-white dark:bg-slate-900/50 border font-body text-sm text-brand-dark dark:text-slate-200 focus:outline-none transition-all duration-300 resize-none border-primary/20 dark:border-white/10 focus:border-primary/30"
+          />
+        </div>
+
+        <div class="flex flex-col gap-1.5 w-full">
+          <label class="text-[10px] font-extrabold uppercase tracking-wider text-brand-slate pl-1 font-header">Risks (one per line)</label>
+          <textarea 
+            v-model="editKnowledgeForm.risksText" 
+            placeholder="Risk 1&#10;Risk 2"
+            rows="3"
+            class="w-full px-4 py-3 rounded-xl bg-white dark:bg-slate-900/50 border font-body text-sm text-brand-dark dark:text-slate-200 focus:outline-none transition-all duration-300 resize-none border-primary/20 dark:border-white/10 focus:border-primary/30"
+          />
+        </div>
+
+        <div class="flex flex-col gap-1.5 w-full">
+          <label class="text-[10px] font-extrabold uppercase tracking-wider text-brand-slate pl-1 font-header">Open Questions (one per line)</label>
+          <textarea 
+            v-model="editKnowledgeForm.openQuestionsText" 
+            placeholder="Question 1&#10;Question 2"
+            rows="3"
+            class="w-full px-4 py-3 rounded-xl bg-white dark:bg-slate-900/50 border font-body text-sm text-brand-dark dark:text-slate-200 focus:outline-none transition-all duration-300 resize-none border-primary/20 dark:border-white/10 focus:border-primary/30"
+          />
+        </div>
+
+        <div class="flex justify-end gap-3 mt-4 border-t border-black/5 dark:border-white/10 pt-4">
+          <Button variant="outline" @click="showEditKnowledgeModal = false">
+            Cancel
+          </Button>
+          <Button variant="primary" :disabled="isSavingKnowledge" @click="saveKnowledgeDetails">
+            <span v-if="isSavingKnowledge" class="w-3.5 h-3.5 border-2 border-current border-t-transparent rounded-full animate-spin mr-1"></span>
+            Save Knowledge
           </Button>
         </div>
       </div>
@@ -372,6 +519,9 @@ import Input from '@/components/ui/Input.vue'
 import Select from '@/components/ui/Select.vue'
 import DatePicker from '@/components/ui/DatePicker.vue'
 import { useAuthStore } from '@/stores/auth'
+import axios from 'axios'
+
+const API = 'http://localhost:5000/api'
 
 const props = defineProps({
   searchQuery: { type: String, default: '' }
@@ -383,12 +533,18 @@ const authStore = useAuthStore()
 const alertStore = useAlertStore()
 
 const showEditMeetingModal = ref(false)
+const isSavingMeeting = ref(false)
 const editMeetingForm = ref({
   title: '',
   description: '',
   type: 'Team',
+  status: 'scheduled',
   datetime: '',
-  duration: 30
+  startTime: '',
+  endTime: '',
+  duration: 30,
+  meetingLink: '',
+  participantsText: ''
 })
 
 const meetingTypeOptions = [
@@ -401,52 +557,210 @@ const meetingTypeOptions = [
   { value: 'Other', label: 'Other' }
 ]
 
+const statusOptions = [
+  { value: 'scheduled', label: 'Scheduled' },
+  { value: 'live', label: 'Live' },
+  { value: 'completed', label: 'Completed' },
+  { value: 'cancelled', label: 'Cancelled' }
+]
+
 const openEditMeetingModal = () => {
   if (!meetingStore.selectedMeeting) return
   const m = meetingStore.selectedMeeting
-  
+
   let dateStr = ''
+  let startTimeStr = ''
+  let endTimeStr = ''
   if (m.startTime) {
     const d = new Date(m.startTime)
     const yyyy = d.getFullYear()
     const mm = String(d.getMonth() + 1).padStart(2, '0')
     const dd = String(d.getDate()).padStart(2, '0')
     dateStr = `${yyyy}-${mm}-${dd}`
+    startTimeStr = `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`
   }
+  if (m.endTime) {
+    const d = new Date(m.endTime)
+    endTimeStr = `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`
+  }
+
+  const participantsText = (m.participants || [])
+    .map(p => `${p.name || ''}, ${p.email || ''}`)
+    .filter(p => p.trim())
+    .join('\n')
 
   editMeetingForm.value = {
     title: m.title,
     description: m.description || '',
     type: m.type || 'Team',
+    status: m.status || 'scheduled',
     datetime: dateStr,
-    duration: m.duration ? parseInt(m.duration) : 30
+    startTime: startTimeStr,
+    endTime: endTimeStr,
+    duration: m.duration ? parseInt(String(m.duration).replace(/\D/g, '')) || 30 : 30,
+    meetingLink: m.meetingLink || '',
+    participantsText
   }
   showEditMeetingModal.value = true
 }
 
 const saveMeetingDetails = async () => {
   if (!meetingStore.selectedMeeting) return
+  isSavingMeeting.value = true
   const id = meetingStore.selectedMeeting._id || meetingStore.selectedMeeting.id
-  
-  const payload = {
-    _id: id,
-    title: editMeetingForm.value.title,
-    description: editMeetingForm.value.description,
-    type: editMeetingForm.value.type,
-    startTime: editMeetingForm.value.datetime ? new Date(editMeetingForm.value.datetime).toISOString() : meetingStore.selectedMeeting.startTime,
-    duration: parseInt(editMeetingForm.value.duration)
+  const form = editMeetingForm.value
+
+  let startTime = meetingStore.selectedMeeting.startTime
+  if (form.datetime && form.startTime) {
+    startTime = new Date(`${form.datetime}T${form.startTime}:00`).toISOString()
+  } else if (form.datetime) {
+    startTime = new Date(form.datetime).toISOString()
   }
 
-  await meetingStore.updateMeeting(payload)
-  
-  const updated = meetingStore.meetings.find(m => m.id === id || m._id === id)
-  if (updated) {
-    meetingStore.selectedMeeting = {
-      ...meetingStore.selectedMeeting,
-      ...updated
-    }
+  let endTime = null
+  if (form.datetime && form.endTime) {
+    endTime = new Date(`${form.datetime}T${form.endTime}:00`).toISOString()
   }
-  showEditMeetingModal.value = false
+
+  const participants = form.participantsText
+    .split('\n')
+    .map(line => line.trim())
+    .filter(line => line)
+    .map(line => {
+      const parts = line.split(',').map(s => s.trim())
+      return { name: parts[0] || '', email: parts[1] || '' }
+    })
+
+  const payload = {
+    _id: id,
+    title: form.title,
+    description: form.description,
+    type: form.type,
+    status: form.status,
+    startTime,
+    endTime,
+    duration: parseInt(form.duration) || 30,
+    meetingLink: form.meetingLink,
+    participants
+  }
+
+  try {
+    await meetingStore.updateMeeting(payload)
+    const updated = meetingStore.meetings.find(m => m.id === id || m._id === id)
+    if (updated) {
+      meetingStore.selectedMeeting = {
+        ...meetingStore.selectedMeeting,
+        ...updated,
+        participants
+      }
+    }
+    showEditMeetingModal.value = false
+  } catch (err) {
+    console.error('Failed to save meeting details:', err)
+  } finally {
+    isSavingMeeting.value = false
+  }
+}
+
+// Knowledge editing
+const showEditKnowledgeModal = ref(false)
+const isSavingKnowledge = ref(false)
+const editKnowledgeForm = ref({
+  summary: '',
+  meetingOverview: '',
+  topicsText: '',
+  decisionsText: '',
+  followUpText: '',
+  risksText: '',
+  openQuestionsText: ''
+})
+
+const hasKnowledge = computed(() => {
+  const m = meetingStore.selectedMeeting
+  return !!(m?.summary || m?.meetingOverview || m?.decisions?.length)
+})
+
+const openEditKnowledgeModal = () => {
+  if (!meetingStore.selectedMeeting) return
+  const m = meetingStore.selectedMeeting
+
+  editKnowledgeForm.value = {
+    summary: m.summary || m.meetingOverview || '',
+    meetingOverview: m.meetingOverview || '',
+    topicsText: Array.isArray(m.topics) ? m.topics.join('\n') : '',
+    decisionsText: Array.isArray(m.decisions) ? m.decisions.map(d => d.text || d).join('\n') : '',
+    followUpText: Array.isArray(m.followUpTasks) ? m.followUpTasks.map(t => t.text || t).join('\n') : '',
+    risksText: Array.isArray(m.risks) ? m.risks.map(r => r.text || r).join('\n') : '',
+    openQuestionsText: Array.isArray(m.openQuestions) ? m.openQuestions.map(q => q.text || q).join('\n') : ''
+  }
+  showEditKnowledgeModal.value = true
+}
+
+const saveKnowledgeDetails = async () => {
+  if (!meetingStore.selectedMeeting) return
+  isSavingKnowledge.value = true
+  const meetingId = meetingStore.selectedMeeting._id || meetingStore.selectedMeeting.id
+  const form = editKnowledgeForm.value
+
+  const decisions = form.decisionsText
+    .split('\n')
+    .filter(line => line.trim())
+    .map(text => ({ text: text.trim(), owner: '', confidence: 0.8 }))
+
+  const followUpTasks = form.followUpText
+    .split('\n')
+    .filter(line => line.trim())
+    .map(text => ({ text: text.trim(), owner: '', confidence: 0.8 }))
+
+  const risks = form.risksText
+    .split('\n')
+    .filter(line => line.trim())
+    .map(text => ({ text: text.trim(), owner: '', confidence: 0.8 }))
+
+  const openQuestions = form.openQuestionsText
+    .split('\n')
+    .filter(line => line.trim())
+    .map(text => ({ text: text.trim(), owner: '', confidence: 0.8 }))
+
+  const topics = form.topicsText
+    .split('\n')
+    .filter(line => line.trim())
+
+  const payload = {
+    summary: form.summary,
+    meetingOverview: form.meetingOverview,
+    topics,
+    decisions,
+    followUpTasks,
+    risks,
+    openQuestions
+  }
+
+  try {
+    const token = localStorage.getItem('token')
+    const { data } = await axios.put(
+      `${API}/meetings/${meetingId}/knowledge`,
+      payload,
+      { headers: { Authorization: `Bearer ${token}` } }
+    )
+    if (data.success) {
+      meetingStore.selectedMeeting = {
+        ...meetingStore.selectedMeeting,
+        summary: form.summary,
+        meetingOverview: form.meetingOverview,
+        topics,
+        decisions,
+        followUpTasks,
+        risks,
+        openQuestions
+      }
+      showEditKnowledgeModal.value = false
+    }
+  } catch (err) {
+    console.error('Failed to save knowledge:', err)
+  } finally {
+    isSavingKnowledge.value = false
+  }
 }
 
 onMounted(async () => {
@@ -562,8 +876,23 @@ const goBack = () => {
   meetingStore.selectedMeeting = null
 }
 
-const toggleTask = (task) => {
-  task.checked = !task.checked
+const toggleTask = async (task) => {
+  const newChecked = !task.checked
+  const previousState = task.checked
+  task.checked = newChecked
+
+  try {
+    const meetingId = meetingStore.selectedMeeting?._id || meetingStore.selectedMeeting?.id
+    const token = localStorage.getItem('token')
+    await axios.put(
+      `${API}/meetings/${meetingId}/actions/${task.id || task._id}`,
+      { status: newChecked ? 'done' : 'open' },
+      { headers: { Authorization: `Bearer ${token}` } }
+    )
+  } catch (err) {
+    task.checked = previousState
+    console.error('Failed to update action item:', err)
+  }
 }
 
 const completionRate = computed(() => {

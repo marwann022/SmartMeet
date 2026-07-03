@@ -313,11 +313,6 @@ const firstName = computed(() => {
 })
 
 
-// Import assets
-import activityTrendImg from '../../assets/Activity Trend.png'
-import avatar1 from '../../assets/Background+Border.png'
-import avatar2 from '../../assets/Background+Border-1.png'
-
 const props = defineProps({
   searchQuery: {
     type: String,

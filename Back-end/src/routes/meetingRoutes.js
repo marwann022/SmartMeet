@@ -18,6 +18,8 @@ import {
     getMeetingKnowledge,
     getMeetingTasks,
     getMeetingDecisions,
+    updateMeetingKnowledge,
+    updateActionItem,
 } from "../controllers/meetingKnowledgeController.js";
 
 import mongoose from "mongoose";
@@ -47,9 +49,11 @@ router.post("/:id/process", processMeeting);
 router.post("/live-extract-task", liveExtractTask);
 router.post("/live-extract-decision", liveExtractDecision);
 
+router.put("/:id/actions/:actionId", updateActionItem);
 router.get("/:id/transcript", getMeetingTranscript);
 router.get("/:id/summary", getMeetingSummary);
 router.get("/:id/knowledge", getMeetingKnowledge);
+router.put("/:id/knowledge", updateMeetingKnowledge);
 router.get("/:id/tasks", getMeetingTasks);
 router.get("/:id/decisions", getMeetingDecisions);
 
