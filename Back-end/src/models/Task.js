@@ -42,7 +42,7 @@ const taskSchema = new mongoose.Schema({
     },
     due: {
         type: String,
-        default: "TBD",
+        default: "",
     },
     dueDate: {
         type: String,
@@ -72,6 +72,10 @@ const taskSchema = new mongoose.Schema({
         default: null,
     },
     isPersonal: {
+        type: Boolean,
+        default: false,
+    },
+    needsAdminDeadlineResolution: {
         type: Boolean,
         default: false,
     },

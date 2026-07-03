@@ -80,6 +80,19 @@
       </div>
     </div>
 
+    <!-- Admin Deadline Alert Banner -->
+    <div
+      v-if="needsDeadlineAlert"
+      class="flex items-start gap-2 rounded-xl px-3 py-2.5 mb-1 bg-amber-500/10 border border-amber-500/30 dark:bg-amber-500/[0.08] dark:border-amber-500/25"
+      @click.stop
+    >
+      <PhWarning :size="14" weight="fill" class="text-amber-500 flex-shrink-0 mt-0.5" />
+      <p class="text-[11px] font-semibold leading-snug text-amber-700 dark:text-amber-400">
+        <span class="font-extrabold uppercase tracking-wide">Attention Admin:</span>
+        This task requires a deadline. Please edit and assign a calendar date.
+      </p>
+    </div>
+
     <!-- Title -->
     <div class="min-h-[40px] flex items-center py-0.5">
       <p
@@ -114,7 +127,7 @@
       <!-- Due Date (colour-coded by urgency) -->
       <div class="flex items-center gap-1.5 font-bold text-xs transition-colors duration-300" :class="deadlineColors.text">
         <PhCalendarBlank :size="13" weight="bold" />
-        <span class="font-semibold">📅 {{ task.due || 'TBD' }}</span>
+        <span class="font-semibold">📅 {{ task.due || '\u2014' }}</span>
       </div>
 
       <!-- Live Countdown Badge -->
@@ -177,6 +190,7 @@ import {
   PhUser,
   PhVideoCamera,
   PhFileText,
+  PhWarning,
 } from '@phosphor-icons/vue'
 import Badge from '../ui/Badge.vue'
 import UserAvatar from '../common/UserAvatar.vue'
@@ -197,6 +211,10 @@ const authStore = useAuthStore()
 const { now } = useNow()
 
 const isAdmin = computed(() => authStore.user?.role === 'admin')
+
+const needsDeadlineAlert = computed(() =>
+  props.task.needsAdminDeadlineResolution === true && isAdmin.value
+)
 
 const isLocked = computed(() => {
   if (authStore.user?.role === 'admin') {

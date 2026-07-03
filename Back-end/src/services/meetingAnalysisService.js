@@ -140,7 +140,7 @@ const analyzeSingleTranscript = async ({ transcript, meeting, partial = false })
   "summary": "string",
   "meetingOverview": "string",
   "decisions": [{"text":"string","owner":"string","deadline":"YYYY-MM-DD or null","confidence":0.8}],
-  "actionItems": [{"title":"string","description":"string","assignedTo":"string","deadline":"YYYY-MM-DD or null","priority":"low|medium|high","sourceText":"string"}],
+  "actionItems": [{"title":"string","description":"string","assignedTo":"string","deadline":"YYYY-MM-DD","priority":"low|medium|high","sourceText":"string","needsAdminDeadlineResolution":false}],
   "deadlines": [{"text":"string","owner":"string","deadline":"YYYY-MM-DD or null","confidence":0.8}],
   "risks": [{"text":"string","owner":"string","deadline":"YYYY-MM-DD or null","confidence":0.8}],
   "openQuestions": [{"text":"string","owner":"string","deadline":"YYYY-MM-DD or null","confidence":0.8}],
@@ -149,7 +149,7 @@ const analyzeSingleTranscript = async ({ transcript, meeting, partial = false })
   "agreements": [{"text":"string","owner":"string","deadline":"YYYY-MM-DD or null","confidence":0.8}],
   "disagreements": [{"text":"string","owner":"string","deadline":"YYYY-MM-DD or null","confidence":0.8}]
 }
-Use empty arrays when data is missing. 
+Use empty arrays when data is missing.
 
 Reference Workspace Context:
 - Project Name: SmartMeet
@@ -159,6 +159,8 @@ Extraction Constraint: Be highly precise. Extract decisions, agreements, and act
 Deduplication Constraint: Ensure all extracted actionItems and decisions are unique. Consolidate any duplicate or repetitive entries into a single clear item instead of listing it multiple times.
 Chronological Constraint: Extract the actionItems and decisions in the exact chronological order in which they appear and are discussed in the transcript from top to bottom.
 Task Assignment Constraint: When extracting "actionItems" and "decisions", try to map the owner/assignee to one of the Known Team Members (Marwan, Youssef, Hana, Ebrahim, Zena, Ahmed, Sara) if they are mentioned or implied. Do not leave "assignedTo" or "owner" empty/unassigned if one of the known team members was discussed as responsible for it in the text.
+ADMIN EXCLUSION CONSTRAINT (CRITICAL): Never assign any extracted action item or task to a user with the role of 'admin'. Admins are workspace managers, not task executors. If the only identifiable assignee is the admin (named as the overall project owner/manager), set "assignedTo" to "Unassigned" instead.
+STRICT DEADLINE CONSTRAINT (CRITICAL): For every action item in "actionItems", provide a computed, definitive deadline in "YYYY-MM-DD" format whenever any date, timeframe, or scheduling context can be reasonably inferred from the transcript (e.g. "by end of week", "next sprint", "before Friday"). Use the meeting date as the reference point for relative dates. Do NOT output null, "TBD", "N/A", or any placeholder string for "deadline". If and ONLY IF no date can be inferred, omit the "deadline" field entirely and set "needsAdminDeadlineResolution": true on that action item.
 Language Constraint: Generate the summaries, meetingOverview, topics, decisions, actionItems, and all other text fields in ENGLISH ONLY.
 ${partial ? "This is one chunk of a long meeting, so preserve only facts visible in this chunk." : ""}`,
             },
@@ -186,7 +188,7 @@ const mergeAnalyses = async ({ partials, meeting }) => {
         messages: [
             {
                 role: "system",
-                content: "Return strict JSON only. Merge these partial meeting analyses into one deduplicated final analysis using the same schema. Keep decisions, tasks, deadlines, risks, questions, agreements, and disagreements specific. Important constraint: Generate all text fields, summaries, and tasks in ENGLISH ONLY. Consolidate any duplicate or repetitive items. Ensure task owners/assignees map correctly to known team members (Marwan, Youssef, Hana, Ebrahim, Zena, Ahmed, Sara) and preserve their correct spellings. Keep the final merged tasks and decisions ordered in the chronological order of the spoken meeting transcript.",
+                content: "Return strict JSON only. Merge these partial meeting analyses into one deduplicated final analysis using the same schema. Keep decisions, tasks, deadlines, risks, questions, agreements, and disagreements specific. Important constraint: Generate all text fields, summaries, and tasks in ENGLISH ONLY. Consolidate any duplicate or repetitive items. Ensure task owners/assignees map correctly to known team members (Marwan, Youssef, Hana, Ebrahim, Zena, Ahmed, Sara) and preserve their correct spellings. Keep the final merged tasks and decisions ordered in the chronological order of the spoken meeting transcript. ADMIN EXCLUSION (CRITICAL): Never assign any action item to a user with the role of 'admin' — if the admin is the only assignee, set assignedTo to 'Unassigned'. STRICT DEADLINE (CRITICAL): Preserve any concrete YYYY-MM-DD deadline from the partial analyses. If no deadline exists for an action item, omit the deadline field and set needsAdminDeadlineResolution: true.",
             },
             {
                 role: "user",
@@ -211,6 +213,9 @@ const parseAnalysis = (content) => {
     }
 };
 
+// Placeholder deadline strings the AI must never output — strip them defensively
+const DEADLINE_PLACEHOLDERS = new Set(["tbd", "to be determined", "n/a", "null", "none", "unknown", ""]);
+
 const normalizeAnalysis = (analysis) => {
     const normalized = { ...emptyAnalysis(), ...analysis };
     const arrayFields = [
@@ -228,6 +233,26 @@ const normalizeAnalysis = (analysis) => {
     for (const field of arrayFields) {
         normalized[field] = Array.isArray(normalized[field]) ? normalized[field] : [];
     }
+
+    // Post-process actionItems: enforce deadline integrity
+    normalized.actionItems = normalized.actionItems.map((item) => {
+        const sanitized = { ...item };
+
+        // Strip placeholder deadline strings — treat them as missing
+        if (sanitized.deadline !== undefined && sanitized.deadline !== null) {
+            const dl = String(sanitized.deadline).trim().toLowerCase();
+            if (DEADLINE_PLACEHOLDERS.has(dl)) {
+                delete sanitized.deadline;
+                sanitized.needsAdminDeadlineResolution = true;
+            }
+        } else if (sanitized.deadline === null || sanitized.deadline === undefined) {
+            // Explicit null or missing deadline
+            delete sanitized.deadline;
+            sanitized.needsAdminDeadlineResolution = sanitized.needsAdminDeadlineResolution ?? true;
+        }
+
+        return sanitized;
+    });
 
     return normalized;
 };

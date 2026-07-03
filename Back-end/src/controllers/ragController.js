@@ -1,5 +1,11 @@
 import OpenAI from "openai";
-import { ingestMeeting, searchMeetings } from "../services/ragService.js";
+import {
+  ingestMeeting,
+  searchMeetings,
+  SMARTMEET_SYSTEM_CONTEXT,
+  isRelativeRecentQuery,
+  fetchMostRecentMeeting,
+} from "../services/ragService.js";
 import ChatSession from "../models/ChatSession.js";
 import ChatMessage from "../models/ChatMessage.js";
 import Meeting from "../models/Meeting.js";
@@ -57,11 +63,34 @@ export const handleQuery = async (req, res) => {
       isNewSession = true;
     }
 
-    // 2. Perform semantic search & hybrid matching
-    const results = await searchMeetings(question, teamId || null, 5);
+    // 2. Resolve relative-time queries ("last meeting", "previous sync", etc.)
+    //    Scope the vector search to that specific meeting's embeddings.
+    let scopedMeetingId = null;
+    let scopedMeetingTitle = null;
+    let scopedMeetingDate = null;
+
+    if (isRelativeRecentQuery(question)) {
+      try {
+        const userName = req.user.name || `${req.user.firstName || ""} ${req.user.lastName || ""}`.trim();
+        const recentMeeting = await fetchMostRecentMeeting(req.user._id, req.user.email, userName);
+        if (recentMeeting) {
+          scopedMeetingId = recentMeeting.meetingId || recentMeeting._id.toString();
+          scopedMeetingTitle = recentMeeting.title;
+          scopedMeetingDate = recentMeeting.endTime || recentMeeting.startTime;
+          console.log(`[RAG] Relative-time query detected — scoping to last meeting: "${scopedMeetingTitle}" (${scopedMeetingId})`);
+        } else {
+          console.log("[RAG] Relative-time query detected but no completed meetings found for this user.");
+        }
+      } catch (relErr) {
+        console.warn("[RAG] Failed to resolve last meeting for relative query:", relErr.message);
+      }
+    }
+
+    // 3. Perform semantic search — scoped to last meeting if detected, else global
+    const results = await searchMeetings(question, teamId || null, 5, scopedMeetingId);
     let matches = results.matches || [];
 
-    // Title-matching boost: if the question refers to a meeting title, fetch its chunks directly
+    // 4. Title-matching boost: if the question refers to a meeting title, fetch its chunks directly
     try {
       const meetings = await Meeting.find({ host: req.user._id }, "title _id meetingId");
       const matchedMeetings = [];
@@ -128,9 +157,18 @@ export const handleQuery = async (req, res) => {
 
       const contextString = contextPassages.join("\n\n---\n\n");
 
-      const systemPrompt = `You are the SmartMeet Organizational Assistant. Answer the user's question using ONLY the provided meeting transcript context. Keep your answer concise and conversational. If the answer cannot be found in the context, say "I cannot find any recorded meeting discussions regarding this topic."
+      // Build scope hint for relative queries so the LLM knows which meeting we're in
+      const scopeHint = scopedMeetingTitle
+        ? `\n\nIMPORTANT: The user is asking about their most recent meeting. That meeting is titled "${scopedMeetingTitle}"${
+            scopedMeetingDate ? ` (held on ${new Date(scopedMeetingDate).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })})` : ""
+          }. Prioritize context from that meeting.`
+        : "";
 
-Constraint: You MUST reply in the same language as the user's question (e.g. if the user asks in Arabic, you must translate the relevant context facts and answer in Arabic).
+      const systemPrompt = `${SMARTMEET_SYSTEM_CONTEXT}
+
+You are also acting as the SmartMeet Organizational Assistant. Answer the user's question using ONLY the provided meeting transcript context below. Keep your answer concise and conversational. If the answer cannot be found in the context, say "I cannot find any recorded meeting discussions regarding this topic."
+
+Constraint: You MUST reply in the same language as the user's question (e.g. if the user asks in Arabic, you must translate the relevant context facts and answer in Arabic).${scopeHint}
 
 CONTEXT FROM PAST MEETINGS:
 ${contextString}`;

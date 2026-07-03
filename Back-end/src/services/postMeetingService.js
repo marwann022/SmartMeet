@@ -62,11 +62,30 @@ export const syncMeetingTasksAndNotifications = async ({ meeting, analysis }) =>
                         return fullName.includes(target) || target.includes(m.firstName.toLowerCase()) || email === target;
                     });
                 }
+
+                // 3. RULE 1 SAFEGUARD: Never assign tasks to an admin user
+                if (matchedUser && matchedUser.role === "admin") {
+                    console.warn(`[PostMeetingPipeline] Blocked admin assignment for task "${item.title}" — admin (${matchedUser.email}) cannot be a task assignee. Falling back to Unassigned.`);
+                    matchedUser = null;
+                }
             }
 
             // Determine user ID owner for the Task document
+            // Admin users must never be task assignees — fall back to host when unmatched
             const taskOwnerId = matchedUser ? matchedUser._id : meeting.host._id || meeting.host;
-            
+
+            // Resolve deadline: strip placeholder strings defensively
+            let taskDue = "";
+            let taskDueDate = "";
+            if (item.deadline && typeof item.deadline === "string") {
+                const dl = item.deadline.trim().toLowerCase();
+                const placeholders = new Set(["tbd", "to be determined", "n/a", "null", "none", "unknown", ""]);
+                if (!placeholders.has(dl)) {
+                    taskDue = item.deadline.trim();
+                    taskDueDate = item.deadline.trim();
+                }
+            }
+
             // Create a Task document in the Task board collection
             const createdTask = await Task.create({
                 user: taskOwnerId,
@@ -80,6 +99,9 @@ export const syncMeetingTasksAndNotifications = async ({ meeting, analysis }) =>
                 assignee: matchedUser ? `${matchedUser.firstName} ${matchedUser.lastName}` : assigneeName,
                 source: `Meeting: ${meeting.title}`,
                 meeting: meeting._id || meeting,
+                due: taskDue,
+                dueDate: taskDueDate,
+                needsAdminDeadlineResolution: item.needsAdminDeadlineResolution === true || !taskDue,
             });
 
             syncedTasks.push(createdTask);

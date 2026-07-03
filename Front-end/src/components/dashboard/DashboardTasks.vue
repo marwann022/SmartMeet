@@ -53,6 +53,27 @@
       </div>
     </div>
 
+    <!-- Admin: Missing Deadline Alert Banner -->
+    <div
+      v-if="isAdmin && tasksNeedingDeadlines.length > 0"
+      class="flex items-center gap-4 rounded-2xl px-5 py-4 bg-amber-500/10 border border-amber-500/30 dark:bg-amber-500/[0.07] dark:border-amber-500/20 shadow-sm -mt-2"
+    >
+      <div class="w-9 h-9 rounded-xl bg-amber-500/20 flex items-center justify-center flex-shrink-0">
+        <PhWarningCircle :size="18" weight="fill" class="text-amber-500" />
+      </div>
+      <div class="flex-1 min-w-0">
+        <p class="text-sm font-extrabold text-amber-700 dark:text-amber-400 font-header leading-tight">
+          {{ tasksNeedingDeadlines.length }} task{{ tasksNeedingDeadlines.length === 1 ? '' : 's' }} require{{ tasksNeedingDeadlines.length === 1 ? 's' : '' }} a deadline
+        </p>
+        <p class="text-[11px] text-amber-600/80 dark:text-amber-400/60 font-body mt-0.5">
+          AI-extracted tasks below are missing concrete due dates. Please open each flagged task and assign a calendar date.
+        </p>
+      </div>
+      <span class="flex-shrink-0 text-[11px] font-extrabold uppercase tracking-wider px-3 py-1.5 rounded-full bg-amber-500/15 text-amber-700 dark:text-amber-300 border border-amber-500/20">
+        Action Required
+      </span>
+    </div>
+
     <!-- Kanban Grid: 4 columns -->
     <div class="flex flex-col gap-6">
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 items-start">
@@ -797,6 +818,12 @@ const newTask = ref({
 const authStore = useAuthStore()
 const { info } = useToasts()
 const isAdmin = computed(() => authStore.user?.role === 'admin')
+
+// Admin alert: tasks extracted from meetings that are missing a concrete deadline
+const tasksNeedingDeadlines = computed(() => {
+  if (!isAdmin.value) return []
+  return taskStore.tasks.filter(t => t.needsAdminDeadlineResolution === true)
+})
 const members = ref([])
 const selectedAssignmentType = ref('one')
 const selectedAssigneeId = ref('')
