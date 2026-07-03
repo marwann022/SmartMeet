@@ -323,9 +323,25 @@ export const updateTask = async (req, res) => {
             });
         }
 
-        // Action: When non-admin/non-creator team member switches task to 'review', notify ALL admins
+        // Admin cannot move tasks into "Review" — only members can submit for review
+        if (isAdmin && status === "review") {
+            return res.status(403).json({
+                success: false,
+                message: "Only the assigned member can submit a task for review.",
+            });
+        }
+
+        // Member cannot set status to "done" directly — must go through review → admin approve
+        if (!isAdmin && status === "done" && task.status !== "done") {
+            return res.status(403).json({
+                success: false,
+                message: "Task must be submitted for review and approved by an admin.",
+            });
+        }
+
+        // Action: When a member switches task to 'review', notify ALL admins
         const settingToReview = status === "review" && task.status !== "review";
-        if (settingToReview && !isAuthorized) {
+        if (settingToReview && !isAdmin) {
             if (!task.reviewHistory) task.reviewHistory = [];
             task.reviewHistory.push({
                 action: "submitted",

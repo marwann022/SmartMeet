@@ -101,18 +101,30 @@
             </div>
           </div>
 
+          <!-- Admin Info Card for To Do -->
+          <div v-if="col.id === 'todo' && isAdmin && tasksByStatus(col.id).length > 0" class="rounded-2xl border border-primary/20 dark:border-primary/30 bg-primary/5 dark:bg-primary/10 backdrop-blur-md p-3 flex items-center gap-3 shadow-sm">
+            <PhClock :size="14" weight="bold" class="text-primary flex-shrink-0" />
+            <span class="text-[11px] font-body text-primary/80 dark:text-primary/60 font-medium">Waiting for assigned members.</span>
+          </div>
+
           <!-- Admin Info Card for In Progress -->
           <div v-if="col.id === 'inprogress' && isAdmin && tasksByStatus(col.id).length > 0" class="rounded-2xl border border-blue-200/50 dark:border-blue-500/20 bg-blue-500/5 dark:bg-blue-500/10 backdrop-blur-md p-4 flex items-start gap-3 shadow-sm">
             <div class="flex-shrink-0 w-8 h-8 rounded-xl bg-blue-500/10 text-blue-600 dark:text-blue-400 flex items-center justify-center">
               <PhLock :size="16" weight="bold" />
             </div>
             <div class="flex flex-col gap-0.5 min-w-0">
-              <span class="font-header font-bold text-xs text-blue-700 dark:text-blue-300 uppercase tracking-wider">Members Work Here</span>
+              <span class="font-header font-bold text-xs text-blue-700 dark:text-blue-300 uppercase tracking-wider">Member Workspace</span>
               <p class="text-[11px] font-body text-blue-600/80 dark:text-blue-400/80 leading-relaxed">
-                Only assigned members can move tasks into or out of this stage.<br>
-                Admins can monitor progress and review submitted work.
+                Only assigned members can move tasks from this stage.<br>
+                Admins monitor progress only.
               </p>
             </div>
+          </div>
+
+          <!-- Admin Info Card for Review -->
+          <div v-if="col.id === 'review' && isAdmin && tasksByStatus(col.id).length > 0" class="rounded-2xl border border-red-500/20 dark:border-red-500/30 bg-red-500/5 dark:bg-red-500/10 backdrop-blur-md p-3 flex items-center gap-3 shadow-sm">
+            <PhEye :size="14" weight="bold" class="text-red-500 flex-shrink-0" />
+            <span class="text-[11px] font-body text-red-500/80 dark:text-red-400/60 font-medium">Ready for Review — Admins can approve or request changes.</span>
           </div>
 
           <TransitionGroup name="task-item" tag="div" class="flex flex-col gap-4 min-h-[180px] relative w-full pb-10">
@@ -267,6 +279,20 @@
             </div>
           </div>
 
+          <!-- Admin contextual messages -->
+          <div v-if="isAdmin && selectedTask.status === 'todo'" class="flex items-center gap-3 p-4 rounded-xl bg-blue-500/5 border border-blue-200/50 dark:border-blue-500/20">
+            <PhLock :size="18" weight="bold" class="text-blue-600 dark:text-blue-400 flex-shrink-0" />
+            <p class="text-xs font-body text-blue-700 dark:text-blue-300 leading-relaxed">Waiting for assigned member to begin work.</p>
+          </div>
+          <div v-if="isAdmin && selectedTask.status === 'inprogress'" class="flex items-center gap-3 p-4 rounded-xl bg-amber-500/5 border border-amber-200/50 dark:border-amber-500/20">
+            <PhEye :size="18" weight="bold" class="text-amber-600 dark:text-amber-400 flex-shrink-0" />
+            <p class="text-xs font-body text-amber-700 dark:text-amber-300 leading-relaxed">This task is currently being worked on by the assigned member.</p>
+          </div>
+          <div v-if="isAdmin && selectedTask.status === 'done'" class="flex items-center gap-3 p-4 rounded-xl bg-emerald-500/5 border border-emerald-200/50 dark:border-emerald-500/20">
+            <PhCheckCircle :size="18" weight="bold" class="text-emerald-600 dark:text-emerald-400 flex-shrink-0" />
+            <p class="text-xs font-body text-emerald-700 dark:text-emerald-300 leading-relaxed">This task has been completed and approved.</p>
+          </div>
+
           <!-- Interactive Stage Switcher in Modal -->
           <div class="flex flex-col gap-2 border-t border-black/5 dark:border-white/10 pt-4">
             <label class="text-[10px] font-extrabold uppercase tracking-wider text-brand-slate pl-1 font-header">Move Stage</label>
@@ -290,7 +316,7 @@
               >
                 <PhLock v-if="isStageDisabled(opt.value)" :size="11" weight="bold" class="inline mr-1" />
                 {{ opt.label }}
-                <span v-if="isStageDisabled(opt.value)" class="stage-tooltip" role="tooltip">Only the assigned member can start this task.</span>
+                <span v-if="isStageDisabled(opt.value)" class="stage-tooltip" role="tooltip">{{ getStageTooltip(opt.value) }}</span>
               </button>
             </div>
           </div>
@@ -316,7 +342,7 @@
 
           <div class="flex gap-3 pt-4 border-t border-black/5 dark:border-white/10">
             <Button 
-              v-if="selectedTask.status !== 'review'"
+              v-if="isAdmin ? selectedTask.status !== 'review' : selectedTask.status === 'done'"
               class="flex-1"
               :variant="selectedTask.status === 'done' || selectedTask.done ? 'outline' : 'primary'"
               @click="handleToggleTask"
@@ -671,7 +697,8 @@ const cancelReviewAction = () => {
 }
 
 const onDragOver = (e, status) => {
-  if (status === 'inprogress' && authStore.user?.role === 'admin') {
+  const isAdmin = authStore.user?.role === 'admin'
+  if (status === 'inprogress' && isAdmin) {
     const taskId = e.dataTransfer.getData('text/plain')
     if (taskId) {
       const task = taskStore.tasks.find(t => String(t.id || t._id) === String(taskId))
@@ -684,13 +711,19 @@ const onDragOver = (e, status) => {
     e.dataTransfer.dropEffect = 'none'
     return
   }
+  // Block admin drops into Review
+  if (status === 'review' && isAdmin) {
+    e.dataTransfer.dropEffect = 'none'
+    return
+  }
   e.preventDefault()
   e.dataTransfer.dropEffect = 'move'
 }
 
 const onDragEnter = (e, status) => {
+  const isAdmin = authStore.user?.role === 'admin'
   e.preventDefault()
-  if (status === 'inprogress' && authStore.user?.role === 'admin') {
+  if (status === 'inprogress' && isAdmin) {
     const taskId = e.dataTransfer.getData('text/plain')
     if (taskId) {
       const task = taskStore.tasks.find(t => String(t.id || t._id) === String(taskId))
@@ -699,6 +732,10 @@ const onDragEnter = (e, status) => {
         return
       }
     }
+    return
+  }
+  // Don't highlight review column for admin drags
+  if (status === 'review' && isAdmin) {
     return
   }
   activeDragColumn.value = status
@@ -714,24 +751,46 @@ const onDrop = (event, status) => {
   event.preventDefault()
   activeDragColumn.value = null
   const taskId = event.dataTransfer.getData('text/plain')
-  if (taskId) {
-    const task = taskStore.tasks.find(t => String(t.id) === String(taskId) || String(t._id) === String(taskId))
+  if (!taskId) return
+  const task = taskStore.tasks.find(t => String(t.id) === String(taskId) || String(t._id) === String(taskId))
+  if (!task) return
 
-    // Admin cannot drop tasks into In Progress (unless returning from review)
-    if (task && status === 'inprogress' && authStore.user?.role === 'admin' && task.status !== 'review' && task.status !== 'inprogress') {
+  const isAdmin = authStore.user?.role === 'admin'
+
+  // Admin restrictions
+  if (isAdmin) {
+    // Admin cannot drop into In Progress (unless returning from review)
+    if (status === 'inprogress' && task.status !== 'review' && task.status !== 'inprogress') {
       rejectedDropStatus.value = status
       setTimeout(() => { rejectedDropStatus.value = null }, 600)
-      info('Only the assigned member can move a task into In Progress.', 'Read Only Stage')
+      info('Only the assigned member can start or submit this task.', 'Action Not Allowed')
       return
     }
-
-    if (task && status === 'review' && authStore.user?.role !== 'admin') {
-      triggerReviewConfirmModal(() => {
-        taskStore.setTaskStatus(taskId, status)
-      })
-    } else {
-      taskStore.setTaskStatus(taskId, status)
+    // Admin cannot drop into Review
+    if (status === 'review') {
+      rejectedDropStatus.value = status
+      setTimeout(() => { rejectedDropStatus.value = null }, 600)
+      info('Only the assigned member can start or submit this task.', 'Action Not Allowed')
+      return
     }
+  }
+
+  // Member restrictions
+  if (!isAdmin) {
+    // Member cannot drop into Done
+    if (status === 'done') {
+      info('Tasks must be submitted for review and approved by an admin.', 'Action Not Allowed')
+      return
+    }
+  }
+
+  // Existing review confirm for member dropping into review
+  if (status === 'review' && !isAdmin) {
+    triggerReviewConfirmModal(() => {
+      taskStore.setTaskStatus(taskId, status)
+    })
+  } else {
+    taskStore.setTaskStatus(taskId, status)
   }
 }
 
@@ -741,14 +800,21 @@ const handleMoveTask = (task, direction) => {
   const nextIndex = currentIndex + direction
   if (nextIndex >= 0 && nextIndex < statusOrder.length) {
     const nextStatus = statusOrder[nextIndex]
+    const isAdmin = authStore.user?.role === 'admin'
 
-    // Admin cannot move tasks into In Progress via buttons (unless returning from review)
-    if (nextStatus === 'inprogress' && authStore.user?.role === 'admin' && task.status !== 'review' && task.status !== 'inprogress') {
-      info('Only the assigned member can move a task into In Progress.', 'Read Only Stage')
+    // Admin cannot use move buttons — use Approve/Return in modal instead
+    if (isAdmin) {
+      info('Admins can only approve or return tasks from the Review stage.', 'Action Not Allowed')
       return
     }
 
-    if (nextStatus === 'review' && authStore.user?.role !== 'admin') {
+    // Member cannot move to Done via buttons
+    if (nextStatus === 'done') {
+      info('Tasks must be submitted for review and approved by an admin.', 'Action Not Allowed')
+      return
+    }
+
+    if (nextStatus === 'review') {
       triggerReviewConfirmModal(() => {
         taskStore.moveTask(task, direction)
       })
@@ -847,7 +913,10 @@ const loadMembers = async () => {
 const isLocked = computed(() => {
   if (!selectedTask.value) return false
   const isAdmin = authStore.user?.role === 'admin'
-  return !isAdmin && (selectedTask.value.status === 'review' || selectedTask.value.status === 'done')
+  if (!isAdmin) {
+    return selectedTask.value.status === 'review' || selectedTask.value.status === 'done' || selectedTask.value.status === 'inprogress'
+  }
+  return false
 })
 
 const showApproveConfirm = ref(false)
@@ -999,19 +1068,42 @@ const addTask = () => {
 const isStageDisabled = (status) => {
   if (!selectedTask.value) return true
   const isAdmin = authStore.user?.role === 'admin'
-  // Admin cannot move tasks into "In Progress" from todo or done,
-  // but CAN return from review to inprogress
-  if (isAdmin && status === 'inprogress' && selectedTask.value.status !== 'review' && selectedTask.value.status !== 'inprogress') return true
+
+  if (isAdmin) {
+    // Admin can only use "In Progress" when returning from review
+    if (status === 'inprogress' && selectedTask.value.status === 'review') return false
+    // All other stage transitions are disabled for admin
+    return true
+  }
+
   // Non-admin members cannot change status once task is locked (review/done)
-  if (!isAdmin && (selectedTask.value.status === 'review' || selectedTask.value.status === 'done')) return true
+  if (selectedTask.value.status === 'review' || selectedTask.value.status === 'done') return true
+
+  // Member cannot directly move to done (must go through review → admin approve)
+  if (status === 'done') return true
+
   return false
 }
 
 const getStageAriaLabel = (opt) => {
   if (isStageDisabled(opt.value)) {
+    if (isAdmin.value && opt.value === 'review') {
+      return `${opt.label}. Disabled. Only the assigned member can submit a task for review.`
+    }
+    if (opt.value === 'done') {
+      return `${opt.label}. Disabled. Tasks must be approved by an admin.`
+    }
     return `${opt.label}. Disabled. Only the assigned member can start this task.`
   }
   return opt.label
+}
+
+const getStageTooltip = (status) => {
+  if (isAdmin.value && status === 'review') return 'Only the assigned member can submit a task for review.'
+  if (status === 'done') return 'Tasks must be approved by an admin.'
+  if (isAdmin.value && status === 'inprogress') return 'Only the assigned member can start this task.'
+  if (!isAdmin.value && status === 'inprogress') return 'Move from To Do to start this task.'
+  return 'This action is not available.'
 }
 
 const selectStatus = async (status) => {
