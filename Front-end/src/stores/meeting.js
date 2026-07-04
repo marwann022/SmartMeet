@@ -258,6 +258,21 @@ export const useMeetingStore = defineStore('meeting', () => {
     return data
   }
 
+  const updateMeetingSummary = async (meetingId, summary) => {
+    const { data } = await axios.put(`${API}/meetings/${meetingId}/summary`, { summary }, getHeaders())
+    return data
+  }
+
+  const updateMeetingTasks = async (meetingId, tasks) => {
+    const { data } = await axios.put(`${API}/meetings/${meetingId}/tasks`, { tasks, replaceAll: true }, getHeaders())
+    return data
+  }
+
+  const updateMeetingDecisions = async (meetingId, decisions) => {
+    const { data } = await axios.put(`${API}/meetings/${meetingId}/decisions`, { decisions }, getHeaders())
+    return data
+  }
+
   return {
     meetings,
     loading,
@@ -273,6 +288,9 @@ export const useMeetingStore = defineStore('meeting', () => {
     updateMeeting,
     extractLiveDecision,
     processMeeting,
-    extractLiveTask
+    extractLiveTask,
+    updateMeetingSummary,
+    updateMeetingTasks,
+    updateMeetingDecisions
   }
 })

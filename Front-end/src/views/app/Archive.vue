@@ -68,7 +68,17 @@
                 <PhSparkle :size="20" class="text-primary" />
                 <h3 class="font-header font-bold text-lg text-brand-dark">Executive Summary</h3>
               </div>
-              <Badge type="primary">AI Generated</Badge>
+              <div class="flex items-center gap-2">
+                <Badge type="primary">AI Generated</Badge>
+                <button
+                  v-if="authStore.user?.role === 'admin'"
+                  @click="openEditSummaryModal"
+                  class="px-3 py-1.5 border border-primary/20 rounded-xl bg-primary/5 hover:bg-primary text-primary hover:text-white transition-all font-bold text-[11px] flex items-center gap-1.5 cursor-pointer no-print"
+                >
+                  <PhPencilSimple :size="11" weight="bold" />
+                  Edit
+                </button>
+              </div>
             </div>
 
             <div class="flex flex-col gap-4 text-sm leading-relaxed text-brand-slate">
@@ -117,9 +127,19 @@
                 <PhCheckSquare :size="20" class="text-primary" />
                 <h3 class="font-header font-bold text-lg text-brand-dark">Action Items</h3>
               </div>
-              <Badge v-if="selectedTasks.length > 0" :type="completionRate === 100 ? 'success' : 'primary'">
-                {{ completionRate }}% Completed
-              </Badge>
+              <div class="flex items-center gap-2">
+                <Badge v-if="selectedTasks.length > 0" :type="completionRate === 100 ? 'success' : 'primary'">
+                  {{ completionRate }}% Completed
+                </Badge>
+                <button
+                  v-if="authStore.user?.role === 'admin'"
+                  @click="openEditTasksModal"
+                  class="px-3 py-1.5 border border-primary/20 rounded-xl bg-primary/5 hover:bg-primary text-primary hover:text-white transition-all font-bold text-[11px] flex items-center gap-1.5 cursor-pointer no-print"
+                >
+                  <PhPencilSimple :size="11" weight="bold" />
+                  Edit
+                </button>
+              </div>
             </div>
 
             <div v-if="selectedTasks.length > 0" class="flex flex-col gap-3">
@@ -160,7 +180,15 @@
           <div class="card-glass rounded-[28px] p-6 flex flex-col gap-5">
             <div class="flex items-center gap-2.5 pb-4 border-b border-black/5 dark:border-white/5">
               <PhFolderUser :size="20" class="text-primary" />
-              <h3 class="font-header font-bold text-lg text-brand-dark">Decision Tracker</h3>
+              <h3 class="font-header font-bold text-lg text-brand-dark flex-1">Decision Tracker</h3>
+              <button
+                v-if="authStore.user?.role === 'admin'"
+                @click="openEditDecisionsModal"
+                class="px-3 py-1.5 border border-primary/20 rounded-xl bg-primary/5 hover:bg-primary text-primary hover:text-white transition-all font-bold text-[11px] flex items-center gap-1.5 cursor-pointer no-print"
+              >
+                <PhPencilSimple :size="11" weight="bold" />
+                Edit
+              </button>
             </div>
 
             <div v-if="selectedDecisions.length > 0" class="flex flex-col gap-3">
@@ -340,6 +368,148 @@
         </div>
       </div>
     </Modal>
+
+    <!-- Edit Executive Summary Modal -->
+    <Modal
+      :show="showEditSummaryModal"
+      title="Edit Executive Summary"
+      max-width="lg"
+      theme="primary"
+      @close="showEditSummaryModal = false"
+    >
+      <div class="flex flex-col gap-4 text-left">
+        <div class="flex flex-col gap-1.5 w-full">
+          <label class="text-[10px] font-extrabold uppercase tracking-wider text-brand-slate pl-1 font-header">Summary</label>
+          <textarea
+            v-model="editSummaryText"
+            placeholder="Enter the executive summary..."
+            rows="8"
+            class="w-full px-4 py-3 rounded-xl bg-white dark:bg-slate-900/50 border font-body text-sm text-brand-dark dark:text-slate-200 focus:outline-none transition-all duration-300 resize-none border-primary/20 dark:border-white/10 focus:border-primary/30"
+          />
+        </div>
+        <div class="flex justify-end gap-3 mt-4 border-t border-black/5 dark:border-white/10 pt-4">
+          <Button variant="outline" @click="showEditSummaryModal = false">Cancel</Button>
+          <Button variant="primary" :disabled="isSavingSummary" @click="saveEditSummary">
+            <span v-if="isSavingSummary" class="w-3.5 h-3.5 border-2 border-current border-t-transparent rounded-full animate-spin mr-2"></span>
+            {{ isSavingSummary ? 'Saving...' : 'Save Changes' }}
+          </Button>
+        </div>
+      </div>
+    </Modal>
+
+    <!-- Edit Action Items Modal -->
+    <Modal
+      :show="showEditTasksModal"
+      title="Edit Action Items"
+      max-width="lg"
+      theme="primary"
+      @close="showEditTasksModal = false"
+    >
+      <div class="flex flex-col gap-3 text-left max-h-[420px] overflow-y-auto pr-1">
+        <div v-for="(item, idx) in editTasksForm" :key="idx" class="p-3 rounded-xl bg-white/40 dark:bg-slate-900/40 border border-black/5 dark:border-white/10">
+          <div class="flex items-start gap-2">
+            <div class="flex-1 flex flex-col gap-2">
+              <input
+                v-model="item.title"
+                placeholder="Task title"
+                class="w-full px-3 py-2 rounded-lg border border-black/8 dark:border-white/10 bg-white dark:bg-slate-950/60 text-sm font-semibold text-brand-dark focus:outline-none focus:border-primary/30"
+              />
+              <div class="grid grid-cols-3 gap-2">
+                <input
+                  v-model="item.assignedTo"
+                  placeholder="Assignee"
+                  class="px-3 py-2 rounded-lg border border-black/8 dark:border-white/10 bg-white dark:bg-slate-950/60 text-xs text-brand-dark focus:outline-none focus:border-primary/30"
+                />
+                <select
+                  v-model="item.priority"
+                  class="px-3 py-2 rounded-lg border border-black/8 dark:border-white/10 bg-white dark:bg-slate-950/60 text-xs text-brand-dark focus:outline-none focus:border-primary/30"
+                >
+                  <option value="low">Low</option>
+                  <option value="medium">Medium</option>
+                  <option value="high">High</option>
+                </select>
+                <select
+                  v-model="item.status"
+                  class="px-3 py-2 rounded-lg border border-black/8 dark:border-white/10 bg-white dark:bg-slate-950/60 text-xs text-brand-dark focus:outline-none focus:border-primary/30"
+                >
+                  <option value="open">Open</option>
+                  <option value="in_progress">In Progress</option>
+                  <option value="blocked">Blocked</option>
+                  <option value="done">Done</option>
+                </select>
+              </div>
+            </div>
+            <button
+              @click="editTasksForm.splice(idx, 1)"
+              class="p-1.5 text-red-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-all flex-shrink-0 cursor-pointer"
+            >
+              <PhX :size="16" weight="bold" />
+            </button>
+          </div>
+        </div>
+        <div v-if="editTasksForm.length === 0" class="text-sm text-brand-slate italic py-4 text-center">
+          No action items yet. Click below to add one.
+        </div>
+        <Button variant="outline" @click="addEditTask" class="w-full">
+          + Add Action Item
+        </Button>
+      </div>
+      <div class="flex justify-end gap-3 mt-4 border-t border-black/5 dark:border-white/10 pt-4">
+        <Button variant="outline" @click="showEditTasksModal = false">Cancel</Button>
+        <Button variant="primary" :disabled="isSavingTasks" @click="saveEditTasks">
+          <span v-if="isSavingTasks" class="w-3.5 h-3.5 border-2 border-current border-t-transparent rounded-full animate-spin mr-2"></span>
+          {{ isSavingTasks ? 'Saving...' : 'Save Changes' }}
+        </Button>
+      </div>
+    </Modal>
+
+    <!-- Edit Decision Tracker Modal -->
+    <Modal
+      :show="showEditDecisionsModal"
+      title="Edit Decision Tracker"
+      max-width="lg"
+      theme="primary"
+      @close="showEditDecisionsModal = false"
+    >
+      <div class="flex flex-col gap-3 text-left max-h-[420px] overflow-y-auto pr-1">
+        <div v-for="(item, idx) in editDecisionsForm" :key="idx" class="flex items-start gap-2 p-3 rounded-xl bg-white/40 dark:bg-slate-900/40 border border-black/5 dark:border-white/10">
+          <div class="flex-1 flex flex-col gap-2">
+            <textarea
+              v-model="item.text"
+              placeholder="Decision description"
+              rows="2"
+              class="w-full px-3 py-2 rounded-lg border border-black/8 dark:border-white/10 bg-white dark:bg-slate-950/60 text-sm text-brand-dark focus:outline-none focus:border-primary/30 resize-none"
+            />
+            <select
+              v-model="item.confidence"
+              class="w-full px-3 py-2 rounded-lg border border-black/8 dark:border-white/10 bg-white dark:bg-slate-950/60 text-xs text-brand-dark focus:outline-none focus:border-primary/30"
+            >
+              <option :value="0.8">APPROVED</option>
+              <option :value="0.5">PENDING REVIEW</option>
+            </select>
+          </div>
+          <button
+            @click="editDecisionsForm.splice(idx, 1)"
+            class="p-1.5 text-red-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-all flex-shrink-0 cursor-pointer"
+          >
+            <PhX :size="16" weight="bold" />
+          </button>
+        </div>
+        <div v-if="editDecisionsForm.length === 0" class="text-sm text-brand-slate italic py-4 text-center">
+          No decisions yet. Click below to add one.
+        </div>
+        <Button variant="outline" @click="addEditDecision" class="w-full">
+          + Add Decision
+        </Button>
+      </div>
+      <div class="flex justify-end gap-3 mt-4 border-t border-black/5 dark:border-white/10 pt-4">
+        <Button variant="outline" @click="showEditDecisionsModal = false">Cancel</Button>
+        <Button variant="primary" :disabled="isSavingDecisions" @click="saveEditDecisions">
+          <span v-if="isSavingDecisions" class="w-3.5 h-3.5 border-2 border-current border-t-transparent rounded-full animate-spin mr-2"></span>
+          {{ isSavingDecisions ? 'Saving...' : 'Save Changes' }}
+        </Button>
+      </div>
+    </Modal>
   </div>
 </template>
 
@@ -357,7 +527,8 @@ import {
   PhFilePdf,
   PhTrash,
   PhWarningCircle,
-  PhPencilSimple
+  PhPencilSimple,
+  PhX
 } from '@phosphor-icons/vue'
 import { useMeetingStore } from '@/stores/meeting'
 import { useRouter } from 'vue-router'
@@ -447,6 +618,120 @@ const saveMeetingDetails = async () => {
     }
   }
   showEditMeetingModal.value = false
+}
+
+const showEditSummaryModal = ref(false)
+const editSummaryText = ref('')
+const isSavingSummary = ref(false)
+
+const openEditSummaryModal = () => {
+  editSummaryText.value = selectedSummary.value
+  showEditSummaryModal.value = true
+}
+
+const saveEditSummary = async () => {
+  const id = meetingStore.selectedMeeting?._id || meetingStore.selectedMeeting?.id
+  if (!id) return
+  isSavingSummary.value = true
+  try {
+    const res = await meetingStore.updateMeetingSummary(id, editSummaryText.value)
+    if (res.success) {
+      meetingStore.selectedMeeting.summary = editSummaryText.value
+      meetingStore.selectedMeeting.bullets = editSummaryText.value
+        .split('. ')
+        .filter(Boolean)
+        .map(b => b + '.')
+      await alertStore.showAlert('Executive summary updated successfully.', 'Summary Updated', 'success')
+    }
+  } catch (err) {
+    console.error('Failed to update summary:', err)
+    await alertStore.showAlert('Failed to update executive summary.', 'Error', 'danger')
+  } finally {
+    isSavingSummary.value = false
+    showEditSummaryModal.value = false
+  }
+}
+
+const showEditTasksModal = ref(false)
+const editTasksForm = ref([])
+const isSavingTasks = ref(false)
+
+const openEditTasksModal = () => {
+  editTasksForm.value = (meetingStore.selectedMeeting?.tasks || []).map(t => ({
+    title: t.title || '',
+    assignedTo: t.assignee || 'Unassigned',
+    priority: t.priority === 'HIGH' ? 'high' : t.priority === 'MED' ? 'medium' : 'low',
+    status: t.checked ? 'done' : 'open',
+  }))
+  showEditTasksModal.value = true
+}
+
+const addEditTask = () => {
+  editTasksForm.value.push({ title: '', assignedTo: 'Unassigned', priority: 'medium', status: 'open' })
+}
+
+const saveEditTasks = async () => {
+  const id = meetingStore.selectedMeeting?._id || meetingStore.selectedMeeting?.id
+  if (!id) return
+  isSavingTasks.value = true
+  try {
+    const res = await meetingStore.updateMeetingTasks(id, editTasksForm.value)
+    if (res.success) {
+      meetingStore.selectedMeeting.tasks = res.tasks.map(t => ({
+        id: t._id,
+        title: t.title,
+        assignee: t.assignedTo || 'Unassigned',
+        priority: t.priority === 'high' ? 'HIGH' : t.priority === 'medium' ? 'MED' : 'LOW',
+        checked: t.status === 'done',
+        _id: t._id
+      }))
+      await alertStore.showAlert('Action items updated successfully.', 'Tasks Updated', 'success')
+    }
+  } catch (err) {
+    console.error('Failed to update tasks:', err)
+    await alertStore.showAlert('Failed to update action items.', 'Error', 'danger')
+  } finally {
+    isSavingTasks.value = false
+    showEditTasksModal.value = false
+  }
+}
+
+const showEditDecisionsModal = ref(false)
+const editDecisionsForm = ref([])
+const isSavingDecisions = ref(false)
+
+const openEditDecisionsModal = () => {
+  editDecisionsForm.value = (meetingStore.selectedMeeting?.decisions || []).map(d => ({
+    text: d.text || '',
+    confidence: d.status === 'APPROVED' ? 0.8 : 0.5,
+  }))
+  showEditDecisionsModal.value = true
+}
+
+const addEditDecision = () => {
+  editDecisionsForm.value.push({ text: '', confidence: 0.8 })
+}
+
+const saveEditDecisions = async () => {
+  const id = meetingStore.selectedMeeting?._id || meetingStore.selectedMeeting?.id
+  if (!id) return
+  isSavingDecisions.value = true
+  try {
+    const res = await meetingStore.updateMeetingDecisions(id, editDecisionsForm.value)
+    if (res.success) {
+      meetingStore.selectedMeeting.decisions = res.decisions.map(d => ({
+        status: d.confidence >= 0.7 ? 'APPROVED' : 'PENDING REVIEW',
+        text: d.text,
+      }))
+      await alertStore.showAlert('Decisions updated successfully.', 'Decisions Updated', 'success')
+    }
+  } catch (err) {
+    console.error('Failed to update decisions:', err)
+    await alertStore.showAlert('Failed to update decisions.', 'Error', 'danger')
+  } finally {
+    isSavingDecisions.value = false
+    showEditDecisionsModal.value = false
+  }
 }
 
 onMounted(async () => {
