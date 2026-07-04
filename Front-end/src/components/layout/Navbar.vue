@@ -171,7 +171,7 @@
         <div ref="notificationsRef" class="relative">
           <button
             @click="isNotificationsOpen = !isNotificationsOpen"
-            class="group bg-black/5 border border-white/10 rounded-full flex items-center justify-center w-9 h-9 cursor-pointer relative text-brand-slate transition-all duration-300 hover:bg-primary/5 hover:border-primary/15 hover:text-primary hover:scale-105 focus:outline-none"
+            class="group bg-black/5 border border-black/10 rounded-full flex items-center justify-center w-9 h-9 cursor-pointer relative text-brand-slate transition-all duration-300 hover:bg-primary/5 hover:border-primary/15 hover:text-primary hover:scale-105 focus:outline-none"
             aria-label="Notifications"
           >
             <PhBell

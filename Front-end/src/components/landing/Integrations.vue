@@ -6,11 +6,11 @@
       </span>
       
       <h2 class="text-3xl sm:text-5xl font-header font-bold text-brand-dark tracking-tight mb-5 leading-tight">
-        Connects with your stack.
+        Coming soon — connects with your stack.
       </h2>
       
       <p class="text-base sm:text-lg text-brand-slate font-body leading-relaxed max-w-[550px] mx-auto">
-        Push transcripts, action items, tags, and context directly into the tools your product and engineering teams already live in.
+        Soon you'll be able to push transcripts, action items, tags, and context directly into the tools your product and engineering teams already live in. These integrations are currently in development.
       </p>
     </div>
 
@@ -23,7 +23,7 @@
           <img src="../../assets/Google_Meet_icon_(2020).svg.png" alt="Google Meet" class="integration-logo" />
         </div>
         <span class="integration-name">Google Meet</span>
-        <span class="coming-soon">Auto-sync</span>
+        <span class="coming-soon">Coming Soon</span>
       </div>
 
       <!-- Slack -->
@@ -32,7 +32,7 @@
           <img src="../../assets/slack.png" alt="Slack" class="integration-logo" />
         </div>
         <span class="integration-name">Slack</span>
-        <span class="coming-soon">Instant Alerts</span>
+        <span class="coming-soon">Coming Soon</span>
       </div>
 
       <!-- Notion -->
@@ -41,7 +41,7 @@
           <img src="../../assets/Notion-logo.svg.png" alt="Notion" class="integration-logo" />
         </div>
         <span class="integration-name">Notion DB</span>
-        <span class="coming-soon">Knowledge Wiki</span>
+        <span class="coming-soon">Coming Soon</span>
       </div>
 
       <!-- Salesforce -->
@@ -50,7 +50,7 @@
           <img src="../../assets/Salesforce.com_logo.svg.png" alt="Salesforce" class="integration-logo animate-float" />
         </div>
         <span class="integration-name">Salesforce CRM</span>
-        <span class="coming-soon">Contact Link</span>
+        <span class="coming-soon">Coming Soon</span>
       </div>
 
     </div>
