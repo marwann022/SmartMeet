@@ -49,9 +49,9 @@ export const translateTranscriptToEnglish = async (transcript) => {
                     - Team Members:
                       * "Marwan" (often transcribed as "Maron", "mroan", "مروان")
                       * "Youssef" (often transcribed as "use of", "Yusuf", "يوسف")
-                      * "Hana" (often transcribed as "Hana", "هنا")
-                      * "Ebrahim" (often transcribed as "Rahim", "use of Rahim", "ebrahim", "ابراهيم")
-                      * "Zena" (often transcribed as "Zinn", "zena", "زينة")
+                      * "Hana" (often transcribed as "Hannah", "Anna", "Hana", "هنا")
+                      * "Ebrahim" (often transcribed as "Ibrahim", "Rahim", "use of Rahim", "ebrahim", "ابراهيم")
+                      * "Zena" (often transcribed as "Zinn", "zena", "زينة", "Xena", "Sina")
                       * "Ahmed" (often transcribed as "ahmed", "أحمد")
                       * "Sara" (often transcribed as "sara", "سارة")
                     
