@@ -37,22 +37,6 @@
       <div class="h-px bg-black/5 dark:bg-white/8"></div>
       <General />
     </div>
-
-    <!-- Notifications Section -->
-    <div class="flex flex-col gap-6">
-      <div class="flex items-center gap-4">
-        <div class="w-12 h-12 rounded-2xl bg-primary/8 border border-primary/15 flex items-center justify-center text-primary flex-shrink-0">
-          <PhBell :size="24" weight="bold" />
-        </div>
-        <div class="flex flex-col gap-0.5">
-          <h3 class="font-header font-bold text-2xl text-brand-dark tracking-tight">Notifications</h3>
-          <p class="text-sm text-brand-slate">Control email alerts, meeting reminders, and push notification preferences.</p>
-        </div>
-      </div>
-      <div class="h-px bg-black/5 dark:bg-white/8"></div>
-      <Notifications />
-    </div>
-
     <!-- Subscription Section -->
     <div class="flex flex-col gap-6 pb-12">
       <div class="flex items-center gap-4">
@@ -74,13 +58,11 @@
 import {
   PhGauge,
   PhUserCircle,
-  PhBell,
   PhCreditCard
 } from '@phosphor-icons/vue'
 
 import General from '@/components/settings/General.vue'
 import Profile from '@/components/settings/Profile.vue'
-import Notifications from '@/components/settings/Notifications.vue'
 import Subscription from '@/components/settings/Subscription.vue'
 </script>
 
