@@ -27,6 +27,7 @@ const formatDuration = (minutes) => {
 
 export const useMeetingStore = defineStore('meeting', () => {
   const meetings = ref([])
+  const meetingCount = ref(0)
   const loading = ref(false)
   const error = ref(null)
 
@@ -88,12 +89,27 @@ export const useMeetingStore = defineStore('meeting', () => {
       const { data } = await axios.get(`${API}/meetings`, getHeaders())
       if (data.success) {
         meetings.value = (data.meetings || []).map(transformMeeting)
+        meetingCount.value = meetings.value.length
       }
     } catch (err) {
       console.error('Failed to fetch meetings:', err)
       error.value = 'Failed to load meetings.'
     } finally {
       loading.value = false
+    }
+  }
+
+  const fetchMeetingCount = async () => {
+    try {
+      const token = localStorage.getItem('token')
+      if (!token) return
+      const { data } = await axios.get(`${API}/meetings/count`, getHeaders())
+      if (data.success) {
+        meetingCount.value = data.count
+      }
+    } catch (err) {
+      console.error('Failed to fetch meeting count:', err)
+      meetingCount.value = meetings.value.length
     }
   }
 
@@ -275,12 +291,14 @@ export const useMeetingStore = defineStore('meeting', () => {
 
   return {
     meetings,
+    meetingCount,
     loading,
     error,
     upcomingMeetings,
     selectedMeeting,
     activeLiveMeeting,
     fetchMeetings,
+    fetchMeetingCount,
     fetchMeeting,
     fetchMeetingDetails,
     createMeeting,

@@ -256,6 +256,7 @@
         <div>
           <h2 class="text-3xl font-bold font-header text-brand-dark tracking-tight">Archive</h2>
           <p class="text-sm text-brand-slate mt-1">Review past intelligence-enabled meetings and action items</p>
+          <p class="text-xs text-brand-slate/60 mt-1 font-medium">{{ meetingStore.meetings.length }} meeting{{ meetingStore.meetings.length === 1 ? '' : 's' }} total</p>
         </div>
         <div class="flex items-center gap-4 flex-shrink-0 w-full sm:w-auto">
           <SearchBar v-model="localSearchQuery" placeholder="Search meetings..." class="w-64" />

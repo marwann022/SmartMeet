@@ -2,8 +2,9 @@ import mongoose from "mongoose";
 import Meeting from "../models/Meeting.js";
 import Task from "../models/Task.js";
 import User from "../models/User.js";
-import ChatMessage from "../models/ChatMessage.js"; // Assuming ChatMessage is used
+import ChatMessage from "../models/ChatMessage.js";
 import Community from "../models/Community.js";
+import { buildMeetingOrClauses, getCommunityAdminIds } from "../utils/meetingVisibility.js";
 
 // @desc    Get comprehensive team analytics
 // @route   GET /api/dashboard/team-analytics
@@ -52,15 +53,10 @@ export const getTeamAnalytics = async (req, res) => {
         const performanceScore = Math.max(0, completionRate - (overdueTasks * 2));
 
         // 2. Meetings Analytics & Attendance
-        let meetings;
-        if (isAdmin) {
-            meetings = await Meeting.find({ community: communityId });
-        } else {
-            meetings = await Meeting.find({
-                $or: [{ host: userId }, { "participants.email": req.user.email }],
-                community: communityId
-            });
-        }
+        const communityRawId = communityId?._id || communityId;
+        const sameCommunityAdminIds = await getCommunityAdminIds(User, communityRawId);
+        const orClauses = buildMeetingOrClauses(req.user, sameCommunityAdminIds);
+        const meetings = await Meeting.find({ $or: orClauses });
 
         let totalMeetings = meetings.length;
         let meetingsThisWeek = 0;

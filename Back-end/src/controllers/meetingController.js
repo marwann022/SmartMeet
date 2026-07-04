@@ -16,6 +16,7 @@ import {
     generateAndStoreEmbeddings,
 } from "../services/knowledgeStorageService.js";
 import { syncMeetingTasksAndNotifications } from "../services/postMeetingService.js";
+import { buildMeetingOrClauses, getCommunityAdminIds } from "../utils/meetingVisibility.js";
 import crypto from "crypto";
 import fs from "fs/promises";
 import path from "path";
@@ -159,6 +160,18 @@ export const createMeeting = async (req, res) => {
     }
 };
 
+export const getMeetingCount = async (req, res) => {
+    try {
+        const communityId = req.user.community?._id || req.user.community;
+        const sameCommunityAdminIds = await getCommunityAdminIds(User, communityId);
+        const orClauses = buildMeetingOrClauses(req.user, sameCommunityAdminIds);
+        const count = await Meeting.countDocuments({ $or: orClauses });
+        res.status(200).json({ success: true, count });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
 export const getMeetings = async (req, res) => {
     try {
         const communityId = req.user.community?._id || req.user.community;
@@ -168,40 +181,7 @@ export const getMeetings = async (req, res) => {
             sameCommunityAdminIds = admins.map(a => a._id);
         }
 
-        const isReqUserAdmin = req.user.role === 'admin';
-        const orClauses = [];
-
-        if (isReqUserAdmin) {
-            // Admin can see:
-            // 1. Meetings they hosted
-            // 2. Meetings hosted by anyone where the admin is a participant AND meeting type is NOT "Team"
-            orClauses.push({ host: req.user._id });
-            orClauses.push({
-                $or: [
-                    { "participants.email": req.user.email },
-                    { "participants.name": req.user.name },
-                    { "participants.name": `${req.user.firstName} ${req.user.lastName}`.trim() }
-                ],
-                type: { $ne: "Team" }
-            });
-        } else {
-            // Member can see:
-            // 1. Meetings they hosted
-            // 2. Meetings where they are a participant (Personal or Team)
-            // 3. Team meetings hosted by admins of their community
-            orClauses.push({ host: req.user._id });
-            orClauses.push({ "participants.email": req.user.email });
-            orClauses.push({ "participants.name": req.user.name });
-            orClauses.push({ "participants.name": `${req.user.firstName} ${req.user.lastName}`.trim() });
-
-            if (sameCommunityAdminIds.length > 0) {
-                orClauses.push({
-                    host: { $in: sameCommunityAdminIds },
-                    type: "Team"
-                });
-            }
-        }
-
+        const orClauses = buildMeetingOrClauses(req.user, sameCommunityAdminIds);
         const meetings = await Meeting.find({ $or: orClauses })
             .populate("host", "firstName lastName name email role")
             .sort({ startTime: -1, createdAt: -1 });
@@ -215,46 +195,8 @@ export const getMeetings = async (req, res) => {
 export const getMeeting = async (req, res) => {
     try {
         const communityId = req.user.community?._id || req.user.community;
-        let sameCommunityAdminIds = [];
-        if (communityId) {
-            const admins = await User.find({ community: communityId, role: 'admin' }).select('_id');
-            sameCommunityAdminIds = admins.map(a => a._id);
-        }
-
-        const isReqUserAdmin = req.user.role === 'admin';
-        const orClauses = [];
-
-        if (isReqUserAdmin) {
-            // Admin can see:
-            // 1. Meetings they hosted
-            // 2. Meetings hosted by anyone where the admin is a participant AND meeting type is NOT "Team"
-            orClauses.push({ host: req.user._id });
-            orClauses.push({
-                $or: [
-                    { "participants.email": req.user.email },
-                    { "participants.name": req.user.name },
-                    { "participants.name": `${req.user.firstName} ${req.user.lastName}`.trim() }
-                ],
-                type: { $ne: "Team" }
-            });
-        } else {
-            // Member can see:
-            // 1. Meetings they hosted
-            // 2. Meetings where they are a participant (Personal or Team)
-            // 3. Team meetings hosted by admins of their community
-            orClauses.push({ host: req.user._id });
-            orClauses.push({ "participants.email": req.user.email });
-            orClauses.push({ "participants.name": req.user.name });
-            orClauses.push({ "participants.name": `${req.user.firstName} ${req.user.lastName}`.trim() });
-
-            if (sameCommunityAdminIds.length > 0) {
-                orClauses.push({
-                    host: { $in: sameCommunityAdminIds },
-                    type: "Team"
-                });
-            }
-        }
-
+        const sameCommunityAdminIds = await getCommunityAdminIds(User, communityId);
+        const orClauses = buildMeetingOrClauses(req.user, sameCommunityAdminIds);
         const meeting = await Meeting.findOne({ _id: req.params.id, $or: orClauses })
             .populate("host", "firstName lastName name email role");
 

@@ -11,6 +11,7 @@ import {
     processMeeting,
     liveExtractTask,
     liveExtractDecision,
+    getMeetingCount,
 } from "../controllers/meetingController.js";
 import {
     getMeetingTranscript,
@@ -39,6 +40,8 @@ router.param("id", (req, res, next, id) => {
 router.route("/")
     .post(createMeeting)
     .get(getMeetings);
+
+router.get("/count", getMeetingCount);
 
 router.route("/:id")
     .get(getMeeting)

@@ -170,7 +170,7 @@
         <!-- Notifications Container -->
         <div ref="notificationsRef" class="relative">
           <button
-            @click="isNotificationsOpen = !isNotificationsOpen"
+            @click="toggleNotifications"
             class="group bg-black/5 border border-black/10 rounded-full flex items-center justify-center w-9 h-9 cursor-pointer relative text-brand-slate transition-all duration-300 hover:bg-primary/5 hover:border-primary/15 hover:text-primary hover:scale-105 focus:outline-none"
             aria-label="Notifications"
           >
@@ -294,13 +294,14 @@
                         </p>
                       </div>
 
-                      <!-- Join Meeting button for meeting notifications -->
+                      <!-- Join Meeting / View Archive button for meeting notifications -->
                       <div v-if="notification.type === 'meeting'" class="mt-3">
                         <button
-                          @click.stop="joinMeeting(notification)"
-                          class="px-2.5 py-1 rounded-full bg-primary text-white text-[10px] font-bold transition-all duration-200 hover:scale-105"
+                          @click.stop="handleMeetingNotification(notification)"
+                          class="px-2.5 py-1 rounded-full text-[10px] font-bold transition-all duration-200 hover:scale-105"
+                          :class="getButtonClass(notification)"
                         >
-                          Join Meeting
+                          {{ getButtonLabel(notification) }}
                         </button>
                       </div>
                     </div>
@@ -475,13 +476,65 @@ const handleNotificationClick = (notification) => {
   }
 };
 
-const joinMeeting = async (notification) => {
+const meetingStatusCache = ref({})
+
+const getButtonLabel = (notification) => {
+  const status = meetingStatusCache.value[notification.relatedId]
+  if (status === 'completed') return 'View Archive'
+  return 'Join Meeting'
+}
+
+const getButtonClass = (notification) => {
+  const status = meetingStatusCache.value[notification.relatedId]
+  if (status === 'completed') return 'bg-primary/10 text-primary'
+  return 'bg-primary text-white'
+}
+
+const loadMeetingStatuses = async () => {
+  const promises = []
+  for (const n of notifications.value) {
+    if (n.type !== 'meeting') continue
+    const mid = n.relatedId
+    if (meetingStatusCache.value[mid]) continue
+
+    const cached = meetingStore.meetings.find(m => m._id === mid || m.id === mid)
+    if (cached) {
+      meetingStatusCache.value[mid] = cached.status
+      continue
+    }
+
+    meetingStatusCache.value[mid] = 'loading'
+    promises.push(
+      meetingStore.fetchMeeting(mid)
+        .then(meeting => { meetingStatusCache.value[mid] = meeting?.status || 'unknown' })
+        .catch(() => { meetingStatusCache.value[mid] = 'unknown' })
+    )
+  }
+  if (promises.length > 0) await Promise.all(promises)
+}
+
+const toggleNotifications = async () => {
+  isNotificationsOpen.value = !isNotificationsOpen.value
+  if (isNotificationsOpen.value) {
+    loadMeetingStatuses()
+  }
+}
+
+const handleMeetingNotification = async (notification) => {
   await notificationStore.markAsRead(notification.id)
   isNotificationsOpen.value = false
 
   try {
     const meeting = await meetingStore.fetchMeeting(notification.relatedId)
     if (!meeting) {
+      router.push('/archive')
+      return
+    }
+
+    meetingStatusCache.value[notification.relatedId] = meeting.status
+
+    if (meeting.status === 'completed') {
+      meetingStore.selectedMeeting = meeting
       router.push('/archive')
       return
     }
@@ -587,6 +640,7 @@ onMounted(() => {
   document.addEventListener("click", handleClickOutside);
   if (authenticated.value) {
     notificationStore.fetchNotifications();
+    loadMeetingStatuses();
 
     const token = localStorage.getItem("token")
     if (token) {
@@ -594,6 +648,7 @@ onMounted(() => {
       notifSocket = connectChatSocket(token, sessionId)
       notifSocket.on("meeting:notification", () => {
         notificationStore.fetchNotifications()
+        loadMeetingStatuses()
       })
     }
   }
