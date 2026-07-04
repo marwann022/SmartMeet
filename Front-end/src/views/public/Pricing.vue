@@ -76,23 +76,6 @@
           20% OFF
         </div>
       </div>
-
-      <div class="flex flex-wrap justify-center gap-8 py-4">
-        <div class="text-center">
-          <p class="text-3xl font-bold text-brand-dark">2,500+</p>
-          <p class="text-sm text-brand-slate">Teams</p>
-        </div>
-
-        <div class="text-center">
-          <p class="text-3xl font-bold text-brand-dark">40K+</p>
-          <p class="text-sm text-brand-slate">Meetings</p>
-        </div>
-
-        <div class="text-center">
-          <p class="text-3xl font-bold text-brand-dark">120K+</p>
-          <p class="text-sm text-brand-slate">Actions Generated</p>
-        </div>
-      </div>
     </section>
 
     <!-- ═══════════════ PRICING CARDS ═══════════════ -->

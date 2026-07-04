@@ -47,25 +47,6 @@
             Explore Features
           </Button>
         </div>
-
-        <!-- Stats row -->
-        <div
-          class="flex flex-wrap items-center justify-center gap-8 mt-4 pt-6 border-t border-black/6 dark:border-white/5 w-full max-w-xl"
-        >
-          <div
-            v-for="stat in heroStats"
-            :key="stat.label"
-            class="flex flex-col items-center gap-0.5"
-          >
-            <span class="text-2xl font-extrabold font-header text-primary">{{
-              stat.value
-            }}</span>
-            <span
-              class="text-[10px] text-brand-slate uppercase tracking-widest font-bold"
-              >{{ stat.label }}</span
-            >
-          </div>
-        </div>
       </div>
     </section>
 

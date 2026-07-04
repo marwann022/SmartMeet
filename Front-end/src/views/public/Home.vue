@@ -5,11 +5,9 @@
     <BentoGrid />
 
     <Workflow />
-
-    <Integrations />
-
+    
     <Testimonials />
-
+    
     <!-- Closing CTA Section (Light Premium Theme) -->
     <section>
       <div class="w-full mx-auto px-4 text-center relative z-10">
@@ -122,6 +120,8 @@
         </div>
       </div>
     </section>
+
+    <Integrations />
   </div>
 </template>
 
