@@ -15,6 +15,7 @@ import "dotenv/config";
 import mongoose from "mongoose";
 import connectDB from "../config/db.js";
 import User from "../models/User.js";
+import Community from "../models/Community.js";
 
 const ADMIN_EMAIL = "marwanelgammal5@outlook.com";
 
@@ -78,9 +79,24 @@ const run = async () => {
         process.exit(1);
     }
 
-    const communityId = admin.community;
+    let communityId = admin.community;
+    let commDoc = communityId ? await Community.findById(communityId) : null;
+    if (!commDoc) {
+        const cryptoModule = await import("crypto");
+        const code = "SM-" + cryptoModule.default.randomBytes(3).toString("hex").toUpperCase();
+        commDoc = await Community.create({
+            name: `${(admin.name || admin.firstName || "Admin").trim()}'s Community`,
+            code,
+            owner: admin._id,
+        });
+        communityId = commDoc._id;
+        admin.community = communityId;
+        await admin.save();
+        console.log(`✓ Created new Community: ${commDoc.name} (${commDoc.code})`);
+    }
+
     console.log(`✓ Found admin: ${admin.firstName} ${admin.lastName} (${admin.email})`);
-    console.log(`✓ Community  : ${communityId || "(none — members will have no community until admin sets one up)"}\n`);
+    console.log(`✓ Community  : ${communityId}\n`);
 
     // Step 2: Upsert each member
     console.log("👤 Seeding team members...");

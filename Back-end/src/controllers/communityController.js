@@ -74,22 +74,41 @@ export const getDashboardStats = async (req, res) => {
 // GET /api/communities/overview
 export const getCommunityOverview = async (req, res) => {
     try {
-        if (!req.user.community) {
-            return res.status(400).json({
-                success: false,
-                message: "No community assigned to this account.",
-            });
-        }
-
-        const communityId = req.user.community;
+        let communityId = req.user.community;
         const isAdmin = req.user.role === "admin";
 
-        const [communityDoc, totalMembers] = await Promise.all([
-            Community.findById(communityId)
+        let communityDoc = null;
+        if (communityId) {
+            communityDoc = await Community.findById(communityId)
                 .populate("owner", "firstName lastName email")
-                .select("name code description owner createdAt"),
-            User.countDocuments({ community: communityId, status: "active" }),
-        ]);
+                .select("name code description owner createdAt");
+        }
+
+        // If community document is missing or not assigned, auto-create for admin or return error for member
+        if (!communityDoc) {
+            if (isAdmin) {
+                const cryptoModule = await import("crypto");
+                const code = "SM-" + cryptoModule.default.randomBytes(3).toString("hex").toUpperCase();
+                const newComm = await Community.create({
+                    name: `${(req.user.name || req.user.firstName || "Admin").trim()}'s Community`,
+                    code,
+                    owner: req.user._id,
+                });
+                req.user.community = newComm._id;
+                await User.updateOne({ _id: req.user._id }, { community: newComm._id });
+                communityId = newComm._id;
+                communityDoc = await Community.findById(newComm._id)
+                    .populate("owner", "firstName lastName email")
+                    .select("name code description owner createdAt");
+            } else {
+                return res.status(404).json({
+                    success: false,
+                    message: "No active community found. Please contact your admin.",
+                });
+            }
+        }
+
+        const totalMembers = await User.countDocuments({ community: communityId, status: "active" });
 
         let activeTasks = 0;
         let pendingInvitations = 0;
@@ -141,23 +160,25 @@ export const getCommunityOverview = async (req, res) => {
         res.status(200).json({
             success: true,
             role: req.user.role,
-            community: {
-                _id: communityDoc._id,
-                name: communityDoc.name,
-                code: communityDoc.code,
-                description: communityDoc.description,
-                owner: communityDoc.owner
-                    ? {
-                          _id: communityDoc.owner._id,
-                          name: `${communityDoc.owner.firstName} ${communityDoc.owner.lastName}`.trim(),
-                          email: communityDoc.owner.email,
-                      }
-                    : null,
-                createdAt: communityDoc.createdAt,
-                memberCount: totalMembers,
-            },
+            community: communityDoc
+                ? {
+                      _id: communityDoc._id,
+                      name: communityDoc.name,
+                      code: communityDoc.code,
+                      description: communityDoc.description,
+                      owner: communityDoc.owner
+                          ? {
+                                _id: communityDoc.owner._id,
+                                name: `${communityDoc.owner.firstName || ''} ${communityDoc.owner.lastName || ''}`.trim() || communityDoc.owner.email,
+                                email: communityDoc.owner.email,
+                            }
+                          : null,
+                      createdAt: communityDoc.createdAt,
+                      memberCount: totalMembers,
+                  }
+                : null,
             stats: isAdmin
-                ? { totalMembers, activeTasks, pendingInvitations, communityCode: communityDoc.code }
+                ? { totalMembers, activeTasks, pendingInvitations, communityCode: communityDoc?.code || "" }
                 : {
                       totalMembers,
                       myTasks,

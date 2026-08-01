@@ -113,11 +113,7 @@
               >
                 <td class="py-3 pr-4">
                   <div class="flex items-center gap-3">
-                    <img
-                      :src="m.avatar"
-                      :alt="m.name"
-                      class="w-9 h-9 rounded-full object-cover"
-                    />
+                    <UserAvatar :name="m.name" :avatar="m.avatar" :email="m.email" size="md" />
 
                     <span class="font-bold text-brand-dark">
                       {{ m.name }}
@@ -421,11 +417,7 @@
               >
                 <td class="py-3 pr-4">
                   <div class="flex items-center gap-3">
-                    <img
-                      :src="m.avatar"
-                      :alt="m.name"
-                      class="w-9 h-9 rounded-full object-cover"
-                    />
+                    <UserAvatar :name="m.name" :avatar="m.avatar" :email="m.email" size="md" />
                     <span class="font-bold text-brand-dark">
                       {{ m.name }}
                     </span>
@@ -518,6 +510,7 @@ import {
 } from "@phosphor-icons/vue";
 import Select from "../ui/Select.vue";
 import RoleBadge from "../common/RoleBadge.vue";
+import UserAvatar from "../common/UserAvatar.vue";
 
 import Toast from "../ui/Toast.vue";
 import { useToasts } from "../../composables/useToasts";
