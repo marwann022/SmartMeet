@@ -28,6 +28,13 @@ export const protect = async(req, res, next) => {
 
         req.user = await User.findById(decoded.id);
 
+        if (!req.user) {
+            return res.status(401).json({
+                success: false,
+                message: "Not authorized, user not found",
+            });
+        }
+
         if (decoded.sessionId) {
             req.sessionId = decoded.sessionId;
             Session.updateOne(

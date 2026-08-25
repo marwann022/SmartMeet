@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "export-pages": "node scripts/export-pages.js"
   },
   "repository": {
     "type": "git",
@@ -17,5 +18,9 @@
   "bugs": {
     "url": "https://github.com/marwann022/SmartMeet/issues"
   },
-  "homepage": "https://github.com/marwann022/SmartMeet#readme"
+  "homepage": "https://github.com/marwann022/SmartMeet#readme",
+  "devDependencies": {
+    "playwright": "^1.62.1",
+    "sharp": "^0.35.3"
+  }
 }

@@ -55,15 +55,14 @@ actionItemSchema.index({ title: "text", description: "text", assignedTo: "text" 
 
 // Validator: Reject placeholder deadline strings — deadline must be a real Date or absent
 const DEADLINE_PLACEHOLDER_STRINGS = ["tbd", "to be determined", "n/a", "none", "unknown"];
-actionItemSchema.pre("save", function (next) {
+actionItemSchema.pre("save", function () {
     if (this.deadline) {
         // If stored as a string (shouldn't happen with Date type, but guard anyway)
         const asStr = String(this.deadline).trim().toLowerCase();
         if (DEADLINE_PLACEHOLDER_STRINGS.includes(asStr)) {
-            return next(new Error(`ActionItem deadline cannot be a placeholder string ("${this.deadline}"). Provide a real date or leave the field empty.`));
+            throw new Error(`ActionItem deadline cannot be a placeholder string ("${this.deadline}"). Provide a real date or leave the field empty.`);
         }
     }
-    next();
 });
 
 const ActionItem = mongoose.model("ActionItem", actionItemSchema);

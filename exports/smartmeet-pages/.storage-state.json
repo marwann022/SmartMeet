@@ -1,0 +1,22 @@
+{
+  "cookies": [],
+  "origins": [
+    {
+      "origin": "http://localhost:5173",
+      "localStorage": [
+        {
+          "name": "user",
+          "value": "{\"id\":\"650000000000000000000001\",\"_id\":\"650000000000000000000001\",\"firstName\":\"Marwan\",\"lastName\":\"Elgammal\",\"name\":\"Marwan Elgammal\",\"email\":\"marwanelgammal5@outlook.com\",\"role\":\"admin\",\"status\":\"approved\"}"
+        },
+        {
+          "name": "token",
+          "value": "mock-jwt-token-smartmeet-exporter"
+        },
+        {
+          "name": "sessionId",
+          "value": "export-session-123"
+        }
+      ]
+    }
+  ]
+}
